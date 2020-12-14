@@ -1,5 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
 import { Company, CompanyStatus } from '../entity/Company';
+import { ApiError, HTTPStatus } from '../error';
 
 export interface CompanyParams {
   name: string;
@@ -15,6 +16,14 @@ export default class CompanyService {
 
   constructor() {
     this.repo = getRepository(Company);
+  }
+
+  async get(id: number): Promise<Company> {
+    const company = await this.repo.findOne(id, { relations: ['agreements'] });
+    if (company === undefined) {
+      throw new ApiError(HTTPStatus.NotFound, 'Company not found');
+    }
+    return company;
   }
 
   create(params: CompanyParams): Promise<Company> {
