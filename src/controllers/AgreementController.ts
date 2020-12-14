@@ -1,11 +1,12 @@
 import {
   Body,
-  Controller, Post, Route, Put, Get,
+  Controller, Post, Route, Put, Get, Tags,
 } from 'tsoa';
 import { Agreement } from '../entity/Agreement';
 import AgreementService, { AgreementParams } from '../services/AgreementService';
 
 @Route('agreement')
+@Tags('Agreement')
 export class AgreementController extends Controller {
   @Get('{id}')
   public async getAgreement(id: number): Promise<Agreement> {
