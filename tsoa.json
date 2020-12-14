@@ -1,0 +1,24 @@
+{
+  "entryFile": "./src/index.ts",
+  "noImplicitAdditionalProperties": "silently-remove-extras",
+  "spec": {
+    "outputDirectory": "./src/public",
+    "host": "localhost:3000",
+    "schemes": [
+      "http",
+      "https"
+    ],
+    "basePath": "/api",
+    "securityDefinitions": {},
+    "specVersion": 3,
+    "specMerging": "recursive",
+    "spec": {
+      "paths": {}
+    }
+  },
+  "routes": {
+    "basePath": "/api",
+    "routesDir": "./src",
+    "middleware": "express"
+  }
+}

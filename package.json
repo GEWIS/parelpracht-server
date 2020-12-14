@@ -1,0 +1,53 @@
+{
+  "name": "crm-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "debug": "npm run clean && npm run tsoa && tsc && concurrently \"npm:build:dev\" \"npm:start:debug\" \"npm:tsoa:dev\"",
+    "dev": "npm run clean && npm run tsoa && tsc && concurrently \"npm:build:dev\" \"npm:start:dev\" \"npm:tsoa:dev\"",
+    "start:dev": "nodemon dist/index.js",
+    "start:debug": "nodemon --inspect dist/index.js",
+    "build:dev": "tsc --watch --preserveWatchOutput",
+    "tsoa:dev": "chokidar \"src/controllers/**/*.ts\" \"src/models/**/*.ts\" -c \"tsoa routes && tsoa spec\"",
+    "tsoa": "tsoa routes && tsoa spec",
+    "build": "npm run clean && npm run build-server && npm run build-client",
+    "clean": "rimraf \"dist/\" \"tsconfig.tsbuildinfo\"",
+    "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../crm-client/src/clients/server.generated.ts /ServiceHost:.",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Koen de Nooij",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "helmet": "^4.2.0",
+    "lodash": "^4.17.20",
+    "method-override": "^3.0.0",
+    "passport": "^0.4.1",
+    "pg": "^8.5.1",
+    "reflect-metadata": "^0.1.13",
+    "strong-error-handler": "^4.0.0",
+    "swagger-ui-express": "^4.1.4",
+    "tsoa": "^3.4.0",
+    "typeorm": "^0.2.29"
+  },
+  "devDependencies": {
+    "@types/method-override": "0.0.31",
+    "@types/node": "^14.14.13",
+    "@types/swagger-ui-express": "^4.1.2",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "chokidar-cli": "^2.1.0",
+    "concurrently": "^5.3.0",
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb-typescript": "^12.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "nodemon": "^2.0.6",
+    "typescript": "^4.1.3"
+  }
+}
