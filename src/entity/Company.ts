@@ -2,7 +2,13 @@ import {
   Column, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn,
 } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
-import { Agreement } from './Agreement';
+import { Contact } from './Contact';
+// eslint-disable-next-line import/no-cycle
+import { Contract } from './Contract';
+// eslint-disable-next-line import/no-cycle
+import { Invoice } from './Invoice';
+// eslint-disable-next-line import/no-cycle
+import { Status } from './Status';
 
 export enum CompanyStatus {
   ACTIVE = 'ACTIVE',
@@ -39,8 +45,15 @@ export class Company {
   @Column({ nullable: true })
   endDate?: Date;
 
-  @OneToMany(() => Agreement, (agreement) => agreement.company)
-  agreements!: Agreement[];
+  @OneToMany(() => Contract, (contract) => contract.company)
+  contracts!: Contract[];
 
-  // TODO: add contact persons
+  @OneToMany(() => Invoice, (invoice) => invoice.company)
+  invoices!: Invoice[];
+
+  @OneToMany(() => Contact, (contact) => contact.company)
+  contacts!: Contact[];
+
+  @OneToMany(() => Status, (status) => status.company)
+  statusChanges!: Status[];
 }

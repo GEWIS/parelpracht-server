@@ -16,6 +16,7 @@
     "build": "npm run clean && npm run build-server && npm run build-client",
     "clean": "rimraf \"dist/\" \"tsconfig.tsbuildinfo\"",
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../crm-client/src/clients/server.generated.ts /ServiceHost:.",
+    "db:diagram": "typeorm-uml ormconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Koen de Nooij",
@@ -48,6 +49,7 @@
     "eslint-config-airbnb-typescript": "^12.0.0",
     "eslint-plugin-import": "^2.22.1",
     "nodemon": "^2.0.6",
+    "typeorm-uml": "^1.6.0",
     "typescript": "^4.1.3"
   }
 }

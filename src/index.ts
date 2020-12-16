@@ -14,7 +14,7 @@ import { RegisterRoutes } from './routes';
 import './controllers/RootController';
 import './controllers/ProductController';
 import './controllers/CompanyController';
-import './controllers/AgreementController';
+import './controllers/ContractController';
 
 // Import environment variables
 dotenv.config({ path: '.env' });

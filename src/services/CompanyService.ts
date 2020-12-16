@@ -19,7 +19,7 @@ export default class CompanyService {
   }
 
   async get(id: number): Promise<Company> {
-    const company = await this.repo.findOne(id, { relations: ['agreements'] });
+    const company = await this.repo.findOne(id, { relations: ['contracts'] });
     if (company === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }

@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column, Entity, OneToMany, PrimaryGeneratedColumn,
+} from 'typeorm';
+// eslint-disable-next-line import/no-cycle
+import { ProductInstance } from './ProductInstance';
+// eslint-disable-next-line import/no-cycle
+import { Status } from './Status';
 
 @Entity()
 export class Product {
@@ -28,4 +34,10 @@ export class Product {
 
   @Column('text')
   deliverySpecificationEnglish!: string;
+
+  @OneToMany(() => ProductInstance, (productInstance) => productInstance.product)
+  instances!: ProductInstance[];
+
+  @OneToMany(() => Status, (status) => status.product)
+  statusChanges!: Status[];
 }
