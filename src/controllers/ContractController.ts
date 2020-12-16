@@ -8,6 +8,11 @@ import ContractService, { ContractParams } from '../services/ContractService';
 @Route('contract')
 @Tags('Contract')
 export class ContractController extends Controller {
+  @Get()
+  public async getContracts(): Promise<Contract[]> {
+    return new ContractService().getAll();
+  }
+
   @Get('{id}')
   public async getContract(id: number): Promise<Contract> {
     return new ContractService().get(id);

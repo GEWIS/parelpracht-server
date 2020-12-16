@@ -8,6 +8,11 @@ import CompanyService, { CompanyParams } from '../services/CompanyService';
 @Route('company')
 @Tags('Company')
 export class CompanyController extends Controller {
+  @Get()
+  public async getCompanies(): Promise<Company[]> {
+    return new CompanyService().getAll();
+  }
+
   @Get('{id}')
   public async getCompany(id: number): Promise<Company> {
     return new CompanyService().get(id);

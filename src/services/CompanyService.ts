@@ -26,6 +26,10 @@ export default class CompanyService {
     return company;
   }
 
+  async getAll(): Promise<Company[]> {
+    return this.repo.find();
+  }
+
   create(params: CompanyParams): Promise<Company> {
     let company = new Company();
     company = {

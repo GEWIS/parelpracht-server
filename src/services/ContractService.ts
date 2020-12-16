@@ -25,6 +25,10 @@ export default class ContractService {
     return contract;
   }
 
+  async getAll(): Promise<Contract[]> {
+    return this.repo.find();
+  }
+
   async create(params: ContractParams): Promise<Contract> {
     let contract = new Contract();
     contract = {

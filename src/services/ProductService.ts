@@ -1,5 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
 import { Product } from '../entity/Product';
+import { ApiError, HTTPStatus } from '../error';
 
 export interface ProductParams {
   nameDutch: string;
@@ -17,6 +18,18 @@ export default class ProductService {
 
   constructor() {
     this.repo = getRepository(Product);
+  }
+
+  async get(id: number): Promise<Product> {
+    const product = await this.repo.findOne(id);
+    if (product === undefined) {
+      throw new ApiError(HTTPStatus.NotFound, 'Product not found');
+    }
+    return product;
+  }
+
+  async getAll(): Promise<Product[]> {
+    return this.repo.find();
   }
 
   create(params: ProductParams): Promise<Product> {
