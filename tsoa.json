@@ -3,7 +3,7 @@
   "noImplicitAdditionalProperties": "silently-remove-extras",
   "spec": {
     "outputDirectory": "./src/public",
-    "host": "localhost:3000",
+    "host": "localhost:3001",
     "schemes": [
       "http",
       "https"

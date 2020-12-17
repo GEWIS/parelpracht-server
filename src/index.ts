@@ -19,7 +19,7 @@ import './controllers/ContractController';
 // Import environment variables
 dotenv.config({ path: '.env' });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 createConnection().then(async () => {
   const app = express();

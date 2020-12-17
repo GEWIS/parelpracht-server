@@ -6,6 +6,11 @@ import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
 import { Status } from './Status';
 
+export enum ProductStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
 @Entity()
 export class Product {
   @PrimaryGeneratedColumn('increment')
@@ -34,6 +39,9 @@ export class Product {
 
   @Column('text')
   deliverySpecificationEnglish!: string;
+
+  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.ACTIVE })
+  status!: ProductStatus;
 
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.product)
   instances!: ProductInstance[];

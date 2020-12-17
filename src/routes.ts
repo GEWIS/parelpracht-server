@@ -15,6 +15,11 @@ import * as express from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "ProductStatus": {
+        "dataType": "refEnum",
+        "enums": ["ACTIVE","INACTIVE"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Product": {
         "dataType": "refObject",
         "properties": {
@@ -27,6 +32,7 @@ const models: TsoaRoute.Models = {
             "contractTextEnglish": {"dataType":"string","required":true},
             "deliverySpecificationDutch": {"dataType":"string","required":true},
             "deliverySpecificationEnglish": {"dataType":"string","required":true},
+            "status": {"ref":"ProductStatus","required":true},
             "instances": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
             "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
         },
