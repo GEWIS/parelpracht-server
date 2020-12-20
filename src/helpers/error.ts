@@ -36,3 +36,8 @@ export class ApiError extends Error {
     this.statusCode = StatusToCode[status];
   }
 }
+
+/**
+ * WrappedApiError represents the type returned by the server.
+ */
+export type WrappedApiError = { error: ApiError };

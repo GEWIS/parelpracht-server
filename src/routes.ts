@@ -211,6 +211,22 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ApiError": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "message": {"dataType":"string","required":true},
+            "stack": {"dataType":"string"},
+            "statusCode": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "WrappedApiError": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"error":{"ref":"ApiError","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductParams": {
         "dataType": "refObject",
         "properties": {
@@ -350,6 +366,7 @@ export function RegisterRoutes(app: express.Router) {
         app.post('/api/product',
             function (request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     params: {"in":"body","name":"params","required":true,"ref":"ProductParams"},
             };
 
@@ -372,6 +389,7 @@ export function RegisterRoutes(app: express.Router) {
         app.put('/api/product/:id',
             function (request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_ProductParams_"},
             };
