@@ -3,7 +3,7 @@ import {
   Controller, Post, Route, Put, Tags, Get, Query,
 } from 'tsoa';
 import { Product } from '../entity/Product';
-import ProductService, { ProductParams } from '../services/ProductService';
+import ProductService, { ProductListResponse, ProductParams } from '../services/ProductService';
 import { ListParams } from './ListParams';
 
 @Route('product')
@@ -13,12 +13,12 @@ export class ProductController extends Controller {
   public async getProducts(
     @Query() col?: string,
       @Query() dir?: 'ASC' | 'DESC',
-  ): Promise<Product[]> {
-    const lp: ListParams = {};
-    if (col && dir) {
-      lp.sorting = { column: col, direction: dir };
-    }
-
+      @Query() skip?: number,
+      @Query() take?: number,
+      @Query() search?: string,
+  ): Promise<ProductListResponse> {
+    const lp: ListParams = { skip, take, search };
+    if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ProductService().getAll(lp);
   }
 

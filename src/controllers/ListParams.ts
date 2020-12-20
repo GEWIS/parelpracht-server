@@ -1,5 +1,8 @@
 export interface ListParams {
   sorting?: ListSorting
+  skip?: number;
+  take?: number;
+  search?: string;
 }
 
 export interface ListSorting {
