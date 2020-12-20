@@ -22,6 +22,7 @@ export class Product {
   @Column()
   nameEnglish!: string;
 
+  /** Price is stored * 100 and as integer */
   @Column()
   targetPrice!: number;
 

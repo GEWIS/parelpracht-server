@@ -1,5 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
-import { Product } from '../entity/Product';
+import { ListParams } from '../controllers/ListParams';
+import { Product, ProductStatus } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../error';
 
 export interface ProductParams {
@@ -7,6 +8,7 @@ export interface ProductParams {
   nameEnglish: string;
   targetPrice: number;
   description: string;
+  status: ProductStatus;
   contractTextDutch: string;
   contractTextEnglish: string;
   deliverySpecificationDutch: string;
@@ -28,8 +30,13 @@ export default class ProductService {
     return product;
   }
 
-  async getAll(): Promise<Product[]> {
-    return this.repo.find();
+  async getAll(params: ListParams): Promise<Product[]> {
+    return this.repo.find({
+      order: {
+        [params.sorting?.column ?? 'id']:
+          params.sorting?.direction ?? 'ASC',
+      },
+    });
   }
 
   create(params: ProductParams): Promise<Product> {
