@@ -1,6 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
 import { Company, CompanyStatus } from '../entity/Company';
-import { ApiError, HTTPStatus } from '../error';
+import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface CompanyParams {
   name: string;

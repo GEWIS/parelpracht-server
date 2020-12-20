@@ -1,10 +1,14 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query,
+  Controller, Post, Route, Put, Tags, Get, Query, Request, Response,
 } from 'tsoa';
+import express from 'express';
+import { body } from 'express-validator';
 import { Product } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams } from '../services/ProductService';
 import { ListParams } from './ListParams';
+import { validate } from '../helpers/validation';
+import { WrappedApiError } from '../helpers/error';
 
 @Route('product')
 @Tags('Product')
@@ -28,12 +32,28 @@ export class ProductController extends Controller {
   }
 
   @Post()
-  public async createProduct(@Body() params: ProductParams): Promise<Product> {
+  @Response<WrappedApiError>(400)
+  public async createProduct(
+    @Request() req: express.Request,
+      @Body() params: ProductParams,
+  ): Promise<Product> {
+    await validate([
+      body('nameDutch').notEmpty(),
+    ], req);
+
     return new ProductService().create(params);
   }
 
   @Put('{id}')
-  public async updateProduct(id: number, @Body() params: Partial<ProductParams>): Promise<Product> {
+  @Response<WrappedApiError>(400)
+  public async updateProduct(
+    @Request() req: express.Request,
+      id: number, @Body() params: Partial<ProductParams>,
+  ): Promise<Product> {
+    await validate([
+      body('nameDutch').notEmpty(),
+    ], req);
+
     return new ProductService().update(id, params);
   }
 }

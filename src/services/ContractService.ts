@@ -1,6 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
 import { Contract } from '../entity/Contract';
-import { ApiError, HTTPStatus } from '../error';
+import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ContractParams {
   title: string;

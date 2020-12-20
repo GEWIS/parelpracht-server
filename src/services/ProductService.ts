@@ -3,7 +3,7 @@ import {
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Product, ProductStatus } from '../entity/Product';
-import { ApiError, HTTPStatus } from '../error';
+import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ProductParams {
   nameDutch: string;
