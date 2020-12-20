@@ -1,16 +1,25 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get,
+  Controller, Post, Route, Put, Tags, Get, Query,
 } from 'tsoa';
 import { Product } from '../entity/Product';
 import ProductService, { ProductParams } from '../services/ProductService';
+import { ListParams } from './ListParams';
 
 @Route('product')
 @Tags('Product')
 export class ProductController extends Controller {
   @Get()
-  public async getProducts(): Promise<Product[]> {
-    return new ProductService().getAll();
+  public async getProducts(
+    @Query() col?: string,
+      @Query() dir?: 'ASC' | 'DESC',
+  ): Promise<Product[]> {
+    const lp: ListParams = {};
+    if (col && dir) {
+      lp.sorting = { column: col, direction: dir };
+    }
+
+    return new ProductService().getAll(lp);
   }
 
   @Get('{id}')
