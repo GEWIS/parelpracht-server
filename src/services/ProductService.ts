@@ -1,4 +1,6 @@
-import { getRepository, Repository } from 'typeorm';
+import {
+  FindManyOptions, getRepository, Like, Repository,
+} from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Product, ProductStatus } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../error';
@@ -13,6 +15,11 @@ export interface ProductParams {
   contractTextEnglish: string;
   deliverySpecificationDutch: string;
   deliverySpecificationEnglish: string;
+}
+
+export interface ProductListResponse {
+  list: Product[];
+  count: number;
 }
 
 export default class ProductService {
@@ -30,13 +37,30 @@ export default class ProductService {
     return product;
   }
 
-  async getAll(params: ListParams): Promise<Product[]> {
-    return this.repo.find({
+  async getAll(params: ListParams): Promise<ProductListResponse> {
+    const findOptions: FindManyOptions<Product> = {
       order: {
         [params.sorting?.column ?? 'id']:
-          params.sorting?.direction ?? 'ASC',
+        params.sorting?.direction ?? 'ASC',
       },
-    });
+    };
+
+    if (params.search !== undefined && params.search.trim() !== '') {
+      findOptions.where = [
+        { nameDutch: Like(`%${params.search.trim()}%`) },
+        { nameEnglish: Like(`%${params.search.trim()}%`) },
+        /* { targetPrice: Like(`%${params.search.trim()}%`) }, */
+      ];
+    }
+
+    return {
+      list: await this.repo.find({
+        ...findOptions,
+        skip: params.skip,
+        take: params.take,
+      }),
+      count: await this.repo.count(findOptions),
+    };
   }
 
   create(params: ProductParams): Promise<Product> {
