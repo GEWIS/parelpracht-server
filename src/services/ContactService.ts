@@ -3,7 +3,7 @@ import {
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 // import { Company } from '../entity/Company';
-import { Contact } from '../entity/Contact';
+import { Contact, ContactFunction } from '../entity/Contact';
 import { Gender } from '../entity/User';
 // import { Contract } from '../entity/Contract';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -15,9 +15,11 @@ export interface ContactParams {
   firstName: string;
   middleName?: string;
   lastName: string;
-  email: string;
+  email?: string;
+  telephone?: string;
   comment?: string;
   companyId: number;
+  function?: ContactFunction;
 }
 
 export interface ContactListResponse {

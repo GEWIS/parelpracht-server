@@ -5,6 +5,7 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ProductInstanceParams {
   productId: number,
+  contractId: number,
   price: number,
   comments?: string;
 }

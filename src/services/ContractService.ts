@@ -9,8 +9,7 @@ export interface ContractParams {
   title: string;
   companyId: number;
   contactId: number;
-  date: Date;
-  comments: string;
+  comments?: string;
 }
 
 export interface ContractListResponse {

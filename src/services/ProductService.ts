@@ -12,8 +12,8 @@ export interface ProductParams {
   description: string;
   contractTextDutch: string;
   contractTextEnglish: string;
-  deliverySpecificationDutch: string;
-  deliverySpecificationEnglish: string;
+  deliverySpecificationDutch?: string;
+  deliverySpecificationEnglish?: string;
 }
 
 export interface ProductListResponse {

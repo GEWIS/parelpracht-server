@@ -9,8 +9,9 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 // Not correct yet
 export interface InvoiceParams {
   companyId: number;
-  price: number;
-  comment: string;
+  productInstances: ProductInstance[],
+  poNumber?: string;
+  comment?: string;
 }
 
 export interface InvoiceListResponse {
