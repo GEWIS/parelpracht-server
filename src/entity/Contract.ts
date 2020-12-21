@@ -1,52 +1,44 @@
 import {
-  Column, Entity, JoinTable, ManyToOne, ManyToMany, PrimaryGeneratedColumn, JoinColumn, OneToMany,
+  Column, Entity, JoinTable, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
 // eslint-disable-next-line import/no-cycle
 import { Contact } from './Contact';
 // eslint-disable-next-line import/no-cycle
-import { Product } from './Product';
+import { ContractActivity } from './activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
+import { ProductInstance } from './ProductInstance';
 
 @Entity()
-export class Contract {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Contract extends BaseEnt {
+  /** Title or name of this contract/collaboration */
   @Column()
   title!: string;
 
-  @Column({ type: 'int' })
-  companyId!: number;
-
-  @ManyToOne(() => Company, (company) => company.contracts)
-  @JoinColumn({ name: 'companyId' })
+  /** Company this contract has been closed with */
+  @ManyToOne(() => Company, { nullable: false })
+  @JoinColumn()
   company!: Company;
 
-  @ManyToMany(() => Product)
+  /** All products in the contract */
+  @OneToMany(() => ProductInstance, (productInstance) => productInstance.contract)
   @JoinTable()
-  products!: Product[];
+  products!: ProductInstance[];
 
-  @Column({ type: 'int' })
-  contactId!: number;
-
+  /** The contact this contract has been closed with */
   @ManyToOne(() => Contact, (contact) => contact.contracts)
-  @JoinColumn({ name: 'contactId' })
+  @JoinColumn()
   contact!: Contact;
 
-  @Column('date')
-  date!: Date;
+  /** Comments regarding this contract, if there are any */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
 
-  @Column()
-  poNumber!: string;
-
-  @Column()
-  comments!: string;
-
-  @OneToMany(() => Status, (status) => status.contract)
-  statusChanges!: Status[];
+  /** All activities regarding this contract */
+  @OneToMany(() => ContractActivity, (contractActivity) => contractActivity.contract)
+  contractActivity!: ContractActivity[];
 
   // TODO: add files
 }

@@ -1,13 +1,12 @@
 import {
   Column,
-  Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+  Entity, JoinColumn, ManyToOne, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
-// eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
 // eslint-disable-next-line import/no-cycle
 import { Gender } from './User';
 
@@ -19,10 +18,8 @@ export enum ContactFunction {
 }
 
 @Entity()
-export class Contact {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Contact extends BaseEnt {
+  /** The gender of this contact */
   @Column({
     type: 'enum',
     enum: Gender,
@@ -30,33 +27,40 @@ export class Contact {
   })
   gender!: Gender;
 
+  /** The first name of the contact */
   @Column()
   firstName!: string;
 
-  @Column()
-  middleName!: string;
+  /** The middle name of the contact, if he/she has one */
+  @Column({ default: '' })
+  middleName?: string;
 
+  /** The last name of the contact */
   @Column()
   lastName!: string;
 
-  @Column()
-  email!: string;
+  /** The (personal) email address of the contact */
+  @Column({ default: '' })
+  email?: string;
 
-  @Column('text')
-  comment!: string;
+  /** The (personal) phone number of the contact */
+  @Column({ default: '' })
+  telephone?: string;
 
-  @Column({ type: 'int' })
-  companyId!: number;
+  /** Comments regarding the contact person, if there are any */
+  @Column({ type: 'text', default: '' })
+  comment?: string;
 
+  /** Function of this contact person within the company, if known. Normal by default. */
   @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })
+  function?: ContactFunction;
 
-  @ManyToOne(() => Company, (company) => company.contacts)
-  @JoinColumn({ name: 'companyId' })
+  /** Company this contact person works at */
+  @ManyToOne(() => Company, { nullable: false })
+  @JoinColumn()
   company!: Company;
 
-  @ManyToMany(() => Contract, (contract) => contract.contact)
+  /** All contracts that have been closed with this contact person */
+  @OneToMany(() => Contract, (contract) => contract.contact)
   contracts!: Contract[];
-
-  @OneToMany(() => Status, (status) => status.contract)
-  statusChanges!: Status[];
 }

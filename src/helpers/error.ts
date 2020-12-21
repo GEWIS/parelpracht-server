@@ -27,7 +27,7 @@ const StatusToCode = {
 };
 
 export class ApiError extends Error {
-  /** The status code of the error, as defined by HTTP status codes. */
+  /** The activity code of the error, as defined by HTTP activity codes. */
   public statusCode: number;
 
   constructor(status: HTTPStatus, message?: string) {

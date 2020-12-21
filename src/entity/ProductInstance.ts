@@ -1,56 +1,47 @@
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn,
+  Column, Entity, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
 import { Product } from './Product';
-
-// TODO: Complete status
-export enum ProductInstanceStatus {
-  WAITING = 'WAITING',
-  DELIVERED = 'DELIVERED',
-  NOT_DELIVERED = 'NOT_DELIVERED',
-}
+// eslint-disable-next-line import/no-cycle
+import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
+// eslint-disable-next-line import/no-cycle
+import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
-export class ProductInstance {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
-  @Column({ type: 'int' })
-  productId!: number;
-
-  @ManyToOne(() => Product, (product) => product.instances)
-  @JoinColumn({ name: 'productId' })
+export class ProductInstance extends BaseEnt {
+  /** The ID of the product, this entity is instanced from */
+  @ManyToOne(() => Product, { nullable: false })
+  @JoinColumn()
   product!: Product;
 
-  @Column({ type: 'int' })
-  contractId!: number;
-
-  @ManyToOne(() => Contract, (contract) => contract.products)
-  @JoinColumn({ name: 'contractId' })
+  /** Contract this product is used in */
+  @ManyToOne(() => Contract, { nullable: false })
+  @JoinColumn()
   contract!: Contract;
 
-  @Column({ type: 'int' })
-  invoiceId!: number;
+  /** Invoice this product is used in, if it has already been invoiced */
+  @ManyToOne(() => Invoice, { nullable: true })
+  @JoinColumn()
+  invoice?: Invoice;
 
-  @ManyToOne(() => Invoice, (invoice) => invoice.products)
-  @JoinColumn({ name: 'invoiceId' })
-  invoice!: Invoice;
+  /** All activities regarding this product instance */
+  @OneToMany(() => ProductInstanceActivity,
+    (productInstanceActivity) => productInstanceActivity.productInstance)
+  @JoinColumn()
+  productInstanceActivities!: ProductActivity[];
 
-  @Column()
+  /** Actual price of the product. Can be different from the default product price,
+   * e.g. for discounts */
+  @Column({ type: 'integer' })
   price!: number;
 
-  @Column('text')
-  comment!: string;
-
-  @Column({
-    type: 'enum',
-    enum: ProductInstanceStatus,
-    default: ProductInstanceStatus.WAITING,
-  })
-  status!: ProductInstanceStatus;
+  /** Any comments regarding this product instance */
+  @Column({ nullable: true })
+  comment?: string;
 }
