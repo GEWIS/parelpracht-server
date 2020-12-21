@@ -1,21 +1,14 @@
 import {
-  Column, Entity, OneToMany, PrimaryGeneratedColumn,
+  Column, Entity, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
-
-export enum ProductStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-}
+import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
-export class Product {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Product extends BaseEnt {
   @Column()
   nameDutch!: string;
 
@@ -26,27 +19,24 @@ export class Product {
   @Column()
   targetPrice!: number;
 
-  @Column('text')
+  @Column({ type: 'text' })
   description!: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   contractTextDutch!: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   contractTextEnglish!: string;
 
-  @Column('text')
-  deliverySpecificationDutch!: string;
+  @Column({ type: 'text', default: '' })
+  deliverySpecificationDutch?: string;
 
-  @Column('text')
-  deliverySpecificationEnglish!: string;
-
-  @Column({ type: 'enum', enum: ProductStatus, default: ProductStatus.ACTIVE })
-  status!: ProductStatus;
+  @Column({ type: 'text', default: '' })
+  deliverySpecificationEnglish?: string;
 
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.product)
   instances!: ProductInstance[];
 
-  @OneToMany(() => Status, (status) => status.product)
-  statusChanges!: Status[];
+  @OneToMany(() => ProductActivity, (productActivity) => productActivity.product)
+  productActivities!: ProductActivity[];
 }

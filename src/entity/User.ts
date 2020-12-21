@@ -1,24 +1,30 @@
 import {
   Column,
-  Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn,
+  Entity, JoinTable, ManyToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Role } from './Role';
-// eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
+// // eslint-disable-next-line import/no-cycle
+// import { CompanyActivity } from './activity/CompanyActivity';
+// // eslint-disable-next-line import/no-cycle
+// import { ContractActivity } from './activity/ContractActivity';
+// // eslint-disable-next-line import/no-cycle
+// import { InvoiceActivity } from './activity/InvoiceActivity';
+// // eslint-disable-next-line import/no-cycle
+// import { ProductActivity } from './activity/ProductActivity';
+// // eslint-disable-next-line import/no-cycle
+// import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
 
 export enum Gender {
   MALE = 'MALE',
   FEMALE = 'FEMALE',
   OTHER = 'OTHER',
-  UNKNOWN = 'UNKOWN',
+  UNKNOWN = 'UNKNOWN',
 }
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class User extends BaseEnt {
   @Column({
     type: 'enum',
     enum: Gender,
@@ -29,8 +35,8 @@ export class User {
   @Column()
   firstName!: string;
 
-  @Column()
-  middleName!: string;
+  @Column({ default: '' })
+  middleName?: string;
 
   @Column()
   lastName!: string;
@@ -38,16 +44,25 @@ export class User {
   @Column()
   email!: string;
 
-  @Column('text')
-  comment!: string;
+  @Column({ type: 'text', default: '' })
+  comment?: string;
 
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
   roles!: Role[];
 
-  @OneToMany(() => Status, (status) => status.user)
-  statusChanges!: Status[];
-
-  @OneToMany(() => Status, (status) => status.createdBy)
-  madeChanges!: Status[];
+  // @OneToMany(() => CompanyActivity, (activity) => activity.createdBy)
+  // companyActivities!: CompanyActivity[];
+  //
+  // @OneToMany(() => ContractActivity, (activity) => activity.createdBy)
+  // contractActivity!: ContractActivity[];
+  //
+  // @OneToMany(() => InvoiceActivity, (activity) => activity.createdBy)
+  // invoiceActivities!: InvoiceActivity[];
+  //
+  // @OneToMany(() => ProductActivity, (activity) => activity.createdBy)
+  // productActivities!: ProductActivity[];
+  //
+  // @OneToMany(() => ProductInstanceActivity, (activity) => activity.createdBy)
+  // productInstanceActivities!: CompanyActivity[];
 }

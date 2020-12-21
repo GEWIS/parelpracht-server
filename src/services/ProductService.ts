@@ -2,7 +2,7 @@ import {
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
-import { Product, ProductStatus } from '../entity/Product';
+import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ProductParams {
@@ -10,7 +10,6 @@ export interface ProductParams {
   nameEnglish: string;
   targetPrice: number;
   description: string;
-  status: ProductStatus;
   contractTextDutch: string;
   contractTextEnglish: string;
   deliverySpecificationDutch: string;
@@ -65,6 +64,7 @@ export default class ProductService {
 
   create(params: ProductParams): Promise<Product> {
     let product = new Product();
+    // @ts-ignore
     product = {
       ...product,
       ...params,

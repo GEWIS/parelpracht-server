@@ -1,6 +1,7 @@
 import {
-  Column, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn,
+  Column, Entity, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Contact } from './Contact';
 // eslint-disable-next-line import/no-cycle
@@ -8,7 +9,7 @@ import { Contract } from './Contract';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
+import { CompanyActivity } from './activity/CompanyActivity';
 
 export enum CompanyStatus {
   ACTIVE = 'ACTIVE',
@@ -16,21 +17,15 @@ export enum CompanyStatus {
 }
 
 @Entity()
-export class Company {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Company extends BaseEnt {
   @Column()
   name!: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   description!: string;
 
-  @Column()
-  phoneNumber!: string;
-
-  @Column('text')
-  comments!: string;
+  @Column({ default: '' })
+  phoneNumber?: string;
 
   @Column({
     type: 'enum',
@@ -38,9 +33,6 @@ export class Company {
     default: CompanyStatus.ACTIVE,
   })
   status!: CompanyStatus;
-
-  @UpdateDateColumn()
-  lastUpdated!: Date;
 
   @Column({ nullable: true })
   endDate?: Date;
@@ -54,6 +46,6 @@ export class Company {
   @OneToMany(() => Contact, (contact) => contact.company)
   contacts!: Contact[];
 
-  @OneToMany(() => Status, (status) => status.company)
-  statusChanges!: Status[];
+  @OneToMany(() => CompanyActivity, (companyActivity) => companyActivity.company)
+  activities!: CompanyActivity[];
 }
