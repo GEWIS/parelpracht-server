@@ -11,7 +11,7 @@ export interface InvoiceParams {
   companyId: number;
   productInstances: ProductInstance[],
   poNumber?: string;
-  comment?: string;
+  comments?: string;
 }
 
 export interface InvoiceListResponse {

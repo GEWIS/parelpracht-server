@@ -21,7 +21,7 @@ export class Invoice extends BaseEnt {
 
   /** Any comments regarding this invoice */
   @Column({ type: 'text' })
-  comment?: string;
+  comments?: string;
 
   @Column({ type: 'integer' })
   companyId!: number;

@@ -17,7 +17,7 @@ export interface ContactParams {
   lastName: string;
   email?: string;
   telephone?: string;
-  comment?: string;
+  comments?: string;
   companyId: number;
   function?: ContactFunction;
 }

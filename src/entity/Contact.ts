@@ -49,7 +49,7 @@ export class Contact extends BaseEnt {
 
   /** Comments regarding the contact person, if there are any */
   @Column({ type: 'text', default: '' })
-  comment?: string;
+  comments?: string;
 
   /** Function of this contact person within the company, if known. Normal by default. */
   @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })

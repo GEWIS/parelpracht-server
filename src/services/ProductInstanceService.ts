@@ -5,7 +5,6 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ProductInstanceParams {
   productId: number,
-  contractId: number,
   price: number,
   comments?: string;
 }
@@ -17,13 +16,14 @@ export default class ProductInstanceService {
     this.repo = getRepository(ProductInstance);
   }
 
-  validateProductInstance(productInstance: ProductInstance | undefined, contractId: number): void {
+  validateProductInstance(productInstance: ProductInstance | undefined, contractId: number): ProductInstance {
     if (productInstance === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'ProductInstance not found');
     }
-    if (productInstance.contract.id !== contractId) {
+    if (productInstance.contractId !== contractId) {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this product');
     }
+    return productInstance;
   }
 
   async addProduct(contractId: number, params: ProductInstanceParams): Promise<ProductInstance> {
@@ -33,12 +33,13 @@ export default class ProductInstanceService {
       ...params,
     } as any as ProductInstance;
     return this.repo.save(productInstance);
+    // TODO: Fix that the contract is also passed on with the product
   }
 
   async updateProduct(contractId: number, productInstanceId: number, params: Partial<ProductInstance>): Promise<ProductInstance> {
     let productInstance = await this.repo.findOne(productInstanceId);
-    this.validateProductInstance(productInstance, contractId);
-    await this.repo.update(productInstance!, params);
+    productInstance = this.validateProductInstance(productInstance, contractId);
+    await this.repo.update(productInstance.id, params);
     productInstance = await this.repo.findOne(productInstanceId)!;
     return productInstance!;
   }

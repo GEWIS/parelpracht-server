@@ -11,7 +11,7 @@ import {
 export class BaseEnt extends BaseEntity {
   /** Incremental ID of the entity */
   @PrimaryGeneratedColumn('increment')
-  readonly id?: number;
+  readonly id!: number;
 
   /** Date at which this entity has been created */
   @CreateDateColumn({ update: false })
