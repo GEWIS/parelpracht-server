@@ -17,9 +17,16 @@ export class Contract extends BaseEnt {
   @Column()
   title!: string;
 
+  /** Comments regarding this contract, if there are any */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
+
+  @Column({ type: 'integer' })
+  companyId!: number;
+
   /** Company this contract has been closed with */
-  @ManyToOne(() => Company, { nullable: false })
-  @JoinColumn()
+  @ManyToOne(() => Company, (company) => company.contracts)
+  @JoinColumn({ name: 'companyId' })
   company!: Company;
 
   /** All products in the contract */
@@ -27,14 +34,13 @@ export class Contract extends BaseEnt {
   @JoinTable()
   products!: ProductInstance[];
 
+  @Column({ type: 'integer' })
+  contactId!: number;
+
   /** The contact this contract has been closed with */
   @ManyToOne(() => Contact, (contact) => contact.contracts)
-  @JoinColumn()
+  @JoinColumn({ name: 'contactId' })
   contact!: Contact;
-
-  /** Comments regarding this contract, if there are any */
-  @Column({ type: 'text', default: '' })
-  comments?: string;
 
   /** All activities regarding this contract */
   @OneToMany(() => ContractActivity, (contractActivity) => contractActivity.contract)

@@ -117,4 +117,6 @@ dist
 src/public/swagger.json
 
 # Jetbrains pls
+.idea/**.*
+.idea/
 .idea

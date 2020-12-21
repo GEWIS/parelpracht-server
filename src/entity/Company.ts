@@ -30,6 +30,30 @@ export class Company extends BaseEnt {
   @Column({ default: '' })
   phoneNumber?: string;
 
+  @Column()
+  addressStreet!: string;
+
+  @Column()
+  addressPostalCode!: string;
+
+  @Column()
+  addressCity!: string;
+
+  @Column()
+  addressCountry!: string;
+
+  @Column({ nullable: true })
+  invoiceAddressStreet?: string;
+
+  @Column({ nullable: true })
+  invoiceAddressPostalCode?: string;
+
+  @Column({ nullable: true })
+  invoiceAddressCity?: string;
+
+  @Column({ nullable: true })
+  invoiceAddressCountry?: string;
+
   /** Status of the collaboration with this company */
   @Column({
     type: 'enum',

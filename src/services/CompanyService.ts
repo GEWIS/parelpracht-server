@@ -8,10 +8,17 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 // May not be correct yet
 export interface CompanyParams {
   name: string;
-  description: string;
-  phoneNumber: string;
-  comments: string;
-  status: CompanyStatus;
+  description?: string;
+  phoneNumber?: string;
+  addressStreet: string;
+  addressPostalCode: string;
+  addressCity: string;
+  addressCountry: string;
+  invoiceAddressStreet?: string;
+  invoiceAddressPostalCode?: string;
+  invoiceAddressCity?: string;
+  invoiceAddressCountry?: string;
+  status?: CompanyStatus;
   endDate?: Date;
 }
 

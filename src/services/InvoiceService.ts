@@ -9,8 +9,9 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 // Not correct yet
 export interface InvoiceParams {
   companyId: number;
-  price: number;
-  comment: string;
+  productInstances: ProductInstance[],
+  poNumber?: string;
+  comments?: string;
 }
 
 export interface InvoiceListResponse {
@@ -60,6 +61,7 @@ export default class InvoiceService {
 
   createInvoice(params: InvoiceParams): Promise<Invoice> {
     let invoice = new Invoice();
+    // @ts-ignore
     invoice = {
       ...invoice,
       ...params,

@@ -1,10 +1,16 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete,
 } from 'tsoa';
 import { Contract } from '../entity/Contract';
-import ContractService, { ContractListResponse, ContractParams } from '../services/ContractService';
+import ContractService, {
+  ContractListResponse,
+  ContractParams,
+} from '../services/ContractService';
 import { ListParams } from './ListParams';
+import ProductInstanceService, {ProductInstanceParams} from '../services/ProductInstanceService';
+import {ProductInstance} from '../entity/ProductInstance';
+import {DeleteResult, UpdateResult} from 'typeorm';
 
 @Route('contract')
 @Tags('Contract')
@@ -58,5 +64,36 @@ export class ContractController extends Controller {
     id: number, @Body() params: Partial<ContractParams>,
   ): Promise<Contract> {
     return new ContractService().updateContract(id, params);
+  }
+
+  /**
+   * Add product to contract
+   * @param id - ID of the contract
+   * @param params - Create subset of product
+   */
+  @Post('{id}/product')
+  public async addProduct(id: number, @Body() params: ProductInstanceParams): Promise<ProductInstance> {
+    return new ProductInstanceService().addProduct(id, params);
+  }
+
+  /**
+   * Update a product instance in a contract
+   * @param id ID of the contract
+   * @param prodId ID of the product instance
+   * @param params Update subset of product instance
+   */
+  @Put('{id}/product/{prodId}')
+  public async updateProduct(id: number, prodId: number, @Body() params: Partial<ProductInstanceParams>): Promise<ProductInstance> {
+    return new ProductInstanceService().updateProduct(id, prodId, params);
+  }
+
+  /**
+   * Remove product from contract
+   * @param id ID of the contract
+   * @param prodId ID of the product instance
+   */
+  @Delete('{id}/product/{prodId}')
+  public async deleteProduct(id: number, prodId: number): Promise<void> {
+    return new ProductInstanceService().deleteProduct(id, prodId);
   }
 }
