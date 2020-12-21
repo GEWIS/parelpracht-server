@@ -18,7 +18,7 @@ export class Product extends BaseEnt {
   nameEnglish!: string;
 
   /** Price is stored * 100 and as integer */
-  @Column()
+  @Column({ type: 'integer' })
   targetPrice!: number;
 
   /** Description of the product, only used within the application */

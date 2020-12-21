@@ -38,7 +38,7 @@ export class ProductInstance extends BaseEnt {
 
   /** Actual price of the product. Can be different from the default product price,
    * e.g. for discounts */
-  @Column()
+  @Column({ type: 'integer' })
   price!: number;
 
   /** Any comments regarding this product instance */
