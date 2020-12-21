@@ -115,3 +115,6 @@ dist
 .pnp.*
 
 src/public/swagger.json
+
+# Jetbrains pls
+.idea
