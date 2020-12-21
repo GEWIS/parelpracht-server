@@ -15,19 +15,28 @@ import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
 export class ProductInstance extends BaseEnt {
+  @Column({ type: 'integer' })
+  productId!: number;
+
   /** The ID of the product, this entity is instanced from */
-  @ManyToOne(() => Product, { nullable: false })
-  @JoinColumn()
+  @ManyToOne(() => Product, (product) => product.instances)
+  @JoinColumn({ name: 'productId' })
   product!: Product;
 
+  @Column({ type: 'integer' })
+  contractId!: number;
+
   /** Contract this product is used in */
-  @ManyToOne(() => Contract, { nullable: false })
-  @JoinColumn()
+  @ManyToOne(() => Contract, (contract) => contract.products)
+  @JoinColumn({ name: 'contractId' })
   contract!: Contract;
 
+  @Column({ type: 'integer' })
+  invoiceId?: number;
+
   /** Invoice this product is used in, if it has already been invoiced */
-  @ManyToOne(() => Invoice, { nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => Invoice, (invoice) => invoice.products)
+  @JoinColumn({ name: 'invoiceId' })
   invoice?: Invoice;
 
   /** All activities regarding this product instance */

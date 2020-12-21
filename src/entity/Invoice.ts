@@ -15,11 +15,6 @@ export class Invoice extends BaseEnt {
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.invoice)
   products!: ProductInstance[];
 
-  /** The company this invoice will be send to */
-  @ManyToOne(() => Company, { nullable: false })
-  @JoinColumn()
-  company!: Company;
-
   /** PO number on the invoice, if needed */
   @Column({ default: '' })
   poNumber?: string;
@@ -27,6 +22,14 @@ export class Invoice extends BaseEnt {
   /** Any comments regarding this invoice */
   @Column({ type: 'text' })
   comment?: string;
+
+  @Column({ type: 'integer' })
+  companyId!: number;
+
+  /** Company this invoice is directed to */
+  @ManyToOne(() => Company, (company) => company.invoices)
+  @JoinColumn({ name: 'companyId' })
+  company!: Company;
 
   /** All activities regarding this invoice */
   @OneToMany(() => InvoiceActivity, (invoiceActivity) => invoiceActivity.invoice)
