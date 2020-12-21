@@ -275,6 +275,15 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"description":{"dataType":"string"},"phoneNumber":{"dataType":"string"},"comments":{"dataType":"string"},"status":{"ref":"CompanyStatus"},"endDate":{"dataType":"datetime"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ContractListResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "list": {"dataType":"array","array":{"ref":"Contract"},"required":true},
+            "count": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ContractParams": {
         "dataType": "refObject",
         "properties": {
@@ -515,6 +524,11 @@ export function RegisterRoutes(app: express.Router) {
         app.get('/api/contract',
             function (request: any, response: any, next: any) {
             const args = {
+                    col: {"in":"query","name":"col","dataType":"string"},
+                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
+                    skip: {"in":"query","name":"skip","dataType":"double"},
+                    take: {"in":"query","name":"take","dataType":"double"},
+                    search: {"in":"query","name":"search","dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -529,7 +543,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ContractController();
 
 
-            const promise = controller.getContracts.apply(controller, validatedArgs as any);
+            const promise = controller.getAllContracts.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
