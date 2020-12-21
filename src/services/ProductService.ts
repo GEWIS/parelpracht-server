@@ -29,7 +29,7 @@ export default class ProductService {
     this.repo = getRepository(Product);
   }
 
-  async get(id: number): Promise<Product> {
+  async getProduct(id: number): Promise<Product> {
     const product = await this.repo.findOne(id);
     if (product === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
@@ -37,7 +37,7 @@ export default class ProductService {
     return product;
   }
 
-  async getAll(params: ListParams): Promise<ProductListResponse> {
+  async getAllProducts(params: ListParams): Promise<ProductListResponse> {
     const findOptions: FindManyOptions<Product> = {
       order: {
         [params.sorting?.column ?? 'id']:
@@ -63,7 +63,7 @@ export default class ProductService {
     };
   }
 
-  create(params: ProductParams): Promise<Product> {
+  createProduct(params: ProductParams): Promise<Product> {
     let product = new Product();
     product = {
       ...product,
@@ -72,7 +72,7 @@ export default class ProductService {
     return this.repo.save(product);
   }
 
-  async update(id: number, params: Partial<ProductParams>): Promise<Product> {
+  async updateProduct(id: number, params: Partial<ProductParams>): Promise<Product> {
     await this.repo.update(id, params);
     const product = await this.repo.findOne(id);
     return product!;
