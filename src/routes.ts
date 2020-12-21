@@ -248,6 +248,15 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"description":{"dataType":"string"},"status":{"ref":"ProductStatus"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CompanyListResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "list": {"dataType":"array","array":{"ref":"Company"},"required":true},
+            "count": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CompanyParams": {
         "dataType": "refObject",
         "properties": {
@@ -413,6 +422,11 @@ export function RegisterRoutes(app: express.Router) {
         app.get('/api/company',
             function (request: any, response: any, next: any) {
             const args = {
+                    col: {"in":"query","name":"col","dataType":"string"},
+                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
+                    skip: {"in":"query","name":"skip","dataType":"double"},
+                    take: {"in":"query","name":"take","dataType":"double"},
+                    search: {"in":"query","name":"search","dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -427,7 +441,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new CompanyController();
 
 
-            const promise = controller.getCompanies.apply(controller, validatedArgs as any);
+            const promise = controller.getAllCompanies.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
