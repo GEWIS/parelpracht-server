@@ -19,26 +19,24 @@ import * as express from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-    "ProductStatus": {
-        "dataType": "refEnum",
-        "enums": ["ACTIVE","INACTIVE"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Product": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
             "nameDutch": {"dataType":"string","required":true},
             "nameEnglish": {"dataType":"string","required":true},
             "targetPrice": {"dataType":"double","required":true},
             "description": {"dataType":"string","required":true},
             "contractTextDutch": {"dataType":"string","required":true},
             "contractTextEnglish": {"dataType":"string","required":true},
-            "deliverySpecificationDutch": {"dataType":"string","required":true},
-            "deliverySpecificationEnglish": {"dataType":"string","required":true},
-            "status": {"ref":"ProductStatus","required":true},
+            "deliverySpecificationDutch": {"dataType":"string"},
+            "deliverySpecificationEnglish": {"dataType":"string"},
             "instances": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
-            "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
+            "productActivities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -51,17 +49,17 @@ const models: TsoaRoute.Models = {
     "Contract": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
             "title": {"dataType":"string","required":true},
-            "companyId": {"dataType":"double","required":true},
             "company": {"ref":"Company","required":true},
-            "products": {"dataType":"array","array":{"ref":"Product"},"required":true},
-            "contactId": {"dataType":"double","required":true},
+            "products": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
             "contact": {"ref":"Contact","required":true},
-            "date": {"dataType":"datetime","required":true},
-            "poNumber": {"dataType":"string","required":true},
-            "comments": {"dataType":"string","required":true},
-            "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
+            "comments": {"dataType":"string"},
+            "contractActivity": {"dataType":"array","array":{"ref":"ContractActivity"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -69,16 +67,17 @@ const models: TsoaRoute.Models = {
     "ProductInstance": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
-            "productId": {"dataType":"double","required":true},
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
             "product": {"ref":"Product","required":true},
-            "contractId": {"dataType":"double","required":true},
             "contract": {"ref":"Contract","required":true},
-            "invoiceId": {"dataType":"double","required":true},
-            "invoice": {"ref":"Invoice","required":true},
+            "invoice": {"ref":"Invoice"},
+            "productInstanceActivities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
             "price": {"dataType":"double","required":true},
-            "comment": {"dataType":"string","required":true},
-            "status": {"ref":"ProductInstanceStatus","required":true},
+            "comment": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -86,84 +85,20 @@ const models: TsoaRoute.Models = {
     "Company": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
             "name": {"dataType":"string","required":true},
-            "description": {"dataType":"string","required":true},
-            "phoneNumber": {"dataType":"string","required":true},
-            "comments": {"dataType":"string","required":true},
+            "description": {"dataType":"string"},
+            "phoneNumber": {"dataType":"string"},
             "status": {"ref":"CompanyStatus","required":true},
-            "lastUpdated": {"dataType":"datetime","required":true},
             "endDate": {"dataType":"datetime"},
             "contracts": {"dataType":"array","array":{"ref":"Contract"},"required":true},
             "invoices": {"dataType":"array","array":{"ref":"Invoice"},"required":true},
             "contacts": {"dataType":"array","array":{"ref":"Contact"},"required":true},
-            "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "InvoiceStatus": {
-        "dataType": "refEnum",
-        "enums": ["WAITING","SENT","COLLECTED","UNCOLLECTIBLE"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "EntityType": {
-        "dataType": "refEnum",
-        "enums": ["NULL","USER","COMPANY","CONTRACT","INVOICE","PRODUCT","CONTACT"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Gender": {
-        "dataType": "refEnum",
-        "enums": ["MALE","FEMALE","OTHER","UNKOWN"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "User": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"double","required":true},
-            "gender": {"ref":"Gender","required":true},
-            "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
-            "lastName": {"dataType":"string","required":true},
-            "email": {"dataType":"string","required":true},
-            "comment": {"dataType":"string","required":true},
-            "roles": {"dataType":"array","array":{"ref":"Role"},"required":true},
-            "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
-            "madeChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Role": {
-        "dataType": "refObject",
-        "properties": {
-            "name": {"dataType":"string","required":true},
-            "users": {"dataType":"array","array":{"ref":"User"},"required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Status": {
-        "dataType": "refObject",
-        "properties": {
-            "id": {"dataType":"double","required":true},
-            "title": {"dataType":"string","required":true},
-            "comment": {"dataType":"string","required":true},
-            "createdById": {"dataType":"double","required":true},
-            "entityType": {"ref":"EntityType","required":true},
-            "createdBy": {"ref":"User","required":true},
-            "companyId": {"dataType":"double","required":true},
-            "company": {"ref":"Company","required":true},
-            "contractId": {"dataType":"double","required":true},
-            "contract": {"ref":"Contract","required":true},
-            "invoiceId": {"dataType":"double","required":true},
-            "invoice": {"ref":"Invoice","required":true},
-            "userId": {"dataType":"double","required":true},
-            "user": {"ref":"User","required":true},
-            "productId": {"dataType":"double","required":true},
-            "product": {"ref":"Product","required":true},
-            "contactId": {"dataType":"double","required":true},
-            "contact": {"ref":"Contact","required":true},
+            "activities": {"dataType":"array","array":{"ref":"CompanyActivity"},"required":true},
         },
         "additionalProperties": false,
     },
@@ -171,39 +106,158 @@ const models: TsoaRoute.Models = {
     "Invoice": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
             "products": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
-            "companyId": {"dataType":"double","required":true},
             "company": {"ref":"Company","required":true},
-            "price": {"dataType":"double","required":true},
-            "comment": {"dataType":"string","required":true},
-            "status": {"ref":"InvoiceStatus","required":true},
-            "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
+            "poNumber": {"dataType":"string"},
+            "comment": {"dataType":"string"},
+            "invoiceActivities": {"dataType":"array","array":{"ref":"InvoiceActivity"},"required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ActivityType": {
+        "dataType": "refEnum",
+        "enums": ["STATUS","COMMENT"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Gender": {
+        "dataType": "refEnum",
+        "enums": ["MALE","FEMALE","OTHER","UNKNOWN"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "User": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "gender": {"ref":"Gender","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "middleName": {"dataType":"string"},
+            "lastName": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "comment": {"dataType":"string"},
+            "roles": {"dataType":"array","array":{"ref":"Role"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Role": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "name": {"dataType":"string","required":true},
+            "users": {"dataType":"array","array":{"ref":"User"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InvoiceActivity": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "type": {"ref":"ActivityType","required":true},
+            "subType": {"dataType":"string"},
+            "description": {"dataType":"string","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "invoice": {"ref":"Invoice","required":true},
+            "relatedInvoice": {"ref":"Invoice","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ContactFunction": {
+        "dataType": "refEnum",
+        "enums": ["NORMAL","PRIMARY","FINANCIAL","OLD"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Contact": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double","required":true},
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
             "gender": {"ref":"Gender","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
+            "middleName": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
-            "email": {"dataType":"string","required":true},
-            "comment": {"dataType":"string","required":true},
-            "companyId": {"dataType":"double","required":true},
+            "email": {"dataType":"string"},
+            "telephone": {"dataType":"string"},
+            "comment": {"dataType":"string"},
+            "function": {"ref":"ContactFunction"},
             "company": {"ref":"Company","required":true},
             "contracts": {"dataType":"array","array":{"ref":"Contract"},"required":true},
-            "statusChanges": {"dataType":"array","array":{"ref":"Status"},"required":true},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ProductInstanceStatus": {
-        "dataType": "refEnum",
-        "enums": ["WAITING","DELIVERED","NOT_DELIVERED"],
+    "CompanyActivity": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "type": {"ref":"ActivityType","required":true},
+            "subType": {"dataType":"string"},
+            "description": {"dataType":"string","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "company": {"ref":"Company","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ContractActivity": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "type": {"ref":"ActivityType","required":true},
+            "subType": {"dataType":"string"},
+            "description": {"dataType":"string","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "contract": {"ref":"Contract","required":true},
+            "relatedContract": {"ref":"Contract","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductActivity": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double"},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "type": {"ref":"ActivityType","required":true},
+            "subType": {"dataType":"string"},
+            "description": {"dataType":"string","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "product": {"ref":"Product","required":true},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductListResponse": {
@@ -238,7 +292,6 @@ const models: TsoaRoute.Models = {
             "nameEnglish": {"dataType":"string","required":true},
             "targetPrice": {"dataType":"double","required":true},
             "description": {"dataType":"string","required":true},
-            "status": {"ref":"ProductStatus","required":true},
             "contractTextDutch": {"dataType":"string","required":true},
             "contractTextEnglish": {"dataType":"string","required":true},
             "deliverySpecificationDutch": {"dataType":"string","required":true},
@@ -249,7 +302,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ProductParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"description":{"dataType":"string"},"status":{"ref":"ProductStatus"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"description":{"dataType":"string"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CompanyListResponse": {
@@ -295,7 +348,6 @@ const models: TsoaRoute.Models = {
             "companyId": {"dataType":"double","required":true},
             "contactId": {"dataType":"double","required":true},
             "date": {"dataType":"datetime","required":true},
-            "poNumber": {"dataType":"string","required":true},
             "comments": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
@@ -303,7 +355,22 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ContractParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"companyId":{"dataType":"double"},"contactId":{"dataType":"double"},"date":{"dataType":"datetime"},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"companyId":{"dataType":"double"},"contactId":{"dataType":"double"},"date":{"dataType":"datetime"},"comments":{"dataType":"string"}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceParams": {
+        "dataType": "refObject",
+        "properties": {
+            "productId": {"dataType":"double","required":true},
+            "price": {"dataType":"double","required":true},
+            "comments": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Partial_ProductInstanceParams_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"price":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "InvoiceListResponse": {
@@ -344,10 +411,10 @@ const models: TsoaRoute.Models = {
         "properties": {
             "gender": {"ref":"Gender","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
+            "middleName": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
-            "comment": {"dataType":"string","required":true},
+            "comment": {"dataType":"string"},
             "companyId": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
@@ -668,6 +735,76 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateContract.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/contract/:id/product',
+            function (request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+                    params: {"in":"body","name":"params","required":true,"ref":"ProductInstanceParams"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new ContractController();
+
+
+            const promise = controller.addProduct.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.put('/api/contract/:id/product/:prodId',
+            function (request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+                    prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
+                    params: {"in":"body","name":"params","required":true,"ref":"Partial_ProductInstanceParams_"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new ContractController();
+
+
+            const promise = controller.updateProduct.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.delete('/api/contract/:id/product/:prodId',
+            function (request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+                    prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new ContractController();
+
+
+            const promise = controller.deleteProduct.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

@@ -10,7 +10,6 @@ export interface ContractParams {
   companyId: number;
   contactId: number;
   date: Date;
-  poNumber: string;
   comments: string;
 }
 

@@ -7,15 +7,16 @@ import { Contact } from '../entity/Contact';
 import { Gender } from '../entity/User';
 // import { Contract } from '../entity/Contract';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import CompanyService from './CompanyService';
 
 // May not be correct yet
 export interface ContactParams {
   gender: Gender;
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
   email: string;
-  comment: string;
+  comment?: string;
   companyId: number;
 }
 
@@ -68,10 +69,13 @@ export default class ContactService {
   }
 
   async createContact(params: ContactParams): Promise<Contact> {
+    const company = await new CompanyService().getCompany(params.companyId);
     let contact = new Contact();
+    // @ts-ignore
     contact = {
       ...contact,
       ...params,
+      company,
     };
     return this.repo.save(contact);
   }

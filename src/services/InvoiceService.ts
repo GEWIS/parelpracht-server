@@ -60,6 +60,7 @@ export default class InvoiceService {
 
   createInvoice(params: InvoiceParams): Promise<Invoice> {
     let invoice = new Invoice();
+    // @ts-ignore
     invoice = {
       ...invoice,
       ...params,
