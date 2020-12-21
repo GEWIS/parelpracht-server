@@ -8,6 +8,7 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 export interface ContractParams {
   title: string;
   companyId: number;
+  contactId: number;
   date: Date;
   poNumber: string;
   comments: string;
@@ -26,7 +27,7 @@ export default class ContractService {
   }
 
   async getContract(id: number): Promise<Contract> {
-    const contract = await this.repo.findOne(id, { relations: ['company'] });  // May need more relations
+    const contract = await this.repo.findOne(id, { relations: ['company'] }); // May need more relations
     if (contract === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Contract not found');
     }

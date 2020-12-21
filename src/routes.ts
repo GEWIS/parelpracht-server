@@ -293,6 +293,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "title": {"dataType":"string","required":true},
             "companyId": {"dataType":"double","required":true},
+            "contactId": {"dataType":"double","required":true},
             "date": {"dataType":"datetime","required":true},
             "poNumber": {"dataType":"string","required":true},
             "comments": {"dataType":"string","required":true},
@@ -302,7 +303,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ContractParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"companyId":{"dataType":"double"},"date":{"dataType":"datetime"},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"companyId":{"dataType":"double"},"contactId":{"dataType":"double"},"date":{"dataType":"datetime"},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "InvoiceListResponse": {
@@ -317,7 +318,6 @@ const models: TsoaRoute.Models = {
     "InvoiceParams": {
         "dataType": "refObject",
         "properties": {
-            "product": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
             "companyId": {"dataType":"double","required":true},
             "price": {"dataType":"double","required":true},
             "comment": {"dataType":"string","required":true},
@@ -327,7 +327,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_InvoiceParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"product":{"dataType":"array","array":{"ref":"ProductInstance"}},"companyId":{"dataType":"double"},"price":{"dataType":"double"},"comment":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"companyId":{"dataType":"double"},"price":{"dataType":"double"},"comment":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ContactListResponse": {

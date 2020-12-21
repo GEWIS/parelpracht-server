@@ -49,8 +49,10 @@ export default class ContactService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { title: Like(`%${params.search.trim()}%`) },
-        { poNumber: Like(`%${params.search.trim()}%`) },
+        { firstName: Like(`%${params.search.trim()}%`) },
+        { middleName: Like(`%${params.search.trim()}%`) },
+        { lastName: Like(`%${params.search.trim()}%`) },
+        { email: Like(`%${params.search.trim()}%`) },
         /* To add: ID */
       ];
     }

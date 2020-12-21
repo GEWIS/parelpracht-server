@@ -8,7 +8,6 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 
 // Not correct yet
 export interface InvoiceParams {
-  product: ProductInstance[];
   companyId: number;
   price: number;
   comment: string;
