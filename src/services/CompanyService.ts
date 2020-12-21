@@ -61,6 +61,7 @@ export default class CompanyService {
 
   createCompany(params: CompanyParams): Promise<Company> {
     let company = new Company();
+    // @ts-ignore
     company = {
       ...company,
       ...params,

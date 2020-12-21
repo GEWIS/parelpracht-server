@@ -1,51 +1,34 @@
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToMany,
+  Column, Entity, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
-
-// TODO: Complete status
-export enum InvoiceStatus {
-  WAITING = 'WAITING',
-  SENT = 'SENT',
-  COLLECTED = 'COLLECTED',
-  UNCOLLECTIBLE = 'UNCOLLECTIBLE',
-}
+import { InvoiceActivity } from './activity/InvoiceActivity';
 
 @Entity()
-export class Invoice {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Invoice extends BaseEnt {
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.invoice)
   products!: ProductInstance[];
 
-  @Column({ type: 'int' })
-  companyId!: number;
-
-  @ManyToOne(() => Company, (company) => company.invoices)
-  @JoinColumn({ name: 'companyId' })
+  @ManyToOne(() => Company, { nullable: false })
+  @JoinColumn()
   company!: Company;
+
+  @Column({ default: '' })
+  poNumber?: string;
 
   @Column()
   price!: number;
 
-  @Column('text')
-  comment!: string;
+  @Column({ type: 'text' })
+  comment?: string;
 
-  @Column({
-    type: 'enum',
-    enum: InvoiceStatus,
-    default: InvoiceStatus.WAITING,
-  })
-  status!: InvoiceStatus;
-
-  @OneToMany(() => Status, (status) => status.invoice)
-  statusChanges!: Status[];
+  @OneToMany(() => InvoiceActivity, (invoiceActivity) => invoiceActivity.invoice)
+  invoiceActivities!: InvoiceActivity[];
 
   // TODO: Add files
 }

@@ -1,52 +1,38 @@
 import {
-  Column, Entity, JoinTable, ManyToOne, ManyToMany, PrimaryGeneratedColumn, JoinColumn, OneToMany,
+  Column, Entity, JoinTable, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
 // eslint-disable-next-line import/no-cycle
 import { Contact } from './Contact';
 // eslint-disable-next-line import/no-cycle
-import { Product } from './Product';
+import { ContractActivity } from './activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
+import { ProductInstance } from './ProductInstance';
 
 @Entity()
-export class Contract {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Contract extends BaseEnt {
   @Column()
   title!: string;
 
-  @Column({ type: 'int' })
-  companyId!: number;
-
-  @ManyToOne(() => Company, (company) => company.contracts)
-  @JoinColumn({ name: 'companyId' })
+  @ManyToOne(() => Company, { nullable: false })
+  @JoinColumn()
   company!: Company;
 
-  @ManyToMany(() => Product)
+  @OneToMany(() => ProductInstance, (productInstance) => productInstance.contract)
   @JoinTable()
-  products!: Product[];
-
-  @Column({ type: 'int' })
-  contactId!: number;
+  products!: ProductInstance[];
 
   @ManyToOne(() => Contact, (contact) => contact.contracts)
-  @JoinColumn({ name: 'contactId' })
+  @JoinColumn()
   contact!: Contact;
 
-  @Column('date')
-  date!: Date;
+  @Column({ type: 'text', default: '' })
+  comments?: string;
 
-  @Column()
-  poNumber!: string;
-
-  @Column()
-  comments!: string;
-
-  @OneToMany(() => Status, (status) => status.contract)
-  statusChanges!: Status[];
+  @OneToMany(() => ContractActivity, (contractActivity) => contractActivity.contract)
+  contractActivity!: ContractActivity[];
 
   // TODO: add files
 }

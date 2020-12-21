@@ -1,56 +1,43 @@
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn,
+  Column, Entity, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
 import { Product } from './Product';
-
-// TODO: Complete status
-export enum ProductInstanceStatus {
-  WAITING = 'WAITING',
-  DELIVERED = 'DELIVERED',
-  NOT_DELIVERED = 'NOT_DELIVERED',
-}
+// eslint-disable-next-line import/no-cycle
+import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
+// eslint-disable-next-line import/no-cycle
+import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
-export class ProductInstance {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class ProductInstance extends BaseEnt {
   @Column({ type: 'int' })
   productId!: number;
 
-  @ManyToOne(() => Product, (product) => product.instances)
-  @JoinColumn({ name: 'productId' })
+  @ManyToOne(() => Product, { nullable: false })
+  @JoinColumn()
   product!: Product;
 
-  @Column({ type: 'int' })
-  contractId!: number;
-
-  @ManyToOne(() => Contract, (contract) => contract.products)
-  @JoinColumn({ name: 'contractId' })
+  @ManyToOne(() => Contract, { nullable: false })
+  @JoinColumn()
   contract!: Contract;
 
-  @Column({ type: 'int' })
-  invoiceId!: number;
+  @ManyToOne(() => Invoice, { nullable: true })
+  @JoinColumn()
+  invoice?: Invoice;
 
-  @ManyToOne(() => Invoice, (invoice) => invoice.products)
-  @JoinColumn({ name: 'invoiceId' })
-  invoice!: Invoice;
+  @OneToMany(() => ProductInstanceActivity,
+    (productInstanceActivity) => productInstanceActivity.productInstance)
+  @JoinColumn()
+  productInstanceActivities!: ProductActivity[];
 
   @Column()
   price!: number;
 
-  @Column('text')
-  comment!: string;
-
-  @Column({
-    type: 'enum',
-    enum: ProductInstanceStatus,
-    default: ProductInstanceStatus.WAITING,
-  })
-  status!: ProductInstanceStatus;
+  @Column({ nullable: true })
+  comment?: string;
 }

@@ -62,6 +62,7 @@ export default class ContractService {
 
   async createContract(params: ContractParams): Promise<Contract> {
     let contract = new Contract();
+    // @ts-ignore
     contract = {
       ...contract,
       ...params,
