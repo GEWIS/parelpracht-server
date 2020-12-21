@@ -60,12 +60,9 @@ export default class InvoiceService {
   }
 
   createInvoice(params: InvoiceParams): Promise<Invoice> {
-    let invoice = new Invoice();
-    // @ts-ignore
-    invoice = {
-      ...invoice,
+    const invoice = {
       ...params,
-    };
+    } as any as Invoice;
     return this.repo.save(invoice);
   }
 

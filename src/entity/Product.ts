@@ -7,6 +7,11 @@ import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
 import { ProductActivity } from './activity/ProductActivity';
 
+export enum ProductStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
 @Entity()
 export class Product extends BaseEnt {
   /** Dutch name of the product */
@@ -20,6 +25,14 @@ export class Product extends BaseEnt {
   /** Price is stored * 100 and as integer */
   @Column({ type: 'integer' })
   targetPrice!: number;
+
+  /** Status of the collaboration with this company */
+  @Column({
+    type: 'enum',
+    enum: ProductStatus,
+    default: ProductStatus.ACTIVE,
+  })
+  status!: ProductStatus;
 
   /** Description of the product, only used within the application */
   @Column({ type: 'text' })

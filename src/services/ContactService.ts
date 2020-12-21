@@ -71,14 +71,9 @@ export default class ContactService {
   }
 
   async createContact(params: ContactParams): Promise<Contact> {
-    const company = await new CompanyService().getCompany(params.companyId);
-    let contact = new Contact();
-    // @ts-ignore
-    contact = {
-      ...contact,
+    const contact = {
       ...params,
-      company,
-    };
+    } as any as Contact;
     return this.repo.save(contact);
   }
 

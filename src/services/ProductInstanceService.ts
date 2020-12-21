@@ -27,9 +27,7 @@ export default class ProductInstanceService {
   }
 
   async addProduct(contractId: number, params: ProductInstanceParams): Promise<ProductInstance> {
-    const contract = await new ContractService().getContract(contractId);
     const productInstance = {
-      contract,
       ...params,
     } as any as ProductInstance;
     return this.repo.save(productInstance);

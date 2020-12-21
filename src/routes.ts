@@ -19,10 +19,15 @@ import * as express from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "ProductStatus": {
+        "dataType": "refEnum",
+        "enums": ["ACTIVE","INACTIVE"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Product": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -30,6 +35,7 @@ const models: TsoaRoute.Models = {
             "nameDutch": {"dataType":"string","required":true},
             "nameEnglish": {"dataType":"string","required":true},
             "targetPrice": {"dataType":"double","required":true},
+            "status": {"ref":"ProductStatus","required":true},
             "description": {"dataType":"string","required":true},
             "contractTextDutch": {"dataType":"string","required":true},
             "contractTextEnglish": {"dataType":"string","required":true},
@@ -49,7 +55,7 @@ const models: TsoaRoute.Models = {
     "Contract": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -69,13 +75,14 @@ const models: TsoaRoute.Models = {
     "ProductInstance": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "productId": {"dataType":"double","required":true},
             "product": {"ref":"Product","required":true},
+            "contractId": {"dataType":"double","required":true},
             "contract": {"ref":"Contract","required":true},
             "invoiceId": {"dataType":"double"},
             "invoice": {"ref":"Invoice"},
@@ -89,7 +96,7 @@ const models: TsoaRoute.Models = {
     "Company": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -118,7 +125,7 @@ const models: TsoaRoute.Models = {
     "Invoice": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -146,7 +153,7 @@ const models: TsoaRoute.Models = {
     "User": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -165,7 +172,7 @@ const models: TsoaRoute.Models = {
     "Role": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -179,7 +186,7 @@ const models: TsoaRoute.Models = {
     "InvoiceActivity": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -204,7 +211,7 @@ const models: TsoaRoute.Models = {
     "Contact": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -227,7 +234,7 @@ const models: TsoaRoute.Models = {
     "CompanyActivity": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -245,7 +252,7 @@ const models: TsoaRoute.Models = {
     "ContractActivity": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -265,7 +272,7 @@ const models: TsoaRoute.Models = {
     "ProductActivity": {
         "dataType": "refObject",
         "properties": {
-            "id": {"dataType":"double"},
+            "id": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "deletedAt": {"dataType":"datetime"},
@@ -311,6 +318,7 @@ const models: TsoaRoute.Models = {
             "nameDutch": {"dataType":"string","required":true},
             "nameEnglish": {"dataType":"string","required":true},
             "targetPrice": {"dataType":"double","required":true},
+            "status": {"ref":"ProductStatus","required":true},
             "description": {"dataType":"string","required":true},
             "contractTextDutch": {"dataType":"string","required":true},
             "contractTextEnglish": {"dataType":"string","required":true},
@@ -322,7 +330,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ProductParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"description":{"dataType":"string"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"status":{"ref":"ProductStatus"},"description":{"dataType":"string"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CompanyListResponse": {

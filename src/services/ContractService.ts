@@ -59,12 +59,9 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
-    let contract = new Contract();
-    // @ts-ignore
-    contract = {
-      ...contract,
+    const contract = {
       ...params,
-    };
+    } as any as Contract;
     return this.repo.save(contract);
   }
 
