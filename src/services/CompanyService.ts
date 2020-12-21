@@ -5,6 +5,7 @@ import { ListParams } from '../controllers/ListParams';
 import { Company, CompanyStatus } from '../entity/Company';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
+// May not be correct yet
 export interface CompanyParams {
   name: string;
   description: string;

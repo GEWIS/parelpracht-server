@@ -15,6 +15,8 @@ import './controllers/RootController';
 import './controllers/ProductController';
 import './controllers/CompanyController';
 import './controllers/ContractController';
+import './controllers/InvoiceController';
+import './controllers/ContactController';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
