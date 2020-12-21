@@ -8,9 +8,8 @@ import ContractService, {
   ContractParams,
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
-import ProductInstanceService, {ProductInstanceParams} from '../services/ProductInstanceService';
-import {ProductInstance} from '../entity/ProductInstance';
-import {DeleteResult, UpdateResult} from 'typeorm';
+import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
+import { ProductInstance } from '../entity/ProductInstance';
 
 @Route('contract')
 @Tags('Contract')

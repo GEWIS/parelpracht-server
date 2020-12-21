@@ -6,7 +6,7 @@ import { Invoice } from '../entity/Invoice';
 import InvoiceService, { InvoiceListResponse, InvoiceParams } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 
-@Route('Invoice')
+@Route('invoice')
 @Tags('Invoice')
 export class InvoiceController extends Controller {
   /**
