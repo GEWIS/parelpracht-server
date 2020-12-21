@@ -25,6 +25,7 @@ export enum Gender {
 
 @Entity()
 export class User extends BaseEnt {
+  /** Gender of this user */
   @Column({
     type: 'enum',
     enum: Gender,
@@ -32,25 +33,33 @@ export class User extends BaseEnt {
   })
   gender!: Gender;
 
+  /** First name of this user */
   @Column()
   firstName!: string;
 
+  /** Middle name of this user, if he/she has any */
   @Column({ default: '' })
   middleName?: string;
 
+  /** Last name of this user */
   @Column()
   lastName!: string;
 
+  /** Email address of the user */
   @Column()
   email!: string;
 
+  /** Any comments regarding this user */
   @Column({ type: 'text', default: '' })
   comment?: string;
 
+  /** The roles this user has */
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
   roles!: Role[];
 
+  // This code has been disabled because it somehow creates cyclical dependencies,
+  // which is pretty weird
   // @OneToMany(() => CompanyActivity, (activity) => activity.createdBy)
   // companyActivities!: CompanyActivity[];
   //

@@ -6,6 +6,7 @@ import { Company } from '../Company';
 
 @Entity()
 export class CompanyActivity extends BaseActivity {
+  /** Company related to this activity */
   @ManyToOne(() => Company, { nullable: false })
   @JoinColumn()
   company!: Company;

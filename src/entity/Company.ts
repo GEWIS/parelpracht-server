@@ -18,15 +18,19 @@ export enum CompanyStatus {
 
 @Entity()
 export class Company extends BaseEnt {
+  /** Name of the company */
   @Column()
   name!: string;
 
-  @Column({ type: 'text' })
-  description!: string;
+  /** Description of the company */
+  @Column({ type: 'text', default: '' })
+  description?: string;
 
+  /** General phone number of the company */
   @Column({ default: '' })
   phoneNumber?: string;
 
+  /** Status of the collaboration with this company */
   @Column({
     type: 'enum',
     enum: CompanyStatus,
@@ -34,18 +38,23 @@ export class Company extends BaseEnt {
   })
   status!: CompanyStatus;
 
+  /** Optional end date of the collaboration with this company */
   @Column({ nullable: true })
   endDate?: Date;
 
+  /** All contracts related to this company */
   @OneToMany(() => Contract, (contract) => contract.company)
   contracts!: Contract[];
 
+  /** All invoices related to this company */
   @OneToMany(() => Invoice, (invoice) => invoice.company)
   invoices!: Invoice[];
 
+  /** All contact persons related to this company */
   @OneToMany(() => Contact, (contact) => contact.company)
   contacts!: Contact[];
 
+  /** All updates / activities regarding this company */
   @OneToMany(() => CompanyActivity, (companyActivity) => companyActivity.company)
   activities!: CompanyActivity[];
 }

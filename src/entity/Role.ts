@@ -7,9 +7,11 @@ import { User } from './User';
 
 @Entity()
 export class Role extends BaseEnt {
+  /** Name of the role */
   @Column()
   name!: string;
 
+  /** All users having this role */
   @ManyToMany(() => User, (user) => user.roles)
   @JoinTable()
   users!: User[];

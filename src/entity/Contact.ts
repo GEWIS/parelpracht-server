@@ -19,6 +19,7 @@ export enum ContactFunction {
 
 @Entity()
 export class Contact extends BaseEnt {
+  /** The gender of this contact */
   @Column({
     type: 'enum',
     enum: Gender,
@@ -26,30 +27,40 @@ export class Contact extends BaseEnt {
   })
   gender!: Gender;
 
+  /** The first name of the contact */
   @Column()
   firstName!: string;
 
+  /** The middle name of the contact, if he/she has one */
   @Column({ default: '' })
   middleName?: string;
 
+  /** The last name of the contact */
   @Column()
   lastName!: string;
 
+  /** The (personal) email address of the contact */
   @Column({ default: '' })
   email?: string;
 
+  /** The (personal) phone number of the contact */
   @Column({ default: '' })
   telephone?: string;
 
+  /** Comments regarding the contact person, if there are any */
   @Column({ type: 'text', default: '' })
   comment?: string;
 
+  /** Function of this contact person within the company, if known. Normal by default. */
   @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })
+  function?: ContactFunction;
 
+  /** Company this contact person works at */
   @ManyToOne(() => Company, { nullable: false })
   @JoinColumn()
   company!: Company;
 
+  /** All contracts that have been closed with this contact person */
   @OneToMany(() => Contract, (contract) => contract.contact)
   contracts!: Contract[];
 }
