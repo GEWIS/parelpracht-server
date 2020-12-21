@@ -63,7 +63,7 @@ export default class InvoiceService {
     invoice = {
       ...invoice,
       ...params,
-    };
+    } as any;
     return this.repo.save(invoice);
   }
 

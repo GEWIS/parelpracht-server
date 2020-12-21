@@ -72,7 +72,7 @@ export default class ContactService {
     contact = {
       ...contact,
       ...params,
-    };
+    } as any;
     return this.repo.save(contact);
   }
 

@@ -22,6 +22,8 @@
   "author": "Koen de Nooij",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "connect-typeorm": "^1.1.4",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
@@ -39,8 +41,11 @@
     "typeorm": "^0.2.29"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.2",
+    "@types/express-session": "^1.17.3",
     "@types/method-override": "0.0.31",
     "@types/node": "^14.14.13",
+    "@types/passport": "^1.0.4",
     "@types/swagger-ui-express": "^4.1.2",
     "@typescript-eslint/eslint-plugin": "^4.9.1",
     "@typescript-eslint/parser": "^4.9.1",
