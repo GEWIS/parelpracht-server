@@ -11,15 +11,19 @@ export enum ActivityType {
 }
 
 export default class BaseActivity extends BaseEnt {
+  /** Type of the activity (status or comment) */
   @Column({ type: 'enum', enum: ActivityType })
   type!: ActivityType;
 
-  @Column()
-  subType!: string;
+  /** Subtype of this activity, only used when the type = "STATUS" */
+  @Column({ default: '' })
+  subType?: string;
 
+  /** Description of this activity */
   @Column()
   description!: string;
 
+  /** User who created this activity */
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn()
   createdBy!: User;

@@ -9,9 +9,11 @@ import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
 export class Product extends BaseEnt {
+  /** Dutch name of the product */
   @Column()
   nameDutch!: string;
 
+  /** English name of the product */
   @Column()
   nameEnglish!: string;
 
@@ -19,24 +21,31 @@ export class Product extends BaseEnt {
   @Column()
   targetPrice!: number;
 
+  /** Description of the product, only used within the application */
   @Column({ type: 'text' })
   description!: string;
 
+  /** Text that should be used on generated PDF files, in Dutch */
   @Column({ type: 'text' })
   contractTextDutch!: string;
 
+  /** Text that should be used on generated PDF files, in English */
   @Column({ type: 'text' })
   contractTextEnglish!: string;
 
+  /** Delivery attachment text used on the PDF file, in Dutch */
   @Column({ type: 'text', default: '' })
   deliverySpecificationDutch?: string;
 
+  /** Delivery attachment text used on the PDF file, in English */
   @Column({ type: 'text', default: '' })
   deliverySpecificationEnglish?: string;
 
+  /** All the product instances of this product, used in contracts and invoiced */
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.product)
   instances!: ProductInstance[];
 
+  /** All activities regarding this product */
   @OneToMany(() => ProductActivity, (productActivity) => productActivity.product)
   productActivities!: ProductActivity[];
 }
