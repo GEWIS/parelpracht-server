@@ -3,8 +3,6 @@ import {
   UpdateDateColumn, VersionColumn,
 } from 'typeorm';
 
-
-
 /**
  * @tsoaModel
  */

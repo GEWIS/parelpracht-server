@@ -45,8 +45,8 @@ export default class ProductInstanceService {
   }
 
   async deleteProduct(contractId: number, productInstanceId: number): Promise<void> {
-    const productInstance = await this.repo.findOne(productInstanceId);
-    this.validateProductInstance(productInstance, contractId);
-    await this.repo.delete(productInstance!);
+    let productInstance = await this.repo.findOne(productInstanceId);
+    productInstance = this.validateProductInstance(productInstance, contractId);
+    await this.repo.delete(productInstance.id);
   }
 }
