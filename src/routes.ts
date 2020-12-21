@@ -76,7 +76,6 @@ const models: TsoaRoute.Models = {
             "version": {"dataType":"double","required":true},
             "productId": {"dataType":"double","required":true},
             "product": {"ref":"Product","required":true},
-            "contractId": {"dataType":"double","required":true},
             "contract": {"ref":"Contract","required":true},
             "invoiceId": {"dataType":"double"},
             "invoice": {"ref":"Invoice"},
