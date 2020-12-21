@@ -30,16 +30,29 @@ export class ContractController extends Controller {
     return new ContractService().getAllContracts(lp);
   }
 
+  /**
+   * getContract() - retrieve single contract
+   * @param id ID of contract to retrieve
+   */
   @Get('{id}')
   public async getContract(id: number): Promise<Contract> {
     return new ContractService().getContract(id);
   }
 
+  /**
+   * createContract() - create contract
+   * @param params Parameters to create contract with
+   */
   @Post()
   public async createContract(@Body() params: ContractParams): Promise<Contract> {
     return new ContractService().createContract(params);
   }
 
+  /**
+   * updateContract() - update contract
+   * @param id ID of contract to update
+   * @param params Update subset of parameter of contract
+   */
   @Put('{id}')
   public async updateContract(
     id: number, @Body() params: Partial<ContractParams>,
