@@ -3,7 +3,7 @@ import {
   Controller, Post, Route, Put, Tags, Get, Query,
 } from 'tsoa';
 import { Contact } from '../entity/Contact';
-import ContactService, { ContactListResponse, ContactParams } from '../services/ContactService';
+import ContactService, { ContactListResponse, ContactParams, ContactSummary } from '../services/ContactService';
 import { ListParams } from './ListParams';
 
 @Route('contact')
@@ -28,6 +28,15 @@ export class ContactController extends Controller {
     const lp: ListParams = { skip, take, search };
     if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ContactService().getAllContacts(lp);
+  }
+
+  /**
+   * getContactSummaries() - retrieve a list of all contacts
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  public async getContactSummaries(): Promise<ContactSummary[]> {
+    return new ContactService().getContactSummaries();
   }
 
   /**
