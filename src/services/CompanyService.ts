@@ -22,6 +22,11 @@ export interface CompanyParams {
   endDate?: Date;
 }
 
+export interface CompanySummary {
+  id: number;
+  name: string;
+}
+
 export interface CompanyListResponse {
   list: Company[];
   count: number;
@@ -64,6 +69,10 @@ export default class CompanyService {
       }),
       count: await this.repo.count(findOptions),
     };
+  }
+
+  async getCompanySummaries(): Promise<CompanySummary[]> {
+    return this.repo.find({ select: ['id', 'name'] });
   }
 
   createCompany(params: CompanyParams): Promise<Company> {
