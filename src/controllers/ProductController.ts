@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Request, Response,
+  Controller, Post, Route, Put, Tags, Get, Query, Request, Response, Security,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -39,6 +39,7 @@ export class ProductController extends Controller {
    * @param id ID of product to retrieve
    */
   @Get('{id}')
+  @Security('local')
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);
   }

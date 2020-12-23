@@ -9,16 +9,64 @@
       "https"
     ],
     "basePath": "/api",
-    "securityDefinitions": {},
+    "securityDefinitions": {
+      "local": {
+        "type": "apikey",
+        "name": "connect.sid",
+        "in": "cookie"
+      }
+    },
     "specVersion": 3,
     "specMerging": "recursive",
     "spec": {
-      "paths": {}
+      "components": {
+        "schemas": {
+          "LoginParams": {
+            "dataType": "refObject",
+            "properties": {
+              "email": {
+                "type": "string",
+                "required": true
+              },
+              "password": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "paths": {
+        "/login": {
+          "post": {
+            "operationId": "Login",
+            "responses": {
+              "204": {
+                "description": "No content"
+              }
+            },
+            "security": [],
+            "parameters": [],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LoginParams"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "routes": {
     "basePath": "/api",
     "routesDir": "./src",
-    "middleware": "express"
+    "middleware": "express",
+    "authenticationModule": "./src/auth/authentication.ts"
   }
 }
