@@ -40,6 +40,7 @@ export class ProductController extends Controller {
    */
   @Get('{id}')
   @Security('local')
+  @Response<WrappedApiError>(401)
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);
   }

@@ -12,7 +12,7 @@ export async function expressAuthentication(
         return request.user;
       }
 
-      throw new ApiError(HTTPStatus.Unauthorized);
+      throw new ApiError(HTTPStatus.Unauthorized, 'You are not logged in.');
     }
     default: throw new Error('Unknown security scheme');
   }
