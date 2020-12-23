@@ -1,11 +1,13 @@
 import {
-  Controller, Get, Route,
+  Body,
+  Controller, Get, Post, Route,
 } from 'tsoa';
+import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
 
 @Route('')
 export class RootController extends Controller {
-  @Get('greet/{name}')
-  public async getGreetName(name: string): Promise<string> {
-    return `Hello ${name}!`;
+  @Post('setup')
+  public async postSetup(@Body() params: SetupParams): Promise<void> {
+    return new ServerSettingsService().initialSetup(params);
   }
 }

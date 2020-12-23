@@ -19,6 +19,19 @@ import * as express from 'express';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "Gender": {
+        "dataType": "refEnum",
+        "enums": ["MALE","FEMALE","OTHER","UNKNOWN"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SetupParams": {
+        "dataType": "refObject",
+        "properties": {
+            "admin": {"dataType":"nestedObjectLiteral","nestedProperties":{"lastName":{"dataType":"string","required":true},"middleName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"gender":{"ref":"Gender","required":true},"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Product": {
         "dataType": "refObject",
         "properties": {
@@ -123,11 +136,6 @@ const models: TsoaRoute.Models = {
     "ActivityType": {
         "dataType": "refEnum",
         "enums": ["STATUS","COMMENT"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Gender": {
-        "dataType": "refEnum",
-        "enums": ["MALE","FEMALE","OTHER","UNKNOWN"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "User": {
@@ -421,10 +429,10 @@ export function RegisterRoutes(app: express.Router) {
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
-        app.get('/api/greet/:name',
+        app.post('/api/setup',
             function (request: any, response: any, next: any) {
             const args = {
-                    name: {"in":"path","name":"name","required":true,"dataType":"string"},
+                    params: {"in":"body","name":"params","required":true,"ref":"SetupParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -439,7 +447,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new RootController();
 
 
-            const promise = controller.getGreetName.apply(controller, validatedArgs as any);
+            const promise = controller.postSetup.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
