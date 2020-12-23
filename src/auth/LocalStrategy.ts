@@ -5,8 +5,9 @@ import passport from 'passport';
 import express from 'express';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
+import { ApiError, HTTPStatus } from '../helpers/error';
 
-const INVALID_LOGIN = 'Invalid login credentials';
+const INVALID_LOGIN = 'Invalid email or password.';
 
 export function hashPassword(password: string, salt: string) {
   const hash = crypto.createHash('sha256');
@@ -28,10 +29,10 @@ export default new LocalStrategy({
   const identity = await identityRepo.findOne({ email });
 
   // Check if the identity is found
-  if (identity === undefined) { return done(new Error(INVALID_LOGIN)); }
+  if (identity === undefined) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
 
   if (!validPassword(password, identity.salt, identity.hash)) {
-    return done(new Error(INVALID_LOGIN));
+    return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
   const userRepo = getRepository(User);
@@ -45,7 +46,7 @@ export const localLogin = (
 ) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) { return next(err); }
-    if (!user) { return next(new Error(INVALID_LOGIN)); }
+    if (!user) { return next(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
     return req.logIn(user, (e: any) => {
       if (e) { return next(e); }
       return res.send();

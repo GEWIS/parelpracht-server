@@ -1,8 +1,9 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query,
+  Controller, Post, Route, Put, Tags, Get, Query, Security, Response,
 } from 'tsoa';
 import { Invoice } from '../entity/Invoice';
+import { WrappedApiError } from '../helpers/error';
 import InvoiceService, { InvoiceListResponse, InvoiceParams } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 
@@ -18,6 +19,8 @@ export class InvoiceController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async getAllInvoices(
     @Query() col?: string,
       @Query() dir?: 'ASC' | 'DESC',
@@ -35,6 +38,8 @@ export class InvoiceController extends Controller {
    * @param id ID of invoice to retrieve
    */
   @Get('{id}')
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async getInvoice(id: number): Promise<Invoice> {
     return new InvoiceService().getInvoice(id);
   }
@@ -44,6 +49,8 @@ export class InvoiceController extends Controller {
    * @param params Parameters to create invoice with
    */
   @Post()
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async createInvoice(@Body() params: InvoiceParams): Promise<Invoice> {
     return new InvoiceService().createInvoice(params);
   }
@@ -54,6 +61,8 @@ export class InvoiceController extends Controller {
    * @param params Update subset of parameter of invoice
    */
   @Put('{id}')
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async updateInvoice(
     id: number, @Body() params: Partial<InvoiceParams>,
   ): Promise<Invoice> {

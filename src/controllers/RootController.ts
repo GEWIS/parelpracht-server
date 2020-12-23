@@ -1,10 +1,11 @@
 import express from 'express';
 import {
   Body,
-  Controller, Get, Post, Request, Route, Security,
+  Controller, Get, Post, Request, Response, Route, Security,
 
 } from 'tsoa';
 import { User } from '../entity/User';
+import { WrappedApiError } from '../helpers/error';
 import AuthService, { AuthStatus } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
 
@@ -22,6 +23,7 @@ export class RootController extends Controller {
 
   @Get('profile')
   @Security('local')
+  @Response<WrappedApiError>(401)
   public async getProfile(@Request() req: express.Request): Promise<User> {
     return new AuthService().getProfile(req);
   }
