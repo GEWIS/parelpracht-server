@@ -1,10 +1,18 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete,
 } from 'tsoa';
 import { Invoice } from '../entity/Invoice';
 import InvoiceService, { InvoiceListResponse, InvoiceParams } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
+import ActivityService, {
+  CommentParams,
+  FullActivityParams,
+  StatusParams,
+  UpdateActivityParams,
+} from '../services/ActivityService';
+import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -58,5 +66,58 @@ export class InvoiceController extends Controller {
     id: number, @Body() params: Partial<InvoiceParams>,
   ): Promise<Invoice> {
     return new InvoiceService().updateInvoice(id, params);
+  }
+
+  /**
+   * Add a activity status to this invoice
+   * @param id ID of the invoice
+   * @param params Parameters to create this status with
+   */
+  @Post('{id}/status')
+  public async addStatus(id: number, @Body() params: StatusParams): Promise<BaseActivity> {
+    // eslint-disable-next-line no-param-reassign
+    const p = {
+      ...params,
+      entityId: id,
+      type: ActivityType.STATUS,
+    } as FullActivityParams;
+    return new ActivityService(InvoiceActivity).createActivity(p);
+  }
+
+  /**
+   * Add a activity comment to this invoice
+   * @param id ID of the invoice
+   * @param params Parameters to create this comment with
+   */
+  @Post('{id}/comment')
+  public async addComment(id: number, @Body() params: CommentParams): Promise<BaseActivity> {
+    // eslint-disable-next-line no-param-reassign
+    const p = {
+      ...params,
+      entityId: id,
+      type: ActivityType.COMMENT,
+    } as FullActivityParams;
+    return new ActivityService(InvoiceActivity).createActivity(p);
+  }
+
+  /**
+   * Edit the description and/or related invoice of an activity
+   * @param id ID of the invoice
+   * @param activityId ID of the activity
+   * @param params Update subset of parameter of the activity
+   */
+  @Put('{id}/activity/{activityId}')
+  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+    return new ActivityService(InvoiceActivity).updateActivity(id, activityId, params);
+  }
+
+  /**
+   * Delete an activity
+   * @param id ID of the invoice
+   * @param activityId ID of the activity
+   */
+  @Delete('{id}/activity/{activityId}')
+  public async deleteActivity(id: number, activityId: number): Promise<void> {
+    return new ActivityService(InvoiceActivity).deleteActivity(id, activityId);
   }
 }

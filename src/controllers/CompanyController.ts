@@ -104,7 +104,7 @@ export class CompanyController extends Controller {
    * @param params Update subset of parameter of comment activity
    */
   @Put('{id}/activity/{activityId}')
-  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>) {
+  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
     return new ActivityService(CompanyActivity).updateActivity(id, activityId, params);
   }
 
@@ -113,7 +113,7 @@ export class CompanyController extends Controller {
    * @param activityId ID of the comment activity
    */
   @Delete('{id}/activity/{activityId}')
-  public async deleteActivity(id: number, activityId: number) {
+  public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
   }
 }
