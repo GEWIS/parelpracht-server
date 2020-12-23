@@ -44,7 +44,6 @@ export const localLogin = (
   next: express.NextFunction,
 ) => {
   passport.authenticate('local', (err, user, info) => {
-    console.log(user, info);
     if (err) { return next(err); }
     if (!user) { return next(new Error(INVALID_LOGIN)); }
     return req.logIn(user, (e: any) => {
