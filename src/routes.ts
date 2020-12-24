@@ -526,6 +526,7 @@ const models: TsoaRoute.Models = {
             "firstName": {"dataType":"string","required":true},
             "middleName": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
+            "companyName": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },

@@ -132,7 +132,9 @@ export class ContractController extends Controller {
    * @param params Parameters to create this status with
    */
   @Post('{id}/product/{prodId}/status')
-  public async addProductStatus(id: number, prodId: number, @Body() params: StatusParams): Promise<BaseActivity> {
+  public async addProductStatus(
+    id: number, prodId: number, @Body() params: StatusParams,
+  ): Promise<BaseActivity> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     const p = {
       ...params,
@@ -149,7 +151,9 @@ export class ContractController extends Controller {
    * @param params Parameters to create this comment with
    */
   @Post('{id}/product/{prodId}/comment')
-  public async addProductComment(id: number, prodId: number, @Body() params: CommentParams): Promise<BaseActivity> {
+  public async addProductComment(
+    id: number, prodId: number, @Body() params: CommentParams,
+  ): Promise<BaseActivity> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     const p = {
       ...params,
@@ -167,7 +171,9 @@ export class ContractController extends Controller {
    * @param params Update subset of parameter of the activity
    */
   @Put('{id}/product/{prodId}/activity/{activityId}')
-  public async updateProductActivity(id: number, prodId: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  public async updateProductActivity(
+    id: number, prodId: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     return new ActivityService(ProductActivity).updateActivity(prodId, activityId, params);
   }
@@ -179,7 +185,9 @@ export class ContractController extends Controller {
    * @param activityId ID of the activity
    */
   @Delete('{id}/product/{prodId}/activity/{activityId}')
-  public async deleteProductActivity(id: number, prodId: number, activityId: number): Promise<void> {
+  public async deleteProductActivity(
+    id: number, prodId: number, activityId: number,
+  ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     return new ActivityService(ProductActivity).deleteActivity(prodId, activityId);
   }
@@ -221,7 +229,9 @@ export class ContractController extends Controller {
    * @param params Update subset of parameter of the activity
    */
   @Put('{id}/activity/{activityId}')
-  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  public async updateActivity(
+    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     return new ActivityService(ContractActivity).updateActivity(id, activityId, params);
   }
 
