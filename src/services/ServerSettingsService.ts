@@ -1,6 +1,6 @@
 import { getRepository, Repository } from 'typeorm';
 import crypto from 'crypto';
-import { hashPassword } from '../auth/LocalStrategy';
+import { generateSalt, hashPassword } from '../auth/LocalStrategy';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { ServerSetting } from '../entity/ServerSetting';
 import { Gender, User } from '../entity/User';
@@ -49,7 +49,7 @@ export default class ServerSettingsService {
       lastName: admin.lastName,
     });
 
-    const salt = crypto.randomBytes(16).toString('hex');
+    const salt = generateSalt();
     await identityRepo.save({
       userId: adminUser.id,
       email: admin.email,

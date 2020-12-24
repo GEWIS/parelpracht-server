@@ -23,6 +23,7 @@ import './controllers/ContactController';
 import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
+import { Mailer } from './mailer/Mailer';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
