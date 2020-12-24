@@ -10,7 +10,7 @@ export enum ActivityType {
   COMMENT = 'COMMENT',
 }
 
-export default class BaseActivity extends BaseEnt {
+export default abstract class BaseActivity extends BaseEnt {
   /** Type of the activity (status or comment) */
   @Column({ type: 'enum', enum: ActivityType })
   type!: ActivityType;
@@ -24,7 +24,7 @@ export default class BaseActivity extends BaseEnt {
   description!: string;
 
   /** User who created this activity */
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn()
-  createdBy!: User;
+  createdBy?: User;
 }

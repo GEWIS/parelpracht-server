@@ -1,10 +1,18 @@
 import {
   Body,
-  Tags, Controller, Post, Route, Put, Get, Query,
+  Tags, Controller, Post, Route, Put, Get, Query, Delete,
 } from 'tsoa';
 import { Company } from '../entity/Company';
 import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
+import ActivityService, {
+  CommentParams,
+  FullActivityParams,
+  StatusParams,
+  UpdateActivityParams,
+} from '../services/ActivityService';
+import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import { CompanyActivity } from '../entity/activity/CompanyActivity';
 
 @Route('company')
 @Tags('Company')
@@ -65,5 +73,56 @@ export class CompanyController extends Controller {
   @Put('{id}')
   public async updateCompany(id: number, @Body() params: Partial<CompanyParams>): Promise<Company> {
     return new CompanyService().updateCompany(id, params);
+  }
+
+  /**
+   * Add a activity status to this company
+   * @param id ID of the company
+   * @param params Parameters to create this status with
+   */
+  @Post('{id}/status')
+  public async addStatus(id: number, @Body() params: StatusParams): Promise<BaseActivity> {
+    // eslint-disable-next-line no-param-reassign
+    const p = {
+      ...params,
+      entityId: id,
+      type: ActivityType.STATUS,
+    } as FullActivityParams;
+    return new ActivityService(CompanyActivity).createActivity(p);
+  }
+
+  /**
+   * Add a activity comment to this company
+   * @param id ID of the company
+   * @param params Parameters to create this comment with
+   */
+  @Post('{id}/comment')
+  public async addComment(id: number, @Body() params: CommentParams): Promise<BaseActivity> {
+    // eslint-disable-next-line no-param-reassign
+    const p = {
+      ...params,
+      entityId: id,
+      type: ActivityType.COMMENT,
+    } as FullActivityParams;
+    return new ActivityService(CompanyActivity).createActivity(p);
+  }
+
+  /**
+   * @param id ID of the company
+   * @param activityId ID of the comment activity
+   * @param params Update subset of parameter of comment activity
+   */
+  @Put('{id}/activity/{activityId}')
+  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+    return new ActivityService(CompanyActivity).updateActivity(id, activityId, params);
+  }
+
+  /**
+   * @param id ID of the company
+   * @param activityId ID of the comment activity
+   */
+  @Delete('{id}/activity/{activityId}')
+  public async deleteActivity(id: number, activityId: number): Promise<void> {
+    return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
   }
 }

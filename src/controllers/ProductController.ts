@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Request, Response,
+  Controller, Post, Route, Put, Tags, Get, Query, Request, Response, Delete,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -9,6 +9,14 @@ import ProductService, { ProductListResponse, ProductParams } from '../services/
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
+import ActivityService, {
+  CommentParams,
+  FullActivityParams,
+  StatusParams,
+  UpdateActivityParams,
+} from '../services/ActivityService';
+import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import { ProductActivity } from '../entity/activity/ProductActivity';
 
 @Route('product')
 @Tags('Product')
@@ -76,5 +84,56 @@ export class ProductController extends Controller {
     ], req);
 
     return new ProductService().updateProduct(id, params);
+  }
+
+  /**
+   * Add a activity status to this product
+   * @param id ID of the product
+   * @param params Parameters to create this status with
+   */
+  @Post('{id}/status')
+  public async addStatus(id: number, @Body() params: StatusParams): Promise<BaseActivity> {
+    const p = {
+      ...params,
+      entityId: id,
+      type: ActivityType.STATUS,
+    } as FullActivityParams;
+    return new ActivityService(ProductActivity).createActivity(p);
+  }
+
+  /**
+   * Add a activity comment to this product
+   * @param id ID of the product
+   * @param params Parameters to create this comment with
+   */
+  @Post('{id}/comment')
+  public async addComment(id: number, @Body() params: CommentParams): Promise<BaseActivity> {
+    const p = {
+      ...params,
+      entityId: id,
+      type: ActivityType.COMMENT,
+    } as FullActivityParams;
+    return new ActivityService(ProductActivity).createActivity(p);
+  }
+
+  /**
+   * Edit the description of an activity
+   * @param id ID of the product
+   * @param activityId ID of the activity
+   * @param params Update subset of parameter of comment activity
+   */
+  @Put('{id}/activity/{activityId}')
+  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+    return new ActivityService(ProductActivity).updateActivity(id, activityId, params);
+  }
+
+  /**
+   * Delete an activity
+   * @param id ID of the product
+   * @param activityId ID of the activity
+   */
+  @Delete('{id}/activity/{activityId}')
+  public async deleteActivity(id: number, activityId: number): Promise<void> {
+    return new ActivityService(ProductActivity).deleteActivity(id, activityId);
   }
 }
