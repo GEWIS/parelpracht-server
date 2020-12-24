@@ -3,7 +3,7 @@ import {
   Tags, Controller, Post, Route, Put, Get, Query, Delete,
 } from 'tsoa';
 import { Company } from '../entity/Company';
-import CompanyService, { CompanyListResponse, CompanyParams } from '../services/CompanyService';
+import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
 import ActivityService, {
   CommentParams,
@@ -36,6 +36,15 @@ export class CompanyController extends Controller {
     const lp: ListParams = { skip, take, search };
     if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new CompanyService().getAllCompanies(lp);
+  }
+
+  /**
+   * getCompanySummaries() - retrieve a list of all companies
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  public async getCompanySummaries(): Promise<CompanySummary[]> {
+    return new CompanyService().getCompanySummaries();
   }
 
   /**

@@ -7,7 +7,6 @@ import { Contact, ContactFunction } from '../entity/Contact';
 import { Gender } from '../entity/User';
 // import { Contract } from '../entity/Contract';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import CompanyService from './CompanyService';
 
 // May not be correct yet
 export interface ContactParams {
@@ -20,6 +19,13 @@ export interface ContactParams {
   comments?: string;
   companyId: number;
   function?: ContactFunction;
+}
+
+export interface ContactSummary {
+  id: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
 }
 
 export interface ContactListResponse {
@@ -70,10 +76,14 @@ export default class ContactService {
     };
   }
 
+  async getContactSummaries(): Promise<ContactSummary[]> {
+    return this.repo.find({ select: ['id', 'firstName', 'middleName', 'lastName'] });
+  }
+
   async createContact(params: ContactParams): Promise<Contact> {
     const contact = {
       ...params,
-    } as any as Contact;
+    } as any;
     return this.repo.save(contact);
   }
 

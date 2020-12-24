@@ -62,7 +62,7 @@ export default class InvoiceService {
   createInvoice(params: InvoiceParams): Promise<Invoice> {
     const invoice = {
       ...params,
-    } as any as Invoice;
+    } as any;
     return this.repo.save(invoice);
   }
 

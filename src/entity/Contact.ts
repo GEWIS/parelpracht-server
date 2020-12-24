@@ -33,7 +33,7 @@ export class Contact extends BaseEnt {
 
   /** The middle name of the contact, if he/she has one */
   @Column({ default: '' })
-  middleName?: string;
+  middleName!: string;
 
   /** The last name of the contact */
   @Column()
@@ -41,19 +41,19 @@ export class Contact extends BaseEnt {
 
   /** The (personal) email address of the contact */
   @Column({ default: '' })
-  email?: string;
+  email!: string;
 
   /** The (personal) phone number of the contact */
   @Column({ default: '' })
-  telephone?: string;
+  telephone!: string;
 
   /** Comments regarding the contact person, if there are any */
   @Column({ type: 'text', default: '' })
-  comments?: string;
+  comments!: string;
 
   /** Function of this contact person within the company, if known. Normal by default. */
   @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })
-  function?: ContactFunction;
+  function!: ContactFunction;
 
   @Column({ type: 'integer' })
   companyId!: number;

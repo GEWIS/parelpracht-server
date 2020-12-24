@@ -22,6 +22,11 @@ export interface CompanyParams {
   endDate?: Date;
 }
 
+export interface CompanySummary {
+  id: number;
+  name: string;
+}
+
 export interface CompanyListResponse {
   list: Company[];
   count: number;
@@ -35,7 +40,7 @@ export default class CompanyService {
   }
 
   async getCompany(id: number): Promise<Company> {
-    const company = await this.repo.findOne(id, { relations: ['contracts', 'activities'] }); // May need more relations
+    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities'] }); // May need more relations
     if (company === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
@@ -64,6 +69,10 @@ export default class CompanyService {
       }),
       count: await this.repo.count(findOptions),
     };
+  }
+
+  async getCompanySummaries(): Promise<CompanySummary[]> {
+    return this.repo.find({ select: ['id', 'name'] });
   }
 
   createCompany(params: CompanyParams): Promise<Company> {
