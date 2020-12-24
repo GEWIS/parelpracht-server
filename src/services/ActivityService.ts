@@ -6,6 +6,7 @@ import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import UserService from './UserService';
 
 export interface UpdateActivityParams {
   description: string;
@@ -63,6 +64,7 @@ export default class ActivityService {
   }
 
   async createActivity(params: FullActivityParams): Promise<BaseActivity> {
+    const user = new UserService().getUser(params.createdById);
     // @ts-ignore
     let activity = new this.EntityActivity();
     activity = {
@@ -70,6 +72,7 @@ export default class ActivityService {
       description: params.description,
       type: params.type,
       subType: params.subtype,
+      createdBy: user,
     };
 
     switch (this.EntityActivity) {
