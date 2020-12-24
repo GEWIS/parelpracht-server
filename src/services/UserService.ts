@@ -16,4 +16,13 @@ export default class UserService {
     }
     return user;
   }
+
+  createUser(firstName: string, lastName: string) {
+    const user = {
+      firstName,
+      lastName,
+      email: 'me@example.com',
+    } as User;
+    return this.repo.save(user);
+  }
 }

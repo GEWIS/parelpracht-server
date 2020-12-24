@@ -16,11 +16,11 @@ export class ContractActivity extends BaseActivity {
   @JoinColumn({ name: 'contractId' })
   contract!: Contract;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   relatedContractId?: number;
 
   /** If this activity should reference another contract, it can be done here */
-  @ManyToOne(() => Contract, (contract) => contract.products)
+  @ManyToOne(() => Contract, (contract) => contract.products, { nullable: true })
   @JoinColumn({ name: 'relatedContractId' })
   relatedContract?: Contract;
 }

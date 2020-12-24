@@ -16,11 +16,11 @@ export class InvoiceActivity extends BaseActivity {
   @JoinColumn({ name: 'invoiceId' })
   invoice!: Invoice;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   relatedInvoiceId?: number;
 
   /** If this activity should reference another invoice, it can be done here */
-  @ManyToOne(() => Invoice, (invoice) => invoice.products)
+  @ManyToOne(() => Invoice, (invoice) => invoice.products, { nullable: true })
   @JoinColumn({ name: 'relatedInvoiceId' })
   relatedInvoice?: Invoice;
 }

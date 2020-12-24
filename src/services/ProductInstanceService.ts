@@ -33,6 +33,7 @@ export default class ProductInstanceService {
   async addProduct(contractId: number, params: ProductInstanceParams): Promise<ProductInstance> {
     const productInstance = {
       ...params,
+      contractId,
     } as any as ProductInstance;
     return this.repo.save(productInstance);
     // TODO: Fix that the contract is also passed on with the product

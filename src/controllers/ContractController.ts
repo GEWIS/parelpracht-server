@@ -181,8 +181,8 @@ export class ContractController extends Controller {
   }
 
   /**
-   * Add a activity comment to this invoice
-   * @param id ID of the invoice
+   * Add a activity comment to this contract
+   * @param id ID of the contract
    * @param params Parameters to create this comment with
    */
   @Post('{id}/comment')
