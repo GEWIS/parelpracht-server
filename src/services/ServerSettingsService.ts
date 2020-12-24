@@ -1,15 +1,12 @@
 import { getRepository, Repository } from 'typeorm';
-import crypto from 'crypto';
-import { generateSalt, hashPassword } from '../auth/LocalStrategy';
-import { IdentityLocal } from '../entity/IdentityLocal';
 import { ServerSetting } from '../entity/ServerSetting';
 import { Gender, User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import AuthService from './AuthService';
 
 export interface SetupParams {
   admin: {
     email: string;
-    password: string;
 
     gender: Gender;
     firstName: string;
@@ -39,7 +36,6 @@ export default class ServerSettingsService {
     }
 
     const userRepo = getRepository(User);
-    const identityRepo = getRepository(IdentityLocal);
     const { admin } = params;
     const adminUser = await userRepo.save({
       email: admin.email,
@@ -49,14 +45,7 @@ export default class ServerSettingsService {
       lastName: admin.lastName,
     });
 
-    const salt = generateSalt();
-    await identityRepo.save({
-      userId: adminUser.id,
-      email: admin.email,
-      verifiedEmail: true,
-      hash: hashPassword(admin.password, salt),
-      salt,
-    });
+    new AuthService().createIdentityLocal(adminUser);
 
     await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
   }

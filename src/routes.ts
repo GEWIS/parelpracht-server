@@ -28,7 +28,7 @@ const models: TsoaRoute.Models = {
     "SetupParams": {
         "dataType": "refObject",
         "properties": {
-            "admin": {"dataType":"nestedObjectLiteral","nestedProperties":{"lastName":{"dataType":"string","required":true},"middleName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"gender":{"ref":"Gender","required":true},"password":{"dataType":"string","required":true},"email":{"dataType":"string","required":true}},"required":true},
+            "admin": {"dataType":"nestedObjectLiteral","nestedProperties":{"lastName":{"dataType":"string","required":true},"middleName":{"dataType":"string","required":true},"firstName":{"dataType":"string","required":true},"gender":{"ref":"Gender","required":true},"email":{"dataType":"string","required":true}},"required":true},
         },
         "additionalProperties": false,
     },

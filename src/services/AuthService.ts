@@ -7,6 +7,7 @@ import { Mailer } from '../mailer/Mailer';
 import { resetPassword } from '../mailer/templates/resetPassword';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { generateSalt, hashPassword } from '../auth/LocalStrategy';
+import { newUser } from '../mailer/templates/newUser';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
@@ -55,10 +56,38 @@ export default class AuthService {
     ));
   }
 
+  async createIdentityLocal(user: User): Promise<void> {
+    let identity = this.identityRepo.create({
+      id: user.id,
+      email: user.email,
+      verifiedEmail: false,
+      salt: generateSalt(),
+    });
+    identity = await this.identityRepo.save(identity);
+
+    Mailer.getInstance().send(newUser(
+      user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(
+        user, identity,
+      )}`,
+    ));
+  }
+
   getResetPasswordToken(user: User, identity: IdentityLocal): string {
     return jwt.sign(
       {
         type: 'PASSWORD_RESET',
+        user_id: user.id,
+      },
+      // Password salt + user createdAt as unique key
+      `${identity.salt || ''}.${user.createdAt}`,
+      { expiresIn: '7 days' },
+    );
+  }
+
+  getSetPasswordToken(user: User, identity: IdentityLocal): string {
+    return jwt.sign(
+      {
+        type: 'PASSWORD_SET',
         user_id: user.id,
       },
       // Password salt + user createdAt as unique key

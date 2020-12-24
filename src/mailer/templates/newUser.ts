@@ -4,6 +4,7 @@ import { User } from '../../entity/User';
 export const newUser = (user: User, resetLink: string): Mail.Options => ({
   subject: 'Your account has been created - CRM',
   to: user.email,
+  from: process.env.MAIL_FROM,
   html: `
     <p>Dear ${user.firstName}</p>
     <p>
