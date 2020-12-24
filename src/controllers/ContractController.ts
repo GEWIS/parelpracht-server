@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response,
 } from 'tsoa';
 import { Contract } from '../entity/Contract';
 import ContractService, {
@@ -10,6 +10,7 @@ import ContractService, {
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
+import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   CommentParams,
   FullActivityParams,
@@ -33,6 +34,8 @@ export class ContractController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async getAllContracts(
     @Query() col?: string,
       @Query() dir?: 'ASC' | 'DESC',
@@ -50,6 +53,8 @@ export class ContractController extends Controller {
    * @param id ID of contract to retrieve
    */
   @Get('{id}')
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async getContract(id: number): Promise<Contract> {
     return new ContractService().getContract(id);
   }
@@ -59,6 +64,8 @@ export class ContractController extends Controller {
    * @param params Parameters to create contract with
    */
   @Post()
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async createContract(@Body() params: ContractParams): Promise<Contract> {
     return new ContractService().createContract(params);
   }
@@ -69,6 +76,8 @@ export class ContractController extends Controller {
    * @param params Update subset of parameter of contract
    */
   @Put('{id}')
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async updateContract(
     id: number, @Body() params: Partial<ContractParams>,
   ): Promise<Contract> {
@@ -81,7 +90,11 @@ export class ContractController extends Controller {
    * @param params - Create subset of product
    */
   @Post('{id}/product')
-  public async addProduct(id: number, @Body() params: ProductInstanceParams): Promise<ProductInstance> {
+  @Security('local')
+  @Response<WrappedApiError>(401)
+  public async addProduct(
+    id: number, @Body() params: ProductInstanceParams,
+  ): Promise<ProductInstance> {
     return new ProductInstanceService().addProduct(id, params);
   }
 
@@ -92,7 +105,11 @@ export class ContractController extends Controller {
    * @param params Update subset of product instance
    */
   @Put('{id}/product/{prodId}')
-  public async updateProduct(id: number, prodId: number, @Body() params: Partial<ProductInstanceParams>): Promise<ProductInstance> {
+  @Security('local')
+  @Response<WrappedApiError>(401)
+  public async updateProduct(
+    id: number, prodId: number, @Body() params: Partial<ProductInstanceParams>,
+  ): Promise<ProductInstance> {
     return new ProductInstanceService().updateProduct(id, prodId, params);
   }
 
@@ -102,6 +119,8 @@ export class ContractController extends Controller {
    * @param prodId ID of the product instance
    */
   @Delete('{id}/product/{prodId}')
+  @Security('local')
+  @Response<WrappedApiError>(401)
   public async deleteProduct(id: number, prodId: number): Promise<void> {
     return new ProductInstanceService().deleteProduct(id, prodId);
   }

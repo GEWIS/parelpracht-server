@@ -7,7 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
-import { createConnection } from 'typeorm';
+import { createConnection, getRepository } from 'typeorm';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
@@ -57,11 +57,16 @@ createConnection().then(async (connection) => {
   app.use(passport.session());
 
   passport.serializeUser((user: User, done) => {
-    done(null, user);
+    done(null, user.id);
   });
 
-  passport.deserializeUser((user: User, done) => {
-    done(null, user);
+  passport.deserializeUser(async (id: number, done) => {
+    const userRepo = getRepository(User);
+    const user = await userRepo.findOne({ id });
+    if (user === undefined) {
+      return done(new Error('User not found'));
+    }
+    return done(null, user);
   });
 
   passport.use(localStrategy);

@@ -1,5 +1,5 @@
 import {
-  Column, Entity, JoinColumn, OneToOne,
+  Column, Entity, JoinColumn, OneToOne, PrimaryColumn,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 import { User } from './User';
@@ -12,19 +12,16 @@ export class IdentityLocal extends BaseEnt {
   @Column()
   verifiedEmail!: boolean;
 
-  @Column()
-  salt!: string;
+  @Column({ nullable: true })
+  salt?: string;
 
-  @Column()
-  hash!: string;
+  @Column({ nullable: true })
+  hash?: string;
 
   @Column({ nullable: true })
   lastLogin?: Date;
 
-  @Column('integer')
-  userId!: number;
-
   @OneToOne(() => User)
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: 'id' })
   user!: User;
 }
