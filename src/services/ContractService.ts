@@ -12,6 +12,11 @@ export interface ContractParams {
   comments?: string;
 }
 
+export interface ContractSummary {
+  id: number;
+  title: string;
+}
+
 export interface ContractListResponse {
   list: Contract[];
   count: number;
@@ -58,6 +63,10 @@ export default class ContractService {
       }),
       count: await this.repo.count(findOptions),
     };
+  }
+
+  async getContractSummaries(): Promise<ContractSummary[]> {
+    return this.repo.find({ select: ['id', 'title'] });
   }
 
   async createContract(params: ContractParams): Promise<Contract> {

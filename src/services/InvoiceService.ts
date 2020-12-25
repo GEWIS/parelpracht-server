@@ -14,6 +14,11 @@ export interface InvoiceParams {
   comments?: string;
 }
 
+export interface InvoiceSummary {
+  id: number;
+  companyName: string;
+}
+
 export interface InvoiceListResponse {
   list: Invoice[];
   count: number;
@@ -57,6 +62,17 @@ export default class InvoiceService {
       }),
       count: await this.repo.count(findOptions),
     };
+  }
+
+  async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
+    const invoices = await this.repo.find({
+      select: ['id'],
+      relations: ['company'],
+    });
+    return invoices.map((x) => ({
+      companyName: x.company.name,
+      ...x,
+    }));
   }
 
   createInvoice(params: InvoiceParams): Promise<Invoice> {

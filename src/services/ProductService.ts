@@ -17,6 +17,13 @@ export interface ProductParams {
   deliverySpecificationEnglish?: string;
 }
 
+export interface ProductSummary {
+  id: number;
+  nameDutch: string;
+  nameEnglish: string;
+  targetPrice: number;
+}
+
 export interface ProductListResponse {
   list: Product[];
   count: number;
@@ -61,6 +68,10 @@ export default class ProductService {
       }),
       count: await this.repo.count(findOptions),
     };
+  }
+
+  async getProductSummaries(): Promise<ProductSummary[]> {
+    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice'] });
   }
 
   createProduct(params: ProductParams): Promise<Product> {

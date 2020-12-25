@@ -15,7 +15,9 @@ export default class ProductInstanceService {
     this.repo = getRepository(ProductInstance);
   }
 
-  validateProductInstanceContract(productInstance: ProductInstance | undefined, contractId: number): ProductInstance {
+  validateProductInstanceContract(
+    productInstance: ProductInstance | undefined, contractId: number,
+  ): ProductInstance {
     if (productInstance === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'ProductInstance not found');
     }
@@ -25,7 +27,9 @@ export default class ProductInstanceService {
     return productInstance;
   }
 
-  async validateProductInstanceContractB(contractId: number, productInstanceId: number): Promise<void> {
+  async validateProductInstanceContractB(
+    contractId: number, productInstanceId: number,
+  ): Promise<void> {
     const productInstance = await this.repo.findOne(productInstanceId);
     this.validateProductInstanceContract(productInstance, contractId);
   }
@@ -39,7 +43,9 @@ export default class ProductInstanceService {
     // TODO: Fix that the contract is also passed on with the product
   }
 
-  async updateProduct(contractId: number, productInstanceId: number, params: Partial<ProductInstance>): Promise<ProductInstance> {
+  async updateProduct(
+    contractId: number, productInstanceId: number, params: Partial<ProductInstance>,
+  ): Promise<ProductInstance> {
     let productInstance = await this.repo.findOne(productInstanceId);
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
     await this.repo.update(productInstance.id, params);

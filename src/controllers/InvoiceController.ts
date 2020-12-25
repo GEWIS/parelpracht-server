@@ -4,7 +4,7 @@ import {
 } from 'tsoa';
 import { Invoice } from '../entity/Invoice';
 import { WrappedApiError } from '../helpers/error';
-import InvoiceService, { InvoiceListResponse, InvoiceParams } from '../services/InvoiceService';
+import InvoiceService, { InvoiceListResponse, InvoiceParams, InvoiceSummary } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 import ActivityService, {
   CommentParams,
@@ -39,6 +39,17 @@ export class InvoiceController extends Controller {
     const lp: ListParams = { skip, take, search };
     if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new InvoiceService().getAllInvoices(lp);
+  }
+
+  /**
+   * getInvoiceSummaries() - retrieve a list of all invoices
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  @Security('local')
+  @Response<WrappedApiError>(401)
+  public async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
+    return new InvoiceService().getInvoiceSummaries();
   }
 
   /**
@@ -116,7 +127,9 @@ export class InvoiceController extends Controller {
    * @param params Update subset of parameter of the activity
    */
   @Put('{id}/activity/{activityId}')
-  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  public async updateActivity(
+    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     return new ActivityService(InvoiceActivity).updateActivity(id, activityId, params);
   }
 
