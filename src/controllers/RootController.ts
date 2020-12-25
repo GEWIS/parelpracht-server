@@ -9,7 +9,6 @@ import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
 import AuthService, { AuthStatus } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
-import UserService from '../services/UserService';
 
 export interface ResetPasswordRequest {
   password: string;

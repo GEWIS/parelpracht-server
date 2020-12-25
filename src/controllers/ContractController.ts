@@ -6,6 +6,7 @@ import { Contract } from '../entity/Contract';
 import ContractService, {
   ContractListResponse,
   ContractParams,
+  ContractSummary,
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
@@ -46,6 +47,17 @@ export class ContractController extends Controller {
     const lp: ListParams = { skip, take, search };
     if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ContractService().getAllContracts(lp);
+  }
+
+  /**
+   * getContractSummaries() - retrieve a list of all contracts
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  @Security('local')
+  @Response<WrappedApiError>(401)
+  public async getContractSummaries(): Promise<ContractSummary[]> {
+    return new ContractService().getContractSummaries();
   }
 
   /**

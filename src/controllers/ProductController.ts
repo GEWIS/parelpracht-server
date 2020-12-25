@@ -5,7 +5,7 @@ import {
 import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
-import ProductService, { ProductListResponse, ProductParams } from '../services/ProductService';
+import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
@@ -42,6 +42,17 @@ export class ProductController extends Controller {
     const lp: ListParams = { skip, take, search };
     if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ProductService().getAllProducts(lp);
+  }
+
+  /**
+   * getProductSummaries() - retrieve a list of all products
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  @Security('local')
+  @Response<WrappedApiError>(401)
+  public async getProductSummaries(): Promise<ProductSummary[]> {
+    return new ProductService().getProductSummaries();
   }
 
   /**
