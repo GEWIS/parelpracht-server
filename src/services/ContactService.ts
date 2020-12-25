@@ -12,13 +12,13 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 export interface ContactParams {
   gender: Gender;
   firstName: string;
-  middleName?: string;
+  middleName: string;
   lastName: string;
-  email?: string;
-  telephone?: string;
-  comments?: string;
+  email: string;
+  telephone: string;
+  comments: string;
   companyId: number;
-  function?: ContactFunction;
+  function: ContactFunction;
 }
 
 export interface ContactSummary {
