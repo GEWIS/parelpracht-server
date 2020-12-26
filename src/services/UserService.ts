@@ -70,6 +70,7 @@ export default class UserService {
         [params.sorting?.column ?? 'id']:
         params.sorting?.direction ?? 'ASC',
       },
+      relations: ['roles'],
     };
 
     if (params.search !== undefined && params.search.trim() !== '') {

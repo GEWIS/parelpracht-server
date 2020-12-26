@@ -33,7 +33,10 @@ export default class AuthService {
   }
 
   async getProfile(req: express.Request): Promise<User> {
-    return req.user as User;
+    return (await this.userRepo.findOne(
+      (req.user as User).id,
+      { relations: ['roles'] },
+    ))!;
   }
 
   async logout(req: express.Request) : Promise<void> {
@@ -63,7 +66,6 @@ export default class AuthService {
       verifiedEmail: false,
       salt: generateSalt(),
     });
-    console.log(user, identity);
     await this.identityRepo.insert(identity);
     identity = (await this.identityRepo.findOne(user.id))!;
 
