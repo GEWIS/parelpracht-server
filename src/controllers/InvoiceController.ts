@@ -27,7 +27,7 @@ export class InvoiceController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local')
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllInvoices(
     @Query() col?: string,
@@ -46,7 +46,7 @@ export class InvoiceController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
     return new InvoiceService().getInvoiceSummaries();
@@ -57,7 +57,7 @@ export class InvoiceController extends Controller {
    * @param id ID of invoice to retrieve
    */
   @Get('{id}')
-  @Security('local')
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getInvoice(id: number): Promise<Invoice> {
     return new InvoiceService().getInvoice(id);
@@ -68,7 +68,7 @@ export class InvoiceController extends Controller {
    * @param params Parameters to create invoice with
    */
   @Post()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async createInvoice(@Body() params: InvoiceParams): Promise<Invoice> {
     return new InvoiceService().createInvoice(params);
@@ -80,7 +80,7 @@ export class InvoiceController extends Controller {
    * @param params Update subset of parameter of invoice
    */
   @Put('{id}')
-  @Security('local')
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateInvoice(
     id: number, @Body() params: Partial<InvoiceParams>,

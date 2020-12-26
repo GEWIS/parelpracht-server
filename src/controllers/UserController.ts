@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete,
+  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete, Request,
 } from 'tsoa';
 import { User } from '../entity/User';
 import { WrappedApiError } from '../helpers/error';
@@ -19,7 +19,7 @@ export class UserController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllUsers(
     @Query() col?: string,
@@ -38,7 +38,7 @@ export class UserController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getUserSummaries(): Promise<UserSummary[]> {
     return new UserService().getUserSummaries();
@@ -49,21 +49,22 @@ export class UserController extends Controller {
    * @param id ID of user to retrieve
    */
   @Get('{id}')
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async getUser(id: number): Promise<User> {
     return new UserService().getUser(id);
   }
 
   /**
-   * deleteUser() - delete single user
+   * deleteUser() - delete single user. You cannot delete yourself.
    * @param id ID of user to delete
    */
   @Delete('{id}')
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteUser(id: number): Promise<void> {
-    return new UserService().deleteUser(id);
+  @Response<WrappedApiError>(403)
+  public async deleteUser(@Request() req: Express.Request, id: number): Promise<void> {
+    return new UserService().deleteUser(id, req.user as User);
   }
 
   /**
@@ -71,23 +72,24 @@ export class UserController extends Controller {
    * @param params Parameters to create user with
    */
   @Post()
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async createUser(@Body() params: UserParams): Promise<User> {
     return new UserService().createUser(params);
   }
 
   /**
-   * updateUser() - update user
+   * updateUser() - update user. You cannot update your own roles.
    * @param id ID of user to update
    * @param params Update subset of parameter of user
    */
   @Put('{id}')
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateUser(
-    id: number, @Body() params: Partial<UserParams>,
+    @Request() req: Express.Request,
+      id: number, @Body() params: Partial<UserParams>,
   ): Promise<User> {
-    return new UserService().updateUser(id, params);
+    return new UserService().updateUser(id, params, req.user as User);
   }
 }

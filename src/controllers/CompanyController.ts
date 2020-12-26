@@ -27,7 +27,7 @@ export class CompanyController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllCompanies(
     @Query() col?: string,
@@ -46,7 +46,7 @@ export class CompanyController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getCompanySummaries(): Promise<CompanySummary[]> {
     return new CompanyService().getCompanySummaries();
@@ -57,7 +57,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve
    */
   @Get('{id}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getCompany(id: number): Promise<Company> {
     return new CompanyService().getCompany(id);
@@ -68,7 +68,7 @@ export class CompanyController extends Controller {
    * @param params Parameters to create company with
    */
   @Post()
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async createCompany(@Body() params: CompanyParams): Promise<Company> {
     return new CompanyService().createCompany(params);
@@ -80,7 +80,7 @@ export class CompanyController extends Controller {
    * @param params Update subset of parameter of company
    */
   @Put('{id}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateCompany(id: number, @Body() params: Partial<CompanyParams>): Promise<Company> {
     return new CompanyService().updateCompany(id, params);

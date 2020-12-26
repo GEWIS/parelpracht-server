@@ -1,18 +1,15 @@
-import { getRepository, Repository } from 'typeorm';
+import {
+  getConnection, getRepository, Repository, Transaction, TransactionRepository,
+} from 'typeorm';
+import { IdentityLocal } from '../entity/IdentityLocal';
 import { ServerSetting } from '../entity/ServerSetting';
-import { Gender, User } from '../entity/User';
+import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AuthService from './AuthService';
+import UserService, { UserParams } from './UserService';
 
 export interface SetupParams {
-  admin: {
-    email: string;
-
-    gender: Gender;
-    firstName: string;
-    middleName: string;
-    lastName: string;
-  }
+  admin: UserParams,
 }
 
 export default class ServerSettingsService {
@@ -30,20 +27,16 @@ export default class ServerSettingsService {
     return this.repo.findOne(name);
   }
 
-  async initialSetup(params: SetupParams): Promise<void> {
+  async initialSetup(
+    params: SetupParams,
+  ): Promise<void> {
     if ((await this.getSetting('SETUP_DONE'))?.value === 'true') {
       throw new ApiError(HTTPStatus.Forbidden, 'Server is already set up');
     }
 
-    const userRepo = getRepository(User);
     const { admin } = params;
-    const adminUser = await userRepo.save({
-      email: admin.email,
-      gender: admin.gender,
-      firstName: admin.firstName,
-      middleName: admin.middleName,
-      lastName: admin.lastName,
-    });
+    const adminUser = await new UserService()
+      .createAdminUser(admin);
 
     new AuthService().createIdentityLocal(adminUser);
 

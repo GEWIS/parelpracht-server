@@ -35,7 +35,7 @@ export class ContractController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllContracts(
     @Query() col?: string,
@@ -54,7 +54,7 @@ export class ContractController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getContractSummaries(): Promise<ContractSummary[]> {
     return new ContractService().getContractSummaries();
@@ -65,7 +65,7 @@ export class ContractController extends Controller {
    * @param id ID of contract to retrieve
    */
   @Get('{id}')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getContract(id: number): Promise<Contract> {
     return new ContractService().getContract(id);
@@ -76,7 +76,7 @@ export class ContractController extends Controller {
    * @param params Parameters to create contract with
    */
   @Post()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async createContract(@Body() params: ContractParams): Promise<Contract> {
     return new ContractService().createContract(params);
@@ -88,7 +88,7 @@ export class ContractController extends Controller {
    * @param params Update subset of parameter of contract
    */
   @Put('{id}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateContract(
     id: number, @Body() params: Partial<ContractParams>,
@@ -102,7 +102,7 @@ export class ContractController extends Controller {
    * @param params - Create subset of product
    */
   @Post('{id}/product')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addProduct(
     id: number, @Body() params: ProductInstanceParams,
@@ -117,7 +117,7 @@ export class ContractController extends Controller {
    * @param params Update subset of product instance
    */
   @Put('{id}/product/{prodId}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateProduct(
     id: number, prodId: number, @Body() params: Partial<ProductInstanceParams>,
@@ -131,7 +131,7 @@ export class ContractController extends Controller {
    * @param prodId ID of the product instance
    */
   @Delete('{id}/product/{prodId}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteProduct(id: number, prodId: number): Promise<void> {
     return new ProductInstanceService().deleteProduct(id, prodId);
