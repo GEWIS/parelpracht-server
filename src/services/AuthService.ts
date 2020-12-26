@@ -19,9 +19,9 @@ export default class AuthService {
 
   userRepo: Repository<User>;
 
-  constructor() {
-    this.identityRepo = getRepository(IdentityLocal);
-    this.userRepo = getRepository(User);
+  constructor(identityRepo?: Repository<IdentityLocal>, userRepo?: Repository<User>) {
+    this.identityRepo = identityRepo ?? getRepository(IdentityLocal);
+    this.userRepo = userRepo ?? getRepository(User);
   }
 
   async getAuthStatus(req: express.Request): Promise<AuthStatus> {
@@ -63,8 +63,9 @@ export default class AuthService {
       verifiedEmail: false,
       salt: generateSalt(),
     });
-    console.log(identity);
-    identity = await this.identityRepo.save(identity);
+    console.log(user, identity);
+    await this.identityRepo.insert(identity);
+    identity = (await this.identityRepo.findOne(user.id))!;
 
     Mailer.getInstance().send(newUser(
       user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(
@@ -133,5 +134,9 @@ export default class AuthService {
     } catch (e) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
+  }
+
+  async deleteIdentities(id: number) {
+    await this.identityRepo.softDelete(id);
   }
 }

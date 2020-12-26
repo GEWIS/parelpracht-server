@@ -2,6 +2,8 @@ import {
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
+import { IdentityLocal } from '../entity/IdentityLocal';
+import { Role } from '../entity/Role';
 import { Gender, User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AuthService from './AuthService';
@@ -13,6 +15,8 @@ export interface UserParams {
   lastName: string;
   gender: Gender;
   comment: string;
+
+  roles?: Roles[]
 }
 
 export interface UserSummary {
@@ -28,11 +32,27 @@ export interface UserListResponse {
   count: number;
 }
 
+export enum Roles {
+  SIGNEE = 'SIGNEE',
+  FINANCIAL = 'FINANCIAL',
+  ADMIN = 'ADMIN',
+}
+
 export default class UserService {
   repo: Repository<User>;
 
-  constructor() {
-    this.repo = getRepository(User);
+  roleRepo: Repository<Role>;
+
+  identityRepo: Repository<IdentityLocal>;
+
+  constructor(
+    userRepo?: Repository<User>,
+    roleRepo?: Repository<Role>,
+    identityRepo?: Repository<IdentityLocal>,
+  ) {
+    this.repo = userRepo ?? getRepository(User);
+    this.roleRepo = roleRepo ?? getRepository(Role);
+    this.identityRepo = identityRepo ?? getRepository(IdentityLocal);
   }
 
   async getUser(id: number): Promise<User> {
@@ -82,21 +102,62 @@ export default class UserService {
     if (user === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
-    await this.repo.delete(user.id);
+    await this.repo.softDelete(user.id);
+    await new AuthService().deleteIdentities(user.id);
   }
 
   async createUser(params: UserParams): Promise<User> {
-    let user = this.repo.create({
-      ...params,
-    });
+    const { roles, ...userParams } = params;
+    let user = this.repo.create(userParams);
     user = await this.repo.save(user);
+    if (roles) {
+      user = await this.assignRoles(user, roles);
+    }
     await new AuthService().createIdentityLocal(user);
     return user;
   }
 
+  async createAdminUser(params: UserParams): Promise<User> {
+    const adminUser = await this.repo.save({
+      email: params.email,
+      gender: params.gender,
+      firstName: params.firstName,
+      middleName: params.middleName,
+      lastName: params.lastName,
+      comment: params.comment,
+    });
+
+    return this.assignRoles(adminUser,
+      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE]);
+  }
+
+  async assignRoles(user: User, roles: Roles[]): Promise<User> {
+    const newUser = user;
+
+    newUser.roles = roles.map((r) => ({ name: r } as Role));
+    await this.repo.save(newUser);
+    this.repo.findOne(newUser.id, { relations: ['roles'] });
+    return newUser;
+  }
+
   async updateUser(id: number, params: Partial<UserParams>): Promise<User> {
-    await this.repo.update(id, params);
-    const user = await this.repo.findOne(id);
+    const { roles, ...userParams } = params;
+    await this.repo.update(id, userParams);
+    let user = (await this.repo.findOne(id))!;
+    // Check if roles should be assigned
+    if (roles) {
+      user = await this.assignRoles(user, roles);
+    }
     return user!;
+  }
+
+  async setupRoles() {
+    await this.roleRepo.save(
+      this.roleRepo.create([
+        { name: Roles.FINANCIAL },
+        { name: Roles.SIGNEE },
+        { name: Roles.ADMIN },
+      ]),
+    );
   }
 }

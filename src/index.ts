@@ -24,6 +24,7 @@ import './controllers/UserController';
 import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
+import UserService from './services/UserService';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
@@ -31,6 +32,9 @@ dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3001;
 
 createConnection().then(async (connection) => {
+  // Setup of database
+  await new UserService().setupRoles();
+
   const app = express();
   const sessionRepo = connection.getRepository(Session);
 
@@ -65,7 +69,7 @@ createConnection().then(async (connection) => {
     const userRepo = getRepository(User);
     const user = await userRepo.findOne({ id });
     if (user === undefined) {
-      return done(new Error('User not found'));
+      return done(null, false);
     }
     return done(null, user);
   });
