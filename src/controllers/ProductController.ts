@@ -30,7 +30,7 @@ export class ProductController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllProducts(
     @Query() col?: string,
@@ -49,7 +49,7 @@ export class ProductController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getProductSummaries(): Promise<ProductSummary[]> {
     return new ProductService().getProductSummaries();
@@ -60,7 +60,7 @@ export class ProductController extends Controller {
    * @param id ID of product to retrieve
    */
   @Get('{id}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);
@@ -71,7 +71,7 @@ export class ProductController extends Controller {
    * @param params Parameters to create product with
    */
   @Post()
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   @Response<WrappedApiError>(400)
   public async createProduct(
@@ -91,7 +91,7 @@ export class ProductController extends Controller {
    * @param params Update subset of parameter of product
    */
   @Put('{id}')
-  @Security('local')
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   @Response<WrappedApiError>(400)
   public async updateProduct(

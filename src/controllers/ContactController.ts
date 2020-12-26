@@ -19,7 +19,7 @@ export class ContactController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllContacts(
     @Query() col?: string,
@@ -38,7 +38,7 @@ export class ContactController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getContactSummaries(): Promise<ContactSummary[]> {
     return new ContactService().getContactSummaries();
@@ -49,7 +49,7 @@ export class ContactController extends Controller {
    * @param id ID of contact to retrieve
    */
   @Get('{id}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getContact(id: number): Promise<Contact> {
     return new ContactService().getContact(id);
@@ -60,7 +60,7 @@ export class ContactController extends Controller {
    * @param params Parameters to create contact with
    */
   @Post()
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async createContact(@Body() params: ContactParams): Promise<Contact> {
     return new ContactService().createContact(params);
@@ -72,7 +72,7 @@ export class ContactController extends Controller {
    * @param params Update subset of parameter of contact
    */
   @Put('{id}')
-  @Security('local')
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateContact(
     id: number, @Body() params: Partial<ContactParams>,

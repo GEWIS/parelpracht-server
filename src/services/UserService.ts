@@ -36,6 +36,7 @@ export enum Roles {
   SIGNEE = 'SIGNEE',
   FINANCIAL = 'FINANCIAL',
   ADMIN = 'ADMIN',
+  GENERAL = 'GENERAL',
 }
 
 export default class UserService {
@@ -97,7 +98,10 @@ export default class UserService {
     });
   }
 
-  async deleteUser(id: number): Promise<void> {
+  async deleteUser(id: number, actor: User): Promise<void> {
+    if (id === actor.id) {
+      throw new ApiError(HTTPStatus.Forbidden, 'You cannot delete yourself');
+    }
     const user = await this.repo.findOne(id, { relations: ['roles'] });
     if (user === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
@@ -128,7 +132,7 @@ export default class UserService {
     });
 
     return this.assignRoles(adminUser,
-      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE]);
+      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL]);
   }
 
   async assignRoles(user: User, roles: Roles[]): Promise<User> {
@@ -140,12 +144,12 @@ export default class UserService {
     return newUser;
   }
 
-  async updateUser(id: number, params: Partial<UserParams>): Promise<User> {
+  async updateUser(id: number, params: Partial<UserParams>, actor: User): Promise<User> {
     const { roles, ...userParams } = params;
     await this.repo.update(id, userParams);
     let user = (await this.repo.findOne(id))!;
-    // Check if roles should be assigned
-    if (roles) {
+    // Check if roles should be assigned. You can't update your own roles
+    if (roles && id !== actor.id) {
       user = await this.assignRoles(user, roles);
     }
     return user!;
@@ -156,6 +160,7 @@ export default class UserService {
       this.roleRepo.create([
         { name: Roles.FINANCIAL },
         { name: Roles.SIGNEE },
+        { name: Roles.GENERAL },
         { name: Roles.ADMIN },
       ]),
     );
