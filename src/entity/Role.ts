@@ -1,14 +1,14 @@
 import {
-  Column, Entity, JoinTable, ManyToMany,
+  Column, Entity, JoinTable, ManyToMany, PrimaryColumn,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { User } from './User';
 
 @Entity()
-export class Role extends BaseEnt {
+export class Role {
   /** Name of the role */
-  @Column()
+  @PrimaryColumn()
   name!: string;
 
   /** All users having this role */

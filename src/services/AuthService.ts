@@ -63,6 +63,7 @@ export default class AuthService {
       verifiedEmail: false,
       salt: generateSalt(),
     });
+    console.log(identity);
     identity = await this.identityRepo.save(identity);
 
     Mailer.getInstance().send(newUser(

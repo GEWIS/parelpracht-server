@@ -1,10 +1,10 @@
 import {
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
-import { VoidExpression } from 'typescript';
 import { ListParams } from '../controllers/ListParams';
 import { Gender, User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import AuthService from './AuthService';
 
 export interface UserParams {
   email: string;
@@ -82,14 +82,16 @@ export default class UserService {
     if (user === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
-    await this.repo.delete(user);
+    await this.repo.delete(user.id);
   }
 
-  createUser(params: UserParams) {
-    const user = this.repo.create({
+  async createUser(params: UserParams): Promise<User> {
+    let user = this.repo.create({
       ...params,
     });
-    return this.repo.save(user);
+    user = await this.repo.save(user);
+    await new AuthService().createIdentityLocal(user);
+    return user;
   }
 
   async updateUser(id: number, params: Partial<UserParams>): Promise<User> {

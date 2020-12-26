@@ -21,7 +21,7 @@ export class IdentityLocal extends BaseEnt {
   @Column({ nullable: true })
   lastLogin?: Date;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id' })
   user!: User;
 }
