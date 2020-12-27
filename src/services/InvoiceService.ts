@@ -5,11 +5,13 @@ import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
+// eslint-disable-next-line import/no-cycle
+import ProductInstanceService from './ProductInstanceService';
 
 // Not correct yet
 export interface InvoiceParams {
   companyId: number;
-  productInstances: ProductInstance[],
+  productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
 }
@@ -27,7 +29,7 @@ export default class InvoiceService {
   }
 
   async getInvoice(id: number): Promise<Invoice> {
-    const invoice = await this.repo.findOne(id, { relations: ['invoiceActivities'] }); // Relations still have to be added
+    const invoice = await this.repo.findOne(id, { relations: ['products', 'invoiceActivities'] }); // Relations still have to be added
     if (invoice === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Invoice not found');
     }
@@ -59,10 +61,26 @@ export default class InvoiceService {
     };
   }
 
-  createInvoice(params: InvoiceParams): Promise<Invoice> {
+  async createInvoice(params: InvoiceParams): Promise<Invoice> {
+    const products: ProductInstance[] = [];
+    // Convert productInstanceIds to an array of objects
+    await Promise.all(params.productInstanceIds.map(async (id) => {
+      const p = await new ProductInstanceService().getProduct(id, ['contract']);
+      // Verify that the productInstance and invoice share the same company
+      console.log(p);
+      if (p.contract.companyId !== params.companyId) {
+        throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
+      }
+      products.push(p);
+    }));
+
+    console.log(products);
+
     const invoice = {
       ...params,
-    } as any;
+      products,
+    } as any as Invoice;
+    console.log(invoice);
     return this.repo.save(invoice);
   }
 

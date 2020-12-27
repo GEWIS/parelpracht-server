@@ -13,6 +13,8 @@ import ActivityService, {
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
+import ProductInstanceService from '../services/ProductInstanceService';
+import { ProductInstance } from '../entity/ProductInstance';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -66,6 +68,26 @@ export class InvoiceController extends Controller {
     id: number, @Body() params: Partial<InvoiceParams>,
   ): Promise<Invoice> {
     return new InvoiceService().updateInvoice(id, params);
+  }
+
+  /**
+   * Add product to an invoice
+   * @param id - ID of the invoice
+   * @param params - Create subset of product
+   */
+  @Post('{id}/product')
+  public async addProduct(id: number, @Body() params: { productId: number }): Promise<ProductInstance> {
+    return new ProductInstanceService().addInvoiceProduct(id, params.productId);
+  }
+
+  /**
+   * Remove product from an invoice
+   * @param id ID of the invoice
+   * @param prodId ID of the product instance
+   */
+  @Delete('{id}/product/{prodId}')
+  public async deleteProduct(id: number, prodId: number): Promise<void> {
+    return new ProductInstanceService().deleteInvoiceProduct(id, prodId);
   }
 
   /**
