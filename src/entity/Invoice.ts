@@ -20,7 +20,7 @@ export class Invoice extends BaseEnt {
   poNumber?: string;
 
   /** Any comments regarding this invoice */
-  @Column({ type: 'text' })
+  @Column({ type: 'text', default: '' })
   comments?: string;
 
   @Column({ type: 'integer' })
