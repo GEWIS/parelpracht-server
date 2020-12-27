@@ -2,10 +2,8 @@ import {
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
-// import { Company } from '../entity/Company';
 import { Contact, ContactFunction } from '../entity/Contact';
 import { Gender } from '../entity/User';
-// import { Contract } from '../entity/Contract';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
 // May not be correct yet
@@ -91,7 +89,7 @@ export default class ContactService {
   async createContact(params: ContactParams): Promise<Contact> {
     const contact = {
       ...params,
-    } as any;
+    } as any as Contact;
     return this.repo.save(contact);
   }
 
