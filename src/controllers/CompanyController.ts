@@ -1,8 +1,9 @@
 import {
   Body,
-  Tags, Controller, Post, Route, Put, Get, Query, Delete,
+  Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete,
 } from 'tsoa';
 import { Company } from '../entity/Company';
+import { WrappedApiError } from '../helpers/error';
 import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
 import ActivityService, {
@@ -26,6 +27,8 @@ export class CompanyController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getAllCompanies(
     @Query() col?: string,
       @Query() dir?: 'ASC' | 'DESC',
@@ -43,6 +46,8 @@ export class CompanyController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getCompanySummaries(): Promise<CompanySummary[]> {
     return new CompanyService().getCompanySummaries();
   }
@@ -52,6 +57,8 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve
    */
   @Get('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getCompany(id: number): Promise<Company> {
     return new CompanyService().getCompany(id);
   }
@@ -61,6 +68,8 @@ export class CompanyController extends Controller {
    * @param params Parameters to create company with
    */
   @Post()
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
   public async createCompany(@Body() params: CompanyParams): Promise<Company> {
     return new CompanyService().createCompany(params);
   }
@@ -71,6 +80,8 @@ export class CompanyController extends Controller {
    * @param params Update subset of parameter of company
    */
   @Put('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateCompany(id: number, @Body() params: Partial<CompanyParams>): Promise<Company> {
     return new CompanyService().updateCompany(id, params);
   }
@@ -113,7 +124,9 @@ export class CompanyController extends Controller {
    * @param params Update subset of parameter of comment activity
    */
   @Put('{id}/activity/{activityId}')
-  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  public async updateActivity(
+    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     return new ActivityService(CompanyActivity).updateActivity(id, activityId, params);
   }
 

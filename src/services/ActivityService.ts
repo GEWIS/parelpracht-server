@@ -100,7 +100,9 @@ export default class ActivityService {
     return this.repo.save(activity);
   }
 
-  async updateActivity(entityId: number, activityId: number, params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  async updateActivity(
+    entityId: number, activityId: number, params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     let activity = await this.repo.findOne(activityId);
     activity = this.validateActivity(activity, entityId);
     let p: object;

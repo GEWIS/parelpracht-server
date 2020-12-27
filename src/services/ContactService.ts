@@ -10,13 +10,13 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 export interface ContactParams {
   gender: Gender;
   firstName: string;
-  middleName?: string;
+  middleName: string;
   lastName: string;
-  email?: string;
-  telephone?: string;
-  comments?: string;
+  email: string;
+  telephone: string;
+  comments: string;
   companyId: number;
-  function?: ContactFunction;
+  function: ContactFunction;
 }
 
 export interface ContactSummary {
@@ -24,6 +24,7 @@ export interface ContactSummary {
   firstName: string;
   middleName: string;
   lastName: string;
+  companyName: string;
 }
 
 export interface ContactListResponse {
@@ -75,7 +76,14 @@ export default class ContactService {
   }
 
   async getContactSummaries(): Promise<ContactSummary[]> {
-    return this.repo.find({ select: ['id', 'firstName', 'middleName', 'lastName'] });
+    const contacts = await this.repo.find({
+      select: ['id', 'firstName', 'middleName', 'lastName'],
+      relations: ['company'],
+    });
+    return contacts.map((x) => ({
+      companyName: x.company.name,
+      ...x,
+    }));
   }
 
   async createContact(params: ContactParams): Promise<Contact> {

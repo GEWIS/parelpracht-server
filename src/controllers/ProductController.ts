@@ -1,11 +1,11 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Request, Response, Delete,
+  Controller, Post, Route, Put, Tags, Get, Query, Request, Response, Security, Delete,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
-import ProductService, { ProductListResponse, ProductParams } from '../services/ProductService';
+import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
@@ -30,6 +30,8 @@ export class ProductController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getAllProducts(
     @Query() col?: string,
       @Query() dir?: 'ASC' | 'DESC',
@@ -43,10 +45,23 @@ export class ProductController extends Controller {
   }
 
   /**
+   * getProductSummaries() - retrieve a list of all products
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getProductSummaries(): Promise<ProductSummary[]> {
+    return new ProductService().getProductSummaries();
+  }
+
+  /**
    * getProduct() - retrieve single product
    * @param id ID of product to retrieve
    */
   @Get('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);
   }
@@ -56,6 +71,8 @@ export class ProductController extends Controller {
    * @param params Parameters to create product with
    */
   @Post()
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
   @Response<WrappedApiError>(400)
   public async createProduct(
     @Request() req: express.Request,
@@ -74,6 +91,8 @@ export class ProductController extends Controller {
    * @param params Update subset of parameter of product
    */
   @Put('{id}')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
   @Response<WrappedApiError>(400)
   public async updateProduct(
     @Request() req: express.Request,
@@ -123,7 +142,9 @@ export class ProductController extends Controller {
    * @param params Update subset of parameter of comment activity
    */
   @Put('{id}/activity/{activityId}')
-  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  public async updateActivity(
+    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     return new ActivityService(ProductActivity).updateActivity(id, activityId, params);
   }
 

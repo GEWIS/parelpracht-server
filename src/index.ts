@@ -7,7 +7,7 @@ import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
-import { createConnection } from 'typeorm';
+import { createConnection, getRepository } from 'typeorm';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
@@ -20,9 +20,11 @@ import './controllers/CompanyController';
 import './controllers/ContractController';
 import './controllers/InvoiceController';
 import './controllers/ContactController';
+import './controllers/UserController';
 import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
+import UserService from './services/UserService';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
@@ -30,6 +32,9 @@ dotenv.config({ path: '.env' });
 const PORT = process.env.PORT || 3001;
 
 createConnection().then(async (connection) => {
+  // Setup of database
+  await new UserService().setupRoles();
+
   const app = express();
   const sessionRepo = connection.getRepository(Session);
 
@@ -57,11 +62,16 @@ createConnection().then(async (connection) => {
   app.use(passport.session());
 
   passport.serializeUser((user: User, done) => {
-    done(null, user);
+    done(null, user.id);
   });
 
-  passport.deserializeUser((user: User, done) => {
-    done(null, user);
+  passport.deserializeUser(async (id: number, done) => {
+    const userRepo = getRepository(User);
+    const user = await userRepo.findOne({ id });
+    if (user === undefined) {
+      return done(null, false);
+    }
+    return done(null, user);
   });
 
   passport.use(localStrategy);

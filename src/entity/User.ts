@@ -39,7 +39,7 @@ export class User extends BaseEnt {
 
   /** Middle name of this user, if he/she has any */
   @Column({ default: '' })
-  middleName?: string;
+  middleName!: string;
 
   /** Last name of this user */
   @Column()
@@ -51,7 +51,7 @@ export class User extends BaseEnt {
 
   /** Any comments regarding this user */
   @Column({ type: 'text', default: '' })
-  comment?: string;
+  comment!: string;
 
   /** The roles this user has */
   @ManyToMany(() => Role, (role) => role.users)

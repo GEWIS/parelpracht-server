@@ -1,9 +1,10 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete,
+  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete,
 } from 'tsoa';
 import { Invoice } from '../entity/Invoice';
-import InvoiceService, { InvoiceListResponse, InvoiceParams } from '../services/InvoiceService';
+import { WrappedApiError } from '../helpers/error';
+import InvoiceService, { InvoiceListResponse, InvoiceParams, InvoiceSummary } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 import ActivityService, {
   CommentParams,
@@ -28,6 +29,8 @@ export class InvoiceController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getAllInvoices(
     @Query() col?: string,
       @Query() dir?: 'ASC' | 'DESC',
@@ -41,10 +44,23 @@ export class InvoiceController extends Controller {
   }
 
   /**
+   * getInvoiceSummaries() - retrieve a list of all invoices
+   * as compact as possible. Used for display of references and options
+   */
+  @Get('compact')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
+    return new InvoiceService().getInvoiceSummaries();
+  }
+
+  /**
    * getInvoice() - retrieve single invoice
    * @param id ID of invoice to retrieve
    */
   @Get('{id}')
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getInvoice(id: number): Promise<Invoice> {
     return new InvoiceService().getInvoice(id);
   }
@@ -54,6 +70,8 @@ export class InvoiceController extends Controller {
    * @param params Parameters to create invoice with
    */
   @Post()
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async createInvoice(@Body() params: InvoiceParams): Promise<Invoice> {
     return new InvoiceService().createInvoice(params);
   }
@@ -64,6 +82,8 @@ export class InvoiceController extends Controller {
    * @param params Update subset of parameter of invoice
    */
   @Put('{id}')
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateInvoice(
     id: number, @Body() params: Partial<InvoiceParams>,
   ): Promise<Invoice> {
@@ -129,7 +149,9 @@ export class InvoiceController extends Controller {
    * @param params Update subset of parameter of the activity
    */
   @Put('{id}/activity/{activityId}')
-  public async updateActivity(id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>): Promise<BaseActivity> {
+  public async updateActivity(
+    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+  ): Promise<BaseActivity> {
     return new ActivityService(InvoiceActivity).updateActivity(id, activityId, params);
   }
 
