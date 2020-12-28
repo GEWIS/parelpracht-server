@@ -162,6 +162,10 @@ const models: TsoaRoute.Models = {
             "companyId": {"dataType":"double","required":true},
             "company": {"ref":"Company","required":true},
             "products": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
+            "createdById": {"dataType":"double","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "assignedToId": {"dataType":"double","required":true},
+            "assignedTo": {"ref":"User","required":true},
             "contactId": {"dataType":"double","required":true},
             "contact": {"ref":"Contact","required":true},
             "contractActivity": {"dataType":"array","array":{"ref":"ContractActivity"},"required":true},
@@ -231,6 +235,10 @@ const models: TsoaRoute.Models = {
             "poNumber": {"dataType":"string"},
             "comments": {"dataType":"string"},
             "companyId": {"dataType":"double","required":true},
+            "createdById": {"dataType":"double","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "assignedToId": {"dataType":"double","required":true},
+            "assignedTo": {"ref":"User","required":true},
             "company": {"ref":"Company","required":true},
             "invoiceActivities": {"dataType":"array","array":{"ref":"InvoiceActivity"},"required":true},
         },
@@ -497,13 +505,14 @@ const models: TsoaRoute.Models = {
             "companyId": {"dataType":"double","required":true},
             "contactId": {"dataType":"double","required":true},
             "comments": {"dataType":"string"},
+            "assignedToId": {"dataType":"double"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ContractParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"companyId":{"dataType":"double"},"contactId":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"companyId":{"dataType":"double"},"contactId":{"dataType":"double"},"comments":{"dataType":"string"},"assignedToId":{"dataType":"double"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductInstanceParams": {
@@ -546,13 +555,14 @@ const models: TsoaRoute.Models = {
             "productInstanceIds": {"dataType":"array","array":{"dataType":"double"},"required":true},
             "poNumber": {"dataType":"string"},
             "comments": {"dataType":"string"},
+            "assignedToId": {"dataType":"double"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_InvoiceParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"companyId":{"dataType":"double"},"productInstanceIds":{"dataType":"array","array":{"dataType":"double"}},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"companyId":{"dataType":"double"},"productInstanceIds":{"dataType":"array","array":{"dataType":"double"}},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"},"assignedToId":{"dataType":"double"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ContactListResponse": {
@@ -1269,6 +1279,7 @@ export function RegisterRoutes(app: express.Router) {
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     params: {"in":"body","name":"params","required":true,"ref":"ContractParams"},
             };
 
@@ -1651,6 +1662,7 @@ export function RegisterRoutes(app: express.Router) {
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     params: {"in":"body","name":"params","required":true,"ref":"InvoiceParams"},
             };
 

@@ -3,6 +3,7 @@ import {
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
+import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ContractParams {
@@ -10,6 +11,7 @@ export interface ContractParams {
   companyId: number;
   contactId: number;
   comments?: string;
+  assignedToId?: number;
 }
 
 export interface ContractSummary {
@@ -25,8 +27,12 @@ export interface ContractListResponse {
 export default class ContractService {
   repo: Repository<Contract>;
 
-  constructor() {
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Contract);
+    this.actor = options?.actor;
   }
 
   async getContract(id: number): Promise<Contract> {
@@ -70,9 +76,10 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
-    const contract = {
+    const contract = this.repo.create({
       ...params,
-    } as any as Contract;
+      createdById: this.actor?.id,
+    });
     return this.repo.save(contract);
   }
 
