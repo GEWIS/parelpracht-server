@@ -3,6 +3,7 @@ import {
   Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete,
 } from 'tsoa';
 import { Company } from '../entity/Company';
+import { Invoice } from '../entity/Invoice';
 import { WrappedApiError } from '../helpers/error';
 import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
@@ -137,5 +138,16 @@ export class CompanyController extends Controller {
   @Delete('{id}/activity/{activityId}')
   public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
+  }
+
+  /**
+   * getUnresolvedInvoices() - retrieve unresolved invoices from company
+   * @param id ID of company to retrieve unresolved invoices for
+   */
+  @Get('company/{id}/invoices')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
+    return new CompanyService().getUnresolvedInvoices(id);
   }
 }
