@@ -40,7 +40,7 @@ export default class ContactService {
   }
 
   async getContact(id: number): Promise<Contact> {
-    const contact = await this.repo.findOne(id, { relations: ['company'] }); // May need more relations
+    const contact = await this.repo.findOne(id, { relations: ['company', 'contracts'] }); // May need more relations
     if (contact === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Contact not found');
     }
