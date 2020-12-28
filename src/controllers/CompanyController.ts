@@ -4,6 +4,7 @@ import {
 } from 'tsoa';
 import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
+import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
@@ -149,5 +150,16 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
     return new CompanyService().getUnresolvedInvoices(id);
+  }
+
+  /**
+   * getContacts() - retrieve contacts from company
+   * @param id ID of company to retrieve unresolved invoices for
+   */
+  @Get('company/{id}/contacts')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getContacts(id: number): Promise<Contact[]> {
+    return new CompanyService().getContacts(id);
   }
 }
