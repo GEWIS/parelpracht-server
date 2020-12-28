@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
@@ -55,8 +55,8 @@ export default class ContractService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { title: Like(`%${params.search.trim()}%`) },
-        { poNumber: Like(`%${params.search.trim()}%`) },
+        { title: ILike(`%${params.search.trim()}%`) },
+        { poNumber: ILike(`%${params.search.trim()}%`) },
         /* To add: ID */
       ];
     }

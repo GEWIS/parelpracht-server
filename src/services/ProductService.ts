@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Product, ProductStatus } from '../entity/Product';
@@ -54,9 +54,9 @@ export default class ProductService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { nameDutch: Like(`%${params.search.trim()}%`) },
-        { nameEnglish: Like(`%${params.search.trim()}%`) },
-        /* { targetPrice: Like(`%${params.search.trim()}%`) }, */
+        { nameDutch: ILike(`%${params.search.trim()}%`) },
+        { nameEnglish: ILike(`%${params.search.trim()}%`) },
+        /* { targetPrice: ILike(`%${params.search.trim()}%`) }, */
       ];
     }
 

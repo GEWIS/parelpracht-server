@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
@@ -56,7 +56,7 @@ export default class InvoiceService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { text: Like(`%${params.search.trim()}%`) },
+        { text: ILike(`%${params.search.trim()}%`) },
         // To add: ID
       ];
     }

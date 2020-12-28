@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Company, CompanyStatus } from '../entity/Company';
@@ -59,7 +59,7 @@ export default class CompanyService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { name: Like(`%${params.search.trim()}%`) },
+        { name: ILike(`%${params.search.trim()}%`) },
       ];
     }
 

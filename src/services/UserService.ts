@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -76,10 +76,10 @@ export default class UserService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { firstName: Like(`%${params.search.trim()}%`) },
-        { middleName: Like(`%${params.search.trim()}%`) },
-        { lastName: Like(`%${params.search.trim()}%`) },
-        { email: Like(`%${params.search.trim()}%`) },
+        { firstName: ILike(`%${params.search.trim()}%`) },
+        { middleName: ILike(`%${params.search.trim()}%`) },
+        { lastName: ILike(`%${params.search.trim()}%`) },
+        { email: ILike(`%${params.search.trim()}%`) },
         /* To add: ID */
       ];
     }
