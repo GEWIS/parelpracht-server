@@ -16,6 +16,9 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
+import FileService, { FileParams, FullFileParams, UpdateFileParams } from '../services/FileService';
+import BaseFile from '../entity/file/BaseFile';
+import { InvoiceFile } from '../entity/file/InvoiceFile';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -108,6 +111,42 @@ export class InvoiceController extends Controller {
   @Delete('{id}/product/{prodId}')
   public async deleteProduct(id: number, prodId: number): Promise<void> {
     return new ProductInstanceService().deleteInvoiceProduct(id, prodId);
+  }
+
+  /**
+   * Create a new PDF file for this invoice
+   * @param id ID of the invoice
+   * @param params Parameters to create this file with
+   */
+  @Post('{id}/file')
+  public async createFile(id: number, @Body() params: FileParams) {
+    return new FileService(InvoiceFile).createFile({
+      ...params,
+      entityId: id,
+    } as FullFileParams);
+  }
+
+  /**
+   * Change the attributes of a PDF file
+   * @param id ID of the invoice
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   */
+  @Put('{id}/file/{fileId}')
+  public async updateFile(
+    id: number, fileId: number, @Body() params: Partial<UpdateFileParams>,
+  ): Promise<BaseFile> {
+    return new FileService(InvoiceFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a PDF file from the system
+   * @param id ID of the invoice
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  public async deleteFile(id: number, fileId: number): Promise<void> {
+    return new FileService(InvoiceFile).deleteFile(id, fileId);
   }
 
   /**

@@ -22,6 +22,9 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
+import FileService, { FileParams, FullFileParams, UpdateFileParams } from '../services/FileService';
+import { ContractFile } from '../entity/file/ContractFile';
+import BaseFile from '../entity/file/BaseFile';
 
 @Route('contract')
 @Tags('Contract')
@@ -202,6 +205,42 @@ export class ContractController extends Controller {
   ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     return new ActivityService(ProductActivity).deleteActivity(prodId, activityId);
+  }
+
+  /**
+   * Create a new PDF file for this contract
+   * @param id ID of the contract
+   * @param params Parameters to create this file with
+   */
+  @Post('{id}/file')
+  public async createFile(id: number, @Body() params: FileParams) {
+    return new FileService(ContractFile).createFile({
+      ...params,
+      entityId: id,
+    } as FullFileParams);
+  }
+
+  /**
+   * Change the attributes of a PDF file
+   * @param id ID of the contract
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   */
+  @Put('{id}/file/{fileId}')
+  public async updateFile(
+    id: number, fileId: number, @Body() params: Partial<UpdateFileParams>,
+  ): Promise<BaseFile> {
+    return new FileService(ContractFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a PDF file from the system
+   * @param id ID of the contract
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  public async deleteFile(id: number, fileId: number): Promise<void> {
+    return new FileService(ContractFile).deleteFile(id, fileId);
   }
 
   /**
