@@ -1,7 +1,8 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete,
+  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete, Request,
 } from 'tsoa';
+import express from 'express';
 import { Invoice } from '../entity/Invoice';
 import { WrappedApiError } from '../helpers/error';
 import InvoiceService, { InvoiceListResponse, InvoiceParams, InvoiceSummary } from '../services/InvoiceService';
@@ -16,6 +17,7 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
+import { User } from '../entity/User';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -72,8 +74,11 @@ export class InvoiceController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createInvoice(@Body() params: InvoiceParams): Promise<Invoice> {
-    return new InvoiceService().createInvoice(params);
+  public async createInvoice(
+    @Request() req: express.Request,
+      @Body() params: InvoiceParams,
+  ): Promise<Invoice> {
+    return new InvoiceService({ actor: req.user as User }).createInvoice(params);
   }
 
   /**
@@ -96,7 +101,9 @@ export class InvoiceController extends Controller {
    * @param params - Create subset of product
    */
   @Post('{id}/product')
-  public async addProduct(id: number, @Body() params: { productId: number }): Promise<ProductInstance> {
+  public async addProduct(
+    id: number, @Body() params: { productId: number },
+  ): Promise<ProductInstance> {
     return new ProductInstanceService().addInvoiceProduct(id, params.productId);
   }
 

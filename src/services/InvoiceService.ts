@@ -4,6 +4,7 @@ import {
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
+import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
@@ -14,6 +15,7 @@ export interface InvoiceParams {
   productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
+  assignedToId?: number;
 }
 
 export interface InvoiceSummary {
@@ -29,8 +31,11 @@ export interface InvoiceListResponse {
 export default class InvoiceService {
   repo: Repository<Invoice>;
 
-  constructor() {
+  actor?: User;
+
+  constructor(options?: {actor?: User}) {
     this.repo = getRepository(Invoice);
+    this.actor = options?.actor;
   }
 
   async getInvoice(id: number): Promise<Invoice> {
@@ -92,11 +97,12 @@ export default class InvoiceService {
 
     console.log(products);
 
-    const invoice = {
+    const invoice = this.repo.create({
       ...params,
       products,
-    } as any as Invoice;
-    console.log(invoice);
+      createdById: this.actor?.id,
+    });
+
     return this.repo.save(invoice);
   }
 

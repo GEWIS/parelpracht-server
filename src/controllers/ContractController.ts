@@ -1,7 +1,8 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
 } from 'tsoa';
+import express from 'express';
 import { Contract } from '../entity/Contract';
 import ContractService, {
   ContractListResponse,
@@ -22,6 +23,7 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
+import { User } from '../entity/User';
 
 @Route('contract')
 @Tags('Contract')
@@ -78,8 +80,11 @@ export class ContractController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createContract(@Body() params: ContractParams): Promise<Contract> {
-    return new ContractService().createContract(params);
+  public async createContract(
+    @Request() req: express.Request,
+      @Body() params: ContractParams,
+  ): Promise<Contract> {
+    return new ContractService({ actor: req.user as User }).createContract(params);
   }
 
   /**
