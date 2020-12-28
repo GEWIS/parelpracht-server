@@ -19,7 +19,7 @@ export class ContactController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllContacts(
     @Query() col?: string,
@@ -38,7 +38,7 @@ export class ContactController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContactSummaries(): Promise<ContactSummary[]> {
     return new ContactService().getContactSummaries();
@@ -49,7 +49,7 @@ export class ContactController extends Controller {
    * @param id ID of contact to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContact(id: number): Promise<Contact> {
     return new ContactService().getContact(id);

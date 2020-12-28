@@ -29,7 +29,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Roles": {
         "dataType": "refEnum",
-        "enums": ["SIGNEE","FINANCIAL","ADMIN","GENERAL"],
+        "enums": ["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "UserParams": {
@@ -41,7 +41,7 @@ const models: TsoaRoute.Models = {
             "lastName": {"dataType":"string","required":true},
             "gender": {"ref":"Gender","required":true},
             "comment": {"dataType":"string","required":true},
-            "roles": {"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL"]}},
+            "roles": {"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}},
         },
         "additionalProperties": false,
     },
@@ -630,7 +630,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"middleName":{"dataType":"string"},"lastName":{"dataType":"string"},"gender":{"ref":"Gender"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL"]}}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"middleName":{"dataType":"string"},"lastName":{"dataType":"string"},"gender":{"ref":"Gender"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -778,7 +778,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     col: {"in":"query","name":"col","dataType":"string"},
@@ -805,7 +805,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/compact',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
             };
@@ -827,7 +827,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/:id',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -992,7 +992,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     col: {"in":"query","name":"col","dataType":"string"},
@@ -1019,7 +1019,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/compact',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
             };
@@ -1041,7 +1041,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -1204,7 +1204,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/company/:id/invoices',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -1227,7 +1227,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/company/:id/contacts',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -1250,7 +1250,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     col: {"in":"query","name":"col","dataType":"string"},
@@ -1277,7 +1277,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract/compact',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
             };
@@ -1299,7 +1299,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract/:id',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -1633,7 +1633,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice',
-            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     col: {"in":"query","name":"col","dataType":"string"},
@@ -1660,7 +1660,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice/compact',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
             };
@@ -1682,7 +1682,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice/:id',
-            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -1892,7 +1892,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contact',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     col: {"in":"query","name":"col","dataType":"string"},
@@ -1919,7 +1919,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contact/compact',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
             };
@@ -1941,7 +1941,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contact/:id',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -2011,7 +2011,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/user',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     col: {"in":"query","name":"col","dataType":"string"},
@@ -2038,7 +2038,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/user/compact',
-            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
             };
@@ -2060,7 +2060,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/user/:id',
-            authenticateMiddleware([{"local":["ADMIN"]}]),
+            authenticateMiddleware([{"local":["ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},

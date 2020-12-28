@@ -37,7 +37,7 @@ export class ContractController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllContracts(
     @Query() col?: string,
@@ -56,7 +56,7 @@ export class ContractController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContractSummaries(): Promise<ContractSummary[]> {
     return new ContractService().getContractSummaries();
@@ -67,7 +67,7 @@ export class ContractController extends Controller {
    * @param id ID of contract to retrieve
    */
   @Get('{id}')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContract(id: number): Promise<Contract> {
     return new ContractService().getContract(id);

@@ -29,7 +29,7 @@ export class CompanyController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllCompanies(
     @Query() col?: string,
@@ -48,7 +48,7 @@ export class CompanyController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getCompanySummaries(): Promise<CompanySummary[]> {
     return new CompanyService().getCompanySummaries();
@@ -59,7 +59,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getCompany(id: number): Promise<Company> {
     return new CompanyService().getCompany(id);
@@ -146,7 +146,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve unresolved invoices for
    */
   @Get('company/{id}/invoices')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
     return new CompanyService().getUnresolvedInvoices(id);
@@ -157,7 +157,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve unresolved invoices for
    */
   @Get('company/{id}/contacts')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContacts(id: number): Promise<Contact[]> {
     return new CompanyService().getContacts(id);
