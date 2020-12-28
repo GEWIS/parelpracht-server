@@ -10,11 +10,13 @@ import {
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
-import { User } from '../entity/User';
+import { Gender, User } from '../entity/User';
+import { ProductInstance } from '../entity/ProductInstance';
+import Currency from '../helpers/currency';
 
-let workDir = '/../../tmp/';
-let saveDir = '/../../data/generated/';
-let initialized = false;
+const workDirLoc = 'tmp/';
+const saveDirLoc = 'data/generated/';
+const templateDirLoc = 'data/templates/';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -24,19 +26,23 @@ const invoiceDutch = 'template_sponsorvoorstel.tex';
 const invoiceEnglish = 'template_sponsorvoorstel_engels.tex';
 
 export default class PdfGenerator {
-  static initialize() {
-    if (initialized) throw new Error('PdfGenerator already initialized');
+  private workDir: string;
 
-    workDir = path.join(__dirname, workDir);
-    saveDir = path.join(__dirname, saveDir);
+  private saveDir: string;
 
-    if (!fs.existsSync(workDir)) {
-      fs.mkdirSync(workDir);
-    }
+  private templateDir: string;
 
-    fs.copySync(path.join(__dirname, '/../../data/templates/'), workDir, { overwrite: true });
+  constructor() {
+    this.workDir = path.join(__dirname, '/../../', workDirLoc);
+    this.saveDir = path.join(__dirname, '/../../', saveDirLoc);
+    this.templateDir = path.join(__dirname, '/../../', templateDirLoc);
+  }
 
-    initialized = true;
+  private static diskLocToWebLoc(diskLoc: string): string {
+    const rootDir = path.join(__dirname, '/../../');
+    let relDir = diskLoc.substring(rootDir.length);
+    relDir = relDir.replace('\\', '/');
+    return `/${relDir.replace('\\', '/')}`;
   }
 
   private saveFileToDisk(file: string, fileName: string, directory: string): string {
@@ -45,17 +51,19 @@ export default class PdfGenerator {
     return loc;
   }
 
-  private async convertTexToPdf(fileLocation: string, fileName: string, saveToDisk: boolean): Promise<string> {
+  private async convertTexToPdf(
+    fileLocation: string, fileName: string, saveToDisk: boolean,
+  ): Promise<string> {
     return new Promise((resolve, reject) => {
       const input = fs.createReadStream(fileLocation);
       let outputLoc: string;
       if (saveToDisk) {
-        outputLoc = path.join(saveDir, fileName);
+        outputLoc = path.join(this.saveDir, fileName);
       } else {
-        outputLoc = path.join(workDir, fileName);
+        outputLoc = path.join(this.workDir, fileName);
       }
       const output = fs.createWriteStream(outputLoc);
-      const pdf = latex(input, { inputs: path.join(saveDir, '/../templates/') });
+      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/') });
       pdf.pipe(output);
       pdf.on('error', (err) => reject(err));
       pdf.on('finish', () => resolve(outputLoc));
@@ -63,30 +71,106 @@ export default class PdfGenerator {
   }
 
   private generateBaseTexLetter(
-    template: string, company: Company, recipient: Contact, sender: User,
+    template: string, company: Company, recipient: Contact, sender: User, language: Language,
     useInvoiceAddress: boolean, subject: string, ourReference: string = '', theirReference: string = '',
   ): string {
     let t = template;
 
-    t = t.replace('%{contactperson}', recipient.fullname());
-    t = t.replace('%{sender}', sender.fullname());
-    t = t.replace('%{company}', company.name);
-    t = t.replace('%{subject}', subject);
+    t = t.replace('%{contactperson}\n', recipient.fullname());
+    t = t.replace('%{contactperson}\n', recipient.fullname());
+    t = t.replace('%{sender}\n', sender.fullname());
+    t = t.replace('%{sender}\n', sender.fullname());
+    t = t.replace('%{company}\n', company.name);
+    t = t.replace('%{subject}\n', subject);
     t = t.replace('%{ourreference}', ourReference);
     t = t.replace('%{yourreference}', theirReference);
     if (useInvoiceAddress) {
-      t = t.replace('%{street}', company.invoiceAddressStreet!);
-      t = t.replace('%{postalcode}', company.invoiceAddressPostalCode!);
-      t = t.replace('%{city}', company.invoiceAddressCity!);
-      t = t.replace('%{country}', company.invoiceAddressCountry!);
+      t = t.replace('%{street}\n', company.invoiceAddressStreet!);
+      t = t.replace('%{postalcode}\n', company.invoiceAddressPostalCode!);
+      t = t.replace('%{city}\n', company.invoiceAddressCity!);
+      t = t.replace('%{country}\n', company.invoiceAddressCountry!);
     } else {
-      t = t.replace('%{street}', company.addressStreet);
-      t = t.replace('%{postalcode}', company.addressPostalCode!);
-      t = t.replace('%{city}', company.addressCity!);
-      t = t.replace('%{country}', company.addressCountry!);
+      t = t.replace('%{street}\n', company.addressStreet);
+      t = t.replace('%{postalcode}\n', company.addressPostalCode!);
+      t = t.replace('%{city}\n', company.addressCity!);
+      t = t.replace('%{country}\n', company.addressCountry!);
     }
 
+    let greeting = '';
+    if (language === Language.DUTCH) {
+      switch (recipient.gender) {
+        case Gender.MALE: greeting = `heer ${recipient.lastName}`; break;
+        case Gender.FEMALE: greeting = `mevrouw ${recipient.lastName}`; break;
+        default: greeting = recipient.fullname();
+      }
+    } else if (language === Language.ENGLISH) {
+      switch (recipient.gender) {
+        case Gender.MALE: greeting = `mr. ${recipient.lastName}`; break;
+        case Gender.FEMALE: greeting = `ms. ${recipient.lastName}`; break;
+        default: greeting = recipient.fullname();
+      }
+    }
+    t = t.replace('%{ontvanger}\n', greeting);
+
     return t;
+  }
+
+  private createSignees(file: string, signee1: User, signee2: User) {
+    let f = file;
+    f = f.replace('%{contractant1}\n', signee1.fullname());
+    // TODO: Add functions attribute to users
+    f = f.replace('%{contractant1_functie}\n', 'Board member');
+    f = f.replace('%{contractant2}\n', signee2.fullname());
+    f = f.replace('%{contractant2_functie}\n', 'Board member');
+    return f;
+  }
+
+  private createProductTables(file: string, products: ProductInstance[], language: Language) {
+    let f = file;
+    let totalPrice = 0;
+    let mainTable = '';
+    let deliveryTable = '';
+    let financesTable = '';
+    let productInstance: ProductInstance;
+    for (let i = 0; i < products.length; i++) {
+      productInstance = products[i];
+      totalPrice += productInstance.price;
+
+      if (language === Language.DUTCH) {
+        mainTable += `\\item{\\textbf{${productInstance.product.nameDutch} ${productInstance.product.description}}\\\\\n`;
+        mainTable += `${productInstance.product.contractTextDutch}}\n`;
+
+        if (productInstance.product.deliverySpecificationDutch !== '') {
+          deliveryTable += `\\item{\\textbf{${productInstance.product.nameDutch}}\\\\\n`;
+          deliveryTable += `${productInstance.product.deliverySpecificationDutch}}\n`;
+        }
+
+        financesTable += `${productInstance.product.nameDutch} ${productInstance.product.description} & ${Currency.priceAttributeToEuro(productInstance.price, true)} \\\\\n`;
+      } else if (language === Language.ENGLISH) {
+        mainTable += `\\item{\\textbf{${productInstance.product.nameEnglish} ${productInstance.product.description}}\\\\\n`;
+        mainTable += `${productInstance.product.contractTextEnglish}}\n`;
+
+        if (productInstance.product.deliverySpecificationEnglish !== '') {
+          deliveryTable += `\\item{\\textbf{${productInstance.product.nameEnglish}}\\\\\n`;
+          deliveryTable += `${productInstance.product.deliverySpecificationEnglish}}\n`;
+        }
+
+        financesTable += `${productInstance.product.nameEnglish} ${productInstance.product.description} & ${Currency.priceAttributeToEuro(productInstance.price, false)} \\\\\n`;
+      }
+    }
+
+    f = f.replace('%{producten}', mainTable);
+    f = f.replace('%{aanleverspecificatie}', deliveryTable);
+    f = f.replace('%{tabelproducten}', financesTable);
+    if (language === Language.DUTCH) {
+      f = f.replace('%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, true));
+      f = f.replace('%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, true));
+    } else if (language === Language.ENGLISH) {
+      f = f.replace('%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
+      f = f.replace('%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
+    }
+    console.log(f);
+    return f;
   }
 
   private async finishFileGeneration(
@@ -98,14 +182,14 @@ export default class PdfGenerator {
     if (fileType === ReturnFileType.TEX) {
       fileName += '.tex';
       if (saveToDisk) {
-        result = this.saveFileToDisk(file, fileName, saveDir);
+        result = this.saveFileToDisk(file, fileName, this.saveDir);
       } else {
-        result = this.saveFileToDisk(file, fileName, workDir);
+        result = this.saveFileToDisk(file, fileName, this.workDir);
       }
     }
 
     if (fileType === ReturnFileType.PDF) {
-      const tempFileLocation = this.saveFileToDisk(file, `${fileName}.tex`, workDir);
+      const tempFileLocation = this.saveFileToDisk(file, `${fileName}.tex`, this.workDir);
       result = await this.convertTexToPdf(tempFileLocation, `${fileName}.pdf`, saveToDisk);
     }
 
@@ -118,15 +202,15 @@ export default class PdfGenerator {
     let templateLocation;
     if (settings.language === Language.DUTCH) {
       if (settings.contentType === ContractType.CONTRACT) {
-        templateLocation = path.join(workDir, contractDutch);
+        templateLocation = path.join(this.templateDir, contractDutch);
       } else if (settings.contentType === ContractType.PROPOSAL) {
-        templateLocation = path.join(workDir, proposalDutch);
+        templateLocation = path.join(this.templateDir, proposalDutch);
       }
     } else if (settings.language === Language.ENGLISH) {
       if (settings.contentType === ContractType.CONTRACT) {
-        templateLocation = path.join(workDir, contractEnglish);
+        templateLocation = path.join(this.templateDir, contractEnglish);
       } else if (settings.contentType === ContractType.PROPOSAL) {
-        templateLocation = path.join(workDir, proposalEnglish);
+        templateLocation = path.join(this.templateDir, proposalEnglish);
       }
     }
     if (templateLocation == null) {
@@ -135,7 +219,9 @@ export default class PdfGenerator {
 
     let file = fs.readFileSync(templateLocation).toString();
     file = this.generateBaseTexLetter(file, contract.company, contract.contact, settings.sender,
-      false, contract.title, `C${contract.id}`);
+      settings.language, false, contract.title, `C${contract.id}`);
+    file = this.createProductTables(file, contract.products, settings.language);
+    file = this.createSignees(file, settings.signee1, settings.signee2);
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }
@@ -143,9 +229,9 @@ export default class PdfGenerator {
   public async generateInvoice(invoice: Invoice, settings: InvoiceGenSettings): Promise<string> {
     let templateLocation;
     if (settings.language === Language.DUTCH) {
-      templateLocation = path.join(workDir, invoiceDutch);
+      templateLocation = path.join(this.templateDir, invoiceDutch);
     } else if (settings.language === Language.ENGLISH) {
-      templateLocation = path.join(workDir, invoiceEnglish);
+      templateLocation = path.join(this.templateDir, invoiceEnglish);
     }
     if (templateLocation == null) {
       throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
@@ -154,7 +240,8 @@ export default class PdfGenerator {
     let file = fs.readFileSync(templateLocation).toString();
     // TODO: Give each invoice a title as well
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      false, '', `F${invoice.id}`);
+      settings.language, false, '', `F${invoice.id}`);
+    file = this.createProductTables(file, invoice.products, settings.language);
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }

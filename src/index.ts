@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-
+import * as fs from 'fs-extra';
 import express from 'express';
 import dotenv from 'dotenv';
 import errorhandler from 'strong-error-handler';
@@ -25,7 +25,6 @@ import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
 import UserService from './services/UserService';
-import PdfGenerator from './pdfgenerator/PdfGenerator';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
@@ -89,7 +88,10 @@ createConnection().then(async (connection) => {
     express.static(path.join(__dirname, '/../data')),
   ]);
 
-  PdfGenerator.initialize();
+  // Temporary files
+  if (!fs.existsSync('/../tmp')) {
+    fs.mkdirSync('/../tmp');
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({

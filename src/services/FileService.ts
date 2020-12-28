@@ -82,7 +82,7 @@ export default class FileService {
       sender: await new UserService().getUser(params.createdById),
     } as any as ContractGenSettings;
 
-    const contract = await new ContractService().getContract(params.entityId);
+    const contract = await new ContractService().getContract(params.entityId, ['products.product']);
     file.location = await new PdfGenerator().generateContract(contract, p);
 
     return this.saveFileObject(file);
