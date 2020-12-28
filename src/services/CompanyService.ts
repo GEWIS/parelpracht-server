@@ -4,6 +4,7 @@ import {
 import { ListParams } from '../controllers/ListParams';
 import { Company, CompanyStatus } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
+import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
 // May not be correct yet
@@ -104,5 +105,20 @@ export default class CompanyService {
     });
 
     return invoices;
+  }
+
+  async getContacts(id: number): Promise<Contact[]> {
+    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities'] }); // May need more relations
+    if (company === undefined) {
+      throw new ApiError(HTTPStatus.NotFound, 'Company not found');
+    }
+
+    const contacts = await getRepository(Contact).find({
+      where: {
+        companyId: id,
+      },
+    });
+
+    return contacts;
   }
 }
