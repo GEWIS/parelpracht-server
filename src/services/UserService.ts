@@ -37,6 +37,7 @@ export enum Roles {
   FINANCIAL = 'FINANCIAL',
   ADMIN = 'ADMIN',
   GENERAL = 'GENERAL',
+  AUDIT = 'AUDIT',
 }
 
 export default class UserService {
@@ -133,7 +134,7 @@ export default class UserService {
     });
 
     return this.assignRoles(adminUser,
-      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL]);
+      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL, Roles.AUDIT]);
   }
 
   async assignRoles(user: User, roles: Roles[]): Promise<User> {
@@ -163,6 +164,7 @@ export default class UserService {
         { name: Roles.SIGNEE },
         { name: Roles.GENERAL },
         { name: Roles.ADMIN },
+        { name: Roles.AUDIT },
       ]),
     );
   }
