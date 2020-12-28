@@ -120,3 +120,7 @@ src/public/swagger.json
 .idea/**.*
 .idea/
 .idea
+
+# Static files
+data/generated/
+tmp/

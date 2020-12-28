@@ -74,4 +74,11 @@ export class User extends BaseEnt {
   //
   // @OneToMany(() => ProductInstanceActivity, (activity) => activity.createdBy)
   // productInstanceActivities!: CompanyActivity[];
+
+  public fullname() {
+    if (this.middleName === '') {
+      return `${this.firstName} ${this.lastName}`;
+    }
+    return `${this.firstName} ${this.middleName} ${this.lastName}`;
+  }
 }

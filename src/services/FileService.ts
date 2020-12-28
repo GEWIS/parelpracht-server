@@ -4,6 +4,16 @@ import UserService from './UserService';
 import { ContractFile } from '../entity/file/ContractFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import {
+  ContractGenSettings,
+  ContractType,
+  InvoiceGenSettings,
+  Language,
+  ReturnFileType,
+} from '../pdfgenerator/GenSettings';
+import PdfGenerator from '../pdfgenerator/PdfGenerator';
+import InvoiceService from './InvoiceService';
+import ContractService from './ContractService';
 
 export interface UpdateFileParams {
   name: string;
@@ -16,6 +26,24 @@ export interface FileParams extends UpdateFileParams {
 export interface FullFileParams extends FileParams {
   entityId: number;
 }
+
+export interface GenerateContractParams extends FileParams {
+  language: Language,
+  contentType: ContractType,
+  fileType: ReturnFileType,
+  saveToDisk: boolean,
+  signee1Id: number,
+  signee2Id: number,
+}
+export interface FullGenerateContractParams extends FullFileParams, GenerateContractParams {}
+
+export interface GenerateInvoiceParams extends FileParams {
+  language: Language,
+  fileType: ReturnFileType,
+  saveToDisk: boolean,
+  recipientId: number,
+}
+export interface FullGenerateInvoiceParams extends FullFileParams, GenerateInvoiceParams {}
 
 export default class FileService {
   repo: Repository<BaseFile>;
@@ -45,7 +73,40 @@ export default class FileService {
     return file;
   }
 
-  async createFile(params: FullFileParams) {
+  async generateContractFile(params: FullGenerateContractParams) {
+    const file = await this.createFileObject(params);
+    const p = {
+      ...params,
+      signee1: await new UserService().getUser(params.signee1Id),
+      signee2: await new UserService().getUser(params.signee2Id),
+      sender: await new UserService().getUser(params.createdById),
+    } as any as ContractGenSettings;
+
+    const contract = await new ContractService().getContract(params.entityId);
+    file.location = await new PdfGenerator().generateContract(contract, p);
+
+    return this.saveFileObject(file);
+  }
+
+  async generateInvoiceFile(params: FullGenerateInvoiceParams) {
+    const file = await this.createFileObject(params);
+    const p = {
+      ...params,
+      recipient: await new UserService().getUser(params.recipientId),
+      sender: await new UserService().getUser(params.createdById),
+    } as any as InvoiceGenSettings;
+
+    const invoice = await new InvoiceService().getInvoice(params.entityId);
+    file.location = await new PdfGenerator().generateInvoice(invoice, p);
+
+    return this.saveFileObject(file);
+  }
+
+  async saveFileObject(file: BaseFile): Promise<BaseFile> {
+    return this.repo.save(file);
+  }
+
+  async createFileObject(params: FullFileParams) {
     const user = await new UserService().getUser(params.createdById);
     // @ts-ignore
     let file = new this.EntityFile();
@@ -67,7 +128,7 @@ export default class FileService {
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
 
-    return this.repo.save(file);
+    return file;
   }
 
   async updateFile(

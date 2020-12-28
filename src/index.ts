@@ -25,6 +25,7 @@ import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
 import UserService from './services/UserService';
+import PdfGenerator from './pdfgenerator/PdfGenerator';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
@@ -81,6 +82,14 @@ createConnection().then(async (connection) => {
   app.post('/api/login', localLogin);
 
   app.use(methodOverride());
+
+  // Static files
+  app.use('/data', [
+    // TODO: You have to be logged in to download files
+    express.static(path.join(__dirname, '/../data')),
+  ]);
+
+  PdfGenerator.initialize();
 
   // Give additional error information when in development mode.
   app.use(errorhandler({

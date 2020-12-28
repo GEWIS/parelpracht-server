@@ -16,7 +16,9 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
-import FileService, { FileParams, FullFileParams, UpdateFileParams } from '../services/FileService';
+import FileService, {
+  FullGenerateInvoiceParams, GenerateInvoiceParams, UpdateFileParams,
+} from '../services/FileService';
 import BaseFile from '../entity/file/BaseFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 
@@ -118,12 +120,12 @@ export class InvoiceController extends Controller {
    * @param id ID of the invoice
    * @param params Parameters to create this file with
    */
-  @Post('{id}/file')
-  public async createFile(id: number, @Body() params: FileParams) {
-    return new FileService(InvoiceFile).createFile({
+  @Post('{id}/file/generate')
+  public async createFile(id: number, @Body() params: GenerateInvoiceParams) {
+    return new FileService(InvoiceFile).generateInvoiceFile({
       ...params,
       entityId: id,
-    } as FullFileParams);
+    } as FullGenerateInvoiceParams);
   }
 
   /**

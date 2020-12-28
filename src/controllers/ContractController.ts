@@ -22,7 +22,9 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
-import FileService, { FileParams, FullFileParams, UpdateFileParams } from '../services/FileService';
+import FileService, {
+  FullGenerateContractParams, GenerateContractParams, UpdateFileParams,
+} from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 
@@ -212,12 +214,12 @@ export class ContractController extends Controller {
    * @param id ID of the contract
    * @param params Parameters to create this file with
    */
-  @Post('{id}/file')
-  public async createFile(id: number, @Body() params: FileParams) {
-    return new FileService(ContractFile).createFile({
+  @Post('{id}/file/generate')
+  public async createFile(id: number, @Body() params: GenerateContractParams) {
+    return new FileService(ContractFile).generateContractFile({
       ...params,
       entityId: id,
-    } as FullFileParams);
+    } as FullGenerateContractParams);
   }
 
   /**
