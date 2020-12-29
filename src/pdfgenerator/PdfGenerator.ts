@@ -38,11 +38,16 @@ export default class PdfGenerator {
     this.templateDir = path.join(__dirname, '/../../', templateDirLoc);
   }
 
-  private static diskLocToWebLoc(diskLoc: string): string {
+  public static diskLocToWebLoc(diskLoc: string): string {
     const rootDir = path.join(__dirname, '/../../');
     let relDir = diskLoc.substring(rootDir.length);
     relDir = relDir.replace('\\', '/');
     return `/${relDir.replace('\\', '/')}`;
+  }
+
+  public static fileLocationToExtension(location: string): string {
+    const parts = location.split('.');
+    return `${parts[parts.length - 1]}`;
   }
 
   private saveFileToDisk(file: string, fileName: string, directory: string): string {
@@ -84,6 +89,9 @@ export default class PdfGenerator {
     t = t.replace('%{subject}\n', subject);
     t = t.replace('%{ourreference}', ourReference);
     t = t.replace('%{yourreference}', theirReference);
+    t = t.replace('%{senderemail}\n', sender.email);
+    t = t.replace('%{senderemail}\n', sender.email);
+
     if (useInvoiceAddress) {
       t = t.replace('%{street}\n', company.invoiceAddressStreet!);
       t = t.replace('%{postalcode}\n', company.invoiceAddressPostalCode!);
@@ -118,8 +126,10 @@ export default class PdfGenerator {
   private createSignees(file: string, signee1: User, signee2: User) {
     let f = file;
     f = f.replace('%{contractant1}\n', signee1.fullname());
+    f = f.replace('%{contractant1}\n', signee1.fullname());
     // TODO: Add functions attribute to users
     f = f.replace('%{contractant1_functie}\n', 'Board member');
+    f = f.replace('%{contractant2}\n', signee2.fullname());
     f = f.replace('%{contractant2}\n', signee2.fullname());
     f = f.replace('%{contractant2_functie}\n', 'Board member');
     return f;
@@ -237,10 +247,14 @@ export default class PdfGenerator {
       throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
     }
 
+    const useInvoiceAddress = invoice.company.invoiceAddressStreet !== ''
+      && invoice.company.invoiceAddressPostalCode !== ''
+      && invoice.company.invoiceAddressCity !== '';
+
     let file = fs.readFileSync(templateLocation).toString();
     // TODO: Give each invoice a title as well
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      settings.language, false, '', `F${invoice.id}`);
+      settings.language, useInvoiceAddress, `F${invoice.id}`);
     file = this.createProductTables(file, invoice.products, settings.language);
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);

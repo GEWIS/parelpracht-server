@@ -88,10 +88,9 @@ createConnection().then(async (connection) => {
     express.static(path.join(__dirname, '/../data')),
   ]);
 
-  // Temporary files
-  if (!fs.existsSync('/../tmp')) {
-    fs.mkdirSync('/../tmp');
-  }
+  // Create file generation folders
+  if (!fs.existsSync('/../tmp')) fs.mkdirSync('/../tmp');
+  if (!fs.existsSync('/../data/generated')) fs.mkdirSync('/../data/generated');
 
   // Give additional error information when in development mode.
   app.use(errorhandler({

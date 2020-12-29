@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
 } from 'tsoa';
 import { Contract } from '../entity/Contract';
 import ContractService, {
@@ -27,6 +27,9 @@ import FileService, {
 } from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
+import express from 'express';
+import path from 'path';
+import PdfGenerator from '../pdfgenerator/PdfGenerator';
 
 @Route('contract')
 @Tags('Contract')
@@ -213,13 +216,35 @@ export class ContractController extends Controller {
    * Create a new PDF file for this contract
    * @param id ID of the contract
    * @param params Parameters to create this file with
+   * @param req Express.js request object
    */
   @Post('{id}/file/generate')
-  public async createFile(id: number, @Body() params: GenerateContractParams) {
-    return new FileService(ContractFile).generateContractFile({
+  public async createFile(
+    id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
+  ): Promise<void> {
+    const file = await new FileService(ContractFile).generateContractFile({
       ...params,
       entityId: id,
     } as FullGenerateContractParams);
+
+    const response = (<any>req).res as express.Response;
+    await response.download(file.location, `C${file.contractId}-${file.id} ${file.name}.${PdfGenerator.fileLocationToExtension(file.location)}`);
+  }
+
+  /**
+   * Get a saved file from an invoice
+   * @param id ID of the invoice
+   * @param fileId ID of the file
+   * @param req Express.js request object
+   */
+  @Get('{id}/file/{fileId}')
+  public async getFile(
+    id: number, fileId: number, @Request() req: express.Request,
+  ): Promise<void> {
+    const file = <ContractFile>(await new FileService(ContractFile).getFile(id, fileId));
+
+    const response = (<any>req).res as express.Response;
+    await response.download(file.location, `C${file.contractId}-${file.id} ${file.name}.${PdfGenerator.fileLocationToExtension(file.location)}`);
   }
 
   /**

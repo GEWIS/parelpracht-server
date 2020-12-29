@@ -73,7 +73,7 @@ export default class FileService {
     return file;
   }
 
-  async generateContractFile(params: FullGenerateContractParams) {
+  async generateContractFile(params: FullGenerateContractParams): Promise<ContractFile> {
     const file = await this.createFileObject(params);
     const p = {
       ...params,
@@ -83,12 +83,18 @@ export default class FileService {
     } as any as ContractGenSettings;
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
-    file.location = await new PdfGenerator().generateContract(contract, p);
+    const absoluteFileLocation = await new PdfGenerator().generateContract(contract, p);
+    // file.location = PdfGenerator.diskLocToWebLoc(absoluteFileLocation);
+    file.location = absoluteFileLocation;
 
-    return this.saveFileObject(file);
+    if (params.saveToDisk) {
+      await this.saveFileObject(file);
+    }
+
+    return file;
   }
 
-  async generateInvoiceFile(params: FullGenerateInvoiceParams) {
+  async generateInvoiceFile(params: FullGenerateInvoiceParams): Promise<InvoiceFile> {
     const file = await this.createFileObject(params);
     const p = {
       ...params,
@@ -97,9 +103,15 @@ export default class FileService {
     } as any as InvoiceGenSettings;
 
     const invoice = await new InvoiceService().getInvoice(params.entityId);
-    file.location = await new PdfGenerator().generateInvoice(invoice, p);
+    const absoluteFileLocation = await new PdfGenerator().generateInvoice(invoice, p);
+    // file.location = PdfGenerator.diskLocToWebLoc(absoluteFileLocation);
+    file.location = absoluteFileLocation;
 
-    return this.saveFileObject(file);
+    if (params.saveToDisk) {
+      await this.saveFileObject(file);
+    }
+
+    return file;
   }
 
   async saveFileObject(file: BaseFile): Promise<BaseFile> {
@@ -129,6 +141,12 @@ export default class FileService {
     }
 
     return file;
+  }
+
+  async getFile(entityId: number, fileId: number) {
+    let file = await this.repo.findOne(fileId);
+    file = this.validateFileObject(file, entityId);
+    return file!;
   }
 
   async updateFile(
