@@ -1,4 +1,5 @@
 import { getRepository, Repository } from 'typeorm';
+import * as fs from 'fs';
 import BaseFile from '../entity/file/BaseFile';
 import UserService from './UserService';
 import { ContractFile } from '../entity/file/ContractFile';
@@ -55,7 +56,7 @@ export default class FileService {
     this.repo = getRepository(EntityFile);
   }
 
-  validateFileObject(file: any, entityId: number): any {
+  validateFileObject(file: any, entityId: number, checkFileExistence?: boolean): any {
     if (file === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'File not found');
     }
@@ -68,6 +69,13 @@ export default class FileService {
         break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
+    }
+
+    if (checkFileExistence && !fs.existsSync(file.location)) {
+      // The file does not exist on disk anymore, so this file object is useless.
+      // Better to just delete this FileObject as well.
+      this.repo.delete(file!.id);
+      throw new ApiError(HTTPStatus.NoContent, 'File does not exist on disk. File object has been deleted');
     }
 
     return file;
@@ -83,9 +91,7 @@ export default class FileService {
     } as any as ContractGenSettings;
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
-    const absoluteFileLocation = await new PdfGenerator().generateContract(contract, p);
-    // file.location = PdfGenerator.diskLocToWebLoc(absoluteFileLocation);
-    file.location = absoluteFileLocation;
+    file.location = await new PdfGenerator().generateContract(contract, p);
 
     if (params.saveToDisk) {
       await this.saveFileObject(file);
@@ -103,9 +109,7 @@ export default class FileService {
     } as any as InvoiceGenSettings;
 
     const invoice = await new InvoiceService().getInvoice(params.entityId);
-    const absoluteFileLocation = await new PdfGenerator().generateInvoice(invoice, p);
-    // file.location = PdfGenerator.diskLocToWebLoc(absoluteFileLocation);
-    file.location = absoluteFileLocation;
+    file.location = await new PdfGenerator().generateInvoice(invoice, p);
 
     if (params.saveToDisk) {
       await this.saveFileObject(file);
@@ -143,6 +147,14 @@ export default class FileService {
     return file;
   }
 
+  private removeFile(file: BaseFile) {
+    try {
+      fs.unlinkSync(file.location);
+    } catch (e) {
+      console.log(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
+    }
+  }
+
   async getFile(entityId: number, fileId: number) {
     let file = await this.repo.findOne(fileId);
     file = this.validateFileObject(file, entityId);
@@ -160,9 +172,12 @@ export default class FileService {
     return file!;
   }
 
-  async deleteFile(entityId: number, fileId: number): Promise<void> {
+  async deleteFile(entityId: number, fileId: number, disk: boolean): Promise<void> {
     let file = await this.repo.findOne(fileId);
-    file = this.validateFileObject(file, entityId);
+    file = this.validateFileObject(file, entityId, false);
+
+    if (disk) this.removeFile(file!);
+
     await this.repo.delete(file!.id);
   }
 }

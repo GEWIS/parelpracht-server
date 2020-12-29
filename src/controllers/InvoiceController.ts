@@ -173,7 +173,7 @@ export class InvoiceController extends Controller {
    */
   @Delete('{id}/file/{fileId}')
   public async deleteFile(id: number, fileId: number): Promise<void> {
-    return new FileService(InvoiceFile).deleteFile(id, fileId);
+    return new FileService(InvoiceFile).deleteFile(id, fileId, true);
   }
 
   /**

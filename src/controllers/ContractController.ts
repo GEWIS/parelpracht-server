@@ -2,6 +2,7 @@ import {
   Body,
   Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
 } from 'tsoa';
+import express from 'express';
 import { Contract } from '../entity/Contract';
 import ContractService, {
   ContractListResponse,
@@ -27,8 +28,6 @@ import FileService, {
 } from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
-import express from 'express';
-import path from 'path';
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
 
 @Route('contract')
@@ -267,7 +266,7 @@ export class ContractController extends Controller {
    */
   @Delete('{id}/file/{fileId}')
   public async deleteFile(id: number, fileId: number): Promise<void> {
-    return new FileService(ContractFile).deleteFile(id, fileId);
+    return new FileService(ContractFile).deleteFile(id, fileId, true);
   }
 
   /**

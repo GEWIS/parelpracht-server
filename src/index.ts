@@ -89,8 +89,12 @@ createConnection().then(async (connection) => {
   ]);
 
   // Create file generation folders
-  if (!fs.existsSync('/../tmp')) fs.mkdirSync('/../tmp');
-  if (!fs.existsSync('/../data/generated')) fs.mkdirSync('/../data/generated');
+  if (!fs.existsSync(path.join(__dirname, '/../tmp'))) {
+    fs.mkdirSync(path.join(__dirname, '/../tmp'));
+  }
+  if (!fs.existsSync(path.join(__dirname, '/../data/generated'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/generated'));
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({
