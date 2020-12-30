@@ -35,12 +35,28 @@ export default class PdfGenerator {
     this.templateDir = path.join(__dirname, '/../../', templateDirLoc);
   }
 
+  /**
+   * Save a text file string (or .tex string) to the disk with the given filename in the given
+   * directory
+   * @param file {string} File contents parsed to a string
+   * @param fileName {string} Name of the to-be-saved file
+   * @param directory {string} location of the new file
+   * @returns {string} The absolute location of the file
+   */
   private saveFileToDisk(file: string, fileName: string, directory: string): string {
     const loc = path.join(directory, fileName);
     fs.writeFileSync(loc, file);
     return loc;
   }
 
+  /**
+   * Convert a given tex file to a PDF and save it the saveDir or workDir
+   * @param fileLocation {string }Absolute location of the .tex file
+   * @param fileName {string }Name of the new .pdf file
+   * @param saveToDisk {boolean} Whether the file should be saved to disk. If not,
+   * it will be saved to the /tmp directory
+   * @returns {string} absolute location of the new .pdf file
+   */
   private async convertTexToPdf(
     fileLocation: string, fileName: string, saveToDisk: boolean,
   ): Promise<string> {
@@ -63,6 +79,20 @@ export default class PdfGenerator {
     });
   }
 
+  /**
+   * Given the template string, replace the "basic" placeholder strings with actual information
+   * @param template {string} The template tex file, parsed to a string
+   * @param company {Company} Company the .pdf is addressed to
+   * @param recipient {Contact} Contact the .pdf is addressed to
+   * @param sender {User} Person who sent this letter
+   * @param language {Language} Language of the letter
+   * @param useInvoiceAddress {boolean} Whether the invoice address should be used instead of
+   * the "standard" address
+   * @param subject {string} Subject of the letter
+   * @param ourReference {string} The reference of us, put in the designated area
+   * @param theirReference {string} The reference of the company, put in the designated area
+   * @returns {string} First basic .tex file with many placeholders filled in
+   */
   private generateBaseTexLetter(
     template: string, company: Company, recipient: Contact, sender: User, language: Language,
     useInvoiceAddress: boolean, subject: string, ourReference: string = '', theirReference: string = '',
@@ -113,6 +143,13 @@ export default class PdfGenerator {
     return t;
   }
 
+  /**
+   * Add signees to the letter
+   * @param file {string} The .tex file, parsed as a string
+   * @param signee1 {User} The first signee
+   * @param signee2 {User} The second signee
+   * @returns {string} The letter with signees added
+   */
   private createSignees(file: string, signee1: User, signee2: User) {
     let f = file;
     f = f.replace('%{contractant1}\n', signee1.fullname());
@@ -124,6 +161,13 @@ export default class PdfGenerator {
     return f;
   }
 
+  /**
+   * Replace the product placeholders in the .tex file with the actual products
+   * @param file {string} The .tex file parsed as a string
+   * @param products {Array<ProductInstance>} List of products that should be in the letter
+   * @param language {Language} Language of the letter
+   * @returns {string} The letter with all product information added
+   */
   private createProductTables(file: string, products: ProductInstance[], language: Language) {
     let f = file;
     let totalPrice = 0;
@@ -185,6 +229,14 @@ export default class PdfGenerator {
     return f;
   }
 
+  /**
+   * Wrap up the file generation: generating a filename, saving to the proper location on disk
+   * @param file {string} The .tex file parsed as a string
+   * @param fileType {ReturnFileType} The file type that should be returned
+   * @param saveToDisk {boolean} Whether the file should be kept in /tmp,
+   * or moved to the data folder
+   * @returns {string} Absolute location of the file
+   */
   private async finishFileGeneration(
     file: string, fileType: ReturnFileType, saveToDisk: boolean,
   ): Promise<string> {
@@ -208,6 +260,12 @@ export default class PdfGenerator {
     return result;
   }
 
+  /**
+   * Generate a PDF file based on a contract. Can be an actual contract or a proposal
+   * @param contract {Contract} The contract that will be generated
+   * @param settings {ContractGenSettings} The corresponding generation settings
+   * @returns {string} The absolute location of the generated file
+   */
   public async generateContract(
     contract: Contract, settings: ContractGenSettings,
   ): Promise<string> {
@@ -238,6 +296,12 @@ export default class PdfGenerator {
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }
 
+  /**
+   * Generate a PDF file based on an invoice.
+   * @param invoice {Invoice} The invoice that will be generated
+   * @param settings {InvoiceGenSettings} The corresponding generation settings
+   * @returns {string} The absolute location of the generated file
+   */
   public async generateInvoice(invoice: Invoice, settings: InvoiceGenSettings): Promise<string> {
     let templateLocation;
     if (settings.language === Language.DUTCH) {
