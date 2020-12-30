@@ -12,7 +12,7 @@ export class InvoiceActivity extends BaseActivity {
   invoiceId!: number;
 
   /** Invoice related to this activity */
-  @ManyToOne(() => Invoice, (invoice) => invoice.products)
+  @ManyToOne(() => Invoice, (invoice) => invoice.activities)
   @JoinColumn({ name: 'invoiceId' })
   invoice!: Invoice;
 
@@ -20,7 +20,7 @@ export class InvoiceActivity extends BaseActivity {
   relatedInvoiceId?: number;
 
   /** If this activity should reference another invoice, it can be done here */
-  @ManyToOne(() => Invoice, (invoice) => invoice.products, { nullable: true })
+  @ManyToOne(() => Invoice, { nullable: true })
   @JoinColumn({ name: 'relatedInvoiceId' })
   relatedInvoice?: Invoice;
 }
