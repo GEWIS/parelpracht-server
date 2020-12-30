@@ -105,7 +105,12 @@ export default class FileService {
     file.downloadName = `C${file.contractId} ${file.name}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
-      await this.saveFileObject(file);
+      try {
+        await this.saveFileObject(file);
+      } catch (err) {
+        FileHelper.removeFile(file);
+        throw new Error(err);
+      }
     }
 
     return file;
@@ -128,7 +133,12 @@ export default class FileService {
     file.downloadName = `F${file.invoiceId} ${file.name}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
-      await this.saveFileObject(file);
+      try {
+        await this.saveFileObject(file);
+      } catch (err) {
+        FileHelper.removeFile(file);
+        throw new Error(err);
+      }
     }
 
     return file;
@@ -154,14 +164,21 @@ export default class FileService {
       createdById: request.body.createdById,
       entityId,
     } as FullFileParams;
-    const file = await this.createFileObject(params);
+    let file = await this.createFileObject(params);
 
     const randomFileName = `${uuidv4()}.${mime.getExtension(request.file.mimetype)}`;
     file.location = path.join(__dirname, '/../../', uploadDirLoc, randomFileName);
     fs.writeFileSync(file.location, request.file.buffer);
     file.downloadName = request.file.originalname;
 
-    return this.repo.save(file);
+    try {
+      file = this.repo.save(file);
+    } catch (err) {
+      FileHelper.removeFile(file);
+      throw new Error(err);
+    }
+
+    return file;
   }
 
   async saveFileObject(file: BaseFile): Promise<BaseFile> {
