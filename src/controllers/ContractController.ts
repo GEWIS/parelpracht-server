@@ -1,8 +1,7 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response,
 } from 'tsoa';
-import express from 'express';
 import { Contract } from '../entity/Contract';
 import ContractService, {
   ContractListResponse,
@@ -28,7 +27,7 @@ import FileService, {
 } from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
-import PdfGenerator from '../pdfgenerator/PdfGenerator';
+import FileHelper from '../helpers/fileHelper';
 
 @Route('contract')
 @Tags('Contract')
@@ -215,35 +214,29 @@ export class ContractController extends Controller {
    * Create a new PDF file for this contract
    * @param id ID of the contract
    * @param params Parameters to create this file with
-   * @param req Express.js request object
+   * @return The generated file as download
    */
   @Post('{id}/file/generate')
-  public async createFile(
-    id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
-  ): Promise<void> {
+  public async createFile(id: number, @Body() params: GenerateContractParams): Promise<any> {
     const file = await new FileService(ContractFile).generateContractFile({
       ...params,
       entityId: id,
     } as FullGenerateContractParams);
 
-    const response = (<any>req).res as express.Response;
-    await response.download(file.location, `C${file.contractId}-${file.id} ${file.name}.${PdfGenerator.fileLocationToExtension(file.location)}`);
+    return FileHelper.putFileInResponse(this, file);
   }
 
   /**
    * Get a saved file from an invoice
    * @param id ID of the invoice
    * @param fileId ID of the file
-   * @param req Express.js request object
+   * @return The requested file as download
    */
   @Get('{id}/file/{fileId}')
-  public async getFile(
-    id: number, fileId: number, @Request() req: express.Request,
-  ): Promise<void> {
+  public async getFile(id: number, fileId: number): Promise<any> {
     const file = <ContractFile>(await new FileService(ContractFile).getFile(id, fileId));
 
-    const response = (<any>req).res as express.Response;
-    await response.download(file.location, `C${file.contractId}-${file.id} ${file.name}.${PdfGenerator.fileLocationToExtension(file.location)}`);
+    return FileHelper.putFileInResponse(this, file);
   }
 
   /**

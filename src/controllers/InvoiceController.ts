@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete, Request,
+  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete,
 } from 'tsoa';
 import { Invoice } from '../entity/Invoice';
 import { WrappedApiError } from '../helpers/error';
@@ -17,13 +17,11 @@ import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import FileService, {
-  FullGenerateInvoiceParams, GenerateContractParams, GenerateInvoiceParams, UpdateFileParams,
+  FullGenerateInvoiceParams, GenerateInvoiceParams, UpdateFileParams,
 } from '../services/FileService';
 import BaseFile from '../entity/file/BaseFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
-import express from 'express';
-import PdfGenerator from '../pdfgenerator/PdfGenerator';
-import {ContractFile} from '../entity/file/ContractFile';
+import FileHelper from '../helpers/fileHelper';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -122,35 +120,29 @@ export class InvoiceController extends Controller {
    * Create a new PDF file for this invoice
    * @param id ID of the invoice
    * @param params Parameters to create this file with
-   * @param req Express.js request object
+   * @return The requested file as download
    */
   @Post('{id}/file/generate')
-  public async createFile(
-    id: number, @Body() params: GenerateInvoiceParams, @Request() req: express.Request,
-  ) {
+  public async createFile(id: number, @Body() params: GenerateInvoiceParams): Promise<any> {
     const file = await new FileService(InvoiceFile).generateInvoiceFile({
       ...params,
       entityId: id,
     } as FullGenerateInvoiceParams);
 
-    const response = (<any>req).res as express.Response;
-    await response.download(file.location, `F${file.invoiceId}-${file.id} ${file.name}.${PdfGenerator.fileLocationToExtension(file.location)}`);
+    return FileHelper.putFileInResponse(this, file);
   }
 
   /**
    * Get a saved file from an invoice
    * @param id ID of the invoice
    * @param fileId ID of the file
-   * @param req Express.js request object
+   * @return The requested file as download
    */
   @Get('{id}/file/{fileId}')
-  public async getFile(
-    id: number, fileId: number, @Request() req: express.Request,
-  ): Promise<void> {
+  public async getFile(id: number, fileId: number): Promise<any> {
     const file = <InvoiceFile>(await new FileService(InvoiceFile).getFile(id, fileId));
 
-    const response = (<any>req).res as express.Response;
-    await response.download(file.location, `C${file.invoiceId}-${file.id} ${file.name}.${PdfGenerator.fileLocationToExtension(file.location)}`);
+    return FileHelper.putFileInResponse(this, file);
   }
 
   /**

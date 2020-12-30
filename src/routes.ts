@@ -273,6 +273,7 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "name": {"dataType":"string","required":true},
+            "downloadName": {"dataType":"string","required":true},
             "location": {"dataType":"string","required":true},
             "createdBy": {"ref":"User","required":true},
             "invoiceId": {"dataType":"double","required":true},
@@ -356,6 +357,7 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "name": {"dataType":"string","required":true},
+            "downloadName": {"dataType":"string","required":true},
             "location": {"dataType":"string","required":true},
             "createdBy": {"ref":"User","required":true},
             "contractId": {"dataType":"double","required":true},
@@ -596,6 +598,7 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "name": {"dataType":"string","required":true},
+            "downloadName": {"dataType":"string","required":true},
             "location": {"dataType":"string","required":true},
             "createdBy": {"ref":"User","required":true},
         },
@@ -1586,7 +1589,6 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"GenerateContractParams"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1610,7 +1612,6 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1939,7 +1940,6 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"GenerateInvoiceParams"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1963,7 +1963,6 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

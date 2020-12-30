@@ -20,10 +20,10 @@ const templateDirLoc = 'data/templates/';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
-const proposalDutch = 'template_factuur.tex';
-const proposalEnglish = 'template_factuur_engels.tex';
-const invoiceDutch = 'template_sponsorvoorstel.tex';
-const invoiceEnglish = 'template_sponsorvoorstel_engels.tex';
+const invoiceDutch = 'template_factuur.tex';
+const invoiceEnglish = 'template_factuur_engels.tex';
+const proposalDutch = 'template_sponsorvoorstel.tex';
+const proposalEnglish = 'template_sponsorvoorstel_engels.tex';
 
 export default class PdfGenerator {
   private workDir: string;
@@ -36,18 +36,6 @@ export default class PdfGenerator {
     this.workDir = path.join(__dirname, '/../../', workDirLoc);
     this.saveDir = path.join(__dirname, '/../../', saveDirLoc);
     this.templateDir = path.join(__dirname, '/../../', templateDirLoc);
-  }
-
-  public static diskLocToWebLoc(diskLoc: string): string {
-    const rootDir = path.join(__dirname, '/../../');
-    let relDir = diskLoc.substring(rootDir.length);
-    relDir = relDir.replace('\\', '/');
-    return `/${relDir.replace('\\', '/')}`;
-  }
-
-  public static fileLocationToExtension(location: string): string {
-    const parts = location.split('.');
-    return `${parts[parts.length - 1]}`;
   }
 
   private saveFileToDisk(file: string, fileName: string, directory: string): string {
@@ -87,6 +75,7 @@ export default class PdfGenerator {
     t = t.replace('%{sender}\n', sender.fullname());
     t = t.replace('%{company}\n', company.name);
     t = t.replace('%{subject}\n', subject);
+    t = t.replace('%{ourreference}', ourReference);
     t = t.replace('%{ourreference}', ourReference);
     t = t.replace('%{yourreference}', theirReference);
     t = t.replace('%{senderemail}\n', sender.email);
@@ -166,6 +155,20 @@ export default class PdfGenerator {
         }
 
         financesTable += `${productInstance.product.nameEnglish} ${productInstance.product.description} & ${Currency.priceAttributeToEuro(productInstance.price, false)} \\\\\n`;
+      }
+    }
+
+    if (deliveryTable !== '') {
+      if (language === Language.DUTCH) {
+        deliveryTable = `\\subsection{Aanleverspecificatie}\n
+          \\begin{itemize}\n
+          ${deliveryTable}\n
+          \\end{itemize}`;
+      } else if (language === Language.ENGLISH) {
+        deliveryTable = `\\subsection{Delivery specifications}\n
+          \\begin{itemize}\n
+          ${deliveryTable}\n
+          \\end{itemize}`;
       }
     }
 

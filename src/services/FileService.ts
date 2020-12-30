@@ -15,6 +15,7 @@ import {
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
 import InvoiceService from './InvoiceService';
 import ContractService from './ContractService';
+import FileHelper from '../helpers/fileHelper';
 
 export interface UpdateFileParams {
   name: string;
@@ -26,6 +27,7 @@ export interface FileParams extends UpdateFileParams {
 
 export interface FullFileParams extends FileParams {
   entityId: number;
+  downloadName: string;
 }
 
 export interface GenerateContractParams extends FileParams {
@@ -91,7 +93,12 @@ export default class FileService {
     } as any as ContractGenSettings;
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
+    if (contract.products.length === 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Contract does not have any products');
+    }
+
     file.location = await new PdfGenerator().generateContract(contract, p);
+    file.downloadName = `C${file.contractId} ${file.name}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       await this.saveFileObject(file);
@@ -109,7 +116,12 @@ export default class FileService {
     } as any as InvoiceGenSettings;
 
     const invoice = await new InvoiceService().getInvoice(params.entityId);
+    if (invoice.products.length === 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice does not have any products');
+    }
+
     file.location = await new PdfGenerator().generateInvoice(invoice, p);
+    file.downloadName = `F${file.invoiceId} ${file.name}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       await this.saveFileObject(file);
