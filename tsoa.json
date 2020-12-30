@@ -97,13 +97,6 @@
                 "required": true,
                 "type": "string",
                 "description": "The name of the new file, as seen in the UI"
-              },
-              {
-                "in": "formData",
-                "name": "createdById",
-                "required": true,
-                "type": "integer",
-                "description": "User ID who uploaded this file"
               }
             ]
           }
@@ -127,13 +120,6 @@
                 "required": true,
                 "type": "string",
                 "description": "The name of the new file, as seen in the UI"
-              },
-              {
-                "in": "formData",
-                "name": "createdById",
-                "required": true,
-                "type": "integer",
-                "description": "User ID who uploaded this file"
               }
             ]
           }
@@ -157,13 +143,6 @@
                 "required": true,
                 "type": "string",
                 "description": "The name of the new file, as seen in the UI"
-              },
-              {
-                "in": "formData",
-                "name": "createdById",
-                "required": true,
-                "type": "integer",
-                "description": "User ID who uploaded this file"
               }
             ]
           }

@@ -22,13 +22,11 @@ import InvoiceService from './InvoiceService';
 import ContractService from './ContractService';
 import FileHelper, { uploadDirLoc } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
+import ContactService from './ContactService';
+import { User } from '../entity/User';
 
-export interface UpdateFileParams {
+export interface FileParams {
   name: string;
-}
-
-export interface FileParams extends UpdateFileParams {
-  createdById: number;
 }
 
 export interface FullFileParams extends FileParams {
@@ -56,11 +54,16 @@ export interface FullGenerateInvoiceParams extends FullFileParams, GenerateInvoi
 export default class FileService {
   repo: Repository<BaseFile>;
 
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  /** Child class of BaseFile */
   EntityFile: typeof BaseFile;
 
-  constructor(EntityFile: typeof BaseFile) {
+  constructor(EntityFile: typeof BaseFile, options?: { actor?: User }) {
     this.EntityFile = EntityFile;
     this.repo = getRepository(EntityFile);
+    this.actor = options?.actor;
   }
 
   validateFileObject(file: any, entityId: number, checkFileExistence?: boolean): any {
@@ -97,7 +100,7 @@ export default class FileService {
       ...params,
       signee1: await new UserService().getUser(params.signee1Id),
       signee2: await new UserService().getUser(params.signee2Id),
-      sender: await new UserService().getUser(params.createdById),
+      sender: this.actor,
     } as any as ContractGenSettings;
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
@@ -124,11 +127,11 @@ export default class FileService {
     const file = await this.createFileObject(params);
     const p = {
       ...params,
-      recipient: await new UserService().getUser(params.recipientId),
-      sender: await new UserService().getUser(params.createdById),
+      recipient: await new ContactService().getContact(params.recipientId),
+      sender: this.actor,
     } as any as InvoiceGenSettings;
 
-    const invoice = await new InvoiceService().getInvoice(params.entityId);
+    const invoice = await new InvoiceService().getInvoice(params.entityId, ['products.product']);
     if (invoice.products.length === 0) {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice does not have any products');
     }
@@ -165,7 +168,6 @@ export default class FileService {
     await this.handleFile(request);
     const params = {
       name: request.body.name,
-      createdById: request.body.createdById,
       entityId,
     } as FullFileParams;
     let file = await this.createFileObject(params);
@@ -190,13 +192,12 @@ export default class FileService {
   }
 
   async createFileObject(params: FullFileParams) {
-    const user = await new UserService().getUser(params.createdById);
     // @ts-ignore
     let file = new this.EntityFile();
     file = {
       ...file,
       name: params.name,
-      createdBy: user,
+      createdBy: this.actor,
       location: '',
     };
 
@@ -224,7 +225,7 @@ export default class FileService {
   }
 
   async updateFile(
-    entityId: number, fileId: number, params: Partial<UpdateFileParams>,
+    entityId: number, fileId: number, params: Partial<FileParams>,
   ): Promise<BaseFile> {
     let file = await this.repo.findOne(fileId);
     file = this.validateFileObject(file, entityId);

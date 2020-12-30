@@ -15,8 +15,11 @@ export default abstract class BaseFile extends BaseEnt {
   @Column()
   location!: string;
 
+  @Column({ type: 'integer' })
+  createdById!: number;
+
   /** User who created this file */
   @ManyToOne(() => User)
-  @JoinColumn()
+  @JoinColumn({ name: 'createdById' })
   createdBy!: User;
 }

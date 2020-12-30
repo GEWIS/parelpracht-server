@@ -19,7 +19,8 @@ import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import FileService, {
-  FullGenerateInvoiceParams, GenerateInvoiceParams, UpdateFileParams,
+  FileParams,
+  FullGenerateInvoiceParams, GenerateInvoiceParams,
 } from '../services/FileService';
 import BaseFile from '../entity/file/BaseFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
@@ -75,6 +76,7 @@ export class InvoiceController extends Controller {
 
   /**
    * createInvoice() - create invoice
+   * @param req Express.js request object
    * @param params Parameters to create invoice with
    */
   @Post()
@@ -127,11 +129,16 @@ export class InvoiceController extends Controller {
    * Create a new PDF file for this invoice
    * @param id ID of the invoice
    * @param params Parameters to create this file with
+   * @param req Express.js request object
    * @return The requested file as download
    */
   @Post('{id}/file/generate')
-  public async generateFile(id: number, @Body() params: GenerateInvoiceParams): Promise<any> {
-    const file = await new FileService(InvoiceFile).generateInvoiceFile({
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async generateFile(
+    id: number, @Body() params: GenerateInvoiceParams, @Request() req: express.Request,
+  ): Promise<any> {
+    const file = await new FileService(InvoiceFile, req.user).generateInvoiceFile({
       ...params,
       entityId: id,
     } as FullGenerateInvoiceParams);
@@ -142,11 +149,13 @@ export class InvoiceController extends Controller {
   /**
    * Upload a file to a invoice
    * @param id Id of the invoice
-   * @param request Express.js request object
+   * @param req Express.js request object
    */
   @Post('{id}/file/upload')
-  public async uploadFile(id: number, @Request() request: express.Request): Promise<InvoiceFile> {
-    return new FileService(InvoiceFile).uploadFile(request, id);
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadFile(id: number, @Request() req: express.Request): Promise<InvoiceFile> {
+    return new FileService(InvoiceFile, req.user).uploadFile(req, id);
   }
 
   /**
@@ -156,6 +165,8 @@ export class InvoiceController extends Controller {
    * @return The requested file as download
    */
   @Get('{id}/file/{fileId}')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
   public async getFile(id: number, fileId: number): Promise<any> {
     const file = <InvoiceFile>(await new FileService(InvoiceFile).getFile(id, fileId));
 
@@ -169,8 +180,10 @@ export class InvoiceController extends Controller {
    * @param params Update subset of the parameters of the file
    */
   @Put('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateFile(
-    id: number, fileId: number, @Body() params: Partial<UpdateFileParams>,
+    id: number, fileId: number, @Body() params: Partial<FileParams>,
   ): Promise<BaseFile> {
     return new FileService(InvoiceFile).updateFile(id, fileId, params);
   }
@@ -181,6 +194,8 @@ export class InvoiceController extends Controller {
    * @param fileId ID of the file
    */
   @Delete('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async deleteFile(id: number, fileId: number): Promise<void> {
     return new FileService(InvoiceFile).deleteFile(id, fileId, true);
   }

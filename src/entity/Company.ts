@@ -42,17 +42,17 @@ export class Company extends BaseEnt {
   @Column()
   addressCountry!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressStreet?: string;
+  @Column({ default: '' })
+  invoiceAddressStreet!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressPostalCode?: string;
+  @Column({ default: '' })
+  invoiceAddressPostalCode!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressCity?: string;
+  @Column({ default: '' })
+  invoiceAddressCity!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressCountry?: string;
+  @Column({ default: '' })
+  invoiceAddressCountry!: string;
 
   /** Status of the collaboration with this company */
   @Column({

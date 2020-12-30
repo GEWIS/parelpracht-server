@@ -17,7 +17,7 @@ import ActivityService, {
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
-import FileService, { UpdateFileParams } from '../services/FileService';
+import FileService, { FileParams } from '../services/FileService';
 import FileHelper from '../helpers/fileHelper';
 import BaseFile from '../entity/file/BaseFile';
 import { ProductFile } from '../entity/file/ProductFile';
@@ -72,6 +72,7 @@ export class ProductController extends Controller {
 
   /**
    * createProduct() - create product
+   * @param req Express.js request object
    * @param params Parameters to create product with
    */
   @Post()
@@ -91,6 +92,7 @@ export class ProductController extends Controller {
 
   /**
    * updateProduct() - update product
+   * @param req Express.js request object
    * @param id ID of product to update
    * @param params Update subset of parameter of product
    */
@@ -112,11 +114,13 @@ export class ProductController extends Controller {
   /**
    * Upload a file to a product
    * @param id Id of the product
-   * @param request Express.js request object
+   * @param req Express.js request object
    */
   @Post('{id}/file/upload')
-  public async uploadFile(id: number, @Request() request: express.Request): Promise<ProductFile> {
-    return new FileService(ProductFile).uploadFile(request, id);
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadFile(id: number, @Request() req: express.Request): Promise<ProductFile> {
+    return new FileService(ProductFile, req.user).uploadFile(req, id);
   }
 
   /**
@@ -126,6 +130,8 @@ export class ProductController extends Controller {
    * @return The requested file as download
    */
   @Get('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async getFile(id: number, fileId: number): Promise<any> {
     const file = <ProductFile>(await new FileService(ProductFile).getFile(id, fileId));
 
@@ -139,8 +145,10 @@ export class ProductController extends Controller {
    * @param params Update subset of the parameters of the file
    */
   @Put('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateFile(
-    id: number, fileId: number, @Body() params: Partial<UpdateFileParams>,
+    id: number, fileId: number, @Body() params: Partial<FileParams>,
   ): Promise<BaseFile> {
     return new FileService(ProductFile).updateFile(id, fileId, params);
   }
@@ -151,6 +159,8 @@ export class ProductController extends Controller {
    * @param fileId ID of the file
    */
   @Delete('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async deleteFile(id: number, fileId: number): Promise<void> {
     return new FileService(ProductFile).deleteFile(id, fileId, true);
   }
