@@ -17,6 +17,10 @@ import ActivityService, {
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
+import FileService, { UpdateFileParams } from '../services/FileService';
+import FileHelper from '../helpers/fileHelper';
+import BaseFile from '../entity/file/BaseFile';
+import { ProductFile } from '../entity/file/ProductFile';
 
 @Route('product')
 @Tags('Product')
@@ -103,6 +107,52 @@ export class ProductController extends Controller {
     ], req);
 
     return new ProductService().updateProduct(id, params);
+  }
+
+  /**
+   * Upload a file to a product
+   * @param id Id of the product
+   * @param request Express.js request object
+   */
+  @Post('{id}/file/upload')
+  public async uploadFile(id: number, @Request() request: express.Request): Promise<ProductFile> {
+    return new FileService(ProductFile).uploadFile(request, id);
+  }
+
+  /**
+   * Get a saved file from a product
+   * @param id ID of the product
+   * @param fileId ID of the file
+   * @return The requested file as download
+   */
+  @Get('{id}/file/{fileId}')
+  public async getFile(id: number, fileId: number): Promise<any> {
+    const file = <ProductFile>(await new FileService(ProductFile).getFile(id, fileId));
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Change the attributes of a file
+   * @param id ID of the product
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   */
+  @Put('{id}/file/{fileId}')
+  public async updateFile(
+    id: number, fileId: number, @Body() params: Partial<UpdateFileParams>,
+  ): Promise<BaseFile> {
+    return new FileService(ProductFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a file from the system
+   * @param id ID of the product
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  public async deleteFile(id: number, fileId: number): Promise<void> {
+    return new FileService(ProductFile).deleteFile(id, fileId, true);
   }
 
   /**

@@ -238,8 +238,8 @@ export class ContractController extends Controller {
   }
 
   /**
-   * Get a saved file from an invoice
-   * @param id ID of the invoice
+   * Get a saved file from a contract
+   * @param id ID of the contract
    * @param fileId ID of the file
    * @return The requested file as download
    */
@@ -251,7 +251,7 @@ export class ContractController extends Controller {
   }
 
   /**
-   * Change the attributes of a PDF file
+   * Change the attributes of a file
    * @param id ID of the contract
    * @param fileId ID of the file
    * @param params Update subset of the parameters of the file
@@ -264,7 +264,7 @@ export class ContractController extends Controller {
   }
 
   /**
-   * Delete a PDF file from the system
+   * Delete a file from the system
    * @param id ID of the contract
    * @param fileId ID of the file
    */

@@ -21,6 +21,7 @@ import PdfGenerator from '../pdfgenerator/PdfGenerator';
 import InvoiceService from './InvoiceService';
 import ContractService from './ContractService';
 import FileHelper, { uploadDirLoc } from '../helpers/fileHelper';
+import { ProductFile } from '../entity/file/ProductFile';
 
 export interface UpdateFileParams {
   name: string;
@@ -72,6 +73,9 @@ export default class FileService {
         break;
       case InvoiceFile:
         if (file.invoiceId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this invoice'); }
+        break;
+      case ProductFile:
+        if (file.productId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product'); }
         break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
@@ -202,6 +206,9 @@ export default class FileService {
         break;
       case InvoiceFile:
         file.invoiceId = params.entityId;
+        break;
+      case ProductFile:
+        file.productId = params.entityId;
         break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);

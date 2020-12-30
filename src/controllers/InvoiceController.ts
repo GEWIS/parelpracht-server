@@ -157,7 +157,7 @@ export class InvoiceController extends Controller {
   }
 
   /**
-   * Change the attributes of a PDF file
+   * Change the attributes of a file
    * @param id ID of the invoice
    * @param fileId ID of the file
    * @param params Update subset of the parameters of the file
@@ -170,7 +170,7 @@ export class InvoiceController extends Controller {
   }
 
   /**
-   * Delete a PDF file from the system
+   * Delete a file from the system
    * @param id ID of the invoice
    * @param fileId ID of the file
    */

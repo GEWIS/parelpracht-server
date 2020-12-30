@@ -54,7 +54,7 @@ export class User extends BaseEnt {
   comment!: string;
 
   /** Function of this user, used when generating documents and printed below this user's name */
-  @Column({ default: '' })
+  @Column()
   function!: string;
 
   /** The roles this user has */
