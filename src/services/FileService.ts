@@ -1,5 +1,10 @@
 import { getRepository, Repository } from 'typeorm';
 import * as fs from 'fs';
+import express from 'express';
+import multer from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
 import UserService from './UserService';
 import { ContractFile } from '../entity/file/ContractFile';
@@ -15,7 +20,7 @@ import {
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
 import InvoiceService from './InvoiceService';
 import ContractService from './ContractService';
-import FileHelper from '../helpers/fileHelper';
+import FileHelper, { uploadDirLoc } from '../helpers/fileHelper';
 
 export interface UpdateFileParams {
   name: string;
@@ -27,7 +32,6 @@ export interface FileParams extends UpdateFileParams {
 
 export interface FullFileParams extends FileParams {
   entityId: number;
-  downloadName: string;
 }
 
 export interface GenerateContractParams extends FileParams {
@@ -128,6 +132,36 @@ export default class FileService {
     }
 
     return file;
+  }
+
+  private handleFile(request: express.Request): Promise<void> {
+    const multerSingle = multer().single('file');
+    return new Promise((resolve, reject) => {
+      // @ts-ignore
+      multerSingle(request, undefined, async (error: Error) => {
+        if (error) {
+          reject(error);
+        }
+        resolve();
+      });
+    });
+  }
+
+  async uploadFile(request: express.Request, entityId: number) {
+    await this.handleFile(request);
+    const params = {
+      name: request.body.name,
+      createdById: request.body.createdById,
+      entityId,
+    } as FullFileParams;
+    const file = await this.createFileObject(params);
+
+    const randomFileName = `${uuidv4()}.${mime.getExtension(request.file.mimetype)}`;
+    file.location = path.join(__dirname, '/../../', uploadDirLoc, randomFileName);
+    fs.writeFileSync(file.location, request.file.buffer);
+    file.downloadName = request.file.originalname;
+
+    return this.repo.save(file);
   }
 
   async saveFileObject(file: BaseFile): Promise<BaseFile> {

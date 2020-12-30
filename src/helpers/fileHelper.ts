@@ -4,6 +4,11 @@ import mime from 'mime';
 import path from 'path';
 import BaseFile from '../entity/file/BaseFile';
 
+export const workDirLoc = 'tmp/';
+export const generateDirLoc = 'data/generated/';
+export const uploadDirLoc = 'data/uploads/';
+export const templateDirLoc = 'data/templates/';
+
 export default class FileHelper {
   public static putFileInResponse(
     controller: Controller, file: BaseFile,

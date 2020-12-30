@@ -1,7 +1,8 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete,
+  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete, Request,
 } from 'tsoa';
+import express from 'express';
 import { Invoice } from '../entity/Invoice';
 import { WrappedApiError } from '../helpers/error';
 import InvoiceService, { InvoiceListResponse, InvoiceParams, InvoiceSummary } from '../services/InvoiceService';
@@ -123,13 +124,23 @@ export class InvoiceController extends Controller {
    * @return The requested file as download
    */
   @Post('{id}/file/generate')
-  public async createFile(id: number, @Body() params: GenerateInvoiceParams): Promise<any> {
+  public async generateFile(id: number, @Body() params: GenerateInvoiceParams): Promise<any> {
     const file = await new FileService(InvoiceFile).generateInvoiceFile({
       ...params,
       entityId: id,
     } as FullGenerateInvoiceParams);
 
     return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Upload a file to a invoice
+   * @param id Id of the invoice
+   * @param request Express.js request object
+   */
+  @Post('{id}/file/upload')
+  public async uploadFile(id: number, @Request() request: express.Request): Promise<InvoiceFile> {
+    return new FileService(InvoiceFile).uploadFile(request, id);
   }
 
   /**

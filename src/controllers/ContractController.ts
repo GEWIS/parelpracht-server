@@ -1,7 +1,8 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response,
+  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
 } from 'tsoa';
+import express from 'express';
 import { Contract } from '../entity/Contract';
 import ContractService, {
   ContractListResponse,
@@ -217,13 +218,23 @@ export class ContractController extends Controller {
    * @return The generated file as download
    */
   @Post('{id}/file/generate')
-  public async createFile(id: number, @Body() params: GenerateContractParams): Promise<any> {
+  public async generateFile(id: number, @Body() params: GenerateContractParams): Promise<any> {
     const file = await new FileService(ContractFile).generateContractFile({
       ...params,
       entityId: id,
     } as FullGenerateContractParams);
 
     return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Upload a file to a contract
+   * @param id Id of the contract
+   * @param request Express.js request object
+   */
+  @Post('{id}/file/upload')
+  public async uploadFile(id: number, @Request() request: express.Request): Promise<ContractFile> {
+    return new FileService(ContractFile).uploadFile(request, id);
   }
 
   /**

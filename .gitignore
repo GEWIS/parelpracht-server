@@ -121,6 +121,7 @@ src/public/swagger.json
 .idea/
 .idea
 
-# Static files
+# File management
 data/generated/
+data/uploads/
 tmp/

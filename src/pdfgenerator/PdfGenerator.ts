@@ -1,4 +1,4 @@
-import * as fs from 'fs-extra';
+import * as fs from 'fs';
 import path from 'path';
 import latex from 'node-latex';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,11 +13,7 @@ import { Contact } from '../entity/Contact';
 import { Gender, User } from '../entity/User';
 import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
-import FileHelper from '../helpers/fileHelper';
-
-const workDirLoc = 'tmp/';
-const saveDirLoc = 'data/generated/';
-const templateDirLoc = 'data/templates/';
+import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -27,15 +23,15 @@ const proposalDutch = 'template_sponsorvoorstel.tex';
 const proposalEnglish = 'template_sponsorvoorstel_engels.tex';
 
 export default class PdfGenerator {
-  private workDir: string;
+  private readonly workDir: string;
 
-  private saveDir: string;
+  private readonly saveDir: string;
 
-  private templateDir: string;
+  private readonly templateDir: string;
 
   constructor() {
     this.workDir = path.join(__dirname, '/../../', workDirLoc);
-    this.saveDir = path.join(__dirname, '/../../', saveDirLoc);
+    this.saveDir = path.join(__dirname, '/../../', generateDirLoc);
     this.templateDir = path.join(__dirname, '/../../', templateDirLoc);
   }
 

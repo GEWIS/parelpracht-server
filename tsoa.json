@@ -77,6 +77,66 @@
               }
             }
           }
+        },
+        "/contract/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              },
+              {
+                "in": "formData",
+                "name": "createdById",
+                "required": true,
+                "type": "integer",
+                "description": "User ID who uploaded this file"
+              }
+            ]
+          }
+        },
+        "/invoice/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              },
+              {
+                "in": "formData",
+                "name": "createdById",
+                "required": true,
+                "type": "integer",
+                "description": "User ID who uploaded this file"
+              }
+            ]
+          }
         }
       }
     }

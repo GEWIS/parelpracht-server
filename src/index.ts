@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import * as fs from 'fs-extra';
+import * as fs from 'fs';
 import express from 'express';
 import dotenv from 'dotenv';
 import errorhandler from 'strong-error-handler';
@@ -94,6 +94,9 @@ createConnection().then(async (connection) => {
   }
   if (!fs.existsSync(path.join(__dirname, '/../data/generated'))) {
     fs.mkdirSync(path.join(__dirname, '/../data/generated'));
+  }
+  if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/uploads'));
   }
 
   // Give additional error information when in development mode.
