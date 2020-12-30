@@ -8,6 +8,8 @@ import { Company } from './Company';
 import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
 import { InvoiceActivity } from './activity/InvoiceActivity';
+// eslint-disable-next-line import/no-cycle
+import { InvoiceFile } from './file/InvoiceFile';
 import { User } from './User';
 
 @Entity()
@@ -50,5 +52,7 @@ export class Invoice extends BaseEnt {
   @OneToMany(() => InvoiceActivity, (invoiceActivity) => invoiceActivity.invoice)
   invoiceActivities!: InvoiceActivity[];
 
-  // TODO: Add files
+  /** All files regarding this contract */
+  @OneToMany(() => InvoiceFile, (file) => file.invoice)
+  files!: InvoiceFile[];
 }

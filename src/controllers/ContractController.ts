@@ -24,6 +24,13 @@ import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
+import FileService, {
+  FileParams,
+  FullGenerateContractParams, GenerateContractParams,
+} from '../services/FileService';
+import { ContractFile } from '../entity/file/ContractFile';
+import BaseFile from '../entity/file/BaseFile';
+import FileHelper from '../helpers/fileHelper';
 
 @Route('contract')
 @Tags('Contract')
@@ -75,6 +82,7 @@ export class ContractController extends Controller {
 
   /**
    * createContract() - create contract
+   * @param req Express.js request object
    * @param params Parameters to create contract with
    */
   @Post()
@@ -207,6 +215,81 @@ export class ContractController extends Controller {
   ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     return new ActivityService(ProductActivity).deleteActivity(prodId, activityId);
+  }
+
+  /**
+   * Create a new PDF file for this contract
+   * @param id ID of the contract
+   * @param params Parameters to create this file with
+   * @param req Express.js request object
+   * @return The generated file as download
+   */
+  @Post('{id}/file/generate')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async generateFile(
+    id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
+  ): Promise<any> {
+    const file = await new FileService(ContractFile, req.user).generateContractFile({
+      ...params,
+      entityId: id,
+    } as FullGenerateContractParams);
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Upload a file to a contract
+   * @param id Id of the contract
+   * @param req Express.js request object
+   */
+  @Post('{id}/file/upload')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadFile(id: number, @Request() req: express.Request): Promise<ContractFile> {
+    return new FileService(ContractFile, req.user).uploadFile(req, id);
+  }
+
+  /**
+   * Get a saved file from a contract
+   * @param id ID of the contract
+   * @param fileId ID of the file
+   * @return The requested file as download
+   */
+  @Get('{id}/file/{fileId}')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getFile(id: number, fileId: number): Promise<any> {
+    const file = <ContractFile>(await new FileService(ContractFile).getFile(id, fileId));
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Change the attributes of a file
+   * @param id ID of the contract
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   */
+  @Put('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updateFile(
+    id: number, fileId: number, @Body() params: Partial<FileParams>,
+  ): Promise<BaseFile> {
+    return new FileService(ContractFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a file from the system
+   * @param id ID of the contract
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteFile(id: number, fileId: number): Promise<void> {
+    return new FileService(ContractFile).deleteFile(id, fileId, true);
   }
 
   /**

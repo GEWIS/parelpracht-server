@@ -10,6 +10,8 @@ import { Contact } from './Contact';
 import { ContractActivity } from './activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
+// eslint-disable-next-line import/no-cycle
+import { ContractFile } from './file/ContractFile';
 import { User } from './User';
 
 @Entity()
@@ -61,5 +63,7 @@ export class Contract extends BaseEnt {
   @OneToMany(() => ContractActivity, (contractActivity) => contractActivity.contract)
   contractActivity!: ContractActivity[];
 
-  // TODO: add files
+  /** All files regarding this contract */
+  @OneToMany(() => ContractFile, (file) => file.contract)
+  files!: ContractFile[];
 }

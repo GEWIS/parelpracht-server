@@ -38,8 +38,8 @@ export default class InvoiceService {
     this.actor = options?.actor;
   }
 
-  async getInvoice(id: number): Promise<Invoice> {
-    const invoice = await this.repo.findOne(id, { relations: ['products', 'invoiceActivities', 'company'] }); // Relations still have to be added
+  async getInvoice(id: number, relations: string[] = []): Promise<Invoice> {
+    const invoice = await this.repo.findOne(id, { relations: ['products', 'invoiceActivities', 'company', 'files', 'files.createdBy'].concat(relations) });
     if (invoice === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Invoice not found');
     }

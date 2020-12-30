@@ -53,6 +53,10 @@ export class User extends BaseEnt {
   @Column({ type: 'text', default: '' })
   comment!: string;
 
+  /** Function of this user, used when generating documents and printed below this user's name */
+  @Column()
+  function!: string;
+
   /** The roles this user has */
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
@@ -74,4 +78,11 @@ export class User extends BaseEnt {
   //
   // @OneToMany(() => ProductInstanceActivity, (activity) => activity.createdBy)
   // productInstanceActivities!: CompanyActivity[];
+
+  public fullname() {
+    if (this.middleName === '') {
+      return `${this.firstName} ${this.lastName}`;
+    }
+    return `${this.firstName} ${this.middleName} ${this.lastName}`;
+  }
 }
