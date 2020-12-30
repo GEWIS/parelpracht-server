@@ -73,6 +73,7 @@ export default class PdfGenerator {
     t = t.replace('%{contactperson}\n', recipient.fullname());
     t = t.replace('%{sender}\n', sender.fullname());
     t = t.replace('%{sender}\n', sender.fullname());
+    t = t.replace('%{senderfunctie}\n', sender.function);
     t = t.replace('%{company}\n', company.name);
     t = t.replace('%{subject}\n', subject);
     t = t.replace('%{ourreference}', ourReference);
@@ -116,11 +117,10 @@ export default class PdfGenerator {
     let f = file;
     f = f.replace('%{contractant1}\n', signee1.fullname());
     f = f.replace('%{contractant1}\n', signee1.fullname());
-    // TODO: Add functions attribute to users
-    f = f.replace('%{contractant1_functie}\n', 'Board member');
+    f = f.replace('%{contractant1_functie}\n', signee1.function);
     f = f.replace('%{contractant2}\n', signee2.fullname());
     f = f.replace('%{contractant2}\n', signee2.fullname());
-    f = f.replace('%{contractant2_functie}\n', 'Board member');
+    f = f.replace('%{contractant2_functie}\n', signee2.function);
     return f;
   }
 

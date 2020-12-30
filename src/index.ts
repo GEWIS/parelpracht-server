@@ -82,12 +82,6 @@ createConnection().then(async (connection) => {
 
   app.use(methodOverride());
 
-  // Static files
-  app.use('/data', [
-    // TODO: You have to be logged in to download files
-    express.static(path.join(__dirname, '/../data')),
-  ]);
-
   // Create file generation folders
   if (!fs.existsSync(path.join(__dirname, '/../tmp'))) {
     fs.mkdirSync(path.join(__dirname, '/../tmp'));

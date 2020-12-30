@@ -13,6 +13,7 @@ export interface UserParams {
   firstName: string;
   middleName: string;
   lastName: string;
+  function: string;
   gender: Gender;
   comment: string;
 

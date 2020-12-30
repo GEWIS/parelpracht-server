@@ -53,6 +53,10 @@ export class User extends BaseEnt {
   @Column({ type: 'text', default: '' })
   comment!: string;
 
+  /** Function of this user, used when generating documents and printed below this user's name */
+  @Column({ default: '' })
+  function!: string;
+
   /** The roles this user has */
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
