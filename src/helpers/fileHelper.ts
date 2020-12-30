@@ -30,4 +30,20 @@ export default class FileHelper {
     const parts = location.split('.');
     return `${parts[parts.length - 1]}`;
   }
+
+  public static removeFileLoc(fileLocation: string) {
+    try {
+      fs.unlinkSync(fileLocation);
+    } catch (e) {
+      console.log(`File at ${fileLocation} does not exist, so could not be removed`);
+    }
+  }
+
+  public static removeFile(file: BaseFile) {
+    try {
+      fs.unlinkSync(file.location);
+    } catch (e) {
+      console.log(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
+    }
+  }
 }

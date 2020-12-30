@@ -13,6 +13,7 @@ import { Contact } from '../entity/Contact';
 import { Gender, User } from '../entity/User';
 import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
+import FileHelper from '../helpers/fileHelper';
 
 const workDirLoc = 'tmp/';
 const saveDirLoc = 'data/generated/';
@@ -58,7 +59,10 @@ export default class PdfGenerator {
       const output = fs.createWriteStream(outputLoc);
       const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/') });
       pdf.pipe(output);
-      pdf.on('error', (err) => reject(err));
+      pdf.on('error', (err) => {
+        FileHelper.removeFileLoc(outputLoc);
+        reject(err);
+      });
       pdf.on('finish', () => resolve(outputLoc));
     });
   }
@@ -182,7 +186,6 @@ export default class PdfGenerator {
       f = f.replace('%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
       f = f.replace('%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
     }
-    console.log(f);
     return f;
   }
 

@@ -159,14 +159,6 @@ export default class FileService {
     return file;
   }
 
-  private removeFile(file: BaseFile) {
-    try {
-      fs.unlinkSync(file.location);
-    } catch (e) {
-      console.log(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
-    }
-  }
-
   async getFile(entityId: number, fileId: number) {
     let file = await this.repo.findOne(fileId);
     file = this.validateFileObject(file, entityId);
@@ -188,7 +180,7 @@ export default class FileService {
     let file = await this.repo.findOne(fileId);
     file = this.validateFileObject(file, entityId, false);
 
-    if (disk) this.removeFile(file!);
+    if (disk) FileHelper.removeFile(file!);
 
     await this.repo.delete(file!.id);
   }
