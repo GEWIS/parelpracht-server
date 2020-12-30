@@ -1,8 +1,9 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
+import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
 export interface ContractParams {
@@ -10,6 +11,7 @@ export interface ContractParams {
   companyId: number;
   contactId: number;
   comments?: string;
+  assignedToId?: number;
 }
 
 export interface ContractSummary {
@@ -25,8 +27,12 @@ export interface ContractListResponse {
 export default class ContractService {
   repo: Repository<Contract>;
 
-  constructor() {
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Contract);
+    this.actor = options?.actor;
   }
 
   async getContract(id: number, relations: string[] = []): Promise<Contract> {
@@ -49,8 +55,8 @@ export default class ContractService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { title: Like(`%${params.search.trim()}%`) },
-        { poNumber: Like(`%${params.search.trim()}%`) },
+        { title: ILike(`%${params.search.trim()}%`) },
+        { poNumber: ILike(`%${params.search.trim()}%`) },
         /* To add: ID */
       ];
     }
@@ -70,9 +76,10 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
-    const contract = {
+    const contract = this.repo.create({
       ...params,
-    } as any as Contract;
+      createdById: this.actor?.id,
+    });
     return this.repo.save(contract);
   }
 

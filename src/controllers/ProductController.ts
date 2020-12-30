@@ -34,7 +34,7 @@ export class ProductController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllProducts(
     @Query() col?: string,
@@ -53,7 +53,7 @@ export class ProductController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getProductSummaries(): Promise<ProductSummary[]> {
     return new ProductService().getProductSummaries();
@@ -64,7 +64,7 @@ export class ProductController extends Controller {
    * @param id ID of product to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);

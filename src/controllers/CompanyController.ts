@@ -3,6 +3,8 @@ import {
   Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete,
 } from 'tsoa';
 import { Company } from '../entity/Company';
+import { Invoice } from '../entity/Invoice';
+import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
@@ -27,7 +29,7 @@ export class CompanyController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllCompanies(
     @Query() col?: string,
@@ -46,7 +48,7 @@ export class CompanyController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getCompanySummaries(): Promise<CompanySummary[]> {
     return new CompanyService().getCompanySummaries();
@@ -57,7 +59,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getCompany(id: number): Promise<Company> {
     return new CompanyService().getCompany(id);
@@ -137,5 +139,27 @@ export class CompanyController extends Controller {
   @Delete('{id}/activity/{activityId}')
   public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
+  }
+
+  /**
+   * getUnresolvedInvoices() - retrieve unresolved invoices from company
+   * @param id ID of company to retrieve unresolved invoices for
+   */
+  @Get('company/{id}/invoices')
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
+    return new CompanyService().getUnresolvedInvoices(id);
+  }
+
+  /**
+   * getContacts() - retrieve contacts from company
+   * @param id ID of company to retrieve unresolved invoices for
+   */
+  @Get('company/{id}/contacts')
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getContacts(id: number): Promise<Contact[]> {
+    return new CompanyService().getContacts(id);
   }
 }

@@ -10,6 +10,7 @@ import { ProductInstance } from './ProductInstance';
 import { InvoiceActivity } from './activity/InvoiceActivity';
 // eslint-disable-next-line import/no-cycle
 import { InvoiceFile } from './file/InvoiceFile';
+import { User } from './User';
 
 @Entity()
 export class Invoice extends BaseEnt {
@@ -27,6 +28,20 @@ export class Invoice extends BaseEnt {
 
   @Column({ type: 'integer' })
   companyId!: number;
+
+  @Column({ type: 'integer' })
+  createdById!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdById' })
+  createdBy!: User;
+
+  @Column({ type: 'integer', nullable: true })
+  assignedToId!: number;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'assignedToId' })
+  assignedTo!: User;
 
   /** Company this invoice is directed to */
   @ManyToOne(() => Company, (company) => company.invoices)

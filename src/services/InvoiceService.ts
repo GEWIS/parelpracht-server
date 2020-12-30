@@ -1,9 +1,10 @@
 import {
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
+import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
@@ -14,6 +15,7 @@ export interface InvoiceParams {
   productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
+  assignedToId?: number;
 }
 
 export interface InvoiceSummary {
@@ -29,12 +31,15 @@ export interface InvoiceListResponse {
 export default class InvoiceService {
   repo: Repository<Invoice>;
 
-  constructor() {
+  actor?: User;
+
+  constructor(options?: {actor?: User}) {
     this.repo = getRepository(Invoice);
+    this.actor = options?.actor;
   }
 
   async getInvoice(id: number): Promise<Invoice> {
-    const invoice = await this.repo.findOne(id, { relations: ['products', 'invoiceActivities', 'files', 'files.createdBy'] });
+    const invoice = await this.repo.findOne(id, { relations: ['products', 'invoiceActivities', 'company', 'files', 'files.createdBy'] });
     if (invoice === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Invoice not found');
     }
@@ -51,7 +56,7 @@ export default class InvoiceService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { text: Like(`%${params.search.trim()}%`) },
+        { text: ILike(`%${params.search.trim()}%`) },
         // To add: ID
       ];
     }
@@ -92,11 +97,12 @@ export default class InvoiceService {
 
     console.log(products);
 
-    const invoice = {
+    const invoice = this.repo.create({
       ...params,
       products,
-    } as any as Invoice;
-    console.log(invoice);
+      createdById: this.actor?.id,
+    });
+
     return this.repo.save(invoice);
   }
 

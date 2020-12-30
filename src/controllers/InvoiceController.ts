@@ -17,6 +17,7 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
+import { User } from '../entity/User';
 import FileService, {
   FullGenerateInvoiceParams, GenerateInvoiceParams, UpdateFileParams,
 } from '../services/FileService';
@@ -36,7 +37,7 @@ export class InvoiceController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllInvoices(
     @Query() col?: string,
@@ -55,7 +56,7 @@ export class InvoiceController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
     return new InvoiceService().getInvoiceSummaries();
@@ -66,7 +67,7 @@ export class InvoiceController extends Controller {
    * @param id ID of invoice to retrieve
    */
   @Get('{id}')
-  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getInvoice(id: number): Promise<Invoice> {
     return new InvoiceService().getInvoice(id);
@@ -79,8 +80,11 @@ export class InvoiceController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createInvoice(@Body() params: InvoiceParams): Promise<Invoice> {
-    return new InvoiceService().createInvoice(params);
+  public async createInvoice(
+    @Request() req: express.Request,
+      @Body() params: InvoiceParams,
+  ): Promise<Invoice> {
+    return new InvoiceService({ actor: req.user as User }).createInvoice(params);
   }
 
   /**
@@ -103,7 +107,9 @@ export class InvoiceController extends Controller {
    * @param params - Create subset of product
    */
   @Post('{id}/product')
-  public async addProduct(id: number, @Body() params: { productId: number }): Promise<ProductInstance> {
+  public async addProduct(
+    id: number, @Body() params: { productId: number },
+  ): Promise<ProductInstance> {
     return new ProductInstanceService().addInvoiceProduct(id, params.productId);
   }
 

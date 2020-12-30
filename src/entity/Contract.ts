@@ -1,5 +1,5 @@
 import {
-  Column, Entity, JoinTable, ManyToOne, JoinColumn, OneToMany,
+  Column, Entity, JoinTable, JoinColumn, OneToMany, ManyToOne,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
@@ -12,6 +12,7 @@ import { ContractActivity } from './activity/ContractActivity';
 import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
 import { ContractFile } from './file/ContractFile';
+import { User } from './User';
 
 @Entity()
 export class Contract extends BaseEnt {
@@ -35,6 +36,20 @@ export class Contract extends BaseEnt {
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.contract)
   @JoinTable()
   products!: ProductInstance[];
+
+  @Column({ type: 'integer' })
+  createdById!: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdById' })
+  createdBy!: User;
+
+  @Column({ type: 'integer', nullable: true })
+  assignedToId!: number;
+
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'assignedToId' })
+  assignedTo!: User;
 
   @Column({ type: 'integer' })
   contactId!: number;

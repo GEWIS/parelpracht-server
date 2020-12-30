@@ -1,5 +1,6 @@
 import {
-  Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, VersionColumn,
+  Column, CreateDateColumn, DeleteDateColumn, Entity,
+  JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn, VersionColumn,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 import { User } from './User';
@@ -34,12 +35,12 @@ export class IdentityLocal {
   readonly createdAt!: Date;
 
   /** Date at which this entity has last been updated */
-  @CreateDateColumn()
+  @UpdateDateColumn()
   readonly updatedAt!: Date;
 
   /** If this entity has been soft-deleted, this is the date
    *  at which the entity has been deleted */
-  @CreateDateColumn()
+  @DeleteDateColumn()
   readonly deletedAt?: Date;
 
   /** Version number of this entity */

@@ -23,6 +23,7 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
+import { User } from '../entity/User';
 import FileService, {
   FullGenerateContractParams, GenerateContractParams, UpdateFileParams,
 } from '../services/FileService';
@@ -42,7 +43,7 @@ export class ContractController extends Controller {
    * @param search String to filter on value of select columns
    */
   @Get()
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllContracts(
     @Query() col?: string,
@@ -61,7 +62,7 @@ export class ContractController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContractSummaries(): Promise<ContractSummary[]> {
     return new ContractService().getContractSummaries();
@@ -72,7 +73,7 @@ export class ContractController extends Controller {
    * @param id ID of contract to retrieve
    */
   @Get('{id}')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContract(id: number): Promise<Contract> {
     return new ContractService().getContract(id);
@@ -85,8 +86,11 @@ export class ContractController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createContract(@Body() params: ContractParams): Promise<Contract> {
-    return new ContractService().createContract(params);
+  public async createContract(
+    @Request() req: express.Request,
+      @Body() params: ContractParams,
+  ): Promise<Contract> {
+    return new ContractService({ actor: req.user as User }).createContract(params);
   }
 
   /**
