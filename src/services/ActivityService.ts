@@ -6,18 +6,14 @@ import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import UserService from './UserService';
+import { User } from '../entity/User';
 
-export interface UpdateActivityParams {
+export interface ActivityParams {
   description: string;
   relatedEntityId?: number;
 }
 
-export interface CommentParams extends UpdateActivityParams {
-  createdById: number;
-}
-
-export interface StatusParams extends CommentParams {
+export interface StatusParams extends ActivityParams {
   subtype: string;
 }
 
@@ -29,11 +25,16 @@ export interface FullActivityParams extends StatusParams {
 export default class ActivityService {
   repo: Repository<BaseActivity>;
 
+  /** Child class of BaseActivity */
   EntityActivity: typeof BaseActivity;
 
-  constructor(EntityActivty: typeof BaseActivity) {
-    this.EntityActivity = EntityActivty;
-    this.repo = getRepository(EntityActivty);
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  constructor(EntityActivity: typeof BaseActivity, options?: { actor?: User }) {
+    this.EntityActivity = EntityActivity;
+    this.repo = getRepository(EntityActivity);
+    this.actor = options?.actor;
   }
 
   validateActivity(activity: any, entityId: number): any {
@@ -64,7 +65,6 @@ export default class ActivityService {
   }
 
   async createActivity(params: FullActivityParams): Promise<BaseActivity> {
-    const user = new UserService().getUser(params.createdById);
     // @ts-ignore
     let activity = new this.EntityActivity();
     activity = {
@@ -72,7 +72,7 @@ export default class ActivityService {
       description: params.description,
       type: params.type,
       subType: params.subtype,
-      createdBy: user,
+      createdBy: this.actor,
     };
 
     switch (this.EntityActivity) {
@@ -96,12 +96,11 @@ export default class ActivityService {
       default:
         throw new TypeError(`Type ${this.EntityActivity.constructor.name} is not a valid entity activity`);
     }
-    console.log(activity);
     return this.repo.save(activity);
   }
 
   async updateActivity(
-    entityId: number, activityId: number, params: Partial<UpdateActivityParams>,
+    entityId: number, activityId: number, params: Partial<ActivityParams>,
   ): Promise<BaseActivity> {
     let activity = await this.repo.findOne(activityId);
     activity = this.validateActivity(activity, entityId);
