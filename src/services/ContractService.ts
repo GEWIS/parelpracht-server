@@ -6,6 +6,7 @@ import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+// eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import { ActivityType } from '../entity/activity/BaseActivity';
 
@@ -79,7 +80,6 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
-    console.log(this.actor);
     let contract = this.repo.create({
       ...params,
       createdById: this.actor?.id,

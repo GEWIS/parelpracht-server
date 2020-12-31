@@ -8,6 +8,7 @@ import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
+// eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
@@ -91,7 +92,6 @@ export default class InvoiceService {
     await Promise.all(params.productInstanceIds.map(async (id) => {
       const p = await new ProductInstanceService().getProduct(id, ['contract']);
       // Verify that the productInstance and invoice share the same company
-      console.log(p);
       if (p.contract.companyId !== params.companyId) {
         throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
       }
