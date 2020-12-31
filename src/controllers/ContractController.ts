@@ -1,22 +1,17 @@
 import {
-  Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
+  Body, Controller, Post, Route, Put, Tags, Get, Query, Delete, Security, Response, Request,
 } from 'tsoa';
 import express from 'express';
 import { Contract } from '../entity/Contract';
 import ContractService, {
-  ContractListResponse,
-  ContractParams,
-  ContractSummary,
+  ContractListResponse, ContractParams, ContractSummary,
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
-  ActivityParams,
-  FullActivityParams,
-  StatusParams,
+  ActivityParams, FullActivityParams, ContractStatusParams, ProductInstanceStatusParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
@@ -24,8 +19,7 @@ import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import FileService, {
-  FileParams,
-  FullGenerateContractParams, GenerateContractParams,
+  FileParams, FullGenerateContractParams, GenerateContractParams,
 } from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
@@ -160,7 +154,8 @@ export class ContractController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addProductStatus(
-    id: number, prodId: number, @Body() params: StatusParams, @Request() req: express.Request,
+    id: number, prodId: number, @Body() params: ProductInstanceStatusParams,
+    @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     const p = {
@@ -313,7 +308,8 @@ export class ContractController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addStatus(
-    id: number, @Body() params: StatusParams, @Request() req: express.Request,
+    id: number, @Body() params: ContractStatusParams,
+    @Request() req: express.Request,
   ): Promise<BaseActivity> {
     const p = {
       ...params,

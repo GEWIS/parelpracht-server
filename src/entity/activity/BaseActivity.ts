@@ -15,10 +15,6 @@ export default abstract class BaseActivity extends BaseEnt {
   @Column({ type: 'enum', enum: ActivityType })
   type!: ActivityType;
 
-  /** Subtype of this activity, only used when the type = "STATUS" */
-  @Column({ default: '' })
-  subType?: string;
-
   /** Description of this activity */
   @Column()
   description!: string;

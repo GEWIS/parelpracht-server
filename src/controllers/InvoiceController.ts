@@ -10,7 +10,7 @@ import { ListParams } from './ListParams';
 import ActivityService, {
   ActivityParams,
   FullActivityParams,
-  StatusParams,
+  InvoiceStatusParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
@@ -214,7 +214,7 @@ export class InvoiceController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addStatus(
-    id: number, @Body() params: StatusParams, @Request() req: express.Request,
+    id: number, @Body() params: InvoiceStatusParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     // eslint-disable-next-line no-param-reassign
     const p = {

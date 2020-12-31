@@ -12,7 +12,6 @@ import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,
   FullActivityParams,
-  StatusParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
@@ -163,26 +162,6 @@ export class ProductController extends Controller {
   @Response<WrappedApiError>(401)
   public async deleteFile(id: number, fileId: number): Promise<void> {
     return new FileService(ProductFile).deleteFile(id, fileId, true);
-  }
-
-  /**
-   * Add a activity status to this product
-   * @param id ID of the product
-   * @param params Parameters to create this status with
-   * @param req Express.js request object
-   */
-  @Post('{id}/status')
-  @Security('local', ['GENERAL', 'ADMIN'])
-  @Response<WrappedApiError>(401)
-  public async addStatus(
-    id: number, @Body() params: StatusParams, @Request() req: express.Request,
-  ): Promise<BaseActivity> {
-    const p = {
-      ...params,
-      entityId: id,
-      type: ActivityType.STATUS,
-    } as FullActivityParams;
-    return new ActivityService(ProductActivity, { actor: req.user as User }).createActivity(p);
   }
 
   /**

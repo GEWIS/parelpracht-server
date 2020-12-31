@@ -6,6 +6,15 @@ import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from '../Contract';
 
+export enum ContractStatus {
+  CREATED = 'CREATED',
+  PROPOSED = 'PROPOSED',
+  SENT = 'SENT',
+  CONFIRMED = 'CONFIRMED',
+  FINISHED = 'FINISHED',
+  CANCELLED = 'CANCELLED',
+}
+
 @Entity()
 export class ContractActivity extends BaseActivity {
   @Column({ type: 'integer' })
@@ -16,11 +25,11 @@ export class ContractActivity extends BaseActivity {
   @JoinColumn({ name: 'contractId' })
   contract!: Contract;
 
-  @Column({ type: 'integer', nullable: true })
-  relatedContractId?: number;
-
-  /** If this activity should reference another contract, it can be done here */
-  @ManyToOne(() => Contract, { nullable: true })
-  @JoinColumn({ name: 'relatedContractId' })
-  relatedContract?: Contract;
+  /** Subtype of this activity, only used when the type = "STATUS" */
+  @Column({
+    type: 'enum',
+    enum: ContractStatus,
+    nullable: true,
+  })
+  subType?: ContractStatus;
 }

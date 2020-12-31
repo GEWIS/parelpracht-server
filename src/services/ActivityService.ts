@@ -1,26 +1,41 @@
 import { getRepository, Repository } from 'typeorm';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
-import { ContractActivity } from '../entity/activity/ContractActivity';
-import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
+import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
-import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
+import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { User } from '../entity/User';
 
 export interface ActivityParams {
   description: string;
-  relatedEntityId?: number;
 }
 
-export interface StatusParams extends ActivityParams {
-  subtype: string;
-}
-
-export interface FullActivityParams extends StatusParams {
+export interface FullActivityParams extends ActivityParams {
   entityId: number;
   type: ActivityType;
+  subType?: any;
 }
+
+export interface ContractStatusParams extends ActivityParams {
+  subType: ContractStatus,
+}
+
+export interface InvoiceStatusParams extends ActivityParams {
+  subType: InvoiceStatus,
+}
+
+export interface ProductInstanceStatusParams extends ActivityParams {
+  subType: ProductInstanceStatus,
+}
+
+// export interface FullContractStatusParams extends FullActivityParams, ContractStatusParams {}
+//
+// export interface FullInvoiceStatusParams extends FullActivityParams, InvoiceStatusParams {}
+//
+// export interface FullProductInstanceStatusParams extends FullActivityParams,
+//   ProductInstanceStatusParams {}
 
 export default class ActivityService {
   repo: Repository<BaseActivity>;
@@ -71,7 +86,7 @@ export default class ActivityService {
       ...activity,
       description: params.description,
       type: params.type,
-      subType: params.subtype,
+      subType: params.subType,
       createdBy: this.actor,
     };
 
@@ -81,11 +96,9 @@ export default class ActivityService {
         break;
       case ContractActivity:
         activity.contractId = params.entityId;
-        activity.relatedContractId = params.relatedEntityId;
         break;
       case InvoiceActivity:
         activity.invoiceId = params.entityId;
-        activity.relatedInvoiceId = params.relatedEntityId;
         break;
       case ProductActivity:
         activity.productId = params.entityId;
@@ -109,13 +122,11 @@ export default class ActivityService {
       case ContractActivity:
         p = {
           description: params.description,
-          relatedContractId: params.relatedEntityId,
         };
         break;
       case InvoiceActivity:
         p = {
           description: params.description,
-          relatedInvoiceId: params.relatedEntityId,
         };
         break;
       default:
