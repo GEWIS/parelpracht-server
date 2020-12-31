@@ -206,8 +206,10 @@ export default class PdfGenerator {
       totalPrice += prodInst.basePrice - prodInst.discount;
 
       if (language === Language.DUTCH) {
-        mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.product.description}}\\\\\n`;
-        mT += `${prodInst.product.contractTextDutch}}\n`;
+        if (prodInst.product.contractTextDutch !== '') {
+          mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.product.description}}\\\\\n`;
+          mT += `${prodInst.product.contractTextDutch}}\n`;
+        }
 
         if (prodInst.product.deliverySpecificationDutch !== '') {
           dT += `\\item{\\textbf{${prodInst.product.nameDutch}}\\\\\n`;
@@ -223,8 +225,10 @@ export default class PdfGenerator {
           fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, true)} \\\\\n`;
         }
       } else if (language === Language.ENGLISH) {
-        mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.product.description}}\\\\\n`;
-        mT += `${prodInst.product.contractTextEnglish}}\n`;
+        if (prodInst.product.contractTextEnglish !== '') {
+          mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.product.description}}\\\\\n`;
+          mT += `${prodInst.product.contractTextEnglish}}\n`;
+        }
 
         if (prodInst.product.deliverySpecificationEnglish !== '') {
           dT += `\\item{\\textbf{${prodInst.product.nameEnglish}}\\\\\n`;
