@@ -238,6 +238,7 @@ const models: TsoaRoute.Models = {
             "version": {"dataType":"double","required":true},
             "products": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
             "poNumber": {"dataType":"string"},
+            "startDate": {"dataType":"datetime","required":true},
             "comments": {"dataType":"string"},
             "companyId": {"dataType":"double","required":true},
             "createdById": {"dataType":"double","required":true},
@@ -689,6 +690,7 @@ const models: TsoaRoute.Models = {
             "productInstanceIds": {"dataType":"array","array":{"dataType":"double"},"required":true},
             "poNumber": {"dataType":"string"},
             "comments": {"dataType":"string"},
+            "startDate": {"dataType":"datetime"},
             "assignedToId": {"dataType":"double"},
         },
         "additionalProperties": false,
@@ -696,7 +698,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_InvoiceParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"companyId":{"dataType":"double"},"productInstanceIds":{"dataType":"array","array":{"dataType":"double"}},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"},"assignedToId":{"dataType":"double"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"companyId":{"dataType":"double"},"productInstanceIds":{"dataType":"array","array":{"dataType":"double"}},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"},"startDate":{"dataType":"datetime"},"assignedToId":{"dataType":"double"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GenerateInvoiceParams": {

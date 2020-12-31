@@ -19,6 +19,7 @@ export interface InvoiceParams {
   productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
+  startDate?: Date;
   assignedToId?: number;
 }
 

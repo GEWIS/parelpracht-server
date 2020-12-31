@@ -22,6 +22,10 @@ export class Invoice extends BaseEnt {
   @Column({ default: '' })
   poNumber?: string;
 
+  /** Date at which this invoice will be sent */
+  @Column({ default: () => 'now()' })
+  startDate!: Date;
+
   /** Any comments regarding this invoice */
   @Column({ type: 'text', default: '' })
   comments?: string;
