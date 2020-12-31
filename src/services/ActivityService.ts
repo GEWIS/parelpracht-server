@@ -136,7 +136,6 @@ export default class ActivityService {
     const canEndContract = await this.canEndContract(contract);
 
     if (canEndContract.cancelled) {
-      console.log('Cancel the contract');
       await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
         entityId: contractId,
         description: '',
@@ -146,7 +145,6 @@ export default class ActivityService {
       return true;
     }
     if (canEndContract.finished) {
-      console.log('Finish the contract');
       await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
         entityId: contractId,
         description: '',

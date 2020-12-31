@@ -45,12 +45,24 @@ export class ProductInstance extends BaseEnt {
   @JoinColumn()
   activities!: ProductActivity[];
 
-  /** Actual price of the product. Can be different from the default product price,
-   * e.g. for discounts */
+  /** Actual price of the product, should be a copy from the product price upon creation,
+   * or a different price that is not a discount */
   @Column({ type: 'integer' })
-  price!: number;
+  basePrice!: number;
+
+  /** Optional discount amount */
+  @Column({ type: 'integer', default: 0 })
+  discount!: number;
 
   /** Any comments regarding this product instance */
   @Column({ type: 'text', nullable: true, default: '' })
   comments?: string;
+
+  public price(): number {
+    return this.basePrice - this.discount;
+  }
+
+  public discountPercentage(): string {
+    return `${((this.discount / this.basePrice) * 100).toFixed(2)}`;
+  }
 }

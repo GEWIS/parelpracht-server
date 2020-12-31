@@ -21,6 +21,7 @@ export interface ContractGenSettings {
   contentType: ContractType,
   fileType: ReturnFileType,
   saveToDisk: boolean,
+  showDiscountPercentages: boolean,
   signee1: User,
   signee2: User,
   sender: User,
@@ -30,6 +31,7 @@ export interface InvoiceGenSettings {
   language: Language,
   fileType: ReturnFileType,
   saveToDisk: boolean,
+  showDiscountPercentages: boolean;
   sender: User,
   recipient: Contact,
 }

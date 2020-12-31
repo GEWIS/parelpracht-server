@@ -192,7 +192,8 @@ const models: TsoaRoute.Models = {
             "invoiceId": {"dataType":"double"},
             "invoice": {"ref":"Invoice"},
             "activities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
-            "price": {"dataType":"double","required":true},
+            "basePrice": {"dataType":"double","required":true},
+            "discount": {"dataType":"double","required":true},
             "comments": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -598,7 +599,8 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "productId": {"dataType":"double","required":true},
-            "price": {"dataType":"double","required":true},
+            "basePrice": {"dataType":"double","required":true},
+            "discount": {"dataType":"double"},
             "comments": {"dataType":"string"},
         },
         "additionalProperties": false,
@@ -606,7 +608,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ProductInstanceParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"price":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"basePrice":{"dataType":"double"},"discount":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductInstanceStatus": {
@@ -645,6 +647,7 @@ const models: TsoaRoute.Models = {
             "language": {"ref":"Language","required":true},
             "contentType": {"ref":"ContractType","required":true},
             "fileType": {"ref":"ReturnFileType","required":true},
+            "showDiscountPercentages": {"dataType":"boolean","required":true},
             "saveToDisk": {"dataType":"boolean","required":true},
             "signee1Id": {"dataType":"double","required":true},
             "signee2Id": {"dataType":"double","required":true},
@@ -702,6 +705,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "language": {"ref":"Language","required":true},
             "fileType": {"ref":"ReturnFileType","required":true},
+            "showDiscountPercentages": {"dataType":"boolean","required":true},
             "saveToDisk": {"dataType":"boolean","required":true},
             "recipientId": {"dataType":"double","required":true},
         },
@@ -1926,28 +1930,6 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addComment.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, next);
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/contract/:id/status',
-            function (request: any, response: any, next: any) {
-            const args = {
-                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-            } catch (err) {
-                return next(err);
-            }
-
-            const controller = new ContractController();
-
-
-            const promise = controller.getStatusses.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

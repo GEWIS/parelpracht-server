@@ -13,7 +13,8 @@ import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivi
 
 export interface ProductInstanceParams {
   productId: number,
-  price: number,
+  basePrice: number,
+  discount?: number,
   comments?: string;
 }
 
@@ -99,7 +100,6 @@ export default class ProductInstanceService {
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {
     const productInstance = await this.getProduct(productId, ['contract']);
-    console.log(productInstance);
     const invoice = await new InvoiceService().getInvoice(invoiceId);
     // Verify that this productInstance doesn't already belong to an invoice
     if (productInstance.invoiceId !== null) {

@@ -98,8 +98,6 @@ export default class InvoiceService {
       products.push(p);
     }));
 
-    console.log(products);
-
     let invoice = this.repo.create({
       ...params,
       products,

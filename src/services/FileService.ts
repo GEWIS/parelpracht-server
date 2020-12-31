@@ -37,6 +37,7 @@ export interface GenerateContractParams extends FileParams {
   language: Language,
   contentType: ContractType,
   fileType: ReturnFileType,
+  showDiscountPercentages: boolean,
   saveToDisk: boolean,
   signee1Id: number,
   signee2Id: number,
@@ -46,6 +47,7 @@ export interface FullGenerateContractParams extends FullFileParams, GenerateCont
 export interface GenerateInvoiceParams extends FileParams {
   language: Language,
   fileType: ReturnFileType,
+  showDiscountPercentages: boolean,
   saveToDisk: boolean,
   recipientId: number,
 }
