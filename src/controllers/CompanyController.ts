@@ -12,7 +12,6 @@ import { ListParams } from './ListParams';
 import ActivityService, {
   ActivityParams,
   FullActivityParams,
-  StatusParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
@@ -90,25 +89,25 @@ export class CompanyController extends Controller {
   }
 
   /**
-   * Add a activity status to this company
-   * @param id ID of the company
-   * @param params Parameters to create this status with
-   * @param req Express.js request object
+   * getUnresolvedInvoices() - retrieve unresolved invoices from company
+   * @param id ID of company to retrieve unresolved invoices for
    */
-  @Post('{id}/status')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Get('{id}/invoices')
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async addStatus(
-    id: number, @Body() params: StatusParams, @Request() req: express.Request,
-  ): Promise<BaseActivity> {
-    // eslint-disable-next-line no-param-reassign
-    const p = {
-      ...params,
-      entityId: id,
-      type: ActivityType.STATUS,
-    } as FullActivityParams;
-    return new ActivityService(CompanyActivity, { actor: req.user as User })
-      .createActivity(p);
+  public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
+    return new CompanyService().getUnresolvedInvoices(id);
+  }
+
+  /**
+   * getContacts() - retrieve contacts from company
+   * @param id ID of company to retrieve unresolved invoices for
+   */
+  @Get('{id}/contacts')
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getContacts(id: number): Promise<Contact[]> {
+    return new CompanyService().getContacts(id);
   }
 
   /**
@@ -156,27 +155,5 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
-  }
-
-  /**
-   * getUnresolvedInvoices() - retrieve unresolved invoices from company
-   * @param id ID of company to retrieve unresolved invoices for
-   */
-  @Get('company/{id}/invoices')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
-  @Response<WrappedApiError>(401)
-  public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
-    return new CompanyService().getUnresolvedInvoices(id);
-  }
-
-  /**
-   * getContacts() - retrieve contacts from company
-   * @param id ID of company to retrieve unresolved invoices for
-   */
-  @Get('company/{id}/contacts')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
-  @Response<WrappedApiError>(401)
-  public async getContacts(id: number): Promise<Contact[]> {
-    return new CompanyService().getContacts(id);
   }
 }

@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, ILike, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
@@ -8,6 +8,10 @@ import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
+// eslint-disable-next-line import/no-cycle
+import ActivityService, { FullActivityParams } from './ActivityService';
+import { ActivityType } from '../entity/activity/BaseActivity';
+import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
 
 // Not correct yet
 export interface InvoiceParams {
@@ -88,7 +92,6 @@ export default class InvoiceService {
     await Promise.all(params.productInstanceIds.map(async (id) => {
       const p = await new ProductInstanceService().getProduct(id, ['contract']);
       // Verify that the productInstance and invoice share the same company
-      console.log(p);
       if (p.contract.companyId !== params.companyId) {
         throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
       }
@@ -97,13 +100,22 @@ export default class InvoiceService {
 
     console.log(products);
 
-    const invoice = this.repo.create({
+    let invoice = this.repo.create({
       ...params,
       products,
       createdById: this.actor?.id,
     });
 
-    return this.repo.save(invoice);
+    invoice = await this.repo.save(invoice);
+
+    await new ActivityService(InvoiceActivity, { actor: this.actor }).createActivity({
+      entityId: invoice.id,
+      type: ActivityType.STATUS,
+      subType: InvoiceStatus.CREATED,
+      description: '',
+    } as FullActivityParams);
+
+    return this.getInvoice(invoice.id);
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {

@@ -141,7 +141,7 @@ const models: TsoaRoute.Models = {
             "deliverySpecificationDutch": {"dataType":"string"},
             "deliverySpecificationEnglish": {"dataType":"string"},
             "instances": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
-            "productActivities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
+            "activities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
             "files": {"dataType":"array","array":{"ref":"ProductFile"},"required":true},
         },
         "additionalProperties": false,
@@ -171,7 +171,7 @@ const models: TsoaRoute.Models = {
             "assignedTo": {"ref":"User","required":true},
             "contactId": {"dataType":"double","required":true},
             "contact": {"ref":"Contact","required":true},
-            "contractActivity": {"dataType":"array","array":{"ref":"ContractActivity"},"required":true},
+            "activities": {"dataType":"array","array":{"ref":"ContractActivity"},"required":true},
             "files": {"dataType":"array","array":{"ref":"ContractFile"},"required":true},
         },
         "additionalProperties": false,
@@ -191,7 +191,7 @@ const models: TsoaRoute.Models = {
             "contract": {"ref":"Contract","required":true},
             "invoiceId": {"dataType":"double"},
             "invoice": {"ref":"Invoice"},
-            "productInstanceActivities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
+            "activities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
             "price": {"dataType":"double","required":true},
             "comments": {"dataType":"string"},
         },
@@ -244,10 +244,15 @@ const models: TsoaRoute.Models = {
             "assignedToId": {"dataType":"double","required":true},
             "assignedTo": {"ref":"User","required":true},
             "company": {"ref":"Company","required":true},
-            "invoiceActivities": {"dataType":"array","array":{"ref":"InvoiceActivity"},"required":true},
+            "activities": {"dataType":"array","array":{"ref":"InvoiceActivity"},"required":true},
             "files": {"dataType":"array","array":{"ref":"InvoiceFile"},"required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InvoiceStatus": {
+        "dataType": "refEnum",
+        "enums": ["CREATED","SENT","PAID","IRRECOVERABLE","CANCELLED"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ActivityType": {
@@ -264,14 +269,12 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "type": {"ref":"ActivityType","required":true},
-            "subType": {"dataType":"string"},
             "description": {"dataType":"string","required":true},
             "createdById": {"dataType":"double","required":true},
             "createdBy": {"ref":"User","required":true},
             "invoiceId": {"dataType":"double","required":true},
             "invoice": {"ref":"Invoice","required":true},
-            "relatedInvoiceId": {"dataType":"double"},
-            "relatedInvoice": {"ref":"Invoice"},
+            "subType": {"ref":"InvoiceStatus"},
         },
         "additionalProperties": false,
     },
@@ -332,7 +335,6 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "type": {"ref":"ActivityType","required":true},
-            "subType": {"dataType":"string"},
             "description": {"dataType":"string","required":true},
             "createdById": {"dataType":"double","required":true},
             "createdBy": {"ref":"User","required":true},
@@ -340,6 +342,11 @@ const models: TsoaRoute.Models = {
             "company": {"ref":"Company","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ContractStatus": {
+        "dataType": "refEnum",
+        "enums": ["CREATED","PROPOSED","SENT","CONFIRMED","FINISHED","CANCELLED"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ContractActivity": {
@@ -351,14 +358,12 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "type": {"ref":"ActivityType","required":true},
-            "subType": {"dataType":"string"},
             "description": {"dataType":"string","required":true},
             "createdById": {"dataType":"double","required":true},
             "createdBy": {"ref":"User","required":true},
             "contractId": {"dataType":"double","required":true},
             "contract": {"ref":"Contract","required":true},
-            "relatedContractId": {"dataType":"double"},
-            "relatedContract": {"ref":"Contract"},
+            "subType": {"ref":"ContractStatus"},
         },
         "additionalProperties": false,
     },
@@ -391,7 +396,6 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "type": {"ref":"ActivityType","required":true},
-            "subType": {"dataType":"string"},
             "description": {"dataType":"string","required":true},
             "createdById": {"dataType":"double","required":true},
             "createdBy": {"ref":"User","required":true},
@@ -492,20 +496,9 @@ const models: TsoaRoute.Models = {
             "deletedAt": {"dataType":"datetime"},
             "version": {"dataType":"double","required":true},
             "type": {"ref":"ActivityType","required":true},
-            "subType": {"dataType":"string"},
             "description": {"dataType":"string","required":true},
             "createdById": {"dataType":"double","required":true},
             "createdBy": {"ref":"User","required":true},
-        },
-        "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "StatusParams": {
-        "dataType": "refObject",
-        "properties": {
-            "description": {"dataType":"string","required":true},
-            "relatedEntityId": {"dataType":"double"},
-            "subtype": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
@@ -514,14 +507,13 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "description": {"dataType":"string","required":true},
-            "relatedEntityId": {"dataType":"double"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ActivityParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string"},"relatedEntityId":{"dataType":"double"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CompanyListResponse": {
@@ -617,6 +609,20 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"price":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceStatus": {
+        "dataType": "refEnum",
+        "enums": ["NOTDELIVERED","DELIVERED","CANCELLED","DEFERRED"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceStatusParams": {
+        "dataType": "refObject",
+        "properties": {
+            "description": {"dataType":"string","required":true},
+            "subType": {"ref":"ProductInstanceStatus","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Language": {
         "dataType": "refEnum",
         "enums": ["DUTCH","ENGLISH"],
@@ -642,6 +648,15 @@ const models: TsoaRoute.Models = {
             "saveToDisk": {"dataType":"boolean","required":true},
             "signee1Id": {"dataType":"double","required":true},
             "signee2Id": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ContractStatusParams": {
+        "dataType": "refObject",
+        "properties": {
+            "description": {"dataType":"string","required":true},
+            "subType": {"ref":"ContractStatus","required":true},
         },
         "additionalProperties": false,
     },
@@ -689,6 +704,15 @@ const models: TsoaRoute.Models = {
             "fileType": {"ref":"ReturnFileType","required":true},
             "saveToDisk": {"dataType":"boolean","required":true},
             "recipientId": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InvoiceStatusParams": {
+        "dataType": "refObject",
+        "properties": {
+            "description": {"dataType":"string","required":true},
+            "subType": {"ref":"InvoiceStatus","required":true},
         },
         "additionalProperties": false,
     },
@@ -1123,31 +1147,6 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/api/product/:id/status',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function (request: any, response: any, next: any) {
-            const args = {
-                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    params: {"in":"body","name":"params","required":true,"ref":"StatusParams"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-            } catch (err) {
-                return next(err);
-            }
-
-            const controller = new ProductController();
-
-
-            const promise = controller.addStatus.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, next);
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/:id/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
@@ -1341,13 +1340,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/api/company/:id/status',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+        app.get('/api/company/:id/invoices',
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    params: {"in":"body","name":"params","required":true,"ref":"StatusParams"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1362,7 +1359,30 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new CompanyController();
 
 
-            const promise = controller.addStatus.apply(controller, validatedArgs as any);
+            const promise = controller.getUnresolvedInvoices.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/company/:id/contacts',
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            function (request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new CompanyController();
+
+
+            const promise = controller.getContacts.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1437,52 +1457,6 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, next);
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/company/company/:id/invoices',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function (request: any, response: any, next: any) {
-            const args = {
-                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-            } catch (err) {
-                return next(err);
-            }
-
-            const controller = new CompanyController();
-
-
-            const promise = controller.getUnresolvedInvoices.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, next);
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/company/company/:id/contacts',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function (request: any, response: any, next: any) {
-            const args = {
-                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-            } catch (err) {
-                return next(err);
-            }
-
-            const controller = new CompanyController();
-
-
-            const promise = controller.getContacts.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1612,6 +1586,7 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ProductInstanceParams"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1685,7 +1660,7 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
-                    params: {"in":"body","name":"params","required":true,"ref":"StatusParams"},
+                    params: {"in":"body","name":"params","required":true,"ref":"ProductInstanceStatusParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
@@ -1909,7 +1884,7 @@ export function RegisterRoutes(app: express.Router) {
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    params: {"in":"body","name":"params","required":true,"ref":"StatusParams"},
+                    params: {"in":"body","name":"params","required":true,"ref":"ContractStatusParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
@@ -1951,6 +1926,28 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addComment.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/contract/:id/status',
+            function (request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new ContractController();
+
+
+            const promise = controller.getStatusses.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2298,7 +2295,7 @@ export function RegisterRoutes(app: express.Router) {
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    params: {"in":"body","name":"params","required":true,"ref":"StatusParams"},
+                    params: {"in":"body","name":"params","required":true,"ref":"InvoiceStatusParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
