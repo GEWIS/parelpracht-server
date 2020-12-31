@@ -12,7 +12,7 @@ export class ContractActivity extends BaseActivity {
   contractId!: number;
 
   /** Contract related to this activity */
-  @ManyToOne(() => Contract, (contract) => contract.products)
+  @ManyToOne(() => Contract, (contract) => contract.activities)
   @JoinColumn({ name: 'contractId' })
   contract!: Contract;
 
@@ -20,7 +20,7 @@ export class ContractActivity extends BaseActivity {
   relatedContractId?: number;
 
   /** If this activity should reference another contract, it can be done here */
-  @ManyToOne(() => Contract, (contract) => contract.products, { nullable: true })
+  @ManyToOne(() => Contract, { nullable: true })
   @JoinColumn({ name: 'relatedContractId' })
   relatedContract?: Contract;
 }

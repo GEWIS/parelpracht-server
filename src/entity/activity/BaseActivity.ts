@@ -23,8 +23,11 @@ export default abstract class BaseActivity extends BaseEnt {
   @Column()
   description!: string;
 
+  @Column({ type: 'integer' })
+  createdById!: number;
+
   /** User who created this activity */
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn()
-  createdBy?: User;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdById' })
+  createdBy!: User;
 }

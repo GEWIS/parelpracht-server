@@ -37,7 +37,7 @@ export default class ContractService {
 
   async getContract(id: number, relations: string[] = []): Promise<Contract> {
     const contract = await this.repo.findOne(id, {
-      relations: ['contact', 'company', 'products', 'contractActivity', 'products.productInstanceActivities', 'products.invoice', 'files', 'files.createdBy'].concat(relations),
+      relations: ['contact', 'company', 'products', 'activities', 'products.activities', 'products.invoice', 'files', 'files.createdBy'].concat(relations),
     }); // May need more relations
     if (contract === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Contract not found');

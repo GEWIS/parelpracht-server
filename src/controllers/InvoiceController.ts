@@ -8,10 +8,9 @@ import { WrappedApiError } from '../helpers/error';
 import InvoiceService, { InvoiceListResponse, InvoiceParams, InvoiceSummary } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 import ActivityService, {
-  CommentParams,
+  ActivityParams,
   FullActivityParams,
   StatusParams,
-  UpdateActivityParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
@@ -109,6 +108,8 @@ export class InvoiceController extends Controller {
    * @param params - Create subset of product
    */
   @Post('{id}/product')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async addProduct(
     id: number, @Body() params: { productId: number },
   ): Promise<ProductInstance> {
@@ -121,6 +122,8 @@ export class InvoiceController extends Controller {
    * @param prodId ID of the product instance
    */
   @Delete('{id}/product/{prodId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async deleteProduct(id: number, prodId: number): Promise<void> {
     return new ProductInstanceService().deleteInvoiceProduct(id, prodId);
   }
@@ -138,10 +141,11 @@ export class InvoiceController extends Controller {
   public async generateFile(
     id: number, @Body() params: GenerateInvoiceParams, @Request() req: express.Request,
   ): Promise<any> {
-    const file = await new FileService(InvoiceFile, req.user).generateInvoiceFile({
-      ...params,
-      entityId: id,
-    } as FullGenerateInvoiceParams);
+    const file = await new FileService(InvoiceFile, { actor: req.user as User })
+      .generateInvoiceFile({
+        ...params,
+        entityId: id,
+      } as FullGenerateInvoiceParams);
 
     return FileHelper.putFileInResponse(this, file);
   }
@@ -155,7 +159,7 @@ export class InvoiceController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async uploadFile(id: number, @Request() req: express.Request): Promise<InvoiceFile> {
-    return new FileService(InvoiceFile, req.user).uploadFile(req, id);
+    return new FileService(InvoiceFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
   /**
@@ -204,32 +208,42 @@ export class InvoiceController extends Controller {
    * Add a activity status to this invoice
    * @param id ID of the invoice
    * @param params Parameters to create this status with
+   * @param req Express.js request object
    */
   @Post('{id}/status')
-  public async addStatus(id: number, @Body() params: StatusParams): Promise<BaseActivity> {
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addStatus(
+    id: number, @Body() params: StatusParams, @Request() req: express.Request,
+  ): Promise<BaseActivity> {
     // eslint-disable-next-line no-param-reassign
     const p = {
       ...params,
       entityId: id,
       type: ActivityType.STATUS,
     } as FullActivityParams;
-    return new ActivityService(InvoiceActivity).createActivity(p);
+    return new ActivityService(InvoiceActivity, { actor: req.user as User }).createActivity(p);
   }
 
   /**
    * Add a activity comment to this invoice
    * @param id ID of the invoice
    * @param params Parameters to create this comment with
+   * @param req Express.js request object
    */
   @Post('{id}/comment')
-  public async addComment(id: number, @Body() params: CommentParams): Promise<BaseActivity> {
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addComment(
+    id: number, @Body() params: ActivityParams, @Request() req: express.Request,
+  ): Promise<BaseActivity> {
     // eslint-disable-next-line no-param-reassign
     const p = {
       ...params,
       entityId: id,
       type: ActivityType.COMMENT,
     } as FullActivityParams;
-    return new ActivityService(InvoiceActivity).createActivity(p);
+    return new ActivityService(InvoiceActivity, { actor: req.user as User }).createActivity(p);
   }
 
   /**
@@ -239,8 +253,10 @@ export class InvoiceController extends Controller {
    * @param params Update subset of parameter of the activity
    */
   @Put('{id}/activity/{activityId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateActivity(
-    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+    id: number, activityId: number, @Body() params: Partial<ActivityParams>,
   ): Promise<BaseActivity> {
     return new ActivityService(InvoiceActivity).updateActivity(id, activityId, params);
   }
@@ -251,6 +267,8 @@ export class InvoiceController extends Controller {
    * @param activityId ID of the activity
    */
   @Delete('{id}/activity/{activityId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(InvoiceActivity).deleteActivity(id, activityId);
   }

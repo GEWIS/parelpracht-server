@@ -37,7 +37,7 @@ export default class ProductService {
   }
 
   async getProduct(id: number): Promise<Product> {
-    const product = await this.repo.findOne(id, { relations: ['files', 'productActivities'] });
+    const product = await this.repo.findOne(id, { relations: ['files', 'activities'] });
     if (product === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
     }

@@ -12,7 +12,7 @@ export class ProductInstanceActivity extends BaseActivity {
   productInstanceId!: number;
 
   /** ProductInstance related to this activity */
-  @ManyToOne(() => ProductInstance, (productInstance) => productInstance.productInstanceActivities)
+  @ManyToOne(() => ProductInstance, (productInstance) => productInstance.activities)
   @JoinColumn({ name: 'productInstanceId' })
   productInstance!: ProductInstance;
 }

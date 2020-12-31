@@ -50,7 +50,7 @@ export class Invoice extends BaseEnt {
 
   /** All activities regarding this invoice */
   @OneToMany(() => InvoiceActivity, (invoiceActivity) => invoiceActivity.invoice)
-  invoiceActivities!: InvoiceActivity[];
+  activities!: InvoiceActivity[];
 
   /** All files regarding this contract */
   @OneToMany(() => InvoiceFile, (file) => file.invoice)

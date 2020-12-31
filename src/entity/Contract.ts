@@ -61,7 +61,7 @@ export class Contract extends BaseEnt {
 
   /** All activities regarding this contract */
   @OneToMany(() => ContractActivity, (contractActivity) => contractActivity.contract)
-  contractActivity!: ContractActivity[];
+  activities!: ContractActivity[];
 
   /** All files regarding this contract */
   @OneToMany(() => ContractFile, (file) => file.contract)

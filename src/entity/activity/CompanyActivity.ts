@@ -12,7 +12,7 @@ export class CompanyActivity extends BaseActivity {
   companyId!: number;
 
   /** Company related to this activity */
-  @ManyToOne(() => Company, (company) => company.contracts)
+  @ManyToOne(() => Company, (company) => company.activities)
   @JoinColumn({ name: 'companyId' })
   company!: Company;
 }

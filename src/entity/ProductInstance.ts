@@ -43,7 +43,7 @@ export class ProductInstance extends BaseEnt {
   @OneToMany(() => ProductInstanceActivity,
     (productInstanceActivity) => productInstanceActivity.productInstance)
   @JoinColumn()
-  productInstanceActivities!: ProductActivity[];
+  activities!: ProductActivity[];
 
   /** Actual price of the product. Can be different from the default product price,
    * e.g. for discounts */

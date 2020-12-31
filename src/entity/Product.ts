@@ -62,7 +62,7 @@ export class Product extends BaseEnt {
 
   /** All activities regarding this product */
   @OneToMany(() => ProductActivity, (productActivity) => productActivity.product)
-  productActivities!: ProductActivity[];
+  activities!: ProductActivity[];
 
   /** All files regarding this product */
   @OneToMany(() => ProductFile, (file) => file.product)

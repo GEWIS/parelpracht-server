@@ -1,7 +1,8 @@
 import {
   Body,
-  Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete,
+  Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete, Request,
 } from 'tsoa';
+import express from 'express';
 import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
@@ -9,13 +10,13 @@ import { WrappedApiError } from '../helpers/error';
 import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
 import { ListParams } from './ListParams';
 import ActivityService, {
-  CommentParams,
+  ActivityParams,
   FullActivityParams,
   StatusParams,
-  UpdateActivityParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
+import { User } from '../entity/User';
 
 @Route('company')
 @Tags('Company')
@@ -92,32 +93,44 @@ export class CompanyController extends Controller {
    * Add a activity status to this company
    * @param id ID of the company
    * @param params Parameters to create this status with
+   * @param req Express.js request object
    */
   @Post('{id}/status')
-  public async addStatus(id: number, @Body() params: StatusParams): Promise<BaseActivity> {
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addStatus(
+    id: number, @Body() params: StatusParams, @Request() req: express.Request,
+  ): Promise<BaseActivity> {
     // eslint-disable-next-line no-param-reassign
     const p = {
       ...params,
       entityId: id,
       type: ActivityType.STATUS,
     } as FullActivityParams;
-    return new ActivityService(CompanyActivity).createActivity(p);
+    return new ActivityService(CompanyActivity, { actor: req.user as User })
+      .createActivity(p);
   }
 
   /**
    * Add a activity comment to this company
    * @param id ID of the company
    * @param params Parameters to create this comment with
+   * @param req Express.js request object
    */
   @Post('{id}/comment')
-  public async addComment(id: number, @Body() params: CommentParams): Promise<BaseActivity> {
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addComment(
+    id: number, @Body() params: ActivityParams, @Request() req: express.Request,
+  ): Promise<BaseActivity> {
     // eslint-disable-next-line no-param-reassign
     const p = {
       ...params,
       entityId: id,
       type: ActivityType.COMMENT,
     } as FullActivityParams;
-    return new ActivityService(CompanyActivity).createActivity(p);
+    return new ActivityService(CompanyActivity, { actor: req.user as User })
+      .createActivity(p);
   }
 
   /**
@@ -126,8 +139,10 @@ export class CompanyController extends Controller {
    * @param params Update subset of parameter of comment activity
    */
   @Put('{id}/activity/{activityId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateActivity(
-    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+    id: number, activityId: number, @Body() params: Partial<ActivityParams>,
   ): Promise<BaseActivity> {
     return new ActivityService(CompanyActivity).updateActivity(id, activityId, params);
   }
@@ -137,6 +152,8 @@ export class CompanyController extends Controller {
    * @param activityId ID of the comment activity
    */
   @Delete('{id}/activity/{activityId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
   }
