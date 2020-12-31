@@ -5,6 +5,9 @@ import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+import ActivityService, { FullActivityParams } from './ActivityService';
+import { ActivityType } from '../entity/activity/BaseActivity';
 
 export interface ContractParams {
   title: string;
@@ -76,11 +79,21 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
-    const contract = this.repo.create({
+    console.log(this.actor);
+    let contract = this.repo.create({
       ...params,
       createdById: this.actor?.id,
     });
-    return this.repo.save(contract);
+    contract = await this.repo.save(contract);
+
+    await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
+      entityId: contract.id,
+      type: ActivityType.STATUS,
+      subType: ContractStatus.CREATED,
+      description: '',
+    } as FullActivityParams);
+
+    return this.getContract(contract.id);
   }
 
   async updateContract(id: number, params: Partial<ContractParams>): Promise<Contract> {

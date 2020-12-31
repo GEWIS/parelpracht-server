@@ -106,14 +106,15 @@ export class ContractController extends Controller {
    * Add product to contract
    * @param id - ID of the contract
    * @param params - Create subset of product
+   * @param req Express.js request object
    */
   @Post('{id}/product')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addProduct(
-    id: number, @Body() params: ProductInstanceParams,
+    id: number, @Body() params: ProductInstanceParams, @Request() req: express.Request,
   ): Promise<ProductInstance> {
-    return new ProductInstanceService().addProduct(id, params);
+    return new ProductInstanceService({ actor: req.user as User }).addProduct(id, params);
   }
 
   /**

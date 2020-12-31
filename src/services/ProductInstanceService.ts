@@ -3,6 +3,10 @@ import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
+import ActivityService, { FullActivityParams } from './ActivityService';
+import { ActivityType } from '../entity/activity/BaseActivity';
+import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activity/ProductInstanceActivity';
+import { User } from '../entity/User';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -13,8 +17,11 @@ export interface ProductInstanceParams {
 export default class ProductInstanceService {
   repo: Repository<ProductInstance>;
 
-  constructor() {
+  actor?: User;
+
+  constructor(options?: {actor?: User}) {
     this.repo = getRepository(ProductInstance);
+    this.actor = options?.actor;
   }
 
   validateProductInstanceContract(
@@ -37,11 +44,22 @@ export default class ProductInstanceService {
   }
 
   async addProduct(contractId: number, params: ProductInstanceParams): Promise<ProductInstance> {
-    const productInstance = {
+    let productInstance = {
       ...params,
       contractId,
     } as any as ProductInstance;
-    return this.repo.save(productInstance);
+    productInstance = await this.repo.save(productInstance);
+
+    await new ActivityService(ProductInstanceActivity, { actor: this.actor }).createActivity({
+      entityId: productInstance.id,
+      type: ActivityType.STATUS,
+      subType: ProductInstanceStatus.NOTDELIVERED,
+      description: '',
+    } as FullActivityParams);
+
+    productInstance = (await this.repo.findOne(productInstance.id, { relations: ['activities'] }))!;
+    return productInstance;
+
     // TODO: Fix that the contract is also passed on with the product
   }
 
