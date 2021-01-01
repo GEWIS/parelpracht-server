@@ -10,13 +10,16 @@ import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
-  CommentParams,
+  ActivityParams,
   FullActivityParams,
-  StatusParams,
-  UpdateActivityParams,
 } from '../services/ActivityService';
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
+import FileService, { FileParams } from '../services/FileService';
+import FileHelper from '../helpers/fileHelper';
+import BaseFile from '../entity/file/BaseFile';
+import { ProductFile } from '../entity/file/ProductFile';
+import { User } from '../entity/User';
 
 @Route('product')
 @Tags('Product')
@@ -26,7 +29,7 @@ export class ProductController extends Controller {
    * @param lp List parameters to sort and filter the list
    */
   @Post('table')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllProducts(
     @Body() lp: ListParams,
@@ -39,7 +42,7 @@ export class ProductController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getProductSummaries(): Promise<ProductSummary[]> {
     return new ProductService().getProductSummaries();
@@ -50,7 +53,7 @@ export class ProductController extends Controller {
    * @param id ID of product to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);
@@ -58,6 +61,7 @@ export class ProductController extends Controller {
 
   /**
    * createProduct() - create product
+   * @param req Express.js request object
    * @param params Parameters to create product with
    */
   @Post()
@@ -77,6 +81,7 @@ export class ProductController extends Controller {
 
   /**
    * updateProduct() - update product
+   * @param req Express.js request object
    * @param id ID of product to update
    * @param params Update subset of parameter of product
    */
@@ -96,33 +101,77 @@ export class ProductController extends Controller {
   }
 
   /**
-   * Add a activity status to this product
-   * @param id ID of the product
-   * @param params Parameters to create this status with
+   * Upload a file to a product
+   * @param id Id of the product
+   * @param req Express.js request object
    */
-  @Post('{id}/status')
-  public async addStatus(id: number, @Body() params: StatusParams): Promise<BaseActivity> {
-    const p = {
-      ...params,
-      entityId: id,
-      type: ActivityType.STATUS,
-    } as FullActivityParams;
-    return new ActivityService(ProductActivity).createActivity(p);
+  @Post('{id}/file/upload')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadFile(id: number, @Request() req: express.Request): Promise<ProductFile> {
+    return new FileService(ProductFile, { actor: req.user as User }).uploadFile(req, id);
+  }
+
+  /**
+   * Get a saved file from a product
+   * @param id ID of the product
+   * @param fileId ID of the file
+   * @return The requested file as download
+   */
+  @Get('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getFile(id: number, fileId: number): Promise<any> {
+    const file = <ProductFile>(await new FileService(ProductFile).getFile(id, fileId));
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Change the attributes of a file
+   * @param id ID of the product
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   */
+  @Put('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updateFile(
+    id: number, fileId: number, @Body() params: Partial<FileParams>,
+  ): Promise<BaseFile> {
+    return new FileService(ProductFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a file from the system
+   * @param id ID of the product
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteFile(id: number, fileId: number): Promise<void> {
+    return new FileService(ProductFile).deleteFile(id, fileId, true);
   }
 
   /**
    * Add a activity comment to this product
    * @param id ID of the product
    * @param params Parameters to create this comment with
+   * @param req Express.js request object
    */
   @Post('{id}/comment')
-  public async addComment(id: number, @Body() params: CommentParams): Promise<BaseActivity> {
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addComment(
+    id: number, @Body() params: ActivityParams, @Request() req: express.Request,
+  ): Promise<BaseActivity> {
     const p = {
       ...params,
       entityId: id,
       type: ActivityType.COMMENT,
     } as FullActivityParams;
-    return new ActivityService(ProductActivity).createActivity(p);
+    return new ActivityService(ProductActivity, { actor: req.user as User }).createActivity(p);
   }
 
   /**
@@ -132,8 +181,10 @@ export class ProductController extends Controller {
    * @param params Update subset of parameter of comment activity
    */
   @Put('{id}/activity/{activityId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async updateActivity(
-    id: number, activityId: number, @Body() params: Partial<UpdateActivityParams>,
+    id: number, activityId: number, @Body() params: Partial<ActivityParams>,
   ): Promise<BaseActivity> {
     return new ActivityService(ProductActivity).updateActivity(id, activityId, params);
   }
@@ -144,6 +195,8 @@ export class ProductController extends Controller {
    * @param activityId ID of the activity
    */
   @Delete('{id}/activity/{activityId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
   public async deleteActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(ProductActivity).deleteActivity(id, activityId);
   }

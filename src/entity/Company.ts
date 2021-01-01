@@ -22,14 +22,6 @@ export class Company extends BaseEnt {
   @Column()
   name!: string;
 
-  /** Description of the company */
-  @Column({ type: 'text', default: '' })
-  description?: string;
-
-  /** General phone number of the company */
-  @Column({ default: '' })
-  phoneNumber?: string;
-
   @Column()
   addressStreet!: string;
 
@@ -42,17 +34,17 @@ export class Company extends BaseEnt {
   @Column()
   addressCountry!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressStreet?: string;
+  @Column({ default: '' })
+  invoiceAddressStreet!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressPostalCode?: string;
+  @Column({ default: '' })
+  invoiceAddressPostalCode!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressCity?: string;
+  @Column({ default: '' })
+  invoiceAddressCity!: string;
 
-  @Column({ nullable: true })
-  invoiceAddressCountry?: string;
+  @Column({ default: '' })
+  invoiceAddressCountry!: string;
 
   /** Status of the collaboration with this company */
   @Column({
@@ -62,9 +54,17 @@ export class Company extends BaseEnt {
   })
   status!: CompanyStatus;
 
+  /** General phone number of the company */
+  @Column({ default: '' })
+  phoneNumber?: string;
+
   /** Optional end date of the collaboration with this company */
   @Column({ nullable: true })
   endDate?: Date;
+
+  /** Comments regarding the company */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
 
   /** All contracts related to this company */
   @OneToMany(() => Contract, (contract) => contract.company)

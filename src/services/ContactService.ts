@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {
   FindConditions,
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contact, ContactFunction } from '../entity/Contact';
@@ -71,10 +71,10 @@ export default class ContactService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
-        { firstName: Like(`%${params.search.trim()}%`) },
-        { middleName: Like(`%${params.search.trim()}%`) },
-        { lastName: Like(`%${params.search.trim()}%`) },
-        { email: Like(`%${params.search.trim()}%`) },
+        { firstName: ILike(`%${params.search.trim()}%`) },
+        { middleName: ILike(`%${params.search.trim()}%`) },
+        { lastName: ILike(`%${params.search.trim()}%`) },
+        { email: ILike(`%${params.search.trim()}%`) },
       ]);
     }
     findOptions.where = conditions;

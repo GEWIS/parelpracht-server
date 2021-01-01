@@ -10,6 +10,8 @@ import { Contact } from './Contact';
 import { ContractActivity } from './activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
+// eslint-disable-next-line import/no-cycle
+import { ContractFile } from './file/ContractFile';
 import { User } from './User';
 
 @Entity()
@@ -17,10 +19,6 @@ export class Contract extends BaseEnt {
   /** Title or name of this contract/collaboration */
   @Column()
   title!: string;
-
-  /** Comments regarding this contract, if there are any */
-  @Column({ type: 'text', default: '' })
-  comments?: string;
 
   @Column({ type: 'integer' })
   companyId!: number;
@@ -52,6 +50,10 @@ export class Contract extends BaseEnt {
   @Column({ type: 'integer' })
   contactId!: number;
 
+  /** Comments regarding this contract, if there are any */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
+
   /** The contact this contract has been closed with */
   @ManyToOne(() => Contact, (contact) => contact.contracts)
   @JoinColumn({ name: 'contactId' })
@@ -59,7 +61,9 @@ export class Contract extends BaseEnt {
 
   /** All activities regarding this contract */
   @OneToMany(() => ContractActivity, (contractActivity) => contractActivity.contract)
-  contractActivity!: ContractActivity[];
+  activities!: ContractActivity[];
 
-  // TODO: add files
+  /** All files regarding this contract */
+  @OneToMany(() => ContractFile, (file) => file.contract)
+  files!: ContractFile[];
 }

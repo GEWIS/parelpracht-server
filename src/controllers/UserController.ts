@@ -15,7 +15,7 @@ export class UserController extends Controller {
    * @param lp List parameters to sort and filter the list
    */
   @Post('table')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllUsers(
     @Body() lp: ListParams,
@@ -28,7 +28,7 @@ export class UserController extends Controller {
    * as compact as possible. Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getUserSummaries(): Promise<UserSummary[]> {
     return new UserService().getUserSummaries();
@@ -39,7 +39,7 @@ export class UserController extends Controller {
    * @param id ID of user to retrieve
    */
   @Get('{id}')
-  @Security('local', ['ADMIN'])
+  @Security('local', ['ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getUser(id: number): Promise<User> {
     return new UserService().getUser(id);

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {
   FindConditions,
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -16,6 +16,7 @@ export interface UserParams {
   firstName: string;
   middleName: string;
   lastName: string;
+  function: string;
   gender: Gender;
   comment: string;
 
@@ -40,6 +41,7 @@ export enum Roles {
   FINANCIAL = 'FINANCIAL',
   ADMIN = 'ADMIN',
   GENERAL = 'GENERAL',
+  AUDIT = 'AUDIT',
 }
 
 export default class UserService {
@@ -89,10 +91,10 @@ export default class UserService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
-        { firstName: Like(`%${params.search.trim()}%`) },
-        { middleName: Like(`%${params.search.trim()}%`) },
-        { lastName: Like(`%${params.search.trim()}%`) },
-        { email: Like(`%${params.search.trim()}%`) },
+        { firstName: ILike(`%${params.search.trim()}%`) },
+        { middleName: ILike(`%${params.search.trim()}%`) },
+        { lastName: ILike(`%${params.search.trim()}%`) },
+        { email: ILike(`%${params.search.trim()}%`) },
       ]);
     }
     findOptions.where = conditions;
@@ -144,10 +146,11 @@ export default class UserService {
       middleName: params.middleName,
       lastName: params.lastName,
       comment: params.comment,
+      function: params.function,
     });
 
     return this.assignRoles(adminUser,
-      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL]);
+      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL, Roles.AUDIT]);
   }
 
   async assignRoles(user: User, roles: Roles[]): Promise<User> {
@@ -177,6 +180,7 @@ export default class UserService {
         { name: Roles.SIGNEE },
         { name: Roles.GENERAL },
         { name: Roles.ADMIN },
+        { name: Roles.AUDIT },
       ]),
     );
   }

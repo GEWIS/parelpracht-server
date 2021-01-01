@@ -80,6 +80,75 @@
               }
             }
           }
+        },
+        "/contract/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              }
+            ]
+          }
+        },
+        "/invoice/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              }
+            ]
+          }
+        },
+        "/product/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              }
+            ]
+          }
         }
       }
     }

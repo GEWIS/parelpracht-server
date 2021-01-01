@@ -8,6 +8,8 @@ import { Company } from './Company';
 import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
 import { InvoiceActivity } from './activity/InvoiceActivity';
+// eslint-disable-next-line import/no-cycle
+import { InvoiceFile } from './file/InvoiceFile';
 import { User } from './User';
 
 @Entity()
@@ -20,9 +22,9 @@ export class Invoice extends BaseEnt {
   @Column({ default: '' })
   poNumber?: string;
 
-  /** Any comments regarding this invoice */
-  @Column({ type: 'text', default: '' })
-  comments?: string;
+  /** Date at which this invoice will be sent */
+  @Column({ default: () => 'now()' })
+  startDate!: Date;
 
   @Column({ type: 'integer' })
   companyId!: number;
@@ -41,6 +43,10 @@ export class Invoice extends BaseEnt {
   @JoinColumn({ name: 'assignedToId' })
   assignedTo!: User;
 
+  /** Any comments regarding this invoice */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
+
   /** Company this invoice is directed to */
   @ManyToOne(() => Company, (company) => company.invoices)
   @JoinColumn({ name: 'companyId' })
@@ -48,7 +54,9 @@ export class Invoice extends BaseEnt {
 
   /** All activities regarding this invoice */
   @OneToMany(() => InvoiceActivity, (invoiceActivity) => invoiceActivity.invoice)
-  invoiceActivities!: InvoiceActivity[];
+  activities!: InvoiceActivity[];
 
-  // TODO: Add files
+  /** All files regarding this contract */
+  @OneToMany(() => InvoiceFile, (file) => file.invoice)
+  files!: InvoiceFile[];
 }

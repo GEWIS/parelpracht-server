@@ -3,18 +3,29 @@ import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
+// eslint-disable-next-line import/no-cycle
+import ActivityService, { FullActivityParams } from './ActivityService';
+import { ActivityType } from '../entity/activity/BaseActivity';
+import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activity/ProductInstanceActivity';
+import { User } from '../entity/User';
+import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
 
 export interface ProductInstanceParams {
   productId: number,
-  price: number,
+  basePrice: number,
+  discount?: number,
   comments?: string;
 }
 
 export default class ProductInstanceService {
   repo: Repository<ProductInstance>;
 
-  constructor() {
+  actor?: User;
+
+  constructor(options?: {actor?: User}) {
     this.repo = getRepository(ProductInstance);
+    this.actor = options?.actor;
   }
 
   validateProductInstanceContract(
@@ -37,11 +48,29 @@ export default class ProductInstanceService {
   }
 
   async addProduct(contractId: number, params: ProductInstanceParams): Promise<ProductInstance> {
-    const productInstance = {
+    let productInstance = {
       ...params,
       contractId,
     } as any as ProductInstance;
-    return this.repo.save(productInstance);
+
+    const statuses = await new ActivityService(ContractActivity).getStatuses({ contractId });
+    if (statuses.includes(ContractStatus.CONFIRMED) || statuses.includes(ContractStatus.FINISHED)
+      || statuses.includes(ContractStatus.CANCELLED)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot add product to this contract, because the contract is already confirmed, finished or delivered');
+    }
+
+    productInstance = await this.repo.save(productInstance);
+
+    await new ActivityService(ProductInstanceActivity, { actor: this.actor }).createActivity({
+      entityId: productInstance.id,
+      type: ActivityType.STATUS,
+      subType: ProductInstanceStatus.NOTDELIVERED,
+      description: '',
+    } as FullActivityParams);
+
+    productInstance = (await this.repo.findOne(productInstance.id, { relations: ['activities'] }))!;
+    return productInstance;
+
     // TODO: Fix that the contract is also passed on with the product
   }
 
@@ -71,7 +100,6 @@ export default class ProductInstanceService {
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {
     const productInstance = await this.getProduct(productId, ['contract']);
-    console.log(productInstance);
     const invoice = await new InvoiceService().getInvoice(invoiceId);
     // Verify that this productInstance doesn't already belong to an invoice
     if (productInstance.invoiceId !== null) {
@@ -80,6 +108,12 @@ export default class ProductInstanceService {
     // Verify that the product instance and the invoice share the same company
     if (invoice.companyId !== productInstance.contract.companyId) {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
+    }
+
+    const statuses = await new ActivityService(InvoiceActivity).getStatuses({ invoiceId });
+    if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
+      || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot add product to this invoice, because the invoice is already sent or finished');
     }
 
     productInstance.invoiceId = invoiceId;

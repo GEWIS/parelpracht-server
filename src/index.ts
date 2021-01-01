@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-
+import * as fs from 'fs';
 import express from 'express';
 import dotenv from 'dotenv';
 import errorhandler from 'strong-error-handler';
@@ -15,6 +15,7 @@ import passport from 'passport';
 import swaggerDocument from './public/swagger.json';
 import { RegisterRoutes } from './routes';
 import './controllers/RootController';
+import './controllers/ProductCategoryController';
 import './controllers/ProductController';
 import './controllers/CompanyController';
 import './controllers/ContractController';
@@ -81,6 +82,17 @@ createConnection().then(async (connection) => {
   app.post('/api/login', localLogin);
 
   app.use(methodOverride());
+
+  // Create file generation folders
+  if (!fs.existsSync(path.join(__dirname, '/../tmp'))) {
+    fs.mkdirSync(path.join(__dirname, '/../tmp'));
+  }
+  if (!fs.existsSync(path.join(__dirname, '/../data/generated'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/generated'));
+  }
+  if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/uploads'));
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({

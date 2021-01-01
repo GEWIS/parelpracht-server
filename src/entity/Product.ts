@@ -1,11 +1,15 @@
 import {
-  Column, Entity, OneToMany,
+  Column, Entity, JoinColumn, ManyToOne, OneToMany,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
 // eslint-disable-next-line import/no-cycle
 import { ProductActivity } from './activity/ProductActivity';
+// eslint-disable-next-line import/no-cycle
+import { ProductFile } from './file/ProductFile';
+// eslint-disable-next-line import/no-cycle
+import { ProductCategory } from './ProductCategory';
 
 export enum ProductStatus {
   ACTIVE = 'ACTIVE',
@@ -54,11 +58,23 @@ export class Product extends BaseEnt {
   @Column({ type: 'text', default: '' })
   deliverySpecificationEnglish?: string;
 
+  @Column({ type: 'integer' })
+  categoryId!: number;
+
+  /** Category this product is in */
+  @ManyToOne(() => ProductCategory, (category) => category.products)
+  @JoinColumn({ name: 'categoryId' })
+  category!: ProductCategory;
+
   /** All the product instances of this product, used in contracts and invoiced */
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.product)
   instances!: ProductInstance[];
 
   /** All activities regarding this product */
   @OneToMany(() => ProductActivity, (productActivity) => productActivity.product)
-  productActivities!: ProductActivity[];
+  activities!: ProductActivity[];
+
+  /** All files regarding this product */
+  @OneToMany(() => ProductFile, (file) => file.product)
+  files!: ProductFile[];
 }

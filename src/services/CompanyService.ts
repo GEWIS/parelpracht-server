@@ -1,6 +1,6 @@
 import {
   FindConditions,
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import _ from 'lodash';
 import { ListParams } from '../controllers/ListParams';
@@ -73,7 +73,7 @@ export default class CompanyService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
-        { name: Like(`%${params.search!.trim()}%`) },
+        { name: ILike(`%${params.search!.trim()}%`) },
       ]);
     }
     findOptions.where = conditions;

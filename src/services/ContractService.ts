@@ -1,13 +1,17 @@
 import _ from 'lodash';
 import {
   FindConditions,
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
+import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+// eslint-disable-next-line import/no-cycle
+import ActivityService, { FullActivityParams } from './ActivityService';
+import { ActivityType } from '../entity/activity/BaseActivity';
 
 export interface ContractParams {
   title: string;
@@ -38,9 +42,9 @@ export default class ContractService {
     this.actor = options?.actor;
   }
 
-  async getContract(id: number): Promise<Contract> {
+  async getContract(id: number, relations: string[] = []): Promise<Contract> {
     const contract = await this.repo.findOne(id, {
-      relations: ['company', 'products', 'contractActivity', 'products.productInstanceActivities', 'products.invoice'],
+      relations: ['contact', 'company', 'products', 'activities', 'products.activities', 'products.invoice', 'files', 'files.createdBy'].concat(relations),
     }); // May need more relations
     if (contract === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Contract not found');
@@ -69,17 +73,10 @@ export default class ContractService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
-        { title: Like(`%${params.search.trim()}%`) },
+        { title: ILike(`%${params.search.trim()}%`) },
       ]);
     }
     findOptions.where = conditions;
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      findOptions.where = [
-
-        /* To add: ID */
-      ];
-    }
 
     return {
       list: await this.repo.find({
@@ -96,11 +93,20 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
-    const contract = this.repo.create({
+    let contract = this.repo.create({
       ...params,
       createdById: this.actor?.id,
     });
-    return this.repo.save(contract);
+    contract = await this.repo.save(contract);
+
+    await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
+      entityId: contract.id,
+      type: ActivityType.STATUS,
+      subType: ContractStatus.CREATED,
+      description: '',
+    } as FullActivityParams);
+
+    return this.getContract(contract.id);
   }
 
   async updateContract(id: number, params: Partial<ContractParams>): Promise<Contract> {

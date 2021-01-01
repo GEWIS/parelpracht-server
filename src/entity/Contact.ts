@@ -66,4 +66,11 @@ export class Contact extends BaseEnt {
   /** All contracts that have been closed with this contact person */
   @OneToMany(() => Contract, (contract) => contract.contact)
   contracts!: Contract[];
+
+  public fullname() {
+    if (this.middleName === '') {
+      return `${this.firstName} ${this.lastName}`;
+    }
+    return `${this.firstName} ${this.middleName} ${this.lastName}`;
+  }
 }

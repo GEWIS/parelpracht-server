@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {
   FindConditions,
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Product, ProductStatus } from '../entity/Product';
@@ -14,6 +14,7 @@ export interface ProductParams {
   targetPrice: number;
   status: ProductStatus;
   description: string;
+  categoryId: number;
   contractTextDutch: string;
   contractTextEnglish: string;
   deliverySpecificationDutch?: string;
@@ -40,7 +41,7 @@ export default class ProductService {
   }
 
   async getProduct(id: number): Promise<Product> {
-    const product = await this.repo.findOne(id);
+    const product = await this.repo.findOne(id, { relations: ['files', 'activities'] });
     if (product === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
     }
@@ -68,8 +69,8 @@ export default class ProductService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
-        { nameDutch: Like(`%${params.search.trim()}%`) },
-        { nameEnglish: Like(`%${params.search.trim()}%`) },
+        { nameDutch: ILike(`%${params.search.trim()}%`) },
+        { nameEnglish: ILike(`%${params.search.trim()}%`) },
       ]);
     }
     findOptions.where = conditions;

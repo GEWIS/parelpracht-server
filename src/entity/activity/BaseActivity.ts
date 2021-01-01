@@ -15,16 +15,15 @@ export default abstract class BaseActivity extends BaseEnt {
   @Column({ type: 'enum', enum: ActivityType })
   type!: ActivityType;
 
-  /** Subtype of this activity, only used when the type = "STATUS" */
-  @Column({ default: '' })
-  subType?: string;
-
   /** Description of this activity */
   @Column()
   description!: string;
 
+  @Column({ type: 'integer' })
+  createdById!: number;
+
   /** User who created this activity */
-  @ManyToOne(() => User, { nullable: true })
-  @JoinColumn()
-  createdBy?: User;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'createdById' })
+  createdBy!: User;
 }

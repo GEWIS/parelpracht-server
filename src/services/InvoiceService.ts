@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import {
   FindConditions,
-  FindManyOptions, getRepository, Like, Repository,
+  FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
@@ -11,6 +11,10 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
+// eslint-disable-next-line import/no-cycle
+import ActivityService, { FullActivityParams } from './ActivityService';
+import { ActivityType } from '../entity/activity/BaseActivity';
+import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
 
 // Not correct yet
 export interface InvoiceParams {
@@ -18,6 +22,7 @@ export interface InvoiceParams {
   productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
+  startDate?: Date;
   assignedToId?: number;
 }
 
@@ -41,8 +46,8 @@ export default class InvoiceService {
     this.actor = options?.actor;
   }
 
-  async getInvoice(id: number): Promise<Invoice> {
-    const invoice = await this.repo.findOne(id, { relations: ['products', 'invoiceActivities', 'company'] }); // Relations still have to be added
+  async getInvoice(id: number, relations: string[] = []): Promise<Invoice> {
+    const invoice = await this.repo.findOne(id, { relations: ['products', 'activities', 'company', 'files', 'files.createdBy'].concat(relations) });
     if (invoice === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Invoice not found');
     }
@@ -70,7 +75,7 @@ export default class InvoiceService {
 
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
-        { poNumber: Like(`%${params.search.trim()}%`) },
+        { poNumber: ILike(`%${params.search.trim()}%`) },
       ]);
     }
     findOptions.where = conditions;
@@ -102,22 +107,28 @@ export default class InvoiceService {
     await Promise.all(params.productInstanceIds.map(async (id) => {
       const p = await new ProductInstanceService().getProduct(id, ['contract']);
       // Verify that the productInstance and invoice share the same company
-      console.log(p);
       if (p.contract.companyId !== params.companyId) {
         throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
       }
       products.push(p);
     }));
 
-    console.log(products);
-
-    const invoice = this.repo.create({
+    let invoice = this.repo.create({
       ...params,
       products,
       createdById: this.actor?.id,
     });
 
-    return this.repo.save(invoice);
+    invoice = await this.repo.save(invoice);
+
+    await new ActivityService(InvoiceActivity, { actor: this.actor }).createActivity({
+      entityId: invoice.id,
+      type: ActivityType.STATUS,
+      subType: InvoiceStatus.CREATED,
+      description: '',
+    } as FullActivityParams);
+
+    return this.getInvoice(invoice.id);
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {
