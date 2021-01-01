@@ -20,10 +20,6 @@ export class Contract extends BaseEnt {
   @Column()
   title!: string;
 
-  /** Comments regarding this contract, if there are any */
-  @Column({ type: 'text', default: '' })
-  comments?: string;
-
   @Column({ type: 'integer' })
   companyId!: number;
 
@@ -53,6 +49,10 @@ export class Contract extends BaseEnt {
 
   @Column({ type: 'integer' })
   contactId!: number;
+
+  /** Comments regarding this contract, if there are any */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
 
   /** The contact this contract has been closed with */
   @ManyToOne(() => Contact, (contact) => contact.contracts)

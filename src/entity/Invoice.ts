@@ -26,10 +26,6 @@ export class Invoice extends BaseEnt {
   @Column({ default: () => 'now()' })
   startDate!: Date;
 
-  /** Any comments regarding this invoice */
-  @Column({ type: 'text', default: '' })
-  comments?: string;
-
   @Column({ type: 'integer' })
   companyId!: number;
 
@@ -46,6 +42,10 @@ export class Invoice extends BaseEnt {
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assignedToId' })
   assignedTo!: User;
+
+  /** Any comments regarding this invoice */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
 
   /** Company this invoice is directed to */
   @ManyToOne(() => Company, (company) => company.invoices)
