@@ -1,9 +1,12 @@
+import _ from 'lodash';
 import {
+  FindConditions,
   FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Product, ProductStatus } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { cartesian } from '../helpers/filters';
 
 export interface ProductParams {
   nameDutch: string;
@@ -53,13 +56,24 @@ export default class ProductService {
       },
     };
 
+    let conditions: FindConditions<Product>[] = [];
+
+    if (params.filters !== undefined) {
+      // For each filter value, an OR clause is created
+      const filters = params.filters.map((f) => f.values.map((v) => ({
+        [f.column]: v,
+      })));
+      // Add the clauses to the where object
+      conditions = conditions.concat(_.flatten(filters));
+    }
+
     if (params.search !== undefined && params.search.trim() !== '') {
-      findOptions.where = [
+      conditions = cartesian(conditions, [
         { nameDutch: ILike(`%${params.search.trim()}%`) },
         { nameEnglish: ILike(`%${params.search.trim()}%`) },
-        /* { targetPrice: ILike(`%${params.search.trim()}%`) }, */
-      ];
+      ]);
     }
+    findOptions.where = conditions;
 
     return {
       list: await this.repo.find({

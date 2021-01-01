@@ -29,25 +29,15 @@ import FileHelper from '../helpers/fileHelper';
 @Tags('Contract')
 export class ContractController extends Controller {
   /**
-   * getAllCompanies() - retrieve multiple contracts
-   * @param col Sorted column
-   * @param dir Sorting direction
-   * @param skip Number of elements to skip
-   * @param take Amount of elements to request
-   * @param search String to filter on value of select columns
+   * getAllContracts() - retrieve multiple contracts
+   * @param lp List parameters to sort and filter the list
    */
-  @Get()
+  @Post('table')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllContracts(
-    @Query() col?: string,
-      @Query() dir?: 'ASC' | 'DESC',
-      @Query() skip?: number,
-      @Query() take?: number,
-      @Query() search?: string,
+    @Body() lp: ListParams,
   ): Promise<ContractListResponse> {
-    const lp: ListParams = { skip, take, search };
-    if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ContractService().getAllContracts(lp);
   }
 

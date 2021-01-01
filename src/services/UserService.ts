@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import {
+  FindConditions,
   FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
@@ -6,6 +8,7 @@ import { IdentityLocal } from '../entity/IdentityLocal';
 import { Role } from '../entity/Role';
 import { Gender, User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { cartesian } from '../helpers/filters';
 import AuthService from './AuthService';
 
 export interface UserParams {
@@ -75,15 +78,26 @@ export default class UserService {
       relations: ['roles'],
     };
 
+    let conditions: FindConditions<User>[] = [];
+
+    if (params.filters !== undefined) {
+      // For each filter value, an OR clause is created
+      const filters = params.filters.map((f) => f.values.map((v) => ({
+        [f.column]: v,
+      })));
+      // Add the clauses to the where object
+      conditions = conditions.concat(_.flatten(filters));
+    }
+
     if (params.search !== undefined && params.search.trim() !== '') {
-      findOptions.where = [
+      conditions = cartesian(conditions, [
         { firstName: ILike(`%${params.search.trim()}%`) },
         { middleName: ILike(`%${params.search.trim()}%`) },
         { lastName: ILike(`%${params.search.trim()}%`) },
         { email: ILike(`%${params.search.trim()}%`) },
-        /* To add: ID */
-      ];
+      ]);
     }
+    findOptions.where = conditions;
 
     return {
       list: await this.repo.find({

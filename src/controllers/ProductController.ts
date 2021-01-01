@@ -26,24 +26,14 @@ import { User } from '../entity/User';
 export class ProductController extends Controller {
   /**
    * getAllProducts() - retrieve multiple products
-   * @param col Sorted column
-   * @param dir Sorting direction
-   * @param skip Number of elements to skip
-   * @param take Amount of elements to request
-   * @param search String to filter on value of select columns
+   * @param lp List parameters to sort and filter the list
    */
-  @Get()
+  @Post('table')
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllProducts(
-    @Query() col?: string,
-      @Query() dir?: 'ASC' | 'DESC',
-      @Query() skip?: number,
-      @Query() take?: number,
-      @Query() search?: string,
+    @Body() lp: ListParams,
   ): Promise<ProductListResponse> {
-    const lp: ListParams = { skip, take, search };
-    if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ProductService().getAllProducts(lp);
   }
 

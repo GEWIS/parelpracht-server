@@ -1,4 +1,6 @@
+import _ from 'lodash';
 import {
+  FindConditions,
   FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
@@ -6,6 +8,7 @@ import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { cartesian } from '../helpers/filters';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
 // eslint-disable-next-line import/no-cycle
@@ -59,12 +62,23 @@ export default class InvoiceService {
       },
     };
 
-    if (params.search !== undefined && params.search.trim() !== '') {
-      findOptions.where = [
-        { text: ILike(`%${params.search.trim()}%`) },
-        // To add: ID
-      ];
+    let conditions: FindConditions<Invoice>[] = [];
+
+    if (params.filters !== undefined) {
+      // For each filter value, an OR clause is created
+      const filters = params.filters.map((f) => f.values.map((v) => ({
+        [f.column]: v,
+      })));
+      // Add the clauses to the where object
+      conditions = conditions.concat(_.flatten(filters));
     }
+
+    if (params.search !== undefined && params.search.trim() !== '') {
+      conditions = cartesian(conditions, [
+        { poNumber: ILike(`%${params.search.trim()}%`) },
+      ]);
+    }
+    findOptions.where = conditions;
 
     return {
       list: await this.repo.find({
