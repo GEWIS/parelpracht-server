@@ -132,6 +132,7 @@ export default class UserService {
       middleName: params.middleName,
       lastName: params.lastName,
       comment: params.comment,
+      function: params.function,
     });
 
     return this.assignRoles(adminUser,

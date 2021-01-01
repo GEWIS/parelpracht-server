@@ -11,6 +11,7 @@ export interface ProductParams {
   targetPrice: number;
   status: ProductStatus;
   description: string;
+  categoryId: number;
   contractTextDutch: string;
   contractTextEnglish: string;
   deliverySpecificationDutch?: string;

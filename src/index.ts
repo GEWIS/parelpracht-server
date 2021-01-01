@@ -15,6 +15,7 @@ import passport from 'passport';
 import swaggerDocument from './public/swagger.json';
 import { RegisterRoutes } from './routes';
 import './controllers/RootController';
+import './controllers/ProductCategoryController';
 import './controllers/ProductController';
 import './controllers/CompanyController';
 import './controllers/ContractController';
