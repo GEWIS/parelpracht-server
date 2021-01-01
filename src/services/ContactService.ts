@@ -1,10 +1,13 @@
+import _ from 'lodash';
 import {
+  FindConditions,
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contact, ContactFunction } from '../entity/Contact';
 import { Gender } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { cartesian } from '../helpers/filters';
 
 // May not be correct yet
 export interface ContactParams {
@@ -55,15 +58,26 @@ export default class ContactService {
       },
     };
 
+    let conditions: FindConditions<Contact>[] = [];
+
+    if (params.filters !== undefined) {
+      // For each filter value, an OR clause is created
+      const filters = params.filters.map((f) => f.values.map((v) => ({
+        [f.column]: v,
+      })));
+      // Add the clauses to the where object
+      conditions = conditions.concat(_.flatten(filters));
+    }
+
     if (params.search !== undefined && params.search.trim() !== '') {
-      findOptions.where = [
+      conditions = cartesian(conditions, [
         { firstName: Like(`%${params.search.trim()}%`) },
         { middleName: Like(`%${params.search.trim()}%`) },
         { lastName: Like(`%${params.search.trim()}%`) },
         { email: Like(`%${params.search.trim()}%`) },
-        /* To add: ID */
-      ];
+      ]);
     }
+    findOptions.where = conditions;
 
     return {
       list: await this.repo.find({

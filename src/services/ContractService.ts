@@ -1,10 +1,13 @@
+import _ from 'lodash';
 import {
+  FindConditions,
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { cartesian } from '../helpers/filters';
 
 export interface ContractParams {
   title: string;
@@ -53,10 +56,27 @@ export default class ContractService {
       },
     };
 
+    let conditions: FindConditions<Contract>[] = [];
+
+    if (params.filters !== undefined) {
+      // For each filter value, an OR clause is created
+      const filters = params.filters.map((f) => f.values.map((v) => ({
+        [f.column]: v,
+      })));
+      // Add the clauses to the where object
+      conditions = conditions.concat(_.flatten(filters));
+    }
+
+    if (params.search !== undefined && params.search.trim() !== '') {
+      conditions = cartesian(conditions, [
+        { title: Like(`%${params.search.trim()}%`) },
+      ]);
+    }
+    findOptions.where = conditions;
+
     if (params.search !== undefined && params.search.trim() !== '') {
       findOptions.where = [
-        { title: Like(`%${params.search.trim()}%`) },
-        { poNumber: Like(`%${params.search.trim()}%`) },
+
         /* To add: ID */
       ];
     }

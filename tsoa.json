@@ -1,6 +1,9 @@
 {
   "entryFile": "./src/index.ts",
   "noImplicitAdditionalProperties": "silently-remove-extras",
+  "ignore": [
+    "**/node_modules/@types/lodash/**"
+  ],
   "spec": {
     "outputDirectory": "./src/public",
     "host": "localhost:3001",

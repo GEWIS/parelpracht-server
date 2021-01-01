@@ -3,9 +3,17 @@ export interface ListParams {
   skip?: number;
   take?: number;
   search?: string;
+  filters?: ListOrFilter[];
 }
 
 export interface ListSorting {
   column: string;
-  direction: 'ASC' | 'DESC';
+  direction: SortDirection;
+}
+
+export type SortDirection = 'ASC' | 'DESC';
+
+export interface ListOrFilter {
+  column: string;
+  values: any[];
 }

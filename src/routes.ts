@@ -363,6 +363,41 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "SortDirection": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ListSorting": {
+        "dataType": "refObject",
+        "properties": {
+            "column": {"dataType":"string","required":true},
+            "direction": {"ref":"SortDirection","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ListOrFilter": {
+        "dataType": "refObject",
+        "properties": {
+            "column": {"dataType":"string","required":true},
+            "values": {"dataType":"array","array":{"dataType":"any"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ListParams": {
+        "dataType": "refObject",
+        "properties": {
+            "sorting": {"ref":"ListSorting"},
+            "skip": {"dataType":"double"},
+            "take": {"dataType":"double"},
+            "search": {"dataType":"string"},
+            "filters": {"dataType":"array","array":{"ref":"ListOrFilter"}},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductSummary": {
         "dataType": "refObject",
         "properties": {
@@ -777,15 +812,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/product',
+        app.post('/api/product/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
-                    col: {"in":"query","name":"col","dataType":"string"},
-                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    skip: {"in":"query","name":"skip","dataType":"double"},
-                    take: {"in":"query","name":"take","dataType":"double"},
-                    search: {"in":"query","name":"search","dataType":"string"},
+                    lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -991,15 +1022,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/company',
+        app.post('/api/company/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
-                    col: {"in":"query","name":"col","dataType":"string"},
-                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    skip: {"in":"query","name":"skip","dataType":"double"},
-                    take: {"in":"query","name":"take","dataType":"double"},
-                    search: {"in":"query","name":"search","dataType":"string"},
+                    lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1249,15 +1276,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/contract',
+        app.post('/api/contract/table',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
-                    col: {"in":"query","name":"col","dataType":"string"},
-                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    skip: {"in":"query","name":"skip","dataType":"double"},
-                    take: {"in":"query","name":"take","dataType":"double"},
-                    search: {"in":"query","name":"search","dataType":"string"},
+                    lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1632,15 +1655,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/invoice',
+        app.post('/api/invoice/table',
             authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
-                    col: {"in":"query","name":"col","dataType":"string"},
-                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    skip: {"in":"query","name":"skip","dataType":"double"},
-                    take: {"in":"query","name":"take","dataType":"double"},
-                    search: {"in":"query","name":"search","dataType":"string"},
+                    lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1891,15 +1910,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/contact',
+        app.post('/api/contact/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
-                    col: {"in":"query","name":"col","dataType":"string"},
-                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    skip: {"in":"query","name":"skip","dataType":"double"},
-                    take: {"in":"query","name":"take","dataType":"double"},
-                    search: {"in":"query","name":"search","dataType":"string"},
+                    lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2010,15 +2025,11 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/user',
+        app.post('/api/user/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
-                    col: {"in":"query","name":"col","dataType":"string"},
-                    dir: {"in":"query","name":"dir","dataType":"union","subSchemas":[{"dataType":"enum","enums":["ASC"]},{"dataType":"enum","enums":["DESC"]}]},
-                    skip: {"in":"query","name":"skip","dataType":"double"},
-                    take: {"in":"query","name":"take","dataType":"double"},
-                    search: {"in":"query","name":"search","dataType":"string"},
+                    lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

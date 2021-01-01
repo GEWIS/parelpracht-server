@@ -1,11 +1,14 @@
 import {
+  FindConditions,
   FindManyOptions, getRepository, Like, Repository,
 } from 'typeorm';
+import _ from 'lodash';
 import { ListParams } from '../controllers/ListParams';
 import { Company, CompanyStatus } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import { cartesian } from '../helpers/filters';
 
 // May not be correct yet
 export interface CompanyParams {
@@ -57,11 +60,23 @@ export default class CompanyService {
       },
     };
 
-    if (params.search !== undefined && params.search.trim() !== '') {
-      findOptions.where = [
-        { name: Like(`%${params.search.trim()}%`) },
-      ];
+    let conditions: FindConditions<Company>[] = [];
+
+    if (params.filters !== undefined) {
+      // For each filter value, an OR clause is created
+      const filters = params.filters.map((f) => f.values.map((v) => ({
+        [f.column]: v,
+      })));
+      // Add the clauses to the where object
+      conditions = conditions.concat(_.flatten(filters));
     }
+
+    if (params.search !== undefined && params.search.trim() !== '') {
+      conditions = cartesian(conditions, [
+        { name: Like(`%${params.search!.trim()}%`) },
+      ]);
+    }
+    findOptions.where = conditions;
 
     return {
       list: await this.repo.find({
