@@ -14,7 +14,7 @@ import AuthService from './AuthService';
 export interface UserParams {
   email: string;
   firstName: string;
-  middleName?: string;
+  lastNamePreposition?: string;
   lastName: string;
   function: string;
   gender: Gender;
@@ -26,7 +26,7 @@ export interface UserParams {
 export interface UserSummary {
   id: number;
   firstName: string;
-  middleName: string;
+  lastNamePreposition: string;
   lastName: string;
   email: string;
 }
@@ -92,7 +92,7 @@ export default class UserService {
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
         { firstName: ILike(`%${params.search.trim()}%`) },
-        { middleName: ILike(`%${params.search.trim()}%`) },
+        { lastNamePreposition: ILike(`%${params.search.trim()}%`) },
         { lastName: ILike(`%${params.search.trim()}%`) },
         { email: ILike(`%${params.search.trim()}%`) },
       ]);
@@ -111,7 +111,7 @@ export default class UserService {
 
   async getUserSummaries(): Promise<UserSummary[]> {
     return this.repo.find({
-      select: ['id', 'firstName', 'middleName', 'lastName', 'email'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email'],
     });
   }
 
@@ -143,7 +143,7 @@ export default class UserService {
       email: params.email,
       gender: params.gender,
       firstName: params.firstName,
-      middleName: params.middleName,
+      lastNamePreposition: params.lastNamePreposition,
       lastName: params.lastName,
       comment: params.comment,
       function: params.function,

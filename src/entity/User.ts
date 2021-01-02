@@ -39,7 +39,7 @@ export class User extends BaseEnt {
 
   /** Middle name of this user, if he/she has any */
   @Column({ default: '' })
-  middleName!: string;
+  lastNamePreposition!: string;
 
   /** Last name of this user */
   @Column()
@@ -79,10 +79,17 @@ export class User extends BaseEnt {
   // @OneToMany(() => ProductInstanceActivity, (activity) => activity.createdBy)
   // productInstanceActivities!: CompanyActivity[];
 
-  public fullname() {
-    if (this.middleName === '') {
+  public fullName() {
+    if (this.lastNamePreposition === '') {
       return `${this.firstName} ${this.lastName}`;
     }
-    return `${this.firstName} ${this.middleName} ${this.lastName}`;
+    return `${this.firstName} ${this.lastNamePreposition} ${this.lastName}`;
+  }
+
+  public formalGreet() {
+    if (this.lastNamePreposition === '') {
+      return `${this.lastName}`;
+    }
+    return `${this.lastNamePreposition} ${this.lastName}`;
   }
 }

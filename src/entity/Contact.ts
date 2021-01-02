@@ -33,7 +33,7 @@ export class Contact extends BaseEnt {
 
   /** The middle name of the contact, if he/she has one */
   @Column({ default: '' })
-  middleName!: string;
+  lastNamePreposition!: string;
 
   /** The last name of the contact */
   @Column()
@@ -67,10 +67,17 @@ export class Contact extends BaseEnt {
   @OneToMany(() => Contract, (contract) => contract.contact)
   contracts!: Contract[];
 
-  public fullname() {
-    if (this.middleName === '') {
+  public fullName() {
+    if (this.lastNamePreposition === '') {
       return `${this.firstName} ${this.lastName}`;
     }
-    return `${this.firstName} ${this.middleName} ${this.lastName}`;
+    return `${this.firstName} ${this.lastNamePreposition} ${this.lastName}`;
+  }
+
+  public formalGreet() {
+    if (this.lastNamePreposition === '') {
+      return `${this.lastName}`;
+    }
+    return `${this.lastNamePreposition} ${this.lastName}`;
   }
 }

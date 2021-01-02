@@ -17,7 +17,7 @@ export class UserController extends Controller {
     await validate([
       body('email').isEmail().normalizeEmail(),
       body('firstName').notEmpty().trim(),
-      body('middleName').optional().notEmpty().trim(),
+      body('lastNamePreposition').optional().notEmpty().trim(),
       body('lastName').notEmpty().trim(),
       body('function').notEmpty().trim(),
       body('gender').isIn(Object.values(Gender)),

@@ -39,7 +39,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "email": {"dataType":"string","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string"},
+            "lastNamePreposition": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
             "function": {"dataType":"string","required":true},
             "gender": {"ref":"Gender","required":true},
@@ -75,7 +75,7 @@ const models: TsoaRoute.Models = {
             "version": {"dataType":"double","required":true},
             "gender": {"ref":"Gender","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
+            "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "comment": {"dataType":"string","required":true},
@@ -333,7 +333,7 @@ const models: TsoaRoute.Models = {
             "version": {"dataType":"double","required":true},
             "gender": {"ref":"Gender","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
+            "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "telephone": {"dataType":"string","required":true},
@@ -791,7 +791,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"double","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
+            "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "companyName": {"dataType":"string","required":true},
         },
@@ -803,7 +803,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "gender": {"ref":"Gender","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string"},
+            "lastNamePreposition": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "telephone": {"dataType":"string"},
@@ -816,7 +816,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ContactParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"gender":{"ref":"Gender"},"firstName":{"dataType":"string"},"middleName":{"dataType":"string"},"lastName":{"dataType":"string"},"email":{"dataType":"string"},"telephone":{"dataType":"string"},"comments":{"dataType":"string"},"companyId":{"dataType":"double"},"function":{"ref":"ContactFunction"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"gender":{"ref":"Gender"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"email":{"dataType":"string"},"telephone":{"dataType":"string"},"comments":{"dataType":"string"},"companyId":{"dataType":"double"},"function":{"ref":"ContactFunction"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "UserListResponse": {
@@ -833,7 +833,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"double","required":true},
             "firstName": {"dataType":"string","required":true},
-            "middleName": {"dataType":"string","required":true},
+            "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
         },
@@ -842,7 +842,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"middleName":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CategoryListResponse": {

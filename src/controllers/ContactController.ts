@@ -18,7 +18,7 @@ export class ContactController extends Controller {
     await validate([
       body('gender').isIn(Object.values(Gender)),
       body('firstName').notEmpty().trim(),
-      body('middleName').optional().isString().trim(),
+      body('lastNamePreposition').optional().isString().trim(),
       body('lastName').notEmpty().trim(),
       body('email').isEmail().normalizeEmail(),
       body('telephone').optional().isMobilePhone('any'),

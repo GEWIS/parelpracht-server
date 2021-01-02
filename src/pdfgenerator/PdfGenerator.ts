@@ -128,8 +128,8 @@ export default class PdfGenerator {
   ): string {
     let t = template;
 
-    t = PdfGenerator.fr(t, '%{contactperson}\n', recipient.fullname());
-    t = PdfGenerator.fr(t, '%{sender}\n', sender.fullname());
+    t = PdfGenerator.fr(t, '%{contactperson}\n', recipient.fullName());
+    t = PdfGenerator.fr(t, '%{sender}\n', sender.fullName());
     t = PdfGenerator.fr(t, '%{senderfunctie}\n', sender.function);
     t = PdfGenerator.fr(t, '%{company}\n', company.name);
     t = PdfGenerator.fr(t, '%{subject}\n', subject);
@@ -152,15 +152,15 @@ export default class PdfGenerator {
     let greeting = '';
     if (language === Language.DUTCH) {
       switch (recipient.gender) {
-        case Gender.MALE: greeting = `heer ${recipient.lastName}`; break;
-        case Gender.FEMALE: greeting = `mevrouw ${recipient.lastName}`; break;
-        default: greeting = recipient.fullname();
+        case Gender.MALE: greeting = `heer ${recipient.formalGreet()}`; break;
+        case Gender.FEMALE: greeting = `mevrouw ${recipient.formalGreet()}`; break;
+        default: greeting = recipient.fullName();
       }
     } else if (language === Language.ENGLISH) {
       switch (recipient.gender) {
-        case Gender.MALE: greeting = `mr. ${recipient.lastName}`; break;
-        case Gender.FEMALE: greeting = `ms. ${recipient.lastName}`; break;
-        default: greeting = recipient.fullname();
+        case Gender.MALE: greeting = `mr. ${recipient.formalGreet()}`; break;
+        case Gender.FEMALE: greeting = `ms. ${recipient.formalGreet()}`; break;
+        default: greeting = recipient.fullName();
       }
     }
     t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
@@ -177,9 +177,9 @@ export default class PdfGenerator {
    */
   private createSignees(file: string, signee1: User, signee2: User) {
     let f = file;
-    f = PdfGenerator.fr(f, '%{contractant1}\n', signee1.fullname());
+    f = PdfGenerator.fr(f, '%{contractant1}\n', signee1.fullName());
     f = PdfGenerator.fr(f, '%{contractant1_functie}\n', signee1.function);
-    f = PdfGenerator.fr(f, '%{contractant2}\n', signee2.fullname());
+    f = PdfGenerator.fr(f, '%{contractant2}\n', signee2.fullName());
     f = PdfGenerator.fr(f, '%{contractant2_functie}\n', signee2.function);
     return f;
   }
