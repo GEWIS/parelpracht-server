@@ -1,6 +1,8 @@
 import {
-  Body, Controller, Get, Post, Put, Query, Response, Route, Security, Tags,
+  Body, Controller, Get, Post, Put, Query, Request, Response, Route, Security, Tags,
 } from 'tsoa';
+import express from 'express';
+import { body } from 'express-validator';
 import ProductCategoryService, {
   CategoryListResponse,
   CategoryParams,
@@ -9,10 +11,17 @@ import ProductCategoryService, {
 import { ListParams } from './ListParams';
 import { WrappedApiError } from '../helpers/error';
 import { ProductCategory } from '../entity/ProductCategory';
+import { validate } from '../helpers/validation';
 
 @Route('category')
 @Tags('Product Category')
 export class ProductCategoryController extends Controller {
+  private async validateCategoryParams(req: express.Request) {
+    await validate([
+      body('name').notEmpty().trim(),
+    ], req);
+  }
+
   /**
    * Get a list of all categories with the provided filters
    * @param col Sorted column
@@ -50,11 +59,15 @@ export class ProductCategoryController extends Controller {
   /**
    * Create a new category
    * @param params Parameters to create category with
+   * @param req Express.js request object
    */
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createCategory(@Body() params: CategoryParams): Promise<ProductCategory> {
+  public async createCategory(
+    @Body() params: CategoryParams, @Request() req: express.Request,
+  ): Promise<ProductCategory> {
+    await this.validateCategoryParams(req);
     return new ProductCategoryService().createCategory(params);
   }
 
@@ -73,13 +86,15 @@ export class ProductCategoryController extends Controller {
    * Update a category object
    * @param id ID of the category
    * @param params Update subset of parameter of category
+   * @param req Express.js request object
    */
   @Put('{id}')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateCategory(
-    id: number, @Body() params: Partial<CategoryParams>,
+    id: number, @Body() params: Partial<CategoryParams>, @Request() req: express.Request,
   ): Promise<ProductCategory> {
+    await this.validateCategoryParams(req);
     return new ProductCategoryService().updateCategory(id, params);
   }
 }

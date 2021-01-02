@@ -13,11 +13,11 @@ import { cartesian } from '../helpers/filters';
 export interface ContactParams {
   gender: Gender;
   firstName: string;
-  middleName: string;
+  lastNamePreposition?: string;
   lastName: string;
   email: string;
-  telephone: string;
-  comments: string;
+  telephone?: string;
+  comments?: string;
   companyId: number;
   function: ContactFunction;
 }
@@ -25,7 +25,7 @@ export interface ContactParams {
 export interface ContactSummary {
   id: number;
   firstName: string;
-  middleName: string;
+  lastNamePreposition: string;
   lastName: string;
   companyName: string;
 }
@@ -72,7 +72,7 @@ export default class ContactService {
     if (params.search !== undefined && params.search.trim() !== '') {
       conditions = cartesian(conditions, [
         { firstName: ILike(`%${params.search.trim()}%`) },
-        { middleName: ILike(`%${params.search.trim()}%`) },
+        { lastNamePreposition: ILike(`%${params.search.trim()}%`) },
         { lastName: ILike(`%${params.search.trim()}%`) },
         { email: ILike(`%${params.search.trim()}%`) },
       ]);
@@ -91,7 +91,7 @@ export default class ContactService {
 
   async getContactSummaries(): Promise<ContactSummary[]> {
     const contacts = await this.repo.find({
-      select: ['id', 'firstName', 'middleName', 'lastName'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName'],
       relations: ['company'],
     });
     return contacts.map((x) => ({

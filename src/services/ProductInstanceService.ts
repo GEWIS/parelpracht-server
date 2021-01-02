@@ -10,6 +10,8 @@ import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activi
 import { User } from '../entity/User';
 import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
 import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import ProductService from './ProductService';
+import { ProductStatus } from '../entity/Product';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -48,10 +50,15 @@ export default class ProductInstanceService {
   }
 
   async addProduct(contractId: number, params: ProductInstanceParams): Promise<ProductInstance> {
+    const product = await new ProductService().getProduct(params.productId);
     let productInstance = {
       ...params,
       contractId,
     } as any as ProductInstance;
+
+    if (product.status === ProductStatus.INACTIVE) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot add inactive products to contracts');
+    }
 
     const statuses = await new ActivityService(ContractActivity).getStatuses({ contractId });
     if (statuses.includes(ContractStatus.CONFIRMED) || statuses.includes(ContractStatus.FINISHED)
