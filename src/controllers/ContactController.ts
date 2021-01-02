@@ -1,15 +1,33 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Security, Response,
+  Controller, Post, Route, Put, Tags, Get, Security, Response, Request,
 } from 'tsoa';
-import { Contact } from '../entity/Contact';
+import { body } from 'express-validator';
+import express from 'express';
+import { Contact, ContactFunction } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import ContactService, { ContactListResponse, ContactParams, ContactSummary } from '../services/ContactService';
 import { ListParams } from './ListParams';
+import { validate } from '../helpers/validation';
+import { Gender } from '../entity/User';
 
 @Route('contact')
 @Tags('Contact')
 export class ContactController extends Controller {
+  private async validateContactParams(req: express.Request) {
+    await validate([
+      body('gender').isIn(Object.values(Gender)),
+      body('firstName').notEmpty().trim(),
+      body('middleName').optional().isString().trim(),
+      body('lastName').notEmpty().trim(),
+      body('email').isEmail().normalizeEmail(),
+      body('telephone').optional().isMobilePhone('any'),
+      body('comments').optional().isString().trim(),
+      body('companyId').isInt(),
+      body('function').isIn(Object.values(ContactFunction)),
+    ], req);
+  }
+
   /**
    * getAllContacts() - retrieve multiple contacts
    * @param lp List parameters to sort and filter the list
@@ -48,11 +66,15 @@ export class ContactController extends Controller {
   /**
    * createContact() - create contact
    * @param params Parameters to create contact with
+   * @param req Express.js request object
    */
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createContact(@Body() params: ContactParams): Promise<Contact> {
+  public async createContact(
+    @Body() params: ContactParams, @Request() req: express.Request,
+  ): Promise<Contact> {
+    await this.validateContactParams(req);
     return new ContactService().createContact(params);
   }
 
@@ -60,13 +82,15 @@ export class ContactController extends Controller {
    * updateContact() - update contact
    * @param id ID of contact to update
    * @param params Update subset of parameter of contact
+   * @param req: express.Request
    */
   @Put('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateContact(
-    id: number, @Body() params: Partial<ContactParams>,
+    id: number, @Body() params: Partial<ContactParams>, @Request() req: express.Request,
   ): Promise<Contact> {
+    await this.validateContactParams(req);
     return new ContactService().updateContact(id, params);
   }
 }

@@ -3,7 +3,8 @@ import {
   Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete, Request,
 } from 'tsoa';
 import express from 'express';
-import { Company } from '../entity/Company';
+import { body } from 'express-validator';
+import { Company, CompanyStatus } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
@@ -16,10 +17,29 @@ import ActivityService, {
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
+import { validate, validateActivityParams } from '../helpers/validation';
 
 @Route('company')
 @Tags('Company')
 export class CompanyController extends Controller {
+  private async validateCompanyParams(req: express.Request): Promise<void> {
+    await validate([
+      body('name').notEmpty().trim(),
+      body('description').optional().notEmpty().trim(),
+      body('phoneNumber').optional().isMobilePhone('any').trim(),
+      body('addressStreet').notEmpty().trim(),
+      body('addressPostalCode').notEmpty().trim(),
+      body('addressCity').notEmpty().trim(),
+      body('addressCountry').notEmpty().trim(),
+      body('invoiceAddressStreet').optional().notEmpty().trim(),
+      body('invoiceAddressPostalCode').optional().notEmpty().trim(),
+      body('invoiceAddressCity').optional().notEmpty().trim(),
+      body('invoiceAddressCountry').optional().notEmpty().trim(),
+      body('status').optional().isIn(Object.values(CompanyStatus)),
+      body('endDate').optional()
+    ], req);
+  }
+
   /**
    * getAllCompanies() - retrieve multiple companies
    * @param lp List parameters to sort and filter the list
@@ -58,11 +78,15 @@ export class CompanyController extends Controller {
   /**
    * createCompany() - create company
    * @param params Parameters to create company with
+   * @param req Express.js request object
    */
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createCompany(@Body() params: CompanyParams): Promise<Company> {
+  public async createCompany(
+    @Body() params: CompanyParams, @Request() req: express.Request,
+  ): Promise<Company> {
+    await this.validateCompanyParams(req);
     return new CompanyService().createCompany(params);
   }
 
@@ -70,11 +94,15 @@ export class CompanyController extends Controller {
    * updateCompany() - update company
    * @param id ID of company to update
    * @param params Update subset of parameter of company
+   * @param req Express.js request object
    */
   @Put('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateCompany(id: number, @Body() params: Partial<CompanyParams>): Promise<Company> {
+  public async updateCompany(
+    id: number, @Body() params: Partial<CompanyParams>, @Request() req: express.Request,
+  ): Promise<Company> {
+    await this.validateCompanyParams(req);
     return new CompanyService().updateCompany(id, params);
   }
 
@@ -112,7 +140,7 @@ export class CompanyController extends Controller {
   public async addComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    // eslint-disable-next-line no-param-reassign
+    await validateActivityParams(req);
     const p = {
       ...params,
       entityId: id,
@@ -126,13 +154,16 @@ export class CompanyController extends Controller {
    * @param id ID of the company
    * @param activityId ID of the comment activity
    * @param params Update subset of parameter of comment activity
+   * @param req Express.js request object
    */
   @Put('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateActivity(
     id: number, activityId: number, @Body() params: Partial<ActivityParams>,
+    @Request() req: express.Request,
   ): Promise<BaseActivity> {
+    await validateActivityParams(req);
     return new ActivityService(CompanyActivity).updateActivity(id, activityId, params);
   }
 

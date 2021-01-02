@@ -4,10 +4,10 @@ import {
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
-import { Product } from '../entity/Product';
+import { Product, ProductStatus } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams } from './ListParams';
-import { validate } from '../helpers/validation';
+import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,
@@ -24,6 +24,21 @@ import { User } from '../entity/User';
 @Route('product')
 @Tags('Product')
 export class ProductController extends Controller {
+  private async validateProductParams(req: express.Request) {
+    await validate([
+      body('nameDutch').notEmpty().trim(),
+      body('nameEnglish').notEmpty().trim(),
+      body('targetPrice').isInt().custom((value) => value > 0),
+      body('status').isIn(Object.values(ProductStatus)),
+      body('description').optional().isString().trim(),
+      body('categoryId').isInt(),
+      body('contractTextDutch').notEmpty().trim(),
+      body('contractTextEnglish').notEmpty().trim(),
+      body('deliverySpecificationDutch').optional().notEmpty().trim(),
+      body('deliverySpecificationEnglish').optional().notEmpty().trim(),
+    ], req);
+  }
+
   /**
    * getAllProducts() - retrieve multiple products
    * @param lp List parameters to sort and filter the list
@@ -72,10 +87,7 @@ export class ProductController extends Controller {
     @Request() req: express.Request,
       @Body() params: ProductParams,
   ): Promise<Product> {
-    await validate([
-      body('nameDutch').notEmpty(),
-    ], req);
-
+    await this.validateProductParams(req);
     return new ProductService().createProduct(params);
   }
 
@@ -93,10 +105,7 @@ export class ProductController extends Controller {
     @Request() req: express.Request,
       id: number, @Body() params: Partial<ProductParams>,
   ): Promise<Product> {
-    await validate([
-      body('nameDutch').notEmpty(),
-    ], req);
-
+    await this.validateProductParams(req);
     return new ProductService().updateProduct(id, params);
   }
 
@@ -109,6 +118,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async uploadFile(id: number, @Request() req: express.Request): Promise<ProductFile> {
+    await validateFileParams(req);
     return new FileService(ProductFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
@@ -132,13 +142,16 @@ export class ProductController extends Controller {
    * @param id ID of the product
    * @param fileId ID of the file
    * @param params Update subset of the parameters of the file
+   * @param req Express.js request object
    */
   @Put('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateFile(
     id: number, fileId: number, @Body() params: Partial<FileParams>,
+    @Request() req: express.Request,
   ): Promise<BaseFile> {
+    await validateFileParams(req);
     return new FileService(ProductFile).updateFile(id, fileId, params);
   }
 
@@ -166,6 +179,7 @@ export class ProductController extends Controller {
   public async addComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
+    await validateActivityParams(req);
     const p = {
       ...params,
       entityId: id,
@@ -179,13 +193,16 @@ export class ProductController extends Controller {
    * @param id ID of the product
    * @param activityId ID of the activity
    * @param params Update subset of parameter of comment activity
+   * @param req Express.js request object
    */
   @Put('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateActivity(
     id: number, activityId: number, @Body() params: Partial<ActivityParams>,
+    @Request() req: express.Request,
   ): Promise<BaseActivity> {
+    await validateActivityParams(req);
     return new ActivityService(ProductActivity).updateActivity(id, activityId, params);
   }
 

@@ -13,11 +13,11 @@ import { cartesian } from '../helpers/filters';
 export interface ContactParams {
   gender: Gender;
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
   email: string;
-  telephone: string;
-  comments: string;
+  telephone?: string;
+  comments?: string;
   companyId: number;
   function: ContactFunction;
 }

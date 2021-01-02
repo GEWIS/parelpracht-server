@@ -14,11 +14,11 @@ import AuthService from './AuthService';
 export interface UserParams {
   email: string;
   firstName: string;
-  middleName: string;
+  middleName?: string;
   lastName: string;
   function: string;
   gender: Gender;
-  comment: string;
+  comment?: string;
 
   roles?: Roles[]
 }

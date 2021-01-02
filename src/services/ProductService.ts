@@ -13,7 +13,7 @@ export interface ProductParams {
   nameEnglish: string;
   targetPrice: number;
   status: ProductStatus;
-  description: string;
+  description?: string;
   categoryId: number;
   contractTextDutch: string;
   contractTextEnglish: string;

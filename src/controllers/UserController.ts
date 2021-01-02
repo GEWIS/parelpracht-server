@@ -1,15 +1,31 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Security, Response, Delete, Request,
+  Controller, Post, Route, Put, Tags, Get, Security, Response, Delete, Request,
 } from 'tsoa';
-import { User } from '../entity/User';
+import express from 'express';
+import { body } from 'express-validator';
+import { Gender, User } from '../entity/User';
 import { WrappedApiError } from '../helpers/error';
 import UserService, { UserListResponse, UserParams, UserSummary } from '../services/UserService';
 import { ListParams } from './ListParams';
+import { validate } from '../helpers/validation';
 
 @Route('user')
 @Tags('User')
 export class UserController extends Controller {
+  private async validateUserParams(req: express.Request) {
+    await validate([
+      body('email').isEmail().normalizeEmail(),
+      body('firstName').notEmpty().trim(),
+      body('middleName').optional().notEmpty().trim(),
+      body('lastName').notEmpty().trim(),
+      body('function').notEmpty().trim(),
+      body('gender').isIn(Object.values(Gender)),
+      body('comment').optional().notEmpty().trim(),
+      body('roles').isArray(),
+    ], req);
+  }
+
   /**
    * getAllUsers() - retrieve multiple users
    * @param lp List parameters to sort and filter the list
@@ -47,6 +63,7 @@ export class UserController extends Controller {
 
   /**
    * deleteUser() - delete single user. You cannot delete yourself.
+   * @param req Express.js request object
    * @param id ID of user to delete
    */
   @Delete('{id}')
@@ -60,16 +77,21 @@ export class UserController extends Controller {
   /**
    * createUser() - create user
    * @param params Parameters to create user with
+   * @param req Express.js request object
    */
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createUser(@Body() params: UserParams): Promise<User> {
+  public async createUser(
+    @Body() params: UserParams, @Request() req: express.Request,
+  ): Promise<User> {
+    await this.validateUserParams(req);
     return new UserService().createUser(params);
   }
 
   /**
    * updateUser() - update user. You cannot update your own roles.
+   * @param req Express.js request object
    * @param id ID of user to update
    * @param params Update subset of parameter of user
    */
@@ -77,9 +99,9 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateUser(
-    @Request() req: Express.Request,
-      id: number, @Body() params: Partial<UserParams>,
+    @Request() req: express.Request, id: number, @Body() params: Partial<UserParams>,
   ): Promise<User> {
+    await this.validateUserParams(req);
     return new UserService().updateUser(id, params, req.user as User);
   }
 }
