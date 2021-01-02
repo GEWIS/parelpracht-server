@@ -213,6 +213,7 @@ const models: TsoaRoute.Models = {
             "basePrice": {"dataType":"double","required":true},
             "discount": {"dataType":"double","required":true},
             "comments": {"dataType":"string"},
+            "subType": {"ref":"ProductInstanceStatus"},
         },
         "additionalProperties": false,
     },
@@ -423,6 +424,11 @@ const models: TsoaRoute.Models = {
             "product": {"ref":"Product","required":true},
         },
         "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceStatus": {
+        "dataType": "refEnum",
+        "enums": ["NOTDELIVERED","DELIVERED","CANCELLED","DEFERRED"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductFile": {
@@ -664,11 +670,6 @@ const models: TsoaRoute.Models = {
     "Partial_ProductInstanceParams_": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"basePrice":{"dataType":"double"},"discount":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ProductInstanceStatus": {
-        "dataType": "refEnum",
-        "enums": ["NOTDELIVERED","DELIVERED","CANCELLED","DEFERRED"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductInstanceStatusParams": {

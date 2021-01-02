@@ -1,12 +1,12 @@
 import { getRepository, Repository } from 'typeorm';
-import { ProductInstance } from '../entity/ProductInstance';
+import { ProductInstance, ProductInstanceStatus } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import { ActivityType } from '../entity/activity/BaseActivity';
-import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activity/ProductInstanceActivity';
+import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
 import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
