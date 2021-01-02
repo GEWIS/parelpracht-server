@@ -4,7 +4,7 @@ import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
 import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
-import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activity/ProductInstanceActivity';
+import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { User } from '../entity/User';
 // eslint-disable-next-line import/no-cycle
@@ -12,6 +12,7 @@ import ProductInstanceService from './ProductInstanceService';
 // eslint-disable-next-line import/no-cycle
 import ContractService from './ContractService';
 import { Contract } from '../entity/Contract';
+import { ProductInstanceStatus } from '../entity/ProductInstance';
 
 export interface ActivityParams {
   description: string;
