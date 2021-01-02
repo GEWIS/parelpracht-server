@@ -125,3 +125,6 @@ src/public/swagger.json
 data/generated/
 data/uploads/
 tmp/
+
+# Merge errors are annoying
+src/routes.ts

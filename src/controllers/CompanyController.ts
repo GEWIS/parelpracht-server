@@ -18,6 +18,7 @@ import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
 import { validate, validateActivityParams } from '../helpers/validation';
+import InvoiceService from '../services/InvoiceService';
 
 @Route('company')
 @Tags('Company')
@@ -114,7 +115,7 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
-    return new CompanyService().getUnresolvedInvoices(id);
+    return new InvoiceService().getOpenInvoicesByCompany(id);
   }
 
   /**

@@ -210,8 +210,8 @@ export default class ActivityService {
           throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this contract, because the contract is already finished or cancelled');
         }
         if (statuses.includes(ContractStatus.CONFIRMED)
-          && (activity.subType !== ContractStatus.FINISHED
-            || activity.subType !== ContractStatus.CANCELLED)) {
+          && activity.subType !== ContractStatus.FINISHED
+          && activity.subType !== ContractStatus.CANCELLED) {
           throw new ApiError(HTTPStatus.BadRequest, 'Contract is already confirmed by both parties');
         }
         if (statuses.includes(ContractStatus.SENT)

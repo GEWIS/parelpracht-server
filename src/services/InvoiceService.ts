@@ -136,4 +136,18 @@ export default class InvoiceService {
     const invoice = await this.repo.findOne(id);
     return invoice!;
   }
+
+  async getOpenInvoicesByCompany(companyId: number): Promise<Array<Invoice>> {
+    const invoices = await this.repo.find({
+      where:
+        { companyId },
+      relations: ['activities'],
+    });
+
+    const result: Invoice[] = [];
+    invoices.forEach((i) => {
+      if (i.activities.length <= 1) result.push(i);
+    });
+    return result;
+  }
 }
