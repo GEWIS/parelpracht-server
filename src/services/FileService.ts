@@ -107,10 +107,10 @@ export default class FileService {
       sender: this.actor,
     } as any as ContractGenSettings;
 
-    if (!(signee1.roles.map((r) => r.name)).includes('FINANCIAL')) {
+    if (!(signee1.roles.map((r) => r.name)).includes('SIGNEE')) {
       throw new ApiError(HTTPStatus.BadRequest, 'Signee 1 is not authorized to sign');
     }
-    if (!(signee2.roles.map((r) => r.name)).includes('FINANCIAL')) {
+    if (!(signee2.roles.map((r) => r.name)).includes('SIGNEE')) {
       throw new ApiError(HTTPStatus.BadRequest, 'Signee 2 is not authorized to sign');
     }
 
