@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
@@ -12,6 +11,10 @@ import { ContractActivity, ContractStatus } from '../entity/activity/ContractAct
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import { ActivityType } from '../entity/activity/BaseActivity';
+import ContactService from './ContactService';
+import CompanyService from './CompanyService';
+import { ContactFunction } from '../entity/Contact';
+import { CompanyStatus } from '../entity/Company';
 
 export interface ContractParams {
   title: string;
@@ -93,10 +96,20 @@ export default class ContractService {
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
+    const contact = await new ContactService().getContact(params.contactId);
+    const company = await new CompanyService().getCompany(params.companyId);
     let contract = this.repo.create({
       ...params,
       createdById: this.actor?.id,
     });
+
+    if (contact.function === ContactFunction.OLD) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot create contract with old, inactive contact person');
+    }
+    if (company.status === CompanyStatus.INACTIVE) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot create contract with inactive company');
+    }
+
     contract = await this.repo.save(contract);
 
     await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
