@@ -13,7 +13,7 @@ import { cartesian } from '../helpers/filters';
 // May not be correct yet
 export interface CompanyParams {
   name: string;
-  description?: string;
+  comments?: string;
   phoneNumber?: string;
   addressStreet: string;
   addressPostalCode: string;
