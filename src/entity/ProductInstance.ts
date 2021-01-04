@@ -66,11 +66,7 @@ export class ProductInstance extends BaseEnt {
   comments?: string;
 
   /** Subtype of this activity, only used when the type = "STATUS" */
-  @Column({
-    type: 'enum',
-    enum: ProductInstanceStatus,
-    nullable: true,
-  })
+  @Column('enum', { enum: ProductInstanceStatus, nullable: true })
   subType?: ProductInstanceStatus;
 
   public price(): number {
