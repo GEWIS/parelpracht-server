@@ -9,7 +9,7 @@ import ContractService, {
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
-import { ProductInstance } from '../entity/ProductInstance';
+import { ProductInstance, ProductInstanceStatus } from '../entity/ProductInstance';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams, FullActivityParams, ContractStatusParams, ProductInstanceStatusParams,
@@ -17,7 +17,7 @@ import ActivityService, {
 import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
 import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
-import { ProductInstanceActivity, ProductInstanceStatus } from '../entity/activity/ProductInstanceActivity';
+import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import FileService, {
   FileParams, FullGenerateContractParams, GenerateContractParams,
