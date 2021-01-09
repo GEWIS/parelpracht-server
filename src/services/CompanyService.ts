@@ -1,6 +1,5 @@
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import _ from 'lodash';
 import { ListParams } from '../controllers/ListParams';
@@ -44,7 +43,7 @@ export default class CompanyService {
   }
 
   async getCompany(id: number): Promise<Company> {
-    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities'] }); // May need more relations
+    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities', 'invoices'] }); // May need more relations
     if (company === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
@@ -102,6 +101,21 @@ export default class CompanyService {
     await this.repo.update(id, params);
     const company = await this.repo.findOne(id);
     return company!;
+  }
+
+  async deleteCompany(id: number) {
+    const company = await this.getCompany(id);
+    if (company.contacts.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Company has contracts');
+    }
+    if (company.invoices.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Company has invoices');
+    }
+    if (company.contacts.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Company has contacts');
+    }
+
+    await this.repo.delete(company.id);
   }
 
   async getContacts(id: number): Promise<Contact[]> {

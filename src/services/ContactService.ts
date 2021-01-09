@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contact, ContactFunction } from '../entity/Contact';
@@ -111,5 +110,14 @@ export default class ContactService {
     await this.repo.update(id, params);
     const contact = await this.repo.findOne(id);
     return contact!;
+  }
+
+  async deleteContact(id: number) {
+    const contact = await this.getContact(id);
+    if (contact.contracts.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Contact has contracts');
+    }
+
+    await this.repo.delete(contact.id);
   }
 }

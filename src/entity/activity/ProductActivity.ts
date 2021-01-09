@@ -12,7 +12,9 @@ export class ProductActivity extends BaseActivity {
   productId!: number;
 
   /** Product related to this activity */
-  @ManyToOne(() => Product, (product) => product.activities)
+  @ManyToOne(() => Product, (product) => product.activities, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'productId' })
   product!: Product;
 }

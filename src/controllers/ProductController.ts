@@ -110,6 +110,20 @@ export class ProductController extends Controller {
   }
 
   /**
+   * Delete a product, if it has no contracts and/or invoices
+   * @param id ID of the product
+   * @param req Express.js request object
+   */
+  @Delete('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteProduct(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductService().deleteProduct(id);
+  }
+
+  /**
    * Upload a file to a product
    * @param id Id of the product
    * @param req Express.js request object

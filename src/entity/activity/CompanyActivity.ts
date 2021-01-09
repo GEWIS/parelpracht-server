@@ -12,7 +12,9 @@ export class CompanyActivity extends BaseActivity {
   companyId!: number;
 
   /** Company related to this activity */
-  @ManyToOne(() => Company, (company) => company.activities)
+  @ManyToOne(() => Company, (company) => company.activities, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'companyId' })
   company!: Company;
 }

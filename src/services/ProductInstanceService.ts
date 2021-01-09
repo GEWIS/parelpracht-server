@@ -102,6 +102,14 @@ export default class ProductInstanceService {
   async deleteProduct(contractId: number, productInstanceId: number): Promise<void> {
     let productInstance = await this.repo.findOne(productInstanceId);
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
+
+    if (productInstance.activities.filter((a) => a.type === ActivityType.STATUS).length > 1) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Product instance has a different status than CREATED');
+    }
+    if (productInstance.invoiceId !== undefined) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Product instance is already invoiced');
+    }
+
     await this.repo.delete(productInstance.id);
   }
 

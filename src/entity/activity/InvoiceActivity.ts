@@ -20,7 +20,9 @@ export class InvoiceActivity extends BaseActivity {
   invoiceId!: number;
 
   /** Invoice related to this activity */
-  @ManyToOne(() => Invoice, (invoice) => invoice.activities)
+  @ManyToOne(() => Invoice, (invoice) => invoice.activities, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'invoiceId' })
   invoice!: Invoice;
 

@@ -127,4 +127,17 @@ export default class ContractService {
     const contract = await this.repo.findOne(id);
     return contract!;
   }
+
+  async deleteContract(id: number): Promise<void> {
+    const contract = await this.getContract(id);
+
+    if (contract.products.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Contract has products');
+    }
+    if (contract.activities.filter((a) => a.type === ActivityType.STATUS).length > 1) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Contract has changed its status');
+    }
+
+    await this.repo.delete(id);
+  }
 }

@@ -21,7 +21,9 @@ export class ContractActivity extends BaseActivity {
   contractId!: number;
 
   /** Contract related to this activity */
-  @ManyToOne(() => Contract, (contract) => contract.activities)
+  @ManyToOne(() => Contract, (contract) => contract.activities, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'contractId' })
   contract!: Contract;
 

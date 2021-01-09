@@ -108,6 +108,20 @@ export class CompanyController extends Controller {
   }
 
   /**
+   * Delete company
+   * @param id ID of the company to delete
+   * @param req Express.js request object
+   */
+  @Delete('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteCompany(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new CompanyService().deleteCompany(id);
+  }
+
+  /**
    * getUnresolvedInvoices() - retrieve unresolved invoices from company
    * @param id ID of company to retrieve unresolved invoices for
    */

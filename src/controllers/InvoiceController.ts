@@ -110,6 +110,20 @@ export class InvoiceController extends Controller {
   }
 
   /**
+   * Delete an invoice, if it has no products or updated statuses
+   * @param id ID of the invoice
+   * @param req Express.js request object
+   */
+  @Delete('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteInvoice(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new InvoiceService().deleteInvoice(id);
+  }
+
+  /**
    * Add product to an invoice
    * @param id - ID of the invoice
    * @param params - Create subset of product

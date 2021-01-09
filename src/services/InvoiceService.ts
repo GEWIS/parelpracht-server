@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
@@ -135,6 +134,18 @@ export default class InvoiceService {
     await this.repo.update(id, params);
     const invoice = await this.repo.findOne(id);
     return invoice!;
+  }
+
+  async deleteInvoice(id: number) {
+    const invoice = await this.getInvoice(id);
+    if (invoice.products.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice has products');
+    }
+    if (invoice.activities.filter((a) => a.type === ActivityType.STATUS).length > 1) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice has a status other than CREATED');
+    }
+
+    await this.repo.delete(invoice.id);
   }
 
   async getOpenInvoicesByCompany(companyId: number): Promise<Array<Invoice>> {

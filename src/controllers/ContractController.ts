@@ -128,6 +128,20 @@ export class ContractController extends Controller {
   }
 
   /**
+   * Delete a contract, if it has no products or updated statuses
+   * @param id ID of the contract
+   * @param req Express.js request object
+   */
+  @Delete('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteContract(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ContractService().deleteContract(id);
+  }
+
+  /**
    * Add product to contract
    * @param id - ID of the contract
    * @param params - Create subset of product

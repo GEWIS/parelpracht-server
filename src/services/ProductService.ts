@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Product, ProductStatus } from '../entity/Product';
@@ -40,8 +39,8 @@ export default class ProductService {
     this.repo = getRepository(Product);
   }
 
-  async getProduct(id: number): Promise<Product> {
-    const product = await this.repo.findOne(id, { relations: ['files', 'activities'] });
+  async getProduct(id: number, relations: string[] = []): Promise<Product> {
+    const product = await this.repo.findOne(id, { relations: ['files', 'activities'].concat(relations) });
     if (product === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
     }
@@ -100,5 +99,17 @@ export default class ProductService {
     await this.repo.update(id, params);
     const product = await this.repo.findOne(id);
     return product!;
+  }
+
+  async deleteProduct(id: number) {
+    const product = await this.getProduct(id, ['instances']);
+    if (product.instances.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Product is used in contracts');
+    }
+    if (product.files.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Product has files attached to it');
+    }
+
+    await this.repo.delete(product.id);
   }
 }

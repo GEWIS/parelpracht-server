@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Security, Response, Request,
+  Controller, Post, Route, Put, Tags, Get, Security, Response, Request, Delete,
 } from 'tsoa';
 import { body } from 'express-validator';
 import express from 'express';
@@ -92,5 +92,19 @@ export class ContactController extends Controller {
   ): Promise<Contact> {
     await this.validateContactParams(req);
     return new ContactService().updateContact(id, params);
+  }
+
+  /**
+   * Delete contact
+   * @param id ID of the contact
+   * @param req Express.js request object
+   */
+  @Delete('{id}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteContact(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ContactService().deleteContact(id);
   }
 }
