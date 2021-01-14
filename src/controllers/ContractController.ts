@@ -283,7 +283,7 @@ export class ContractController extends Controller {
   @Post('{id}/file/generate')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async generateFile(
+  public async generateConractFile(
     id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
   ): Promise<any> {
     await validate([
@@ -313,8 +313,9 @@ export class ContractController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadFile(id: number, @Request() req: express.Request): Promise<ContractFile> {
-    await validateFileParams(req);
+  public async uploadContractFile(
+    id: number, @Request() req: express.Request
+  ): Promise<ContractFile> {
     return new FileService(ContractFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
@@ -327,7 +328,7 @@ export class ContractController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getFile(id: number, fileId: number): Promise<any> {
+  public async getContractFile(id: number, fileId: number): Promise<any> {
     const file = <ContractFile>(await new FileService(ContractFile).getFile(id, fileId));
 
     return FileHelper.putFileInResponse(this, file);
@@ -343,7 +344,7 @@ export class ContractController extends Controller {
   @Put('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateFile(
+  public async updateContractFile(
     id: number, fileId: number, @Body() params: Partial<FileParams>,
     @Request() req: express.Request,
   ): Promise<BaseFile> {
@@ -359,7 +360,7 @@ export class ContractController extends Controller {
   @Delete('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteFile(id: number, fileId: number): Promise<void> {
+  public async deleteContractFile(id: number, fileId: number): Promise<void> {
     return new FileService(ContractFile).deleteFile(id, fileId, true);
   }
 

@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Query, Request, Response, Security, Delete,
+  Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -131,8 +131,9 @@ export class ProductController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadFile(id: number, @Request() req: express.Request): Promise<ProductFile> {
-    await validateFileParams(req);
+  public async uploadProductFile(
+    id: number, @Request() req: express.Request,
+  ): Promise<ProductFile> {
     return new FileService(ProductFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
@@ -145,7 +146,7 @@ export class ProductController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getFile(id: number, fileId: number): Promise<any> {
+  public async getProductFile(id: number, fileId: number): Promise<any> {
     const file = <ProductFile>(await new FileService(ProductFile).getFile(id, fileId));
 
     return FileHelper.putFileInResponse(this, file);
@@ -161,7 +162,7 @@ export class ProductController extends Controller {
   @Put('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateFile(
+  public async updateProductFile(
     id: number, fileId: number, @Body() params: Partial<FileParams>,
     @Request() req: express.Request,
   ): Promise<BaseFile> {
@@ -177,7 +178,7 @@ export class ProductController extends Controller {
   @Delete('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteFile(id: number, fileId: number): Promise<void> {
+  public async deleteProductFile(id: number, fileId: number): Promise<void> {
     return new FileService(ProductFile).deleteFile(id, fileId, true);
   }
 

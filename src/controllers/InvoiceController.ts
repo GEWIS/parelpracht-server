@@ -163,7 +163,7 @@ export class InvoiceController extends Controller {
   @Post('{id}/file/generate')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async generateFile(
+  public async generateInvoiceFile(
     id: number, @Body() params: GenerateInvoiceParams, @Request() req: express.Request,
   ): Promise<any> {
     await validate([
@@ -190,8 +190,9 @@ export class InvoiceController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadFile(id: number, @Request() req: express.Request): Promise<InvoiceFile> {
-    await validateFileParams(req);
+  public async uploadInvoiceFile(
+    id: number, @Request() req: express.Request,
+  ): Promise<InvoiceFile> {
     return new FileService(InvoiceFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
@@ -204,7 +205,7 @@ export class InvoiceController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getFile(id: number, fileId: number): Promise<any> {
+  public async getInvoiceFile(id: number, fileId: number): Promise<any> {
     const file = <InvoiceFile>(await new FileService(InvoiceFile).getFile(id, fileId));
 
     return FileHelper.putFileInResponse(this, file);
@@ -220,7 +221,7 @@ export class InvoiceController extends Controller {
   @Put('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateFile(
+  public async updateInvoiceFile(
     id: number, fileId: number, @Body() params: Partial<FileParams>,
     @Request() req: express.Request,
   ): Promise<BaseFile> {
@@ -236,7 +237,7 @@ export class InvoiceController extends Controller {
   @Delete('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteFile(id: number, fileId: number): Promise<void> {
+  public async deleteInvoiceFile(id: number, fileId: number): Promise<void> {
     return new FileService(InvoiceFile).deleteFile(id, fileId, true);
   }
 
