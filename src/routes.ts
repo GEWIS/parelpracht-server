@@ -1182,7 +1182,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ProductController();
 
 
-            const promise = controller.uploadFile.apply(controller, validatedArgs as any);
+            const promise = controller.uploadProductFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1206,7 +1206,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ProductController();
 
 
-            const promise = controller.getFile.apply(controller, validatedArgs as any);
+            const promise = controller.getProductFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1232,7 +1232,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ProductController();
 
 
-            const promise = controller.updateFile.apply(controller, validatedArgs as any);
+            const promise = controller.updateProductFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1256,7 +1256,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ProductController();
 
 
-            const promise = controller.deleteFile.apply(controller, validatedArgs as any);
+            const promise = controller.deleteProductFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1938,7 +1938,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ContractController();
 
 
-            const promise = controller.generateFile.apply(controller, validatedArgs as any);
+            const promise = controller.generateConractFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1962,7 +1962,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ContractController();
 
 
-            const promise = controller.uploadFile.apply(controller, validatedArgs as any);
+            const promise = controller.uploadContractFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1986,7 +1986,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ContractController();
 
 
-            const promise = controller.getFile.apply(controller, validatedArgs as any);
+            const promise = controller.getContractFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2012,7 +2012,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ContractController();
 
 
-            const promise = controller.updateFile.apply(controller, validatedArgs as any);
+            const promise = controller.updateContractFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2036,7 +2036,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new ContractController();
 
 
-            const promise = controller.deleteFile.apply(controller, validatedArgs as any);
+            const promise = controller.deleteContractFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2351,7 +2351,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new InvoiceController();
 
 
-            const promise = controller.generateFile.apply(controller, validatedArgs as any);
+            const promise = controller.generateInvoiceFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2375,7 +2375,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new InvoiceController();
 
 
-            const promise = controller.uploadFile.apply(controller, validatedArgs as any);
+            const promise = controller.uploadInvoiceFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2399,7 +2399,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new InvoiceController();
 
 
-            const promise = controller.getFile.apply(controller, validatedArgs as any);
+            const promise = controller.getInvoiceFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2425,7 +2425,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new InvoiceController();
 
 
-            const promise = controller.updateFile.apply(controller, validatedArgs as any);
+            const promise = controller.updateInvoiceFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2449,7 +2449,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new InvoiceController();
 
 
-            const promise = controller.deleteFile.apply(controller, validatedArgs as any);
+            const promise = controller.deleteInvoiceFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

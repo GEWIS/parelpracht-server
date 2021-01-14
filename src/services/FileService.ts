@@ -24,6 +24,7 @@ import FileHelper, { uploadDirLoc } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
 import ContactService from './ContactService';
 import { User } from '../entity/User';
+import { validateFileParams } from '../helpers/validation';
 
 export interface FileParams {
   name: string;
@@ -177,6 +178,7 @@ export default class FileService {
 
   async uploadFile(request: express.Request, entityId: number) {
     await this.handleFile(request);
+    await validateFileParams(request);
     const params = {
       name: request.body.name,
       entityId,
