@@ -17,11 +17,11 @@ export class UserController extends Controller {
     await validate([
       body('email').isEmail().normalizeEmail(),
       body('firstName').notEmpty().trim(),
-      body('lastNamePreposition').optional().notEmpty().trim(),
+      body('lastNamePreposition').trim(),
       body('lastName').notEmpty().trim(),
       body('function').notEmpty().trim(),
       body('gender').isIn(Object.values(Gender)),
-      body('comment').optional().notEmpty().trim(),
+      body('comment').trim(),
       body('roles').isArray(),
     ], req);
   }

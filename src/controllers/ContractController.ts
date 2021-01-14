@@ -56,7 +56,7 @@ export class ContractController extends Controller {
       body('productId').isInt(),
       body('basePrice').isInt(),
       body('discount').optional().isInt(),
-      body('comments').optional().notEmpty().trim(),
+      body('comments').trim(),
     ], req);
   }
 

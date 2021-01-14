@@ -26,18 +26,18 @@ export class CompanyController extends Controller {
   private async validateCompanyParams(req: express.Request): Promise<void> {
     await validate([
       body('name').notEmpty().trim(),
-      body('description').optional().notEmpty().trim(),
+      body('description').trim(),
       body('phoneNumber').optional().isMobilePhone('any').trim(),
       body('addressStreet').notEmpty().trim(),
       body('addressPostalCode').notEmpty().trim(),
       body('addressCity').notEmpty().trim(),
       body('addressCountry').notEmpty().trim(),
-      body('invoiceAddressStreet').optional().notEmpty().trim(),
-      body('invoiceAddressPostalCode').optional().notEmpty().trim(),
-      body('invoiceAddressCity').optional().notEmpty().trim(),
-      body('invoiceAddressCountry').optional().notEmpty().trim(),
+      body('invoiceAddressStreet').trim(),
+      body('invoiceAddressPostalCode').trim(),
+      body('invoiceAddressCity').trim(),
+      body('invoiceAddressCountry').trim(),
       body('status').optional().isIn(Object.values(CompanyStatus)),
-      body('endDate').optional()
+      body('endDate').optional().isDate(),
     ], req);
   }
 

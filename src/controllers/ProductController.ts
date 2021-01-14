@@ -30,12 +30,12 @@ export class ProductController extends Controller {
       body('nameEnglish').notEmpty().trim(),
       body('targetPrice').isInt().custom((value) => value > 0),
       body('status').isIn(Object.values(ProductStatus)),
-      body('description').optional().isString().trim(),
+      body('description').trim(),
       body('categoryId').isInt(),
       body('contractTextDutch').notEmpty().trim(),
       body('contractTextEnglish').notEmpty().trim(),
-      body('deliverySpecificationDutch').optional().notEmpty().trim(),
-      body('deliverySpecificationEnglish').optional().notEmpty().trim(),
+      body('deliverySpecificationDutch').trim(),
+      body('deliverySpecificationEnglish').trim(),
     ], req);
   }
 
