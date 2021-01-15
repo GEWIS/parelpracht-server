@@ -209,11 +209,10 @@ const models: TsoaRoute.Models = {
             "contract": {"ref":"Contract","required":true},
             "invoiceId": {"dataType":"double"},
             "invoice": {"ref":"Invoice"},
-            "activities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
+            "activities": {"dataType":"array","array":{"ref":"ProductInstanceActivity"},"required":true},
             "basePrice": {"dataType":"double","required":true},
             "discount": {"dataType":"double","required":true},
             "comments": {"dataType":"string"},
-            "subType": {"ref":"ProductInstanceStatus"},
         },
         "additionalProperties": false,
     },
@@ -408,6 +407,30 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceStatus": {
+        "dataType": "refEnum",
+        "enums": ["NOTDELIVERED","DELIVERED","CANCELLED","DEFERRED"],
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceActivity": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "type": {"ref":"ActivityType","required":true},
+            "description": {"dataType":"string","required":true},
+            "createdById": {"dataType":"double","required":true},
+            "createdBy": {"ref":"User","required":true},
+            "productInstanceId": {"dataType":"double","required":true},
+            "productInstance": {"ref":"ProductInstance","required":true},
+            "subType": {"ref":"ProductInstanceStatus"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductActivity": {
         "dataType": "refObject",
         "properties": {
@@ -424,11 +447,6 @@ const models: TsoaRoute.Models = {
             "product": {"ref":"Product","required":true},
         },
         "additionalProperties": false,
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ProductInstanceStatus": {
-        "dataType": "refEnum",
-        "enums": ["NOTDELIVERED","DELIVERED","CANCELLED","DEFERRED"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductFile": {

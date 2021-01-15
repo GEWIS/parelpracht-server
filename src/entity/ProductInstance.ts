@@ -50,7 +50,7 @@ export class ProductInstance extends BaseEnt {
   @OneToMany(() => ProductInstanceActivity,
     (productInstanceActivity) => productInstanceActivity.productInstance)
   @JoinColumn()
-  activities!: ProductActivity[];
+  activities!: ProductInstanceActivity[];
 
   /** Actual price of the product, should be a copy from the product price upon creation,
    * or a different price that is not a discount */
@@ -64,10 +64,6 @@ export class ProductInstance extends BaseEnt {
   /** Any comments regarding this product instance */
   @Column({ type: 'text', nullable: true, default: '' })
   comments?: string;
-
-  /** Subtype of this activity, only used when the type = "STATUS" */
-  @Column('enum', { enum: ProductInstanceStatus, nullable: true })
-  subType?: ProductInstanceStatus;
 
   public price(): number {
     return this.basePrice - this.discount;
