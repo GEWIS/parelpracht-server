@@ -1,6 +1,5 @@
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import _ from 'lodash';
 import { ProductCategory } from '../entity/ProductCategory';
@@ -90,5 +89,15 @@ export default class ProductCategoryService {
     await this.repo.update(id, params);
     const category = await this.repo.findOne(id);
     return category!;
+  }
+
+  async deleteCategory(id: number) {
+    const category = await this.getCategory(id);
+
+    if (category.products.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Product Category has products');
+    }
+
+    await this.repo.delete(category.id);
   }
 }

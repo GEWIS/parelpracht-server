@@ -150,7 +150,7 @@ export class ContractController extends Controller {
   @Post('{id}/product')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProduct(
+  public async addProductInstance(
     id: number, @Body() params: ProductInstanceParams, @Request() req: express.Request,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
@@ -167,7 +167,7 @@ export class ContractController extends Controller {
   @Put('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateProduct(
+  public async updateProductInstance(
     id: number, prodId: number, @Body() params: Partial<ProductInstanceParams>,
     @Request() req: express.Request,
   ): Promise<ProductInstance> {
@@ -183,7 +183,7 @@ export class ContractController extends Controller {
   @Delete('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProduct(id: number, prodId: number): Promise<void> {
+  public async deleteProductInstance(id: number, prodId: number): Promise<void> {
     return new ProductInstanceService().deleteProduct(id, prodId);
   }
 
@@ -197,7 +197,7 @@ export class ContractController extends Controller {
   @Post('{id}/product/{prodId}/status')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProductStatus(
+  public async addProductInstanceStatus(
     id: number, prodId: number, @Body() params: ProductInstanceStatusParams,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -224,7 +224,7 @@ export class ContractController extends Controller {
   @Post('{id}/product/{prodId}/comment')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProductComment(
+  public async addProductInstanceComment(
     id: number, prodId: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
@@ -248,7 +248,7 @@ export class ContractController extends Controller {
   @Put('{id}/product/{prodId}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateProductActivity(
+  public async updateProductInstanceActivity(
     id: number, prodId: number, activityId: number, @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -266,7 +266,7 @@ export class ContractController extends Controller {
   @Delete('{id}/product/{prodId}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductActivity(
+  public async deleteProductInstanceActivity(
     id: number, prodId: number, activityId: number,
   ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
@@ -283,7 +283,7 @@ export class ContractController extends Controller {
   @Post('{id}/file/generate')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async generateConractFile(
+  public async generateContractFile(
     id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
   ): Promise<any> {
     await validate([
@@ -314,7 +314,7 @@ export class ContractController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async uploadContractFile(
-    id: number, @Request() req: express.Request
+    id: number, @Request() req: express.Request,
   ): Promise<ContractFile> {
     return new FileService(ContractFile, { actor: req.user as User }).uploadFile(req, id);
   }
@@ -373,7 +373,7 @@ export class ContractController extends Controller {
   @Post('{id}/status')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addStatus(
+  public async addContractStatus(
     id: number, @Body() params: ContractStatusParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req, [
@@ -396,7 +396,7 @@ export class ContractController extends Controller {
   @Post('{id}/comment')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addComment(
+  public async addContractComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
@@ -418,7 +418,7 @@ export class ContractController extends Controller {
   @Put('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateActivity(
+  public async updateContractActivity(
     id: number, activityId: number, @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -434,7 +434,7 @@ export class ContractController extends Controller {
   @Delete('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteActivity(id: number, activityId: number): Promise<void> {
+  public async deleteContractActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(ContractActivity).deleteActivity(id, activityId);
   }
 }

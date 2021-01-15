@@ -191,7 +191,7 @@ export class ProductController extends Controller {
   @Post('{id}/comment')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addComment(
+  public async addProductComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
@@ -213,7 +213,7 @@ export class ProductController extends Controller {
   @Put('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateActivity(
+  public async updateProductActivity(
     id: number, activityId: number, @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -229,7 +229,7 @@ export class ProductController extends Controller {
   @Delete('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteActivity(id: number, activityId: number): Promise<void> {
+  public async deleteProductActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(ProductActivity).deleteActivity(id, activityId);
   }
 }

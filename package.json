@@ -15,7 +15,7 @@
     "tsoa": "tsoa routes && tsoa spec",
     "build": "npm run clean && npm run build-server && npm run build-client",
     "clean": "rimraf \"dist/\" \"tsconfig.tsbuildinfo\"",
-    "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
+    "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../crm-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
