@@ -234,7 +234,9 @@ export class ContractController extends Controller {
       entityId: prodId,
       type: ActivityType.COMMENT,
     } as FullActivityParams;
-    return new ActivityService(ProductActivity, { actor: req.user as User }).createActivity(p);
+    return new ActivityService(ProductInstanceActivity, {
+      actor: req.user as User,
+    }).createActivity(p);
   }
 
   /**
