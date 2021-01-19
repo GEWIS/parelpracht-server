@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Get, Post, Put, Query, Request, Response, Route, Security, Tags,
+  Body, Controller, Delete, Get, Post, Put, Query, Request, Response, Route, Security, Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -24,24 +24,14 @@ export class ProductCategoryController extends Controller {
 
   /**
    * Get a list of all categories with the provided filters
-   * @param col Sorted column
-   * @param dir Sorting direction
-   * @param skip Number of elements to skip
-   * @param take Amount of elements to request
-   * @param search String to filter on value of select columns
+   * @param lp List parameters to sort and filter the list
    */
-  @Get()
+  @Post('table')
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllCategories(
-    @Query() col?: string,
-      @Query() dir?: 'ASC' | 'DESC',
-      @Query() skip?: number,
-      @Query() take?: number,
-      @Query() search?: string,
+    @Body() lp: ListParams,
   ): Promise<CategoryListResponse> {
-    const lp: ListParams = { skip, take, search };
-    if (col && dir) { lp.sorting = { column: col, direction: dir }; }
     return new ProductCategoryService().getAllCategories(lp);
   }
 
@@ -96,5 +86,19 @@ export class ProductCategoryController extends Controller {
   ): Promise<ProductCategory> {
     await this.validateCategoryParams(req);
     return new ProductCategoryService().updateCategory(id, params);
+  }
+
+  /**
+   * Delete a category object
+   * @param id ID of the category
+   * @param req Express.js request object
+   */
+  @Delete('{id}')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteCategory(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductCategoryService().deleteCategory(id);
   }
 }

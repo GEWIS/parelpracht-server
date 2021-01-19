@@ -26,18 +26,18 @@ export class CompanyController extends Controller {
   private async validateCompanyParams(req: express.Request): Promise<void> {
     await validate([
       body('name').notEmpty().trim(),
-      body('description').optional().notEmpty().trim(),
+      body('description').trim(),
       body('phoneNumber').optional().isMobilePhone('any').trim(),
       body('addressStreet').notEmpty().trim(),
       body('addressPostalCode').notEmpty().trim(),
       body('addressCity').notEmpty().trim(),
       body('addressCountry').notEmpty().trim(),
-      body('invoiceAddressStreet').optional().notEmpty().trim(),
-      body('invoiceAddressPostalCode').optional().notEmpty().trim(),
-      body('invoiceAddressCity').optional().notEmpty().trim(),
-      body('invoiceAddressCountry').optional().notEmpty().trim(),
+      body('invoiceAddressStreet').trim(),
+      body('invoiceAddressPostalCode').trim(),
+      body('invoiceAddressCity').trim(),
+      body('invoiceAddressCountry').trim(),
       body('status').optional().isIn(Object.values(CompanyStatus)),
-      body('endDate').optional()
+      body('endDate').optional().isDate(),
     ], req);
   }
 
@@ -152,7 +152,7 @@ export class CompanyController extends Controller {
   @Post('{id}/comment')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addComment(
+  public async addCompanyComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
@@ -174,7 +174,7 @@ export class CompanyController extends Controller {
   @Put('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateActivity(
+  public async updateCompanyActivity(
     id: number, activityId: number, @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -189,7 +189,7 @@ export class CompanyController extends Controller {
   @Delete('{id}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteActivity(id: number, activityId: number): Promise<void> {
+  public async deleteCompanyActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
   }
 }
