@@ -85,19 +85,6 @@ export class ContractController extends Controller {
   }
 
   /**
-   * getAllContracts() - retrieve multiple contracts
-   * @param lp List parameters to sort and filter the list
-   */
-  @Post('extensive')
-  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
-  @Response<WrappedApiError>(401)
-  public async getAllContractsExtensive(
-    @Body() lp: ListParams,
-  ): Promise<any> {
-    return new ContractService().getAllContractsExtensive(lp);
-  }
-
-  /**
    * getContract() - retrieve single contract
    * @param id ID of contract to retrieve
    */

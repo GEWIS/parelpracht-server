@@ -18,24 +18,26 @@ export default class RawQueries {
     let query = '';
 
     let [companyFilter, productFilter, statusFilter, invoicedFilter] = ['', '', '', ''];
-    if (lp.filters) lp.filters?.forEach((f) => {
-      if (f.column === 'companyId') {
-        companyFilter = `AND company.id IN ${arrayToQueryArray(f.values)}`;
-      }
-      if (f.column === 'productId') {
-        productFilter = `AND p."productId" IN ${arrayToQueryArray(f.values)}`;
-      }
-      if (f.column === 'status') {
-        statusFilter = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
-      }
-      if (f.column === 'invoiced') {
-        if (f.values[0]) {
-          invoicedFilter = 'AND p."invoiceId" IS NOT NULL';
-        } else {
-          invoicedFilter = 'AND p."invoiceId" IS NULL';
+    if (lp.filters) {
+      lp.filters?.forEach((f) => {
+        if (f.column === 'companyId') {
+          companyFilter = `AND company.id IN ${arrayToQueryArray(f.values)}`;
         }
-      }
-    });
+        if (f.column === 'productId') {
+          productFilter = `AND p."productId" IN ${arrayToQueryArray(f.values)}`;
+        }
+        if (f.column === 'status') {
+          statusFilter = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
+        }
+        if (f.column === 'invoiced') {
+          if (f.values[0]) {
+            invoicedFilter = 'AND p."invoiceId" IS NOT NULL';
+          } else {
+            invoicedFilter = 'AND p."invoiceId" IS NULL';
+          }
+        }
+      });
+    }
 
     query += `
       SELECT company.id, company.name,
