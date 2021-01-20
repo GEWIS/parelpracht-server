@@ -19,6 +19,7 @@ import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
 import { validate, validateActivityParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
+import ContractService from '../services/ContractService';
 
 @Route('company')
 @Tags('Company')
@@ -63,6 +64,19 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async getCompanySummaries(): Promise<CompanySummary[]> {
     return new CompanyService().getCompanySummaries();
+  }
+
+  /**
+   * getAllCompaniesExtensive() - retrieve multiple contracts
+   * @param lp List parameters to sort and filter the list
+   */
+  @Post('extensive')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getAllContractsExtensive(
+    @Body() lp: ListParams,
+  ): Promise<any> {
+    return new ContractService().getAllContractsExtensive(lp);
   }
 
   /**
