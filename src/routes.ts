@@ -604,6 +604,7 @@ const models: TsoaRoute.Models = {
             "delivered": {"ref":"AnalysisResult","required":true},
             "invoiced": {"ref":"InvoicedAmounts","required":true},
             "paid": {"ref":"AnalysisResult","required":true},
+            "financialYears": {"dataType":"array","array":{"dataType":"double"},"required":true},
         },
         "additionalProperties": false,
     },

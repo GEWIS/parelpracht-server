@@ -1,4 +1,6 @@
+import { createQueryBuilder } from 'typeorm';
 import RawQueries, { AnalysisResult } from '../helpers/rawQueries';
+import { dateToFinancialYear } from '../helpers/timestamp';
 
 export interface DashboardProductInstanceStats {
   suggested: AnalysisResult;
@@ -6,6 +8,7 @@ export interface DashboardProductInstanceStats {
   delivered: AnalysisResult;
   invoiced: InvoicedAmounts;
   paid: AnalysisResult;
+  financialYears: number[];
 }
 
 interface InvoicedAmounts {
@@ -13,9 +16,21 @@ interface InvoicedAmounts {
   notDelivered: AnalysisResult;
 }
 
+function rangeToArray(start: number, end: number, step: number): number[] {
+  const result: number[] = [];
+  for (let i = start; i <= end; i += step) {
+    result.push(i);
+  }
+  return result;
+}
+
 export default class StatisticsService {
   async getDashboardProductInstanceStatistics(year: number):
   Promise<DashboardProductInstanceStats> {
+    console.log(year);
+
+    const firstYear: Promise<any> = createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
+
     const responses = await Promise.all([
       RawQueries.getTotalSuggestedAmountByFinancialYear(year),
       RawQueries.getTotalSignedAmountByFinancialYear(year),
@@ -23,9 +38,8 @@ export default class StatisticsService {
       RawQueries.getTotalNonDeliveredProductsInvoicedAmountByFinancialYear(year),
       RawQueries.getTotalDeliveredProductsInvoicedAmountByFinancialYear(year),
       RawQueries.getTotalInvoicesPaidAmountByFinancialYear(year),
+      firstYear,
     ]);
-
-    console.log(responses);
 
     // Because Typescript/Javascript is stupid and actually returns strings instead of integers,
     // we need to manually convert all values to integers. How fun
@@ -56,8 +70,10 @@ export default class StatisticsService {
         amount: parseInt(responses[5][0].amount.toString(), 10),
         nrOfProducts: parseInt(responses[5][0].nrOfProducts.toString(), 10),
       },
+      financialYears: rangeToArray(
+        dateToFinancialYear(responses[6].createdAt), dateToFinancialYear(new Date()), 1,
+      ),
     } as any as DashboardProductInstanceStats;
-    console.log(result);
     return result;
   }
 }
