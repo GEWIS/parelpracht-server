@@ -30,6 +30,7 @@ import {
 } from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { RecentContract } from '../helpers/rawQueries';
 
 @Route('contract')
 @Tags('Contract')
@@ -82,6 +83,16 @@ export class ContractController extends Controller {
   @Response<WrappedApiError>(401)
   public async getContractSummaries(): Promise<ContractSummary[]> {
     return new ContractService().getContractSummaries();
+  }
+
+  /**
+   * getRecentContracts() - retrieve a list of all recently edited contracts
+   */
+  @Get('recent')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getRecentContracts(): Promise<RecentContract[]> {
+    return new ContractService().getRecentContracts();
   }
 
   /**

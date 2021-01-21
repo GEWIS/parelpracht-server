@@ -14,6 +14,7 @@ import ProductInstanceService from './ProductInstanceService';
 import ActivityService, { FullActivityParams } from './ActivityService';
 import { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 
 // Not correct yet
 export interface InvoiceParams {
@@ -98,6 +99,10 @@ export default class InvoiceService {
       companyName: x.company.name,
       ...x,
     }));
+  }
+
+  async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
+    return RawQueries.getExpiredInvoices();
   }
 
   async createInvoice(params: InvoiceParams): Promise<Invoice> {

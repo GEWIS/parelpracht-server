@@ -15,7 +15,7 @@ import ContactService from './ContactService';
 import CompanyService from './CompanyService';
 import { ContactFunction } from '../entity/Contact';
 import { CompanyStatus } from '../entity/Company';
-import RawQueries from '../helpers/rawQueries';
+import RawQueries, { RecentContract } from '../helpers/rawQueries';
 
 export interface ContractParams {
   title: string;
@@ -101,6 +101,10 @@ export default class ContractService {
       list: await RawQueries.getContractWithProductsAndTheirStatuses(params, 'data'),
       count: parseInt((await RawQueries.getContractWithProductsAndTheirStatuses(params, 'count'))[0].count, 10),
     };
+  }
+
+  async getRecentContracts(): Promise<RecentContract[]> {
+    return RawQueries.getRecentContractsWithStatus(5);
   }
 
   async createContract(params: ContractParams): Promise<Contract> {

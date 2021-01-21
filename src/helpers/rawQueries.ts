@@ -1,5 +1,32 @@
 import { getManager } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
+import { ActivityType } from '../entity/activity/BaseActivity';
+import { ContractStatus } from '../entity/activity/ContractActivity';
+
+export interface RecentContract {
+  id: number,
+  title: string,
+  companyId: number,
+  assignedToId: number,
+  contactId: number,
+  createdAt: Date,
+  updatedAt: Date,
+  type: ActivityType
+  description: string,
+  createdById: number,
+  subType: ContractStatus;
+}
+
+export interface ExpiredInvoice {
+  id: number,
+  version: number,
+  startDate: Date,
+  companyId: number,
+  createdAt: Date,
+  updatedAt: Date,
+  createdById: number,
+  value: number,
+}
 
 function arrayToQueryArray(arr: string[] | number[]) {
   let result = '(';
@@ -103,14 +130,32 @@ export default class RawQueries {
     return getManager().query(query);
   };
 
-  static getContractWithRecentActivity = () => {
+  static getRecentContractsWithStatus = (limit: number): Promise<RecentContract[]> => {
     return getManager().query(`
-    SELECT c.*, a1.*
+    SELECT c.id, c.title, c."companyId", c."assignedToId", c."contactId", a1."createdAt",
+        a1."updatedAt", a1."type", a1."description", a1."createdById", a1."subType"
     FROM contract c
     JOIN contract_activity a1 ON (c.id = a1."contractId")
     LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-    WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED');
+    WHERE (a2.id IS NULL)
+    ORDER BY a1."updatedAt" desc
+    LIMIT ${limit};
+  `);
+  };
+
+  static getExpiredInvoices = (): Promise<ExpiredInvoice[]> => {
+    return getManager().query(`
+    SELECT i.id, i.version, i."startDate", i."companyId", i."createdAt", a1."updatedAt", a1."createdById", (
+      SELECT sum(p."basePrice" - p.discount)
+      FROM product_instance p
+      WHERE p."invoiceId" = i.id
+    ) as value
+    FROM invoice i
+    JOIN invoice_activity a1 ON (i.id = a1."invoiceId")
+    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND
+        (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+    WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '1' day);
   `);
   };
 }
