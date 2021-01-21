@@ -20,6 +20,7 @@ import FileHelper from '../helpers/fileHelper';
 import BaseFile from '../entity/file/BaseFile';
 import { ProductFile } from '../entity/file/ProductFile';
 import { User } from '../entity/User';
+import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
 
 @Route('product')
 @Tags('Product')
@@ -231,5 +232,17 @@ export class ProductController extends Controller {
   @Response<WrappedApiError>(401)
   public async deleteProductActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(ProductActivity).deleteActivity(id, activityId);
+  }
+
+  /**
+   * Get all the numbers needed to draw the bar chart on the dashboard
+   * @param year Financial year of the overview
+   */
+  @Get('stats/statuses/{year}')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getDashboardProductInstanceStatistics(year: number):
+  Promise<DashboardProductInstanceStats> {
+    return new StatisticsService().getDashboardProductInstanceStatistics(year);
   }
 }

@@ -28,6 +28,11 @@ export interface ExpiredInvoice {
   value: number,
 }
 
+export interface AnalysisResult {
+  amount: number,
+  nrOfProducts: number,
+}
+
 function arrayToQueryArray(arr: string[] | number[]) {
   let result = '(';
   arr.forEach((a: string | number) => {
@@ -38,6 +43,14 @@ function arrayToQueryArray(arr: string[] | number[]) {
     }
   });
   return `${result.substring(0, result.length - 2)})`;
+}
+
+function inOrBeforeYearFilter(column: string, year: number): string {
+  return `EXTRACT(YEAR FROM ${column} + interval '6' month) <= ${year}`;
+}
+
+function inYearFilter(column: string, year: number): string {
+  return `EXTRACT(YEAR FROM ${column} + interval '6' month) = ${year}`;
 }
 
 export default class RawQueries {
@@ -157,5 +170,103 @@ export default class RawQueries {
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
     WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '1' day);
   `);
+  };
+
+  static getTotalSuggestedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+      FROM product_instance p
+      JOIN contract c ON (p."contractId" = c.id)
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" IN ('CREATED', 'PROPOSED', 'SENT') )
+    `);
+  };
+
+  static getTotalSignedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+      FROM product_instance p
+      JOIN contract c ON (p."contractId" = c.id)
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'CANCELLED', 'FINISHED') AND
+          (p."invoiceId" IS NULL OR (
+            SELECT EXTRACT(YEAR FROM i."startDate" + interval '6' month)
+            FROM invoice i
+            WHERE i.id = p."invoiceId"
+          ) = ${year}))
+    `);
+  };
+
+  static getTotalDeliveredAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+      FROM product_instance p
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND ${inOrBeforeYearFilter('pa1."createdAt"', year)})
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND ${inOrBeforeYearFilter('pa2."createdAt"', year)} AND
+          (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
+      JOIN contract c ON (p."contractId" = c.id)
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'CANCELLED', 'FINISHED') AND pa1."subType" = 'DELIVERED' AND
+          (p."invoiceId" IS NULL OR (
+            SELECT EXTRACT(YEAR FROM i."startDate" + interval '6' month)
+            FROM invoice i
+            WHERE i.id = p."invoiceId"
+          ) = ${year}))
+    `);
+  };
+
+  static getTotalNonDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
+  Promise<AnalysisResult[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+      FROM product_instance p
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND ${inYearFilter('pa1."createdAt"', year)})
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND ${inYearFilter('pa2."createdAt"', year)} AND
+          (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
+      JOIN invoice i ON (p."invoiceId" = i.id)
+      JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId")
+      LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND
+          (ia1."createdAt" < ia2."createdAt" OR (ia1."createdAt" = ia2."createdAt" AND ia1.id < ia2.id)))
+      WHERE (ia2.id IS NULL AND ia1."subType" IN ('CREATED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
+          pa2.id is NULL AND pa2."subType" = 'NOTDELIVERED' AND
+          ${inYearFilter('i."startDate"', year)} )
+    `);
+  };
+
+  static getTotalDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
+  Promise<AnalysisResult[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+      FROM product_instance p
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId")
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND
+          (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
+      JOIN invoice i ON (p."invoiceId" = i.id)
+      JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId")
+      LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND
+          (ia1."createdAt" < ia2."createdAt" OR (ia1."createdAt" = ia2."createdAt" AND ia1.id < ia2.id)))
+      WHERE (ia2.id IS NULL AND ia1."subType" IN ('CREATED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
+          pa2.id is NULL AND pa2."subType" = 'DELIVERED' AND
+          ${inYearFilter('i."startDate"', year)} )
+    `);
+  };
+
+  static getTotalInvoicesPaidAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+      FROM product_instance p
+      JOIN invoice i ON (p."invoiceId" = i.id)
+      JOIN invoice_activity a1 ON (i.id = a1."invoiceId")
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" = 'PAID' AND
+          ${inYearFilter('i."startDate"', year)} )
+    `);
   };
 }

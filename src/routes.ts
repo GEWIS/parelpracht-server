@@ -578,6 +578,36 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"description":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AnalysisResult": {
+        "dataType": "refObject",
+        "properties": {
+            "amount": {"dataType":"double","required":true},
+            "nrOfProducts": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InvoicedAmounts": {
+        "dataType": "refObject",
+        "properties": {
+            "delivered": {"ref":"AnalysisResult","required":true},
+            "notDelivered": {"ref":"AnalysisResult","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "DashboardProductInstanceStats": {
+        "dataType": "refObject",
+        "properties": {
+            "suggested": {"ref":"AnalysisResult","required":true},
+            "contracted": {"ref":"AnalysisResult","required":true},
+            "delivered": {"ref":"AnalysisResult","required":true},
+            "invoiced": {"ref":"InvoicedAmounts","required":true},
+            "paid": {"ref":"AnalysisResult","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "CompanyListResponse": {
         "dataType": "refObject",
         "properties": {
@@ -1365,6 +1395,29 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProductActivity.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/product/stats/statuses/:year',
+            authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
+            function (request: any, response: any, next: any) {
+            const args = {
+                    year: {"in":"path","name":"year","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new ProductController();
+
+
+            const promise = controller.getDashboardProductInstanceStatistics.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
