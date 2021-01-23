@@ -87,6 +87,8 @@ export default class RawQueries {
       });
     }
 
+    const sorting = lp.sorting && lp.sorting.column === 'companyName' ? `order by company.name ${lp.sorting.direction}` : '';
+
     query += `
       SELECT company.id, company.name,
       (
@@ -132,7 +134,7 @@ export default class RawQueries {
            a2.type = 'STATUS')
         WHERE (a2.id IS NULL AND contract."companyId" = company.id ${productFilter} ${invoicedFilter})
       ) > 0) ${companyFilter}
-      order by company.name asc
+      ${sorting}
     `;
 
     if (result === 'count') {
