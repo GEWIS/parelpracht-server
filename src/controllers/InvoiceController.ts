@@ -13,8 +13,8 @@ import ActivityService, {
   FullActivityParams,
   InvoiceStatusParams,
 } from '../services/ActivityService';
-import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
-import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import BaseActivity from '../entity/activity/BaseActivity';
+import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductInstanceService from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
@@ -27,6 +27,8 @@ import { InvoiceFile } from '../entity/file/InvoiceFile';
 import FileHelper from '../helpers/fileHelper';
 import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
 import { Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 
 @Route('invoice')
 @Tags('Invoice')

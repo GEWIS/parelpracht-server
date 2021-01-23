@@ -10,11 +10,7 @@ import { Contract } from './Contract';
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
 import { CompanyActivity } from './activity/CompanyActivity';
-
-export enum CompanyStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-}
+import { CompanyStatus } from './enums/CompanyStatus';
 
 @Entity()
 export class Company extends BaseEnt {

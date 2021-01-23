@@ -13,13 +13,6 @@ import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
 // eslint-disable-next-line import/no-cycle
 import { ProductActivity } from './activity/ProductActivity';
 
-export enum ProductInstanceStatus {
-  NOTDELIVERED = 'NOTDELIVERED',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
-  DEFERRED = 'DEFERRED',
-}
-
 @Entity()
 export class ProductInstance extends BaseEnt {
   @Column({ type: 'integer' })
@@ -64,10 +57,6 @@ export class ProductInstance extends BaseEnt {
   /** Any comments regarding this product instance */
   @Column({ type: 'text', nullable: true, default: '' })
   comments?: string;
-
-  /** Subtype of this activity, only used when the type = "STATUS" */
-  @Column('enum', { enum: ProductInstanceStatus, nullable: true })
-  subType?: ProductInstanceStatus;
 
   public price(): number {
     return this.basePrice - this.discount;

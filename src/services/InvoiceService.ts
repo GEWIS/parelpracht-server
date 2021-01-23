@@ -12,8 +12,9 @@ import { cartesian } from '../helpers/filters';
 import ProductInstanceService from './ProductInstanceService';
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
-import { ActivityType } from '../entity/activity/BaseActivity';
-import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 
 // Not correct yet
 export interface InvoiceParams {

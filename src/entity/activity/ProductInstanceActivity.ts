@@ -4,7 +4,8 @@ import {
 // eslint-disable-next-line import/no-cycle
 import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
-import { ProductInstance, ProductInstanceStatus } from '../ProductInstance';
+import { ProductInstance } from '../ProductInstance';
+import { ProductInstanceStatus } from '../enums/ProductActivityStatus';
 
 @Entity()
 export class ProductInstanceActivity extends BaseActivity {

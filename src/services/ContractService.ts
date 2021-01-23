@@ -7,15 +7,16 @@ import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
-import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+import { ContractActivity } from '../entity/activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
-import { ActivityType } from '../entity/activity/BaseActivity';
 import ContactService from './ContactService';
 import CompanyService from './CompanyService';
-import { ContactFunction } from '../entity/Contact';
-import { CompanyStatus } from '../entity/Company';
 import RawQueries from '../helpers/rawQueries';
+import { ContactFunction } from '../entity/enums/ContactFunction';
+import { CompanyStatus } from '../entity/enums/CompanyStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { ContractStatus } from '../entity/enums/ContractStatus';
 
 export interface ContractParams {
   title: string;
