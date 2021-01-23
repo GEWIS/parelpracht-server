@@ -28,7 +28,7 @@ export class CompanyController extends Controller {
     await validate([
       body('name').notEmpty().trim(),
       body('description').trim(),
-      body('phoneNumber').optional().isMobilePhone('any').trim(),
+      body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone('any').trim(),
       body('addressStreet').notEmpty().trim(),
       body('addressPostalCode').notEmpty().trim(),
       body('addressCity').notEmpty().trim(),
@@ -38,7 +38,7 @@ export class CompanyController extends Controller {
       body('invoiceAddressCity').trim(),
       body('invoiceAddressCountry').trim(),
       body('status').optional().isIn(Object.values(CompanyStatus)),
-      body('endDate').optional().isDate(),
+      body('endDate').optional({ checkFalsy: true }).isDate(),
     ], req);
   }
 

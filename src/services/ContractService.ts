@@ -110,8 +110,10 @@ export default class ContractService {
   async createContract(params: ContractParams): Promise<Contract> {
     const contact = await new ContactService().getContact(params.contactId);
     const company = await new CompanyService().getCompany(params.companyId);
+    const assignedToId = params.assignedToId ? params.assignedToId : this.actor?.id;
     let contract = this.repo.create({
       ...params,
+      assignedToId,
       createdById: this.actor?.id,
     });
 

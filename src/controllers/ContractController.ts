@@ -47,8 +47,8 @@ export class ContractController extends Controller {
           return Promise.resolve();
         });
       }),
-      body('comments').optional().isString().trim(),
-      body('assignedToId').optional().isInt(),
+      body('comments').optional({ checkFalsy: true }).isString().trim(),
+      body('assignedToId').optional({ checkFalsy: true }).isInt(),
     ], req);
   }
 

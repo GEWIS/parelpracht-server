@@ -36,10 +36,10 @@ export class InvoiceController extends Controller {
     await validate([
       body('companyId').isInt(),
       body('productInstanceIds').isArray(),
-      body('poNumber').optional().isString().trim(),
-      body('comments').optional().isString().trim(),
-      body('startDate').optional(),
-      body('assignedToId').optional().isInt(),
+      body('poNumber').optional({ checkFalsy: true }).isString().trim(),
+      body('comments').optional({ checkFalsy: true }).isString().trim(),
+      body('startDate').optional({ checkFalsy: true }).isDate(),
+      body('assignedToId').optional({ checkFalsy: true }).isInt(),
     ], req);
   }
 

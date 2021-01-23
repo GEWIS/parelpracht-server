@@ -39,7 +39,7 @@ export class Invoice extends BaseEnt {
   @Column({ type: 'integer', nullable: true })
   assignedToId!: number;
 
-  @ManyToOne(() => User, { nullable: true })
+  @ManyToOne(() => User)
   @JoinColumn({ name: 'assignedToId' })
   assignedTo!: User;
 

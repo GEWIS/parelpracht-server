@@ -794,6 +794,7 @@ const models: TsoaRoute.Models = {
             "version": {"dataType":"double","required":true},
             "startDate": {"dataType":"datetime","required":true},
             "companyId": {"dataType":"double","required":true},
+            "assignedToId": {"dataType":"double","required":true},
             "createdAt": {"dataType":"datetime","required":true},
             "updatedAt": {"dataType":"datetime","required":true},
             "createdById": {"dataType":"double","required":true},

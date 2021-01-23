@@ -117,8 +117,10 @@ export default class InvoiceService {
       products.push(p);
     }));
 
+    const assignedToId = params.assignedToId ? params.assignedToId : this.actor?.id;
     let invoice = this.repo.create({
       ...params,
+      assignedToId,
       products,
       createdById: this.actor?.id,
     });

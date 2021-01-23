@@ -22,6 +22,7 @@ export interface ExpiredInvoice {
   version: number,
   startDate: Date,
   companyId: number,
+  assignedToId: number,
   createdAt: Date,
   updatedAt: Date,
   createdById: number,
@@ -166,7 +167,7 @@ export default class RawQueries {
 
   static getExpiredInvoices = (): Promise<ExpiredInvoice[]> => {
     return getManager().query(`
-    SELECT i.id, i.version, i."startDate", i."companyId", i."createdAt", a1."updatedAt", a1."createdById", (
+    SELECT i.id, i.version, i."startDate", i."companyId", i."assignedToId", i."createdAt", a1."updatedAt", a1."createdById", (
       SELECT sum(p."basePrice" - p.discount)
       FROM product_instance p
       WHERE p."invoiceId" = i.id
