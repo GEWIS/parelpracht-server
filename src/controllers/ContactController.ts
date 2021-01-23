@@ -4,12 +4,13 @@ import {
 } from 'tsoa';
 import { body } from 'express-validator';
 import express from 'express';
-import { Contact, ContactFunction } from '../entity/Contact';
+import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import ContactService, { ContactListResponse, ContactParams, ContactSummary } from '../services/ContactService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
-import { Gender } from '../entity/User';
+import { Gender } from '../entity/enums/Gender';
+import { ContactFunction } from '../entity/enums/ContactFunction';
 
 @Route('contact')
 @Tags('Contact')

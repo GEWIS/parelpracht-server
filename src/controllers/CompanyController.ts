@@ -4,7 +4,7 @@ import {
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
-import { Company, CompanyStatus } from '../entity/Company';
+import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
@@ -14,12 +14,14 @@ import ActivityService, {
   ActivityParams,
   FullActivityParams,
 } from '../services/ActivityService';
-import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
 import { validate, validateActivityParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
 import ContractService from '../services/ContractService';
+import { CompanyStatus } from '../entity/enums/CompanyStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
 
 @Route('company')
 @Tags('Company')

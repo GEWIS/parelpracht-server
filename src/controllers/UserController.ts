@@ -4,11 +4,12 @@ import {
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
-import { Gender, User } from '../entity/User';
+import { User } from '../entity/User';
 import { WrappedApiError } from '../helpers/error';
 import UserService, { UserListResponse, UserParams, UserSummary } from '../services/UserService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
+import { Gender } from '../entity/enums/Gender';
 
 @Route('user')
 @Tags('User')

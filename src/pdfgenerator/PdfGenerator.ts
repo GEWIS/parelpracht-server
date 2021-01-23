@@ -10,10 +10,11 @@ import {
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
-import { Gender, User } from '../entity/User';
+import { User } from '../entity/User';
 import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
+import { Gender } from '../entity/enums/Gender';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';

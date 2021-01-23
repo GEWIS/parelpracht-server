@@ -5,15 +5,7 @@ import {
 import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from '../Contract';
-
-export enum ContractStatus {
-  CREATED = 'CREATED',
-  PROPOSED = 'PROPOSED',
-  SENT = 'SENT',
-  CONFIRMED = 'CONFIRMED',
-  FINISHED = 'FINISHED',
-  CANCELLED = 'CANCELLED',
-}
+import { ContractStatus } from '../enums/ContractStatus';
 
 @Entity()
 export class ContractActivity extends BaseActivity {

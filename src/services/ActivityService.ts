@@ -1,8 +1,8 @@
 import { getRepository, Repository } from 'typeorm';
-import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
-import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
-import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import { ContractActivity } from '../entity/activity/ContractActivity';
+import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -12,7 +12,10 @@ import ProductInstanceService from './ProductInstanceService';
 // eslint-disable-next-line import/no-cycle
 import ContractService from './ContractService';
 import { Contract } from '../entity/Contract';
-import { ProductInstanceStatus } from '../entity/ProductInstance';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { ContractStatus } from '../entity/enums/ContractStatus';
+import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 
 export interface ActivityParams {
   description: string;

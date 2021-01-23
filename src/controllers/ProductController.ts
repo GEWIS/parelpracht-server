@@ -4,7 +4,7 @@ import {
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
-import { Product, ProductStatus } from '../entity/Product';
+import { Product } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams } from './ListParams';
 import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
@@ -13,13 +13,15 @@ import ActivityService, {
   ActivityParams,
   FullActivityParams,
 } from '../services/ActivityService';
-import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import BaseActivity from '../entity/activity/BaseActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import FileService, { FileParams } from '../services/FileService';
 import FileHelper from '../helpers/fileHelper';
 import BaseFile from '../entity/file/BaseFile';
 import { ProductFile } from '../entity/file/ProductFile';
 import { User } from '../entity/User';
+import { ProductStatus } from '../entity/enums/ProductStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
 import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
 
 @Route('product')

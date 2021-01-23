@@ -3,6 +3,7 @@ import {
   Entity, JoinTable, ManyToMany,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
+import { Gender } from './enums/Gender';
 // eslint-disable-next-line import/no-cycle
 import { Role } from './Role';
 // // eslint-disable-next-line import/no-cycle
@@ -15,13 +16,6 @@ import { Role } from './Role';
 // import { ProductActivity } from './activity/ProductActivity';
 // // eslint-disable-next-line import/no-cycle
 // import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
-
-export enum Gender {
-  MALE = 'MALE',
-  FEMALE = 'FEMALE',
-  OTHER = 'OTHER',
-  UNKNOWN = 'UNKNOWN',
-}
 
 @Entity()
 export class User extends BaseEnt {

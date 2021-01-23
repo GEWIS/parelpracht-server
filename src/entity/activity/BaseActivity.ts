@@ -4,11 +4,7 @@ import {
 // eslint-disable-next-line import/no-cycle
 import { User } from '../User';
 import { BaseEnt } from '../BaseEnt';
-
-export enum ActivityType {
-  STATUS = 'STATUS',
-  COMMENT = 'COMMENT',
-}
+import { ActivityType } from '../enums/ActivityType';
 
 export default abstract class BaseActivity extends BaseEnt {
   /** Type of the activity (status or comment) */

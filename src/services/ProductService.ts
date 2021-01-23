@@ -3,7 +3,8 @@ import {
   FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
-import { Product, ProductStatus } from '../entity/Product';
+import { ProductStatus } from '../entity/enums/ProductStatus';
+import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
 

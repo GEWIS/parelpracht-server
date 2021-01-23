@@ -3,8 +3,9 @@ import {
   FindConditions, FindManyOptions, getRepository, ILike, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
-import { Contact, ContactFunction } from '../entity/Contact';
-import { Gender } from '../entity/User';
+import { Contact } from '../entity/Contact';
+import { ContactFunction } from '../entity/enums/ContactFunction';
+import { Gender } from '../entity/enums/Gender';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
 

@@ -1,17 +1,20 @@
 import { getRepository, Repository } from 'typeorm';
-import { ProductInstance, ProductInstanceStatus } from '../entity/ProductInstance';
+import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
-import { ActivityType } from '../entity/activity/BaseActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
-import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
-import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import { ContractActivity } from '../entity/activity/ContractActivity';
+import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import ProductService from './ProductService';
-import { ProductStatus } from '../entity/Product';
+import { ProductStatus } from '../entity/enums/ProductStatus';
+import { ContractStatus } from '../entity/enums/ContractStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 
 export interface ProductInstanceParams {
   productId: number,
