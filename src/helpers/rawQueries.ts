@@ -1,7 +1,7 @@
 import { getManager } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
-import { ActivityType } from '../entity/activity/BaseActivity';
-import { ContractStatus } from '../entity/activity/ContractActivity';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { ContractStatus } from '../entity/enums/ContractStatus';
 
 export interface RecentContract {
   id: number,
