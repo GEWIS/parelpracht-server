@@ -15,7 +15,7 @@ import ContactService from './ContactService';
 import CompanyService from './CompanyService';
 import { ContactFunction } from '../entity/Contact';
 import { CompanyStatus } from '../entity/Company';
-import RawQueries from '../helpers/rawQueries';
+import RawQueries, { RecentContract } from '../helpers/rawQueries';
 
 export interface ContractParams {
   title: string;
@@ -103,11 +103,17 @@ export default class ContractService {
     };
   }
 
+  async getRecentContracts(): Promise<RecentContract[]> {
+    return RawQueries.getRecentContractsWithStatus(5);
+  }
+
   async createContract(params: ContractParams): Promise<Contract> {
     const contact = await new ContactService().getContact(params.contactId);
     const company = await new CompanyService().getCompany(params.companyId);
+    const assignedToId = params.assignedToId ? params.assignedToId : this.actor?.id;
     let contract = this.repo.create({
       ...params,
+      assignedToId,
       createdById: this.actor?.id,
     });
 

@@ -27,6 +27,7 @@ import { InvoiceFile } from '../entity/file/InvoiceFile';
 import FileHelper from '../helpers/fileHelper';
 import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
 import { Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { ExpiredInvoice } from '../helpers/rawQueries';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -35,10 +36,10 @@ export class InvoiceController extends Controller {
     await validate([
       body('companyId').isInt(),
       body('productInstanceIds').isArray(),
-      body('poNumber').optional().isString().trim(),
-      body('comments').optional().isString().trim(),
-      body('startDate').optional(),
-      body('assignedToId').optional().isInt(),
+      body('poNumber').optional({ checkFalsy: true }).isString().trim(),
+      body('comments').optional({ checkFalsy: true }).isString().trim(),
+      body('startDate').optional({ checkFalsy: true }).isDate(),
+      body('assignedToId').optional({ checkFalsy: true }).isInt(),
     ], req);
   }
 
@@ -64,6 +65,16 @@ export class InvoiceController extends Controller {
   @Response<WrappedApiError>(401)
   public async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
     return new InvoiceService().getInvoiceSummaries();
+  }
+
+  /**
+   * getExpiredInvoices() - retrieve a list of all expired invoices
+   */
+  @Get('expired')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
+    return new InvoiceService().getExpiredInvoices();
   }
 
   /**

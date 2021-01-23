@@ -14,6 +14,7 @@ import ProductInstanceService from './ProductInstanceService';
 import ActivityService, { FullActivityParams } from './ActivityService';
 import { ActivityType } from '../entity/activity/BaseActivity';
 import { InvoiceActivity, InvoiceStatus } from '../entity/activity/InvoiceActivity';
+import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 
 // Not correct yet
 export interface InvoiceParams {
@@ -100,6 +101,10 @@ export default class InvoiceService {
     }));
   }
 
+  async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
+    return RawQueries.getExpiredInvoices();
+  }
+
   async createInvoice(params: InvoiceParams): Promise<Invoice> {
     const products: ProductInstance[] = [];
     // Convert productInstanceIds to an array of objects
@@ -112,8 +117,10 @@ export default class InvoiceService {
       products.push(p);
     }));
 
+    const assignedToId = params.assignedToId ? params.assignedToId : this.actor?.id;
     let invoice = this.repo.create({
       ...params,
+      assignedToId,
       products,
       createdById: this.actor?.id,
     });
