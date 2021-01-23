@@ -18,6 +18,10 @@ export class Invoice extends BaseEnt {
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.invoice)
   products!: ProductInstance[];
 
+  /** Name of the invoice (by default the same as the first contract) */
+  @Column({ default: '' })
+  title!: string;
+
   /** PO number on the invoice, if needed */
   @Column({ default: '' })
   poNumber?: string;

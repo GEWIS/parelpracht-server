@@ -20,6 +20,7 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 // Not correct yet
 export interface InvoiceParams {
   companyId: number;
+  title: string;
   productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
@@ -29,7 +30,8 @@ export interface InvoiceParams {
 
 export interface InvoiceSummary {
   id: number;
-  companyName: string;
+  title: string;
+  status: InvoiceStatus;
 }
 
 export interface InvoiceListResponse {
@@ -92,14 +94,13 @@ export default class InvoiceService {
   }
 
   async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
-    const invoices = await this.repo.find({
-      select: ['id'],
-      relations: ['company'],
-    });
-    return invoices.map((x) => ({
-      companyName: x.company.name,
-      ...x,
-    }));
+    // TODO: do not return statusDate in the output objects
+    return getRepository(InvoiceActivity).createQueryBuilder('a')
+      .select(['max(i.id) as id', 'max(i.title) as title', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
+      .innerJoin('a.invoice', 'i', 'a.invoiceId = i.id')
+      .groupBy('a.invoiceId')
+      .where("a.type = 'STATUS'")
+      .getRawMany<InvoiceSummary>();
   }
 
   async getExpiredInvoices(): Promise<ExpiredInvoice[]> {

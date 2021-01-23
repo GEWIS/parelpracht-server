@@ -37,6 +37,7 @@ export class InvoiceController extends Controller {
   private async validateInvoiceParams(req: express.Request) {
     await validate([
       body('companyId').isInt(),
+      body('title').isString().trim(),
       body('productInstanceIds').isArray(),
       body('poNumber').optional({ checkFalsy: true }).isString().trim(),
       body('comments').optional({ checkFalsy: true }).isString().trim(),
