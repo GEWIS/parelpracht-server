@@ -33,6 +33,13 @@ export interface AnalysisResult {
   nrOfProducts: number,
 }
 
+export interface ProductsPerCategoryPerMonth {
+  categoryId: number,
+  month: number,
+  amount: number,
+  nrOfProducts: number,
+}
+
 function arrayToQueryArray(arr: string[] | number[]) {
   let result = '(';
   arr.forEach((a: string | number) => {
@@ -170,6 +177,22 @@ export default class RawQueries {
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
     WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '1' day);
   `);
+  };
+
+  static getProductsContractedPerMonthByFinancialYear = (year: number):
+  Promise<ProductsPerCategoryPerMonth[]> => {
+    return getManager().query(`
+      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as month, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+      FROM product_instance pi
+      JOIN product p ON (p.id = pi."productId")
+      JOIN contract c ON (c.id = pi."contractId")
+      JOIN contract_activity a1 ON (c.id = a1."contractId")
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED' AND ${inYearFilter('a1."createdAt"', year)})
+      GROUP BY p."categoryId", month
+      ORDER BY month, p."categoryId";
+    `);
   };
 
   static getTotalSuggestedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {

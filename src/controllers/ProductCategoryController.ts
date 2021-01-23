@@ -12,6 +12,7 @@ import { ListParams } from './ListParams';
 import { WrappedApiError } from '../helpers/error';
 import { ProductCategory } from '../entity/ProductCategory';
 import { validate } from '../helpers/validation';
+import StatisticsService, { ContractedProductsPerMonth } from '../services/StatisticsService';
 
 @Route('category')
 @Tags('Product Category')
@@ -100,5 +101,17 @@ export class ProductCategoryController extends Controller {
     id: number, @Request() req: express.Request,
   ): Promise<void> {
     return new ProductCategoryService().deleteCategory(id);
+  }
+
+  /**
+   * Get all the numbers needed to draw the bar chart on the dashboard
+   * @param year Financial year of the overview
+   */
+  @Get('stats/contracted/{year}')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getContractedProductsStatistics(year: number):
+  Promise<ContractedProductsPerMonth> {
+    return new StatisticsService().getProductContractedPerMonth(year);
   }
 }
