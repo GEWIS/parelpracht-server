@@ -9,13 +9,13 @@ import ContractService, {
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
-import { ProductInstance, ProductInstanceStatus } from '../entity/ProductInstance';
+import { ProductInstance } from '../entity/ProductInstance';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams, FullActivityParams, ContractStatusParams, ProductInstanceStatusParams,
 } from '../services/ActivityService';
-import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
-import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+import BaseActivity from '../entity/activity/BaseActivity';
+import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
@@ -30,6 +30,10 @@ import {
 } from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
+import { ContractStatus } from '../entity/enums/ContractStatus';
+import { RecentContract } from '../helpers/rawQueries';
 
 @Route('contract')
 @Tags('Contract')
@@ -46,8 +50,8 @@ export class ContractController extends Controller {
           return Promise.resolve();
         });
       }),
-      body('comments').optional().isString().trim(),
-      body('assignedToId').optional().isInt(),
+      body('comments').optional({ checkFalsy: true }).isString().trim(),
+      body('assignedToId').optional({ checkFalsy: true }).isInt(),
     ], req);
   }
 
@@ -82,6 +86,16 @@ export class ContractController extends Controller {
   @Response<WrappedApiError>(401)
   public async getContractSummaries(): Promise<ContractSummary[]> {
     return new ContractService().getContractSummaries();
+  }
+
+  /**
+   * getRecentContracts() - retrieve a list of all recently edited contracts
+   */
+  @Get('recent')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getRecentContracts(): Promise<RecentContract[]> {
+    return new ContractService().getRecentContracts();
   }
 
   /**

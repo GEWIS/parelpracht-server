@@ -13,13 +13,6 @@ import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
 // eslint-disable-next-line import/no-cycle
 import { ProductActivity } from './activity/ProductActivity';
 
-export enum ProductInstanceStatus {
-  NOTDELIVERED = 'NOTDELIVERED',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
-  DEFERRED = 'DEFERRED',
-}
-
 @Entity()
 export class ProductInstance extends BaseEnt {
   @Column({ type: 'integer' })

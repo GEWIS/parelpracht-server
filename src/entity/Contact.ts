@@ -7,15 +7,8 @@ import { BaseEnt } from './BaseEnt';
 import { Company } from './Company';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
-// eslint-disable-next-line import/no-cycle
-import { Gender } from './User';
-
-export enum ContactFunction {
-  NORMAL = 'NORMAL',
-  PRIMARY = 'PRIMARY',
-  FINANCIAL = 'FINANCIAL',
-  OLD = 'OLD',
-}
+import { ContactFunction } from './enums/ContactFunction';
+import { Gender } from './enums/Gender';
 
 @Entity()
 export class Contact extends BaseEnt {

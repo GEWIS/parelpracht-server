@@ -3,10 +3,11 @@ import {
 } from 'typeorm';
 import _ from 'lodash';
 import { ListParams } from '../controllers/ListParams';
-import { Company, CompanyStatus } from '../entity/Company';
+import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
+import { CompanyStatus } from '../entity/enums/CompanyStatus';
 
 // May not be correct yet
 export interface CompanyParams {

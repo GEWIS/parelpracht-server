@@ -10,11 +10,7 @@ import { ProductActivity } from './activity/ProductActivity';
 import { ProductFile } from './file/ProductFile';
 // eslint-disable-next-line import/no-cycle
 import { ProductCategory } from './ProductCategory';
-
-export enum ProductStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-}
+import { ProductStatus } from './enums/ProductStatus';
 
 @Entity()
 export class Product extends BaseEnt {

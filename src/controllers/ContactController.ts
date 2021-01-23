@@ -4,12 +4,13 @@ import {
 } from 'tsoa';
 import { body } from 'express-validator';
 import express from 'express';
-import { Contact, ContactFunction } from '../entity/Contact';
+import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import ContactService, { ContactListResponse, ContactParams, ContactSummary } from '../services/ContactService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
-import { Gender } from '../entity/User';
+import { Gender } from '../entity/enums/Gender';
+import { ContactFunction } from '../entity/enums/ContactFunction';
 
 @Route('contact')
 @Tags('Contact')
@@ -18,11 +19,11 @@ export class ContactController extends Controller {
     await validate([
       body('gender').isIn(Object.values(Gender)),
       body('firstName').notEmpty().trim(),
-      body('lastNamePreposition').optional().isString().trim(),
+      body('lastNamePreposition').optional({ checkFalsy: true }).isString().trim(),
       body('lastName').notEmpty().trim(),
       body('email').isEmail().normalizeEmail(),
-      body('telephone').optional().isMobilePhone('any'),
-      body('comments').optional().isString().trim(),
+      body('telephone').optional({ checkFalsy: true }).isMobilePhone('any'),
+      body('comments').optional({ checkFalsy: true }).isString().trim(),
       body('companyId').isInt(),
       body('function').isIn(Object.values(ContactFunction)),
     ], req);

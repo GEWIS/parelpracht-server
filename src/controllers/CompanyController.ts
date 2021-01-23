@@ -4,7 +4,7 @@ import {
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
-import { Company, CompanyStatus } from '../entity/Company';
+import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
@@ -14,11 +14,14 @@ import ActivityService, {
   ActivityParams,
   FullActivityParams,
 } from '../services/ActivityService';
-import BaseActivity, { ActivityType } from '../entity/activity/BaseActivity';
+import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
 import { validate, validateActivityParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
+import ContractService from '../services/ContractService';
+import { CompanyStatus } from '../entity/enums/CompanyStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
 
 @Route('company')
 @Tags('Company')
@@ -27,7 +30,7 @@ export class CompanyController extends Controller {
     await validate([
       body('name').notEmpty().trim(),
       body('description').trim(),
-      body('phoneNumber').optional().isMobilePhone('any').trim(),
+      body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone('any').trim(),
       body('addressStreet').notEmpty().trim(),
       body('addressPostalCode').notEmpty().trim(),
       body('addressCity').notEmpty().trim(),
@@ -37,7 +40,7 @@ export class CompanyController extends Controller {
       body('invoiceAddressCity').trim(),
       body('invoiceAddressCountry').trim(),
       body('status').optional().isIn(Object.values(CompanyStatus)),
-      body('endDate').optional().isDate(),
+      body('endDate').optional({ checkFalsy: true }).isDate(),
     ], req);
   }
 
@@ -63,6 +66,19 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async getCompanySummaries(): Promise<CompanySummary[]> {
     return new CompanyService().getCompanySummaries();
+  }
+
+  /**
+   * getAllCompaniesExtensive() - retrieve multiple contracts
+   * @param lp List parameters to sort and filter the list
+   */
+  @Post('extensive')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getAllContractsExtensive(
+    @Body() lp: ListParams,
+  ): Promise<any> {
+    return new ContractService().getAllContractsExtensive(lp);
   }
 
   /**

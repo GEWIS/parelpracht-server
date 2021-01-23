@@ -7,14 +7,16 @@ import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian } from '../helpers/filters';
-import { ContractActivity, ContractStatus } from '../entity/activity/ContractActivity';
+import { ContractActivity } from '../entity/activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
-import { ActivityType } from '../entity/activity/BaseActivity';
 import ContactService from './ContactService';
 import CompanyService from './CompanyService';
-import { ContactFunction } from '../entity/Contact';
-import { CompanyStatus } from '../entity/Company';
+import { ContactFunction } from '../entity/enums/ContactFunction';
+import { CompanyStatus } from '../entity/enums/CompanyStatus';
+import { ActivityType } from '../entity/enums/ActivityType';
+import RawQueries, { RecentContract } from '../helpers/rawQueries';
+import { ContractStatus } from '../entity/enums/ContractStatus';
 
 export interface ContractParams {
   title: string;
@@ -27,6 +29,7 @@ export interface ContractParams {
 export interface ContractSummary {
   id: number;
   title: string;
+  status: ContractStatus;
 }
 
 export interface ContractListResponse {
@@ -92,14 +95,33 @@ export default class ContractService {
   }
 
   async getContractSummaries(): Promise<ContractSummary[]> {
-    return this.repo.find({ select: ['id', 'title'] });
+    // TODO: do not return statusDate in the output objects
+    return getRepository(ContractActivity).createQueryBuilder('a')
+      .select(['max(c.id) as id', 'max(c.title) as title', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
+      .innerJoin('a.contract', 'c', 'a.contractId = c.id')
+      .groupBy('a.contractId')
+      .where("a.type = 'STATUS'")
+      .getRawMany<ContractSummary>();
+  }
+
+  async getAllContractsExtensive(params: ListParams): Promise<any> {
+    return {
+      list: await RawQueries.getContractWithProductsAndTheirStatuses(params, 'data'),
+      count: parseInt((await RawQueries.getContractWithProductsAndTheirStatuses(params, 'count'))[0].count, 10),
+    };
+  }
+
+  async getRecentContracts(): Promise<RecentContract[]> {
+    return RawQueries.getRecentContractsWithStatus(5);
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
     const contact = await new ContactService().getContact(params.contactId);
     const company = await new CompanyService().getCompany(params.companyId);
+    const assignedToId = params.assignedToId ? params.assignedToId : this.actor?.id;
     let contract = this.repo.create({
       ...params,
+      assignedToId,
       createdById: this.actor?.id,
     });
 
