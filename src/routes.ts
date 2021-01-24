@@ -741,11 +741,6 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"basePrice":{"dataType":"double"},"discount":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "ProductInstanceStatus": {
-        "dataType": "refEnum",
-        "enums": ["NOTDELIVERED","DELIVERED","CANCELLED","DEFERRED"],
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductInstanceStatusParams": {
         "dataType": "refObject",
         "properties": {
@@ -887,6 +882,7 @@ const models: TsoaRoute.Models = {
             "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "companyName": {"dataType":"string","required":true},
+            "companyId": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
