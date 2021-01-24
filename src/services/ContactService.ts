@@ -28,6 +28,7 @@ export interface ContactSummary {
   lastNamePreposition: string;
   lastName: string;
   companyName: string;
+  companyId: number;
 }
 
 export interface ContactListResponse {
@@ -91,7 +92,7 @@ export default class ContactService {
 
   async getContactSummaries(): Promise<ContactSummary[]> {
     const contacts = await this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'companyId'],
       relations: ['company'],
     });
     return contacts.map((x) => ({
