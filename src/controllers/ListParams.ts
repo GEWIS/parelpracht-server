@@ -1,7 +1,10 @@
-export interface ListParams {
-  sorting?: ListSorting
+export interface PaginationParams {
   skip?: number;
   take?: number;
+}
+
+export interface ListParams extends PaginationParams {
+  sorting?: ListSorting
   search?: string;
   filters?: ListOrFilter[];
 }

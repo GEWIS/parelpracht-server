@@ -1,4 +1,4 @@
-import { getRepository, Repository } from 'typeorm';
+import { FindManyOptions, getRepository, IsNull, Not, Repository } from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
@@ -15,12 +15,18 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import { ContractListResponse } from './ContractService';
 
 export interface ProductInstanceParams {
   productId: number,
   basePrice: number,
   discount?: number,
   comments?: string;
+}
+
+export interface ProductInstanceListResponse {
+  list: ProductInstance[],
+  count: number,
 }
 
 export default class ProductInstanceService {
@@ -90,6 +96,45 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.NotFound, 'ProductInstance not found');
     }
     return product;
+  }
+
+  async getProductContracts(id: number, skip?: number, take?: number):
+  Promise<ProductInstanceListResponse> {
+    const findOptions: FindManyOptions<ProductInstance> = {
+      relations: ['contract'],
+      where: {
+        productId: id,
+      },
+    };
+
+    return {
+      list: await this.repo.find({
+        ...findOptions,
+        take,
+        skip,
+      }),
+      count: await this.repo.count(findOptions),
+    };
+  }
+
+  async getProductInvoices(id: number, skip?: number, take?: number):
+  Promise<ProductInstanceListResponse> {
+    const findOptions: FindManyOptions<ProductInstance> = {
+      relations: ['invoice'],
+      where: {
+        productId: id,
+        invoiceId: Not(IsNull()),
+      },
+    };
+
+    return {
+      list: await this.repo.find({
+        ...findOptions,
+        take,
+        skip,
+      }),
+      count: await this.repo.count(findOptions),
+    };
   }
 
   async updateProduct(

@@ -6,7 +6,7 @@ import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
-import { ListParams } from './ListParams';
+import { ListParams, PaginationParams } from './ListParams';
 import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
@@ -23,6 +23,7 @@ import { User } from '../entity/User';
 import { ProductStatus } from '../entity/enums/ProductStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
+import ProductInstanceService, { ProductInstanceListResponse } from '../services/ProductInstanceService';
 
 @Route('product')
 @Tags('Product')
@@ -124,6 +125,34 @@ export class ProductController extends Controller {
     id: number, @Request() req: express.Request,
   ): Promise<void> {
     return new ProductService().deleteProduct(id);
+  }
+
+  /**
+   * Return a list of product instances with their contracts
+   * @param id Product id
+   * @param params Skip and take to allow for pagination
+   */
+  @Post('{id}/contracts')
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getProductContracts(
+    id: number, @Body() params: PaginationParams,
+  ): Promise<ProductInstanceListResponse> {
+    return new ProductInstanceService().getProductContracts(id, params.skip, params.take);
+  }
+
+  /**
+   * Return a list of product instances with their invoices
+   * @param id Product id
+   * @param params Skip and take to allow for pagination
+   */
+  @Post('{id}/invoices')
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async getProductInvoices(
+    id: number, @Body() params: PaginationParams,
+  ): Promise<ProductInstanceListResponse> {
+    return new ProductInstanceService().getProductInvoices(id, params.skip, params.take);
   }
 
   /**
