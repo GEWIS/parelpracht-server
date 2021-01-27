@@ -121,7 +121,7 @@ export default class FileService {
     }
 
     file.location = await new PdfGenerator().generateContract(contract, p);
-    file.downloadName = `C${file.contractId} ${file.name}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `C${file.contractId} ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {
@@ -149,7 +149,7 @@ export default class FileService {
     }
 
     file.location = await new PdfGenerator().generateInvoice(invoice, p);
-    file.downloadName = `F${file.invoiceId} ${file.name}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `F${file.invoiceId} ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {
