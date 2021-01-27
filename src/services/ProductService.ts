@@ -1,12 +1,11 @@
-import _ from 'lodash';
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ProductStatus } from '../entity/enums/ProductStatus';
 import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian } from '../helpers/filters';
+import { cartesian, cartesianArrays } from '../helpers/filters';
 
 export interface ProductParams {
   nameDutch: string;
@@ -59,19 +58,28 @@ export default class ProductService {
     let conditions: FindConditions<Product>[] = [];
 
     if (params.filters !== undefined) {
-      // For each filter value, an OR clause is created
-      const filters = params.filters.map((f) => f.values.map((v) => ({
-        [f.column]: v,
-      })));
-      // Add the clauses to the where object
-      conditions = conditions.concat(_.flatten(filters));
+      const filters: FindConditions<Product> = {};
+      params.filters.forEach((f) => {
+        // @ts-ignore
+        filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
+      });
+      conditions.push(filters);
     }
 
     if (params.search !== undefined && params.search.trim() !== '') {
-      conditions = cartesian(conditions, [
-        { nameDutch: ILike(`%${params.search.trim()}%`) },
-        { nameEnglish: ILike(`%${params.search.trim()}%`) },
-      ]);
+      const rawSearches: FindConditions<Product>[][] = [];
+      params.search.trim().split(' ').forEach((searchTerm) => {
+        rawSearches.push([
+          { nameDutch: ILike(`%${searchTerm}%`) },
+          { nameEnglish: ILike(`%${searchTerm}%`) },
+        ]);
+      });
+      const searches = cartesianArrays(rawSearches);
+      if (conditions.length > 0) {
+        conditions = cartesian(conditions, searches);
+      } else {
+        conditions = searches;
+      }
     }
     findOptions.where = conditions;
 

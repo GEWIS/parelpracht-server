@@ -2,6 +2,7 @@ import { getManager } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
+import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 
 export interface RecentContract {
   id: number,
@@ -175,13 +176,54 @@ export default class RawQueries {
       WHERE p."invoiceId" = i.id
     ) as value
     FROM invoice i
-    JOIN invoice_activity a1 ON (i.id = a1."invoiceId")
-    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND
+    JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a1.type = 'STATUS' AND
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
     WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '1' day);
   `);
   };
 
+  static async getContractIdsByStatus(statuses: ContractStatus[]): Promise<number[]> {
+    if (statuses.length === 0) return [];
+
+    let whereClause = `a1."subType" = '${statuses[0]}'`;
+    for (let i = 1; i < statuses.length; i++) {
+      whereClause += ` OR a1."subType" = '${statuses[i]}'`;
+    }
+
+    return getManager().query(`
+    SELECT c.id
+    FROM contract c
+    JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
+    LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
+        (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+    WHERE (a2.id IS NULL AND (${whereClause}))
+    `);
+  }
+
+  static async getInvoiceIdsByStatus(statuses: InvoiceStatus[]): Promise<number[]> {
+    if (statuses.length === 0) return [];
+
+    let whereClause = `a1."subType" = '${statuses[0]}'`;
+    for (let i = 1; i < statuses.length; i++) {
+      whereClause += ` OR a1."subType" = '${statuses[i]}'`;
+    }
+
+    return getManager().query(`
+    SELECT i.id
+    FROM invoice i
+    JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+        (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+    WHERE (a2.id IS NULL AND (${whereClause}))
+    `);
+  }
+
+  /** *********************
+   *
+   *   Statistical queries
+   *
+   ************************ */
   static getProductsContractedPerMonthByFinancialYear = (year: number):
   Promise<ProductsPerCategoryPerMonth[]> => {
     return getManager().query(`

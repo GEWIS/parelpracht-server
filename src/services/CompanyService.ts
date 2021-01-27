@@ -1,12 +1,11 @@
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
-import _ from 'lodash';
 import { ListParams } from '../controllers/ListParams';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian } from '../helpers/filters';
+import { cartesian, cartesianArrays } from '../helpers/filters';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 
 // May not be correct yet
@@ -62,19 +61,29 @@ export default class CompanyService {
     let conditions: FindConditions<Company>[] = [];
 
     if (params.filters !== undefined) {
-      // For each filter value, an OR clause is created
-      const filters = params.filters.map((f) => f.values.map((v) => ({
-        [f.column]: v,
-      })));
-      // Add the clauses to the where object
-      conditions = conditions.concat(_.flatten(filters));
+      const filters: FindConditions<Company> = {};
+      params.filters.forEach((f) => {
+        // @ts-ignore
+        filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
+      });
+      conditions.push(filters);
     }
 
     if (params.search !== undefined && params.search.trim() !== '') {
-      conditions = cartesian(conditions, [
-        { name: ILike(`%${params.search!.trim()}%`) },
-      ]);
+      const rawSearches: FindConditions<Company>[][] = [];
+      params.search.trim().split(' ').forEach((searchTerm) => {
+        rawSearches.push([
+          { name: ILike(`%${searchTerm}%`) },
+        ]);
+      });
+      const searches = cartesianArrays(rawSearches);
+      if (conditions.length > 0) {
+        conditions = cartesian(conditions, searches);
+      } else {
+        conditions = searches;
+      }
     }
+
     findOptions.where = conditions;
 
     return {

@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian } from '../helpers/filters';
+import { cartesian, cartesianArrays } from '../helpers/filters';
 // eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
 // eslint-disable-next-line import/no-cycle
@@ -68,19 +68,42 @@ export default class InvoiceService {
     let conditions: FindConditions<Invoice>[] = [];
 
     if (params.filters !== undefined) {
-      // For each filter value, an OR clause is created
-      const filters = params.filters.map((f) => f.values.map((v) => ({
-        [f.column]: v,
-      })));
-      // Add the clauses to the where object
-      conditions = conditions.concat(_.flatten(filters));
+      const filters: FindConditions<Invoice> = {};
+      let statusFilterValues: any[] = [];
+
+      params.filters.forEach((f) => {
+        if (f.column === 'activityStatus') {
+          statusFilterValues = f.values;
+        } else {
+          // @ts-ignore
+          filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
+        }
+      });
+
+      if (statusFilterValues.length > 0) {
+        const ids = await RawQueries.getInvoiceIdsByStatus(statusFilterValues);
+        // @ts-ignore
+        filters.id = In(ids.map((o) => o.id));
+      }
+
+      conditions.push(filters);
     }
 
     if (params.search !== undefined && params.search.trim() !== '') {
-      conditions = cartesian(conditions, [
-        { poNumber: ILike(`%${params.search.trim()}%`) },
-      ]);
+      const rawSearches: FindConditions<Invoice>[][] = [];
+      params.search.trim().split(' ').forEach((searchTerm) => {
+        rawSearches.push([
+          { title: ILike(`%${searchTerm}%`) },
+        ]);
+      });
+      const searches = cartesianArrays(rawSearches);
+      if (conditions.length > 0) {
+        conditions = cartesian(conditions, searches);
+      } else {
+        conditions = searches;
+      }
     }
+
     findOptions.where = conditions;
 
     return {
