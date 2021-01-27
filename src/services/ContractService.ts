@@ -1,12 +1,10 @@
-import _ from 'lodash';
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian } from '../helpers/filters';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 // eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
@@ -17,6 +15,7 @@ import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
+import { cartesian, cartesianArrays } from '../helpers/filters';
 
 export interface ContractParams {
   title: string;
@@ -51,7 +50,7 @@ export default class ContractService {
   async getContract(id: number, relations: string[] = []): Promise<Contract> {
     const contract = await this.repo.findOne(id, {
       relations: ['contact', 'company', 'products', 'activities', 'products.activities', 'products.invoice', 'files', 'files.createdBy'].concat(relations),
-    }); // May need more relations
+    });
     if (contract === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Contract not found');
     }
@@ -69,19 +68,42 @@ export default class ContractService {
     let conditions: FindConditions<Contract>[] = [];
 
     if (params.filters !== undefined) {
-      // For each filter value, an OR clause is created
-      const filters = params.filters.map((f) => f.values.map((v) => ({
-        [f.column]: v,
-      })));
-      // Add the clauses to the where object
-      conditions = conditions.concat(_.flatten(filters));
+      const filters: FindConditions<Contract> = {};
+      let statusFilterValues: any[] = [];
+
+      params.filters.forEach((f) => {
+        if (f.column === 'activityStatus') {
+          statusFilterValues = f.values;
+        } else {
+          // @ts-ignore
+          filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
+        }
+      });
+
+      if (statusFilterValues.length > 0) {
+        const ids = await RawQueries.getContractIdsByStatus(statusFilterValues);
+        // @ts-ignore
+        filters.id = In(ids.map((o) => o.id));
+      }
+
+      conditions.push(filters);
     }
 
     if (params.search !== undefined && params.search.trim() !== '') {
-      conditions = cartesian(conditions, [
-        { title: ILike(`%${params.search.trim()}%`) },
-      ]);
+      const rawSearches: FindConditions<Contract>[][] = [];
+      params.search.trim().split(' ').forEach((searchTerm) => {
+        rawSearches.push([
+          { title: ILike(`%${searchTerm}%`) },
+        ]);
+      });
+      const searches = cartesianArrays(rawSearches);
+      if (conditions.length > 0) {
+        conditions = cartesian(conditions, searches);
+      } else {
+        conditions = searches;
+      }
     }
+
     findOptions.where = conditions;
 
     return {
