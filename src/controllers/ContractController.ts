@@ -270,7 +270,7 @@ export class ContractController extends Controller {
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
-    return new ActivityService(ProductActivity).updateActivity(prodId, activityId, params);
+    return new ActivityService(ProductInstanceActivity).updateActivity(prodId, activityId, params);
   }
 
   /**
@@ -286,7 +286,7 @@ export class ContractController extends Controller {
     id: number, prodId: number, activityId: number,
   ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
-    return new ActivityService(ProductActivity).deleteActivity(prodId, activityId);
+    return new ActivityService(ProductInstanceActivity).deleteActivity(prodId, activityId);
   }
 
   /**
