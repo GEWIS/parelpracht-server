@@ -31,6 +31,7 @@ export interface InvoiceParams {
 export interface InvoiceSummary {
   id: number;
   title: string;
+  companyId: number;
   status: InvoiceStatus;
 }
 
@@ -119,7 +120,7 @@ export default class InvoiceService {
   async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
     // TODO: do not return statusDate in the output objects
     return getRepository(InvoiceActivity).createQueryBuilder('a')
-      .select(['max(i.id) as id', 'max(i.title) as title', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
+      .select(['max(i.id) as id', 'max(i.title) as title', 'max(i.companyId) as "companyId"', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
       .innerJoin('a.invoice', 'i', 'a.invoiceId = i.id')
       .groupBy('a.invoiceId')
       .where("a.type = 'STATUS'")
