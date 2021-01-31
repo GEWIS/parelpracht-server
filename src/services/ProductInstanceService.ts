@@ -148,13 +148,13 @@ export default class ProductInstanceService {
   }
 
   async deleteProduct(contractId: number, productInstanceId: number): Promise<void> {
-    let productInstance = await this.repo.findOne(productInstanceId);
+    let productInstance = await this.getProduct(productInstanceId, ['activities']);
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
 
     if (productInstance.activities.filter((a) => a.type === ActivityType.STATUS).length > 1) {
       throw new ApiError(HTTPStatus.BadRequest, 'Product instance has a different status than CREATED');
     }
-    if (productInstance.invoiceId !== undefined) {
+    if (productInstance.invoiceId !== null) {
       throw new ApiError(HTTPStatus.BadRequest, 'Product instance is already invoiced');
     }
 
@@ -184,11 +184,11 @@ export default class ProductInstanceService {
   }
 
   async deleteInvoiceProduct(invoiceId: number, productId: number): Promise<void> {
-    const product = await this.getProduct(productId);
-    if (product.invoiceId !== invoiceId || product.invoice?.id !== invoiceId) {
-      throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belongs to this invoice');
+    const instance = await this.getProduct(productId);
+    if (instance.invoiceId !== invoiceId) {
+      throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
-    await this.repo.delete(product.id);
+    await this.repo.delete(instance.id);
   }
 }
