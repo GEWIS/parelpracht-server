@@ -87,6 +87,23 @@ export default class ActivityService {
   }
 
   /**
+   * Get the current status-enum belong to the given entity
+   */
+  async getCurrentStatus(entity: object): Promise<any> {
+    // @ts-ignore
+    let activities = await this.repo.find({
+      where: {
+        ...entity,
+        type: ActivityType.STATUS,
+      },
+    });
+
+    activities = activities.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    // @ts-ignore
+    return activities[0].subType;
+  }
+
+  /**
    * Get an array of Status-enums belonging to the given entity
    * @param entity Object containing the Many-To-One column to search on, e.g. { contractId: 1 }
    */
@@ -111,15 +128,15 @@ export default class ActivityService {
 
     await Promise.all(contract.products.map(async (p) => {
       // Get all statuses of this product instance
-      const statuses = <Array<ProductInstanceStatus>>
+      const status = <ProductInstanceStatus>
         (await new ActivityService(ProductInstanceActivity)
-          .getStatuses({ productInstanceId: p.id }));
+          .getCurrentStatus({ productInstanceId: p.id }));
       // If the statuses include delivered, the contract cannot be cancelled anymore
-      if (statuses.includes(ProductInstanceStatus.DELIVERED)) {
+      if (status === ProductInstanceStatus.DELIVERED) {
         cancelled = false;
         // If the statuses include not delivered or deferred, the contract cannot be finished
-      } else if (statuses.includes(ProductInstanceStatus.NOTDELIVERED)
-        || statuses.includes(ProductInstanceStatus.DEFERRED)
+      } else if (status === ProductInstanceStatus.NOTDELIVERED
+        || status === ProductInstanceStatus.DEFERRED
       ) {
         cancelled = false;
         finished = false;
