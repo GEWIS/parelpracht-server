@@ -29,7 +29,7 @@ export class CompanyController extends Controller {
   private async validateCompanyParams(req: express.Request): Promise<void> {
     await validate([
       body('name').notEmpty().trim(),
-      body('description').trim(),
+      body('comments').trim(),
       body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone('any').trim(),
       body('addressStreet').notEmpty().trim(),
       body('addressPostalCode').notEmpty().trim(),
