@@ -184,11 +184,11 @@ export default class ProductInstanceService {
   }
 
   async deleteInvoiceProduct(invoiceId: number, productId: number): Promise<void> {
-    const product = await this.getProduct(productId);
-    if (product.invoiceId !== invoiceId || product.invoice?.id !== invoiceId) {
-      throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belongs to this invoice');
+    const instance = await this.getProduct(productId);
+    if (instance.invoiceId !== invoiceId) {
+      throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
-    await this.repo.delete(product.id);
+    await this.repo.delete(instance.id);
   }
 }
