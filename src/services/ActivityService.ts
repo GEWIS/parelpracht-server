@@ -327,6 +327,20 @@ export default class ActivityService {
   async deleteActivity(entityId: number, activityId: number): Promise<void> {
     let activity = await this.repo.findOne(activityId);
     activity = this.validateActivity(activity, entityId);
+
+    if (activity === undefined) {
+      return;
+    }
+    // @ts-ignore
+    if (activity.type === ActivityType.STATUS && activity.subType !== ContractStatus.CREATED
+      // @ts-ignore
+      && activity.subType !== InvoiceStatus.CREATED
+      // @ts-ignore
+      && activity.subType !== ProductInstanceStatus.NOTDELIVERED
+    ) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete the initial (created) status of an entity');
+    }
+
     await this.repo.delete(activity!.id);
   }
 }
