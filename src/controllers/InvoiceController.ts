@@ -3,10 +3,15 @@ import {
   Controller, Post, Route, Put, Tags, Get, Security, Response, Delete, Request,
 } from 'tsoa';
 import express from 'express';
-import { body } from 'express-validator';
+import { body, ValidationChain } from 'express-validator';
 import { Invoice } from '../entity/Invoice';
 import { WrappedApiError } from '../helpers/error';
-import InvoiceService, { InvoiceListResponse, InvoiceParams, InvoiceSummary } from '../services/InvoiceService';
+import InvoiceService, {
+  InvoiceCreateParams,
+  InvoiceListResponse,
+  InvoiceParams,
+  InvoiceSummary,
+} from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 import ActivityService, {
   ActivityParams,
@@ -34,16 +39,14 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 @Route('invoice')
 @Tags('Invoice')
 export class InvoiceController extends Controller {
-  private async validateInvoiceParams(req: express.Request) {
+  private async validateInvoiceParams(req: express.Request, validations: ValidationChain[] = []) {
     await validate([
-      body('companyId').isInt(),
       body('title').isString().trim(),
-      body('productInstanceIds').isArray(),
       body('poNumber').optional({ checkFalsy: true }).isString().trim(),
       body('comments').optional({ checkFalsy: true }).isString().trim(),
-      body('startDate').optional({ checkFalsy: true }).isDate(),
+      body('startDate').optional({ checkFalsy: true }).isISO8601(),
       body('assignedToId').optional({ checkFalsy: true }).isInt(),
-    ], req);
+    ].concat(validations), req);
   }
 
   /**
@@ -101,9 +104,12 @@ export class InvoiceController extends Controller {
   @Response<WrappedApiError>(401)
   public async createInvoice(
     @Request() req: express.Request,
-      @Body() params: InvoiceParams,
+      @Body() params: InvoiceCreateParams,
   ): Promise<Invoice> {
-    await this.validateInvoiceParams(req);
+    await this.validateInvoiceParams(req, [
+      body('companyId').isInt(),
+      body('productInstanceIds').isArray(),
+    ]);
     return new InvoiceService({ actor: req.user as User }).createInvoice(params);
   }
 

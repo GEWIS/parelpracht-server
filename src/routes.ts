@@ -843,23 +843,23 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "InvoiceParams": {
+    "InvoiceCreateParams": {
         "dataType": "refObject",
         "properties": {
-            "companyId": {"dataType":"double","required":true},
             "title": {"dataType":"string","required":true},
-            "productInstanceIds": {"dataType":"array","array":{"dataType":"double"},"required":true},
             "poNumber": {"dataType":"string"},
             "comments": {"dataType":"string"},
             "startDate": {"dataType":"datetime"},
             "assignedToId": {"dataType":"double"},
+            "productInstanceIds": {"dataType":"array","array":{"dataType":"double"},"required":true},
+            "companyId": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_InvoiceParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"companyId":{"dataType":"double"},"title":{"dataType":"string"},"productInstanceIds":{"dataType":"array","array":{"dataType":"double"}},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"},"startDate":{"dataType":"datetime"},"assignedToId":{"dataType":"double"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string"},"poNumber":{"dataType":"string"},"comments":{"dataType":"string"},"startDate":{"dataType":"datetime"},"assignedToId":{"dataType":"double"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GenerateInvoiceParams": {
@@ -2477,7 +2477,7 @@ export function RegisterRoutes(app: express.Router) {
             function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
-                    params: {"in":"body","name":"params","required":true,"ref":"InvoiceParams"},
+                    params: {"in":"body","name":"params","required":true,"ref":"InvoiceCreateParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

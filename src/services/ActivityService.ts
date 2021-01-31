@@ -332,12 +332,12 @@ export default class ActivityService {
       return;
     }
     // @ts-ignore
-    if (activity.type === ActivityType.STATUS && activity.subType !== ContractStatus.CREATED
+    if (activity.type === ActivityType.STATUS && (activity.subType === ContractStatus.CREATED
       // @ts-ignore
-      && activity.subType !== InvoiceStatus.CREATED
+      || activity.subType === InvoiceStatus.CREATED
       // @ts-ignore
-      && activity.subType !== ProductInstanceStatus.NOTDELIVERED
-    ) {
+      || activity.subType === ProductInstanceStatus.NOTDELIVERED
+    )) {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete the initial (created) status of an entity');
     }
 

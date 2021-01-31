@@ -17,15 +17,17 @@ import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 
-// Not correct yet
 export interface InvoiceParams {
-  companyId: number;
   title: string;
-  productInstanceIds: number[],
   poNumber?: string;
   comments?: string;
   startDate?: Date;
   assignedToId?: number;
+}
+
+export interface InvoiceCreateParams extends InvoiceParams {
+  productInstanceIds: number[];
+  companyId: number;
 }
 
 export interface InvoiceSummary {
@@ -131,7 +133,7 @@ export default class InvoiceService {
     return RawQueries.getExpiredInvoices();
   }
 
-  async createInvoice(params: InvoiceParams): Promise<Invoice> {
+  async createInvoice(params: InvoiceCreateParams): Promise<Invoice> {
     const products: ProductInstance[] = [];
     // Convert productInstanceIds to an array of objects
     await Promise.all(params.productInstanceIds.map(async (id) => {
