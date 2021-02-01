@@ -1,5 +1,5 @@
 {
-  "name": "crm-server",
+  "name": "parelpracht-server",
   "version": "0.1.0",
   "private": true,
   "description": "",
@@ -15,11 +15,11 @@
     "tsoa": "tsoa routes && tsoa spec",
     "build": "npm run clean && npm run build-server && npm run build-client",
     "clean": "rimraf \"dist/\" \"tsconfig.tsbuildinfo\"",
-    "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../crm-client/src/clients/server.generated.ts /ServiceHost:.",
+    "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Koen de Nooij",
+  "author": "The 39th board of Study Association GEWIS",
   "dependencies": {
     "body-parser": "^1.19.0",
     "connect-typeorm": "^1.1.4",
