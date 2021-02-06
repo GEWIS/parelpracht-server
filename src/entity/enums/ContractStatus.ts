@@ -1,0 +1,8 @@
+export enum ContractStatus {
+  CREATED = 'CREATED',
+  PROPOSED = 'PROPOSED',
+  SENT = 'SENT',
+  CONFIRMED = 'CONFIRMED',
+  FINISHED = 'FINISHED',
+  CANCELLED = 'CANCELLED',
+}

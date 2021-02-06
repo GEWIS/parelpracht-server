@@ -1,0 +1,7 @@
+export enum InvoiceStatus {
+  CREATED = 'CREATED',
+  SENT = 'SENT',
+  PAID = 'PAID',
+  IRRECOVERABLE = 'IRRECOVERABLE',
+  CANCELLED = 'CANCELLED',
+}

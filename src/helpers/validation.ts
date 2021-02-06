@@ -1,6 +1,7 @@
 import express from 'express';
-import { ValidationChain, validationResult } from 'express-validator';
+import { body, ValidationChain, validationResult } from 'express-validator';
 import { ApiError, HTTPStatus } from './error';
+import ContactService from '../services/ContactService';
 
 // parallel processing
 export const validate = async (
@@ -11,7 +12,7 @@ export const validate = async (
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new ApiError(HTTPStatus.BadRequest, 'Your request isn\'t quite right.\n Please try again');
+    throw new ApiError(HTTPStatus.BadRequest, JSON.stringify(errors.array()));
   }
 };
 
@@ -28,6 +29,31 @@ export const validateSeq = async (
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new ApiError(HTTPStatus.BadRequest, 'Your request isn\'t quite right.\n Please try again');
+    throw new ApiError(HTTPStatus.BadRequest, JSON.stringify(errors.array()));
   }
+};
+
+export const contactInCompany = async (contactId: number, req: express.Request) => {
+  new ContactService().getContact(contactId).then((contact) => {
+    if (contact.companyId !== req.body.companyId) {
+      return Promise.reject(new Error('Contact does not belong to company'));
+    }
+    return Promise.resolve();
+  });
+};
+
+export const validateActivityParams = async (
+  req: express.Request, validations: ValidationChain[] = [],
+) => {
+  await validate([
+    body('description').isString().trim(),
+  ].concat(validations), req);
+};
+
+export const validateFileParams = async (
+  req: express.Request, validations: ValidationChain[] = [],
+) => {
+  await validate([
+    body('name').notEmpty().trim(),
+  ].concat(validations), req);
 };

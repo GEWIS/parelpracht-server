@@ -1,6 +1,7 @@
 import {
-  Column, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn,
+  Column, Entity, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Contact } from './Contact';
 // eslint-disable-next-line import/no-cycle
@@ -8,30 +9,40 @@ import { Contract } from './Contract';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
-
-export enum CompanyStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-}
+import { CompanyActivity } from './activity/CompanyActivity';
+import { CompanyStatus } from './enums/CompanyStatus';
 
 @Entity()
-export class Company {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Company extends BaseEnt {
+  /** Name of the company */
   @Column()
   name!: string;
 
-  @Column('text')
-  description!: string;
+  @Column()
+  addressStreet!: string;
 
   @Column()
-  phoneNumber!: string;
+  addressPostalCode!: string;
 
-  @Column('text')
-  comments!: string;
+  @Column()
+  addressCity!: string;
 
+  @Column()
+  addressCountry!: string;
+
+  @Column({ default: '' })
+  invoiceAddressStreet!: string;
+
+  @Column({ default: '' })
+  invoiceAddressPostalCode!: string;
+
+  @Column({ default: '' })
+  invoiceAddressCity!: string;
+
+  @Column({ default: '' })
+  invoiceAddressCountry!: string;
+
+  /** Status of the collaboration with this company */
   @Column({
     type: 'enum',
     enum: CompanyStatus,
@@ -39,21 +50,31 @@ export class Company {
   })
   status!: CompanyStatus;
 
-  @UpdateDateColumn()
-  lastUpdated!: Date;
+  /** General phone number of the company */
+  @Column({ default: '' })
+  phoneNumber?: string;
 
+  /** Optional end date of the collaboration with this company */
   @Column({ nullable: true })
   endDate?: Date;
 
+  /** Comments regarding the company */
+  @Column({ type: 'text', default: '' })
+  comments?: string;
+
+  /** All contracts related to this company */
   @OneToMany(() => Contract, (contract) => contract.company)
   contracts!: Contract[];
 
+  /** All invoices related to this company */
   @OneToMany(() => Invoice, (invoice) => invoice.company)
   invoices!: Invoice[];
 
+  /** All contact persons related to this company */
   @OneToMany(() => Contact, (contact) => contact.company)
   contacts!: Contact[];
 
-  @OneToMany(() => Status, (status) => status.company)
-  statusChanges!: Status[];
+  /** All updates / activities regarding this company */
+  @OneToMany(() => CompanyActivity, (companyActivity) => companyActivity.company)
+  activities!: CompanyActivity[];
 }

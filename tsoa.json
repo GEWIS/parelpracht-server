@@ -1,6 +1,9 @@
 {
   "entryFile": "./src/index.ts",
   "noImplicitAdditionalProperties": "silently-remove-extras",
+  "ignore": [
+    "**/node_modules/@types/lodash/**"
+  ],
   "spec": {
     "outputDirectory": "./src/public",
     "host": "localhost:3001",
@@ -9,16 +12,151 @@
       "https"
     ],
     "basePath": "/api",
-    "securityDefinitions": {},
+    "securityDefinitions": {
+      "local": {
+        "type": "apikey",
+        "name": "connect.sid",
+        "in": "cookie"
+      }
+    },
     "specVersion": 3,
     "specMerging": "recursive",
     "spec": {
-      "paths": {}
+      "components": {
+        "schemas": {
+          "LoginParams": {
+            "dataType": "refObject",
+            "properties": {
+              "email": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "paths": {
+        "/login": {
+          "post": {
+            "operationId": "Login",
+            "responses": {
+              "200": {
+                "description": "Ok",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  }
+                }
+              },
+              "204": {
+                "description": "No content"
+              },
+              "400": {
+                "description": "Bad Request",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/WrappedApiError"
+                    }
+                  }
+                }
+              }
+            },
+            "security": [],
+            "parameters": [],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LoginParams"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/contract/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              }
+            ]
+          }
+        },
+        "/invoice/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              }
+            ]
+          }
+        },
+        "/product/{id}/file/upload": {
+          "post": {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "parameters": [
+              {
+                "in": "formData",
+                "name": "file",
+                "required": true,
+                "type": "file",
+                "description": "The file to upload"
+              },
+              {
+                "in": "formData",
+                "name": "name",
+                "required": true,
+                "type": "string",
+                "description": "The name of the new file, as seen in the UI"
+              }
+            ]
+          }
+        }
+      }
     }
   },
   "routes": {
     "basePath": "/api",
     "routesDir": "./src",
-    "middleware": "express"
+    "middleware": "express",
+    "authenticationModule": "./src/auth/authentication.ts"
   }
 }

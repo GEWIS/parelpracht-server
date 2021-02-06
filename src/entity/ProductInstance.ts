@@ -1,56 +1,68 @@
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn,
+  Column, Entity, ManyToOne, JoinColumn, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
 import { Product } from './Product';
-
-// TODO: Complete status
-export enum ProductInstanceStatus {
-  WAITING = 'WAITING',
-  DELIVERED = 'DELIVERED',
-  NOT_DELIVERED = 'NOT_DELIVERED',
-}
+// eslint-disable-next-line import/no-cycle
+import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
+// eslint-disable-next-line import/no-cycle
+import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
-export class ProductInstance {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
+export class ProductInstance extends BaseEnt {
+  @Column({ type: 'integer' })
+  readonly productId!: number;
 
-  @Column({ type: 'int' })
-  productId!: number;
-
+  /** The ID of the product, this entity is instanced from */
   @ManyToOne(() => Product, (product) => product.instances)
   @JoinColumn({ name: 'productId' })
   product!: Product;
 
-  @Column({ type: 'int' })
-  contractId!: number;
+  @Column({ type: 'integer' })
+  readonly contractId!: number;
 
+  /** Contract this product is used in */
   @ManyToOne(() => Contract, (contract) => contract.products)
   @JoinColumn({ name: 'contractId' })
   contract!: Contract;
 
-  @Column({ type: 'int' })
-  invoiceId!: number;
+  @Column({ nullable: true, type: 'integer' })
+  invoiceId?: number;
 
-  @ManyToOne(() => Invoice, (invoice) => invoice.products)
+  /** Invoice this product is used in, if it has already been invoiced */
+  @ManyToOne(() => Invoice, (invoice) => invoice.products, { nullable: true })
   @JoinColumn({ name: 'invoiceId' })
-  invoice!: Invoice;
+  invoice?: Invoice;
 
-  @Column()
-  price!: number;
+  /** All activities regarding this product instance */
+  @OneToMany(() => ProductInstanceActivity,
+    (productInstanceActivity) => productInstanceActivity.productInstance)
+  @JoinColumn()
+  activities!: ProductInstanceActivity[];
 
-  @Column('text')
-  comment!: string;
+  /** Actual price of the product, should be a copy from the product price upon creation,
+   * or a different price that is not a discount */
+  @Column({ type: 'integer' })
+  basePrice!: number;
 
-  @Column({
-    type: 'enum',
-    enum: ProductInstanceStatus,
-    default: ProductInstanceStatus.WAITING,
-  })
-  status!: ProductInstanceStatus;
+  /** Optional discount amount */
+  @Column({ type: 'integer', default: 0 })
+  discount!: number;
+
+  /** Any comments regarding this product instance */
+  @Column({ type: 'text', nullable: true, default: '' })
+  comments?: string;
+
+  public price(): number {
+    return this.basePrice - this.discount;
+  }
+
+  public discountPercentage(): string {
+    return `${((this.discount / this.basePrice) * 100).toFixed(2)}`;
+  }
 }

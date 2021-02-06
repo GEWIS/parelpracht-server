@@ -1,28 +1,18 @@
 import {
   Column,
-  Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+  Entity, JoinColumn, ManyToOne, OneToMany,
 } from 'typeorm';
+import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
-// eslint-disable-next-line import/no-cycle
-import { Status } from './Status';
-// eslint-disable-next-line import/no-cycle
-import { Gender } from './User';
-
-export enum ContactFunction {
-  NORMAL = 'NORMAL',
-  PRIMARY = 'PRIMARY',
-  FINANCIAL = 'FINANCIAL',
-  OLD = 'OLD',
-}
+import { ContactFunction } from './enums/ContactFunction';
+import { Gender } from './enums/Gender';
 
 @Entity()
-export class Contact {
-  @PrimaryGeneratedColumn('increment')
-  id!: number;
-
+export class Contact extends BaseEnt {
+  /** The gender of this contact */
   @Column({
     type: 'enum',
     enum: Gender,
@@ -30,33 +20,57 @@ export class Contact {
   })
   gender!: Gender;
 
+  /** The first name of the contact */
   @Column()
   firstName!: string;
 
-  @Column()
-  middleName!: string;
+  /** The middle name of the contact, if he/she has one */
+  @Column({ default: '' })
+  lastNamePreposition!: string;
 
+  /** The last name of the contact */
   @Column()
   lastName!: string;
 
-  @Column()
+  /** The (personal) email address of the contact */
+  @Column({ default: '' })
   email!: string;
 
-  @Column('text')
-  comment!: string;
+  /** The (personal) phone number of the contact */
+  @Column({ default: '' })
+  telephone!: string;
 
-  @Column({ type: 'int' })
+  /** Comments regarding the contact person, if there are any */
+  @Column({ type: 'text', default: '' })
+  comments!: string;
+
+  /** Function of this contact person within the company, if known. Normal by default. */
+  @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })
+  function!: ContactFunction;
+
+  @Column({ type: 'integer' })
   companyId!: number;
 
-  @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })
-
-  @ManyToOne(() => Company, (company) => company.contacts)
+  /** Company this contact person works at */
+  @ManyToOne(() => Company, (company) => company.contracts)
   @JoinColumn({ name: 'companyId' })
   company!: Company;
 
-  @ManyToMany(() => Contract, (contract) => contract.contact)
+  /** All contracts that have been closed with this contact person */
+  @OneToMany(() => Contract, (contract) => contract.contact)
   contracts!: Contract[];
 
-  @OneToMany(() => Status, (status) => status.contract)
-  statusChanges!: Status[];
+  public fullName() {
+    if (this.lastNamePreposition === '') {
+      return `${this.firstName} ${this.lastName}`;
+    }
+    return `${this.firstName} ${this.lastNamePreposition} ${this.lastName}`;
+  }
+
+  public formalGreet() {
+    if (this.lastNamePreposition === '') {
+      return `${this.lastName}`;
+    }
+    return `${this.lastNamePreposition} ${this.lastName}`;
+  }
 }
