@@ -62,7 +62,7 @@ createConnection().then(async (connection) => {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  passport.serializeUser(() => (user: User, done: (err: any, id?: unknown) => void) => {
+  passport.serializeUser((user: any, done) => {
     done(null, user.id);
   });
 
