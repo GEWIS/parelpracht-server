@@ -12,7 +12,7 @@ import { InvoiceFile } from '../entity/file/InvoiceFile';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import {
   ContractGenSettings,
-  ContractType,
+  ContractType, CustomInvoiceGenSettings,
   InvoiceGenSettings,
   Language,
   ReturnFileType,
@@ -159,6 +159,21 @@ export default class FileService {
         throw new Error(err);
       }
     }
+
+    return file;
+  }
+
+  static async generateCustomInvoice(
+    params: CustomInvoiceGenSettings, sender: User,
+  ): Promise<BaseFile> {
+    const file = {
+      name: params.subject,
+      downloadName: `${params.ourReference} - ${params.subject}`,
+      createdById: sender.id,
+      createdBy: sender,
+    } as any as BaseFile;
+
+    file.location = await new PdfGenerator().generateCustomInvoice(params, file);
 
     return file;
   }

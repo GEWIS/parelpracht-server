@@ -69,7 +69,7 @@
 %% Set letter properties
 \setYourreference{%{yourreference}
 }        % (optional) Set the reference ("Uw kenmerk") the recipient uses/used
-\setMyreference{%{contractnumber}
+\setMyreference{%{ourreference}
 }          % (optional) Set your own reference ("Ons kenmerk")
 \setSubject{%{subject}
 } % (highly recommended) Set the subject of the letter
@@ -94,15 +94,11 @@
 
 Geachte %{ontvanger}
 ,\\[2\baselineskip]
-Naar aanleiding van de door ons verrichte activiteiten sturen we u hierbij een factuur. Gelieve het verschuldigde bedrag binnen vijftien werkdagen over te maken naar IBAN NL22 ABNA 0528 1959 13 ten name van GEWIS te Eindhoven, onder vermelding van ``%{contractnumber}
+Naar aanleiding van %{factuuraanleiding}
+ sturen we u hierbij deze factuur. Gelieve het verschuldigde bedrag binnen vijftien werkdagen over te maken naar IBAN NL22 ABNA 0528 1959 13 ten name van GEWIS te Eindhoven, onder vermelding van ``%{ourreference}
 ''.\\[\baselineskip]
 Hieronder volgt een specificatie:\\[\baselineskip]
-\begin{tabularx}{\textwidth}{X r}\toprule
-Beschrijving & Bedrag (EUR)\\\midrule
 %{tabelproducten}
-\cmidrule{2-2} \textbf{Totaal} & {\bfseries %{totaalprijs}
-}\\\bottomrule
-\end{tabularx}
 \\[2\baselineskip]
 Met vriendelijke groeten,\\[2\baselineskip]
 \GEWIScontact

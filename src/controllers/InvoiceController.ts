@@ -31,7 +31,7 @@ import BaseFile from '../entity/file/BaseFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import FileHelper from '../helpers/fileHelper';
 import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
-import { Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { CustomInvoiceGenSettings, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ExpiredInvoice } from '../helpers/rawQueries';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
@@ -262,6 +262,31 @@ export class InvoiceController extends Controller {
   }
 
   /**
+   * Create a custom invoice (e.g. for the treasurer)
+   * @param params Parameters to create this custom invoice with
+   * @param req Express.js request object
+   * @return The requested file as download
+   */
+  @Post('custom')
+  @Security('local', ['FINANCIAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async generateCustomInvoice(
+    @Body() params: CustomInvoiceGenSettings, @Request() req: express.Request,
+  ): Promise<any> {
+    await validate([
+      body('language').isIn(Object.values(Language)),
+      body('fileType').isIn(Object.values(ReturnFileType)),
+      body('subject').isString().trim(),
+      body('invoiceReason').isString().trim(),
+      body('ourReference').isString().trim(),
+      body('theirReference').optional({ checkFalsy: true }).isString().trim(),
+    ], req);
+    const file = await FileService.generateCustomInvoice(params, req.user as User);
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
    * Add a activity status to this invoice
    * @param id ID of the invoice
    * @param params Parameters to create this status with
@@ -334,4 +359,15 @@ export class InvoiceController extends Controller {
   public async deleteInvoiceActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(InvoiceActivity).deleteActivity(id, activityId);
   }
+
+  // @Post('custom')
+  // @Security('local', ['ADMIN', 'FINANCIAL'])
+  // @Response<WrappedApiError>(401)
+  // public async generateCustomInvoice(
+  //   @Body() params: CustomInvoiceGenSettings, @Request() req: express.Request
+  // ) {
+  //   const file = await FileService.generateCustomInvoice(params, req.user as User);
+  //
+  //   return FileHelper.putFileInResponseObj(this, file);
+  // }
 }

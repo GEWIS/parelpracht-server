@@ -69,7 +69,7 @@
 %% Set letter properties
 \setYourreference{%{yourreference}
 }        % (optional) Set the reference ("Uw kenmerk") the recipient uses/used
-\setMyreference{%{contractnumber}
+\setMyreference{%{ourreference}
 }          % (optional) Set your own reference ("Ons kenmerk")
 \setSubject{%{subject}
 } % (highly recommended) Set the subject of the letter
@@ -94,15 +94,11 @@
 
 Dear %{ontvanger}
 ,\\[2\baselineskip]
-Following the activities performed by us, we hereby send you the invoice. Please transfer the agreed amount within fifteen workdays to IBAN NL22 ABNA 0528 1959 13 in the name of GEWIS, with mentioning ````%{contractnumber}
+Following %{factuuraanleiding}
+, we hereby send you the invoice. Please transfer the agreed amount within fifteen workdays to IBAN NL22 ABNA 0528 1959 13 in the name of GEWIS, with mentioning ````%{ourreference}
 ''.\\[\baselineskip]
 Beneath the specifications:\\[\baselineskip]
-\begin{tabularx}{\textwidth}{X r}\toprule
-Description & Amount (EUR)\\\midrule
 %{tabelproducten}
-\cmidrule{2-2} \textbf{Total} & {\bfseries %{totaalprijs}
-}\\\bottomrule
-\end{tabularx}
 \\[2\baselineskip]
 With kind regards,\\[2\baselineskip]
 \GEWIScontact

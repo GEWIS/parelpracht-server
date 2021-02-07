@@ -875,6 +875,45 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CustomRecipient": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "gender": {"ref":"Gender","required":true},
+            "organizationName": {"dataType":"string"},
+            "street": {"dataType":"string","required":true},
+            "postalCode": {"dataType":"string","required":true},
+            "city": {"dataType":"string","required":true},
+            "country": {"dataType":"string"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CustomProduct": {
+        "dataType": "refObject",
+        "properties": {
+            "name": {"dataType":"string","required":true},
+            "amount": {"dataType":"double","required":true},
+            "pricePerOne": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "CustomInvoiceGenSettings": {
+        "dataType": "refObject",
+        "properties": {
+            "language": {"ref":"Language","required":true},
+            "fileType": {"ref":"ReturnFileType","required":true},
+            "recipient": {"ref":"CustomRecipient","required":true},
+            "subject": {"dataType":"string","required":true},
+            "invoiceReason": {"dataType":"string","required":true},
+            "ourReference": {"dataType":"string","required":true},
+            "theirReference": {"dataType":"string"},
+            "products": {"dataType":"array","array":{"ref":"CustomProduct"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "InvoiceStatusParams": {
         "dataType": "refObject",
         "properties": {
@@ -2714,6 +2753,30 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteInvoiceFile.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/invoice/custom',
+            authenticateMiddleware([{"local":["FINANCIAL","ADMIN"]}]),
+            function (request: any, response: any, next: any) {
+            const args = {
+                    params: {"in":"body","name":"params","required":true,"ref":"CustomInvoiceGenSettings"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new InvoiceController();
+
+
+            const promise = controller.generateCustomInvoice.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
