@@ -453,7 +453,7 @@ export default class PdfGenerator {
       table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
         Beschrijving & Bedrag (EUR) & Aantal & Subtotaal (EUR) \\\\\\midrule
         ${table}
-        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, true)}
+        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, true)}
         }\\\\\\bottomrule
         \\end{tabularx}`;
     } else if (params.language === Language.ENGLISH) {
