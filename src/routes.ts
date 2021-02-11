@@ -812,6 +812,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "list": {"dataType":"array","array":{"ref":"Invoice"},"required":true},
             "count": {"dataType":"double","required":true},
+            "lastSeen": {"dataType":"datetime"},
         },
         "additionalProperties": false,
     },
@@ -2485,6 +2486,28 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getExpiredInvoices.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.put('/api/invoice/lastseen',
+            authenticateMiddleware([{"local":["FINANCIAL"]}]),
+            function (request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new InvoiceController();
+
+
+            const promise = controller.updateLastSeenByTreasurer.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

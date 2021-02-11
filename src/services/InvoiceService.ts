@@ -16,6 +16,8 @@ import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import ServerSettingsService from './ServerSettingsService';
+import { ServerSetting } from '../entity/ServerSetting';
 
 export interface InvoiceParams {
   title: string;
@@ -40,6 +42,7 @@ export interface InvoiceSummary {
 export interface InvoiceListResponse {
   list: Invoice[];
   count: number;
+  lastSeen?: Date;
 }
 
 export default class InvoiceService {
@@ -116,6 +119,7 @@ export default class InvoiceService {
         take: params.take,
       }),
       count: await this.repo.count(findOptions),
+      lastSeen: await this.getTreasurerLastSeen(),
     };
   }
 
@@ -195,5 +199,25 @@ export default class InvoiceService {
       if (i.activities.length <= 1) result.push(i);
     });
     return result;
+  }
+
+  async getTreasurerLastSeen(): Promise<Date | undefined> {
+    const setting = await new ServerSettingsService().getSetting('treasurerLastSeen');
+    const settingValue = setting?.value;
+    const milliseconds = settingValue ? parseInt(settingValue, 10) : undefined;
+    const result = milliseconds ? new Date(milliseconds) : undefined;
+    console.log(result);
+    return result;
+  }
+
+  async setTreasurerLastSeen(): Promise<void> {
+    const date = new Date();
+    const milliseconds = date.getTime();
+    const setting: ServerSetting = {
+      name: 'treasurerLastSeen',
+      value: milliseconds.toString(),
+    };
+    await new ServerSettingsService().setSetting(setting);
+    console.log(setting);
   }
 }

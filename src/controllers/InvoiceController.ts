@@ -84,6 +84,18 @@ export class InvoiceController extends Controller {
   }
 
   /**
+   * Set the last-seen-date to the current date and time
+   */
+  @Put('lastseen')
+  @Security('local', ['FINANCIAL'])
+  @Response<WrappedApiError>(401)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  public async updateLastSeenByTreasurer(): Promise<void> {
+    console.log('run run run!');
+    return new InvoiceService().setTreasurerLastSeen();
+  }
+
+  /**
    * getInvoice() - retrieve single invoice
    * @param id ID of invoice to retrieve
    */
@@ -359,15 +371,4 @@ export class InvoiceController extends Controller {
   public async deleteInvoiceActivity(id: number, activityId: number): Promise<void> {
     return new ActivityService(InvoiceActivity).deleteActivity(id, activityId);
   }
-
-  // @Post('custom')
-  // @Security('local', ['ADMIN', 'FINANCIAL'])
-  // @Response<WrappedApiError>(401)
-  // public async generateCustomInvoice(
-  //   @Body() params: CustomInvoiceGenSettings, @Request() req: express.Request
-  // ) {
-  //   const file = await FileService.generateCustomInvoice(params, req.user as User);
-  //
-  //   return FileHelper.putFileInResponseObj(this, file);
-  // }
 }
