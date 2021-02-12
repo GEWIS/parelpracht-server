@@ -1,6 +1,5 @@
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, In, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
@@ -10,6 +9,11 @@ import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import AuthService from './AuthService';
+import { Roles } from '../entity/enums/Roles';
+// eslint-disable-next-line import/no-cycle
+import ContractService from './ContractService';
+// eslint-disable-next-line import/no-cycle
+import InvoiceService from './InvoiceService';
 
 export interface UserParams {
   email: string;
@@ -23,6 +27,10 @@ export interface UserParams {
   roles?: Roles[]
 }
 
+export interface TransferUserParams {
+  toUserId: number;
+}
+
 export interface UserSummary {
   id: number;
   firstName: string;
@@ -34,14 +42,6 @@ export interface UserSummary {
 export interface UserListResponse {
   list: User[];
   count: number;
-}
-
-export enum Roles {
-  SIGNEE = 'SIGNEE',
-  FINANCIAL = 'FINANCIAL',
-  ADMIN = 'ADMIN',
-  GENERAL = 'GENERAL',
-  AUDIT = 'AUDIT',
 }
 
 export default class UserService {
@@ -193,5 +193,18 @@ export default class UserService {
         { name: Roles.AUDIT },
       ]),
     );
+  }
+
+  async transferAssignments(fromUserId: number, toUserId: number): Promise<void> {
+    const fromUser = await this.getUser(fromUserId);
+    const toUser = await this.getUser(toUserId);
+    if (!toUser.hasRole(Roles.GENERAL)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'User does not have the "general" role');
+    }
+
+    await Promise.all([
+      new ContractService().transferAssignments(fromUser, toUser),
+      new InvoiceService().transferAssignments(fromUser, toUser),
+    ]);
   }
 }
