@@ -6,6 +6,7 @@ import { BaseEnt } from './BaseEnt';
 import { Gender } from './enums/Gender';
 // eslint-disable-next-line import/no-cycle
 import { Role } from './Role';
+import { Roles } from './enums/Roles';
 // // eslint-disable-next-line import/no-cycle
 // import { CompanyActivity } from './activity/CompanyActivity';
 // // eslint-disable-next-line import/no-cycle
@@ -85,5 +86,22 @@ export class User extends BaseEnt {
       return `${this.lastName}`;
     }
     return `${this.lastNamePreposition} ${this.lastName}`;
+  }
+
+  /**
+   * Get a list of all roles this user has
+   */
+  public getRoles(): Roles[] {
+    return this.roles.map((r) => r.name) as Roles[];
+  }
+
+  /**
+   * Return whether this user has the specified role.
+   * @param role Roles enum type
+   */
+  public hasRole(role: Roles): boolean {
+    return this.roles.some((r) => {
+      return r.name === role;
+    });
   }
 }

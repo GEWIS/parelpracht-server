@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {
   FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
@@ -16,6 +15,7 @@ import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+// eslint-disable-next-line import/no-cycle
 import ServerSettingsService from './ServerSettingsService';
 import { ServerSetting } from '../entity/ServerSetting';
 
@@ -219,5 +219,13 @@ export default class InvoiceService {
     };
     await new ServerSettingsService().setSetting(setting);
     console.log(setting);
+  }
+
+  async transferAssignments(fromUser: User, toUser: User): Promise<void> {
+    await this.repo.createQueryBuilder()
+      .update()
+      .set({ assignedToId: toUser.id })
+      .where('assignedToId = :id', { id: fromUser.id })
+      .execute();
   }
 }

@@ -184,4 +184,12 @@ export default class ContractService {
 
     await this.repo.delete(id);
   }
+
+  async transferAssignments(fromUser: User, toUser: User): Promise<void> {
+    await this.repo.createQueryBuilder()
+      .update()
+      .set({ assignedToId: toUser.id })
+      .where('assignedToId = :id', { id: fromUser.id })
+      .execute();
+  }
 }

@@ -68,7 +68,7 @@ createConnection().then(async (connection) => {
 
   passport.deserializeUser(async (id: number, done) => {
     const userRepo = getRepository(User);
-    const user = await userRepo.findOne({ id });
+    const user = await userRepo.findOne({ id }, { relations: ['roles'] });
     if (user === undefined) {
       return done(null, false);
     }

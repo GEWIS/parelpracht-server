@@ -1,15 +1,30 @@
 import {
   Body,
-  Controller, Post, Route, Put, Tags, Get, Security, Response, Delete, Request,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Request,
+  Response,
+  Route,
+  Security,
+  Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { User } from '../entity/User';
-import { WrappedApiError } from '../helpers/error';
-import UserService, { UserListResponse, UserParams, UserSummary } from '../services/UserService';
+import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
+import UserService, {
+  TransferUserParams,
+  UserListResponse,
+  UserParams,
+  UserSummary,
+} from '../services/UserService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
+import { Roles } from '../entity/enums/Roles';
 
 @Route('user')
 @Tags('User')
@@ -104,5 +119,23 @@ export class UserController extends Controller {
   ): Promise<User> {
     await this.validateUserParams(req);
     return new UserService().updateUser(id, params, req.user as User);
+  }
+
+  @Post('{id}/assignments')
+  @Security('local', ['ADMIN', 'GENERAL'])
+  @Response<WrappedApiError>(401)
+  public async transferAssignments(
+    @Request() req: express.Request, id: number, @Body() params: TransferUserParams,
+  ): Promise<void> {
+    const actor = req.user as User;
+    if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Forbidden, 'You don\'t have permission to do this. Only admins can change other users');
+    }
+
+    await validate([
+      body('toUserId').isInt(),
+    ], req);
+
+    await new UserService().transferAssignments(id, params.toUserId);
   }
 }
