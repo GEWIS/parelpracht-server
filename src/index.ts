@@ -93,6 +93,9 @@ createConnection().then(async (connection) => {
   if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
     fs.mkdirSync(path.join(__dirname, '/../data/uploads'));
   }
+  if (!fs.existsSync(path.join(__dirname, '/../data/logos'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/logos'));
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({

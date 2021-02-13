@@ -1,6 +1,5 @@
 import {
-  Body,
-  Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete, Request,
+  Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -139,6 +138,29 @@ export class CompanyController extends Controller {
     id: number, @Request() req: express.Request,
   ): Promise<void> {
     return new CompanyService().deleteCompany(id);
+  }
+
+  /**
+   * Upload a logo for a company
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Put('{id}/avatar')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadCompanyLogo(@Request() req: express.Request, id: number) {
+    await FileService.uploadCompanyLogo(req, id);
+  }
+
+  /**
+   * Delete a logo for a company
+   * @param id Id of the company
+   */
+  @Delete('{id}/avatar')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteCompanyLogo(id: number): Promise<Company> {
+    return new CompanyService().deleteCompanyLogo(id);
   }
 
   /**

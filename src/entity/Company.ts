@@ -60,6 +60,10 @@ export class Company extends BaseEnt {
   @Column({ nullable: true })
   endDate?: Date;
 
+  /** Optional filename of a logo image */
+  @Column({ default: '' })
+  logoFilename!: string;
+
   /** Comments regarding the company */
   @Column({ type: 'text', default: '' })
   comments?: string;
