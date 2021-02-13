@@ -10,6 +10,8 @@ import { Contract } from './Contract';
 import { Invoice } from './Invoice';
 // eslint-disable-next-line import/no-cycle
 import { CompanyActivity } from './activity/CompanyActivity';
+// eslint-disable-next-line import/no-cycle
+import { CompanyFile } from './file/CompanyFile';
 import { CompanyStatus } from './enums/CompanyStatus';
 
 @Entity()
@@ -77,4 +79,8 @@ export class Company extends BaseEnt {
   /** All updates / activities regarding this company */
   @OneToMany(() => CompanyActivity, (companyActivity) => companyActivity.company)
   activities!: CompanyActivity[];
+
+  /** All files regarding this company */
+  @OneToMany(() => CompanyFile, (file) => file.company)
+  files!: CompanyFile[];
 }

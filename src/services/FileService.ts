@@ -25,6 +25,7 @@ import { ProductFile } from '../entity/file/ProductFile';
 import ContactService from './ContactService';
 import { User } from '../entity/User';
 import { validateFileParams } from '../helpers/validation';
+import { CompanyFile } from '../entity/file/CompanyFile';
 
 export interface FileParams {
   name: string;
@@ -82,6 +83,9 @@ export default class FileService {
         break;
       case ProductFile:
         if (file.productId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product'); }
+        break;
+      case CompanyFile:
+        if (file.companyId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this company'); }
         break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
@@ -238,6 +242,9 @@ export default class FileService {
         break;
       case ProductFile:
         file.productId = params.entityId;
+        break;
+      case CompanyFile:
+        file.companyId = params.entityId;
         break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
