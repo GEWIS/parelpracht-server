@@ -11,6 +11,8 @@ export interface ProductParams {
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
+  minTarget?: number;
+  maxTarget?: number;
   status: ProductStatus;
   description?: string;
   categoryId: number;

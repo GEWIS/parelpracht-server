@@ -44,6 +44,10 @@ export class User extends BaseEnt {
   @Column()
   email!: string;
 
+  /** Email address used in PDF files */
+  @Column({ default: '' })
+  replyToEmail!: string;
+
   /** Any comments regarding this user */
   @Column({ type: 'text', default: '' })
   comment!: string;
@@ -55,6 +59,15 @@ export class User extends BaseEnt {
   /** Optional filename of the user's avatar */
   @Column({ default: '' })
   avatarFilename!: string;
+
+  /** Whether this user wishes to receive (regular) email updates, e.g. sent invoices */
+  @Column({ default: false })
+  receiveEmails!: boolean;
+
+  /** Whether the update emails (from the boolean above) should
+   * be sent to "email", or "replyToEmail" */
+  @Column({ default: false })
+  sendEmailsToReplyToEmail!: boolean;
 
   /** The roles this user has */
   @ManyToMany(() => Role, (role) => role.users)

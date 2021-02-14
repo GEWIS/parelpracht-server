@@ -43,6 +43,8 @@ const models: TsoaRoute.Models = {
             "lastName": {"dataType":"string","required":true},
             "function": {"dataType":"string","required":true},
             "gender": {"ref":"Gender","required":true},
+            "replyToEmail": {"dataType":"string"},
+            "receiveEmails": {"dataType":"boolean"},
             "comment": {"dataType":"string"},
             "roles": {"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}},
         },
@@ -78,9 +80,11 @@ const models: TsoaRoute.Models = {
             "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
+            "replyToEmail": {"dataType":"string","required":true},
             "comment": {"dataType":"string","required":true},
             "function": {"dataType":"string","required":true},
             "avatarFilename": {"dataType":"string","required":true},
+            "receiveEmails": {"dataType":"boolean","required":true},
             "roles": {"dataType":"array","array":{"ref":"Role"},"required":true},
         },
         "additionalProperties": false,
@@ -144,6 +148,8 @@ const models: TsoaRoute.Models = {
             "deliverySpecificationDutch": {"dataType":"string"},
             "deliverySpecificationEnglish": {"dataType":"string"},
             "categoryId": {"dataType":"double","required":true},
+            "minTarget": {"dataType":"double","required":true},
+            "maxTarget": {"dataType":"double","required":true},
             "category": {"ref":"ProductCategory","required":true},
             "instances": {"dataType":"array","array":{"ref":"ProductInstance"},"required":true},
             "activities": {"dataType":"array","array":{"ref":"ProductActivity"},"required":true},
@@ -552,6 +558,8 @@ const models: TsoaRoute.Models = {
             "nameDutch": {"dataType":"string","required":true},
             "nameEnglish": {"dataType":"string","required":true},
             "targetPrice": {"dataType":"double","required":true},
+            "minTarget": {"dataType":"double"},
+            "maxTarget": {"dataType":"double"},
             "status": {"ref":"ProductStatus","required":true},
             "description": {"dataType":"string"},
             "categoryId": {"dataType":"double","required":true},
@@ -565,7 +573,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ProductParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"status":{"ref":"ProductStatus"},"description":{"dataType":"string"},"categoryId":{"dataType":"double"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string"},"nameEnglish":{"dataType":"string"},"targetPrice":{"dataType":"double"},"minTarget":{"dataType":"double"},"maxTarget":{"dataType":"double"},"status":{"ref":"ProductStatus"},"description":{"dataType":"string"},"categoryId":{"dataType":"double"},"contractTextDutch":{"dataType":"string"},"contractTextEnglish":{"dataType":"string"},"deliverySpecificationDutch":{"dataType":"string"},"deliverySpecificationEnglish":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductInstanceListResponse": {
@@ -1012,7 +1020,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransferUserParams": {

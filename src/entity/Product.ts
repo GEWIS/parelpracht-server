@@ -57,6 +57,14 @@ export class Product extends BaseEnt {
   @Column({ type: 'integer' })
   categoryId!: number;
 
+  /** Target minimum amount contracted for this product */
+  @Column({ default: 0 })
+  minTarget!: number;
+
+  /** Target maximum amount contracted for this product */
+  @Column({ default: 0 })
+  maxTarget!: number;
+
   /** Category this product is in */
   @ManyToOne(() => ProductCategory, (category) => category.products)
   @JoinColumn({ name: 'categoryId' })
