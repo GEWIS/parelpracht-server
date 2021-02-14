@@ -23,6 +23,9 @@ export interface UserParams {
   lastName: string;
   function: string;
   gender: Gender;
+  replyToEmail?: string;
+  receiveEmails?: boolean;
+  sendEmailsToReplyToEmail?: boolean;
   comment?: string;
 
   roles?: Roles[]
