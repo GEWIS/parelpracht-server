@@ -8,6 +8,8 @@ export const workDirLoc = 'tmp/';
 export const generateDirLoc = 'data/generated/';
 export const uploadDirLoc = 'data/uploads/';
 export const templateDirLoc = 'data/templates/';
+export const uploadCompanyLogoDirLoc = 'data/logos';
+export const uploadUserAvatarDirLoc = 'data/logos';
 
 export default class FileHelper {
   public static putFileInResponse(
@@ -49,6 +51,14 @@ export default class FileHelper {
       fs.unlinkSync(file.location);
     } catch (e) {
       console.log(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
+    }
+  }
+
+  public static removeFileAtLoc(location: string) {
+    try {
+      fs.unlinkSync(location);
+    } catch (e) {
+      console.log(`File ${location} does not exist, so could not be removed`);
     }
   }
 }

@@ -52,6 +52,10 @@ export class User extends BaseEnt {
   @Column()
   function!: string;
 
+  /** Optional filename of the user's avatar */
+  @Column({ default: '' })
+  avatarFilename!: string;
+
   /** The roles this user has */
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()

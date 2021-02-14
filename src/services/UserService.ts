@@ -14,6 +14,7 @@ import { Roles } from '../entity/enums/Roles';
 import ContractService from './ContractService';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
+import FileHelper from '../helpers/fileHelper';
 
 export interface UserParams {
   email: string;
@@ -193,6 +194,19 @@ export default class UserService {
         { name: Roles.AUDIT },
       ]),
     );
+  }
+
+  async deleteUserAvatar(id: number): Promise<User> {
+    const user = await this.getUser(id);
+    if (user.avatarFilename === '') return user;
+
+    try {
+      FileHelper.removeFileAtLoc(user.avatarFilename);
+    } finally {
+      await this.repo.update(user.id, { avatarFilename: '' });
+    }
+
+    return this.getUser(id);
   }
 
   async transferAssignments(fromUserId: number, toUserId: number): Promise<void> {

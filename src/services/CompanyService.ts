@@ -7,6 +7,7 @@ import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
+import FileHelper from '../helpers/fileHelper';
 
 // May not be correct yet
 export interface CompanyParams {
@@ -126,6 +127,19 @@ export default class CompanyService {
     }
 
     await this.repo.delete(company.id);
+  }
+
+  async deleteCompanyLogo(id: number): Promise<Company> {
+    const company = await this.getCompany(id);
+    if (company.logoFilename === '') return company;
+
+    try {
+      FileHelper.removeFileAtLoc(company.logoFilename);
+    } finally {
+      await this.repo.update(company.id, { logoFilename: '' });
+    }
+
+    return this.getCompany(id);
   }
 
   async getContacts(id: number): Promise<Contact[]> {

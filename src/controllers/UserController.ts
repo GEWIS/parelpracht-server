@@ -1,15 +1,6 @@
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Request,
-  Response,
-  Route,
-  Security,
-  Tags,
+  Body, Controller, Delete, Get, Post, Put,
+  Request, Response, Route, Security, Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -25,6 +16,7 @@ import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { Roles } from '../entity/enums/Roles';
+import FileService from '../services/FileService';
 
 @Route('user')
 @Tags('User')
@@ -121,6 +113,46 @@ export class UserController extends Controller {
     return new UserService().updateUser(id, params, req.user as User);
   }
 
+  /**
+   * Upload an avatar for this user. Can only be done for yourself, or by an admin
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Put('{id}/avatar')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async uploadUserAvatar(@Request() req: express.Request, id: number) {
+    const actor = req.user as User;
+    if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Forbidden, 'You don\'t have permission to do this. Only admins can change other users');
+    }
+
+    await FileService.uploadUserAvatar(req, id);
+  }
+
+  /**
+   * Delete the avatar for this user. Can only be done for yourself, or by an admin
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Delete('{id}/avatar')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async deleteUserAvatar(@Request() req: express.Request, id:number): Promise<User> {
+    const actor = req.user as User;
+    if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Forbidden, 'You don\'t have permission to do this. Only admins can change other users');
+    }
+
+    return new UserService().deleteUserAvatar(id);
+  }
+
+  /**
+   * Move all user's assignments to another user (contracts and invoices)
+   * @param req Express.js request object
+   * @param id ID of the from-user
+   * @param params parameters, namely ID of the to-user
+   */
   @Post('{id}/assignments')
   @Security('local', ['ADMIN', 'GENERAL'])
   @Response<WrappedApiError>(401)

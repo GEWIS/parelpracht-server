@@ -1,6 +1,5 @@
 import {
-  Body,
-  Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete, Request,
+  Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -17,11 +16,15 @@ import ActivityService, {
 import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
-import { validate, validateActivityParams } from '../helpers/validation';
+import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
 import ContractService from '../services/ContractService';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
+import FileService, { FileParams } from '../services/FileService';
+import FileHelper from '../helpers/fileHelper';
+import BaseFile from '../entity/file/BaseFile';
+import { CompanyFile } from '../entity/file/CompanyFile';
 
 @Route('company')
 @Tags('Company')
@@ -138,6 +141,29 @@ export class CompanyController extends Controller {
   }
 
   /**
+   * Upload a logo for a company
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Put('{id}/avatar')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadCompanyLogo(@Request() req: express.Request, id: number) {
+    await FileService.uploadCompanyLogo(req, id);
+  }
+
+  /**
+   * Delete a logo for a company
+   * @param id Id of the company
+   */
+  @Delete('{id}/avatar')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteCompanyLogo(id: number): Promise<Company> {
+    return new CompanyService().deleteCompanyLogo(id);
+  }
+
+  /**
    * getUnresolvedInvoices() - retrieve unresolved invoices from company
    * @param id ID of company to retrieve unresolved invoices for
    */
@@ -157,6 +183,65 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async getContacts(id: number): Promise<Contact[]> {
     return new CompanyService().getContacts(id);
+  }
+
+  /**
+   * Upload a file to a company
+   * @param id Id of the company
+   * @param req Express.js request object
+   */
+  @Post('{id}/file/upload')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadProductFile(
+    id: number, @Request() req: express.Request,
+  ): Promise<CompanyFile> {
+    return new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id);
+  }
+
+  /**
+   * Get a saved file from a company
+   * @param id ID of the company
+   * @param fileId ID of the file
+   * @return The requested file as download
+   */
+  @Get('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getProductFile(id: number, fileId: number): Promise<any> {
+    const file = <CompanyFile>(await new FileService(CompanyFile).getFile(id, fileId));
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Change the attributes of a file
+   * @param id ID of the company
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   * @param req Express.js request object
+   */
+  @Put('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updateProductFile(
+    id: number, fileId: number, @Body() params: Partial<FileParams>,
+    @Request() req: express.Request,
+  ): Promise<BaseFile> {
+    await validateFileParams(req);
+    return new FileService(CompanyFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a file from the system
+   * @param id ID of the company
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteProductFile(id: number, fileId: number): Promise<void> {
+    return new FileService(CompanyFile).deleteFile(id, fileId, true);
   }
 
   /**
