@@ -13,6 +13,9 @@ data/generated/*
 data/uploads
 data/uploads/*
 
+data/logos
+data/logos/*
+
 dist
 dist/*
 

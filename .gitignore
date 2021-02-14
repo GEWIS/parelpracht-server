@@ -124,6 +124,7 @@ src/public/swagger.json
 # File management
 data/generated/
 data/uploads/
+data/logos/
 tmp/
 
 # Merge errors are annoying

@@ -111,6 +111,8 @@ createConnection().then(async (connection) => {
     });
   }
 
+  app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
+
   // Announce port that is listened to in the console
   app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
