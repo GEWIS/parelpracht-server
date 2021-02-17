@@ -146,7 +146,7 @@ export class CompanyController extends Controller {
    * @param req Express.js request object
    * @param id ID of the user
    */
-  @Put('{id}/avatar')
+  @Put('{id}/logo')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async uploadCompanyLogo(@Request() req: express.Request, id: number) {
@@ -157,7 +157,7 @@ export class CompanyController extends Controller {
    * Delete a logo for a company
    * @param id Id of the company
    */
-  @Delete('{id}/avatar')
+  @Delete('{id}/logo')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCompanyLogo(id: number): Promise<Company> {
@@ -201,7 +201,7 @@ export class CompanyController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadProductFile(
+  public async uploadCompanyFile(
     id: number, @Request() req: express.Request,
   ): Promise<CompanyFile> {
     return new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id);
@@ -216,7 +216,7 @@ export class CompanyController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getProductFile(id: number, fileId: number): Promise<any> {
+  public async getCompanyFile(id: number, fileId: number): Promise<any> {
     const file = <CompanyFile>(await new FileService(CompanyFile).getFile(id, fileId));
 
     return FileHelper.putFileInResponse(this, file);
@@ -232,7 +232,7 @@ export class CompanyController extends Controller {
   @Put('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateProductFile(
+  public async updateCompanyFile(
     id: number, fileId: number, @Body() params: Partial<FileParams>,
     @Request() req: express.Request,
   ): Promise<BaseFile> {
@@ -248,7 +248,7 @@ export class CompanyController extends Controller {
   @Delete('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductFile(id: number, fileId: number): Promise<void> {
+  public async deleteCompanyFile(id: number, fileId: number): Promise<void> {
     return new FileService(CompanyFile).deleteFile(id, fileId, true);
   }
 

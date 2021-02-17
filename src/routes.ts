@@ -1809,7 +1809,7 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.put('/api/company/:id/avatar',
+        app.put('/api/company/:id/logo',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
@@ -1833,7 +1833,7 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.delete('/api/company/:id/avatar',
+        app.delete('/api/company/:id/logo',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
@@ -1945,7 +1945,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new CompanyController();
 
 
-            const promise = controller.uploadProductFile.apply(controller, validatedArgs as any);
+            const promise = controller.uploadCompanyFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1969,7 +1969,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new CompanyController();
 
 
-            const promise = controller.getProductFile.apply(controller, validatedArgs as any);
+            const promise = controller.getCompanyFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1995,7 +1995,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new CompanyController();
 
 
-            const promise = controller.updateProductFile.apply(controller, validatedArgs as any);
+            const promise = controller.updateCompanyFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2019,7 +2019,7 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new CompanyController();
 
 
-            const promise = controller.deleteProductFile.apply(controller, validatedArgs as any);
+            const promise = controller.deleteCompanyFile.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -3427,7 +3427,7 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.put('/api/user/:id/avatar',
+        app.put('/api/user/:id/logo',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
@@ -3451,7 +3451,7 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.delete('/api/user/:id/avatar',
+        app.delete('/api/user/:id/logo',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
