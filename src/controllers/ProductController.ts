@@ -160,7 +160,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getProductStatistics(id: number): Promise<AnalysisResultByYear[]> {
-    return new ProductService().getProductStatistics(id);
+    return new StatisticsService().getProductsContractedByFinancialYear(id);
   }
 
   /**

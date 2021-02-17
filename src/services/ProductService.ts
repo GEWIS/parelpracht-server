@@ -124,21 +124,4 @@ export default class ProductService {
 
     await this.repo.delete(product.id);
   }
-
-  async getProductStatistics(id: number): Promise<AnalysisResultByYear[]> {
-    const result = await RawQueries.getProductInstancesByFinancialYear(id);
-    if (result.length === 0) return result;
-
-    for (let i = 1; i < result.length; i++) {
-      if (result[i].year - 1 !== result[i - 1].year) {
-        result.splice(i, 0, {
-          amount: 0,
-          nrOfProducts: 0,
-          year: result[0].year + i,
-        } as any as AnalysisResultByYear);
-      }
-    }
-
-    return result;
-  }
 }

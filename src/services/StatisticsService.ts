@@ -1,5 +1,9 @@
 import { createQueryBuilder } from 'typeorm';
-import RawQueries, { AnalysisResult, ProductsPerCategoryPerPeriod } from '../helpers/rawQueries';
+import RawQueries, {
+  AnalysisResult,
+  AnalysisResultByYear,
+  ProductsPerCategoryPerPeriod
+} from '../helpers/rawQueries';
 import { dateToFinancialYear } from '../helpers/timestamp';
 
 export interface DashboardProductInstanceStats {
@@ -177,5 +181,22 @@ export default class StatisticsService {
       categories: parsedQ,
       financialYears: await this.getFinancialYears(dateToFinancialYear(new Date()) - 10),
     };
+  }
+
+  async getProductsContractedByFinancialYear(id: number): Promise<AnalysisResultByYear[]> {
+    const result = await RawQueries.getProductInstancesByFinancialYear(id);
+    if (result.length === 0) return result;
+
+    for (let i = 1; i < result.length; i++) {
+      if (result[i].year - 1 !== result[i - 1].year) {
+        result.splice(i, 0, {
+          amount: 0,
+          nrOfProducts: 0,
+          year: result[0].year + i,
+        } as any as AnalysisResultByYear);
+      }
+    }
+
+    return result;
   }
 }
