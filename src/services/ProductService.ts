@@ -6,6 +6,7 @@ import { ProductStatus } from '../entity/enums/ProductStatus';
 import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
+import RawQueries, { AnalysisResultByYear } from '../helpers/rawQueries';
 
 export interface ProductParams {
   nameDutch: string;

@@ -25,6 +25,7 @@ import FileService, { FileParams } from '../services/FileService';
 import FileHelper from '../helpers/fileHelper';
 import BaseFile from '../entity/file/BaseFile';
 import { CompanyFile } from '../entity/file/CompanyFile';
+import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
 
 @Route('company')
 @Tags('Company')
@@ -183,6 +184,13 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async getContacts(id: number): Promise<Contact[]> {
     return new CompanyService().getContacts(id);
+  }
+
+  @Get('{id}/statistics')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getCompanyStatistics(id: number): Promise<ContractedProductsAnalysis> {
+    return new StatisticsService().getCompanyStatistics(id);
   }
 
   /**

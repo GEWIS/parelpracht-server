@@ -24,6 +24,7 @@ import { ProductStatus } from '../entity/enums/ProductStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
 import ProductInstanceService, { ProductInstanceListResponse } from '../services/ProductInstanceService';
+import { AnalysisResultByYear } from '../helpers/rawQueries';
 
 @Route('product')
 @Tags('Product')
@@ -153,6 +154,13 @@ export class ProductController extends Controller {
     id: number, @Body() params: PaginationParams,
   ): Promise<ProductInstanceListResponse> {
     return new ProductInstanceService().getProductInvoices(id, params.skip, params.take);
+  }
+
+  @Get('{id}/statistics')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getProductStatistics(id: number): Promise<AnalysisResultByYear[]> {
+    return new StatisticsService().getProductsContractedByFinancialYear(id);
   }
 
   /**

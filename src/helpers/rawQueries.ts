@@ -35,9 +35,13 @@ export interface AnalysisResult {
   nrOfProducts: number,
 }
 
-export interface ProductsPerCategoryPerMonth {
+export interface AnalysisResultByYear extends AnalysisResult {
+  year: number;
+}
+
+export interface ProductsPerCategoryPerPeriod {
   categoryId: number,
-  month: number,
+  period: number,
   amount: number,
   nrOfProducts: number,
 }
@@ -52,6 +56,12 @@ function arrayToQueryArray(arr: string[] | number[]) {
     }
   });
   return `${result.substring(0, result.length - 2)})`;
+}
+
+function currentFinancialYear(): number {
+  const now = new Date();
+  now.setMonth(now.getMonth() + 8);
+  return now.getFullYear();
 }
 
 function inOrBeforeYearFilter(column: string, year: number): string {
@@ -226,9 +236,9 @@ export default class RawQueries {
    *
    ************************ */
   static getProductsContractedPerMonthByFinancialYear = (year: number):
-  Promise<ProductsPerCategoryPerMonth[]> => {
+  Promise<ProductsPerCategoryPerPeriod[]> => {
     return getManager().query(`
-      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as month, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
       FROM product_instance pi
       JOIN product p ON (p.id = pi."productId")
       JOIN contract c ON (c.id = pi."contractId")
@@ -236,8 +246,8 @@ export default class RawQueries {
       LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED' AND ${inYearFilter('a1."createdAt"', year)})
-      GROUP BY p."categoryId", month
-      ORDER BY month, p."categoryId";
+      GROUP BY p."categoryId", period
+      ORDER BY period, p."categoryId";
     `);
   };
 
@@ -336,6 +346,38 @@ export default class RawQueries {
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" = 'PAID' AND
           ${inYearFilter('i."startDate"', year)} )
+    `);
+  };
+
+  static getProductInstancesByFinancialYear = (id: number): Promise<AnalysisResultByYear[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts",
+        COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) as year
+      FROM product_instance p
+      LEFT JOIN invoice i ON (p."invoiceId" = i.id)
+      LEFT JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND p."productId" = ${id} AND
+          COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) > ${currentFinancialYear() - 10})
+      GROUP BY year
+    `);
+  };
+
+  static getProductsContractedPerFinancialYearByCompany = (id: number):
+  Promise<ProductsPerCategoryPerPeriod[]> => {
+    return getManager().query(`
+      SELECT p."categoryId", EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+      FROM product_instance pi
+      JOIN product p ON (p.id = pi."productId")
+      JOIN contract c ON (c.id = pi."contractId")
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED' AND c."companyId" = ${id} AND
+          EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) > ${currentFinancialYear() - 10})
+      GROUP BY p."categoryId", period
+      ORDER BY period, p."categoryId";
     `);
   };
 }
