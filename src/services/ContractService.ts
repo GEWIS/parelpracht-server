@@ -16,6 +16,7 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { cartesian, cartesianArrays } from '../helpers/filters';
+import { Roles } from '../entity/enums/Roles';
 
 export interface ContractParams {
   title: string;
@@ -133,8 +134,9 @@ export default class ContractService {
     };
   }
 
-  async getRecentContracts(): Promise<RecentContract[]> {
-    return RawQueries.getRecentContractsWithStatus(5);
+  async getRecentContracts(actor: User): Promise<RecentContract[]> {
+    const userId = actor.hasRole(Roles.ADMIN) ? undefined : actor.id;
+    return RawQueries.getRecentContractsWithStatus(5, userId);
   }
 
   async createContract(params: ContractParams): Promise<Contract> {

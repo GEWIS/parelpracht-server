@@ -1,33 +1,47 @@
 import {
-  Body, Controller, Post, Route, Put, Tags, Get, Delete, Security, Response, Request,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Request,
+  Response,
+  Route,
+  Security,
+  Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Contract } from '../entity/Contract';
 import ContractService, {
-  ContractListResponse, ContractParams, ContractSummary,
+  ContractListResponse,
+  ContractParams,
+  ContractSummary,
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
-  ActivityParams, FullActivityParams, ContractStatusParams, ProductInstanceStatusParams,
+  ActivityParams,
+  ContractStatusParams,
+  FullActivityParams,
+  ProductInstanceStatusParams,
 } from '../services/ActivityService';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
-import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import FileService, {
-  FileParams, FullGenerateContractParams, GenerateContractParams,
+  FileParams,
+  FullGenerateContractParams,
+  GenerateContractParams,
 } from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 import FileHelper from '../helpers/fileHelper';
-import {
-  validate, validateActivityParams, validateFileParams,
-} from '../helpers/validation';
+import { validate, validateActivityParams, validateFileParams, } from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
@@ -90,12 +104,13 @@ export class ContractController extends Controller {
 
   /**
    * getRecentContracts() - retrieve a list of all recently edited contracts
+   * @param req Express.js request object
    */
   @Get('recent')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getRecentContracts(): Promise<RecentContract[]> {
-    return new ContractService().getRecentContracts();
+  public async getRecentContracts(@Request() req: express.Request): Promise<RecentContract[]> {
+    return new ContractService().getRecentContracts(req.user! as User);
   }
 
   /**

@@ -45,6 +45,7 @@ const models: TsoaRoute.Models = {
             "gender": {"ref":"Gender","required":true},
             "replyToEmail": {"dataType":"string"},
             "receiveEmails": {"dataType":"boolean"},
+            "sendEmailsToReplyToEmail": {"dataType":"boolean"},
             "comment": {"dataType":"string"},
             "roles": {"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}},
         },
@@ -85,6 +86,7 @@ const models: TsoaRoute.Models = {
             "function": {"dataType":"string","required":true},
             "avatarFilename": {"dataType":"string","required":true},
             "receiveEmails": {"dataType":"boolean","required":true},
+            "sendEmailsToReplyToEmail": {"dataType":"boolean","required":true},
             "roles": {"dataType":"array","array":{"ref":"Role"},"required":true},
         },
         "additionalProperties": false,
@@ -1020,7 +1022,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"sendEmailsToReplyToEmail":{"dataType":"boolean"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransferUserParams": {
@@ -2089,6 +2091,7 @@ export function RegisterRoutes(app: express.Router) {
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             function (request: any, response: any, next: any) {
             const args = {
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
