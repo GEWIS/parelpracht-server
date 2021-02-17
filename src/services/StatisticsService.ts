@@ -1,5 +1,5 @@
 import { createQueryBuilder } from 'typeorm';
-import RawQueries, { AnalysisResult } from '../helpers/rawQueries';
+import RawQueries, { AnalysisResult, ProductsPerCategoryPerPeriod } from '../helpers/rawQueries';
 import { dateToFinancialYear } from '../helpers/timestamp';
 
 export interface DashboardProductInstanceStats {
@@ -22,7 +22,7 @@ interface ProductsPerCategory {
   nrOfProducts: number[];
 }
 
-export interface ContractedProductsPerMonth {
+export interface ContractedProductsAnalysis {
   categories: ProductsPerCategory[];
   financialYears: number[];
 }
@@ -35,12 +35,21 @@ function rangeToArray(start: number, end: number, step: number): number[] {
   return result;
 }
 
+function appendZeroesToStart(array: number[], newLength: number) {
+  while (array.length < newLength) {
+    array.splice(0, 0, 0);
+  }
+  return array;
+}
+
 export default class StatisticsService {
-  private async getFinancialYears(): Promise<number[]> {
-    const firstYear = await createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
+  private async getFinancialYears(firstYear?: number): Promise<number[]> {
+    if (firstYear) return rangeToArray(firstYear, dateToFinancialYear(new Date()), 1);
+
+    const startYear = await createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
     let start: Date;
-    if (firstYear) { // @ts-ignore
-      start = firstYear.createdAt;
+    if (startYear) { // @ts-ignore
+      start = startYear.createdAt;
     } else {
       start = new Date();
     }
@@ -93,9 +102,9 @@ export default class StatisticsService {
     return result;
   }
 
-  async getProductContractedPerMonth(year: number): Promise<ContractedProductsPerMonth> {
-    const q = await RawQueries.getProductsContractedPerMonthByFinancialYear(year);
-
+  parseContractedProductsPerPeriod(
+    q: ProductsPerCategoryPerPeriod[], cumulative: boolean, length: number, lowestNumber: number,
+  ): ProductsPerCategory[] {
     const result: ProductsPerCategory[] = [];
     let tempRes: ProductsPerCategory = {
       categoryId: -1,
@@ -106,15 +115,17 @@ export default class StatisticsService {
 
     const finishProductCategoryParsing = () => {
       // Append arrays with zeroes until we get a length of 12 (months)
-      while (tempRes.amount.length <= 12) {
+      while (tempRes.amount.length <= length) {
         tempRes.amount.push(0);
         tempRes.nrOfProducts.push(0);
       }
 
-      // Make the arrays cumulative
-      for (let i = 1; i <= 12; i++) {
-        tempRes.amount[i] += tempRes.amount[i - 1];
-        tempRes.nrOfProducts[i] += tempRes.nrOfProducts[i - 1];
+      if (cumulative) {
+        // Make the arrays cumulative
+        for (let i = 1; i <= length; i++) {
+          tempRes.amount[i] += tempRes.amount[i - 1];
+          tempRes.nrOfProducts[i] += tempRes.nrOfProducts[i - 1];
+        }
       }
 
       result.push(tempRes);
@@ -135,7 +146,7 @@ export default class StatisticsService {
         };
       }
 
-      while (tempRes.amount.length < p.month) {
+      while (tempRes.amount.length < p.period - lowestNumber) {
         tempRes.amount.push(0);
         tempRes.nrOfProducts.push(0);
       }
@@ -144,9 +155,27 @@ export default class StatisticsService {
     });
     finishProductCategoryParsing();
 
+    return result;
+  }
+
+  async getProductContractedPerMonth(year: number): Promise<ContractedProductsAnalysis> {
+    const q = await RawQueries.getProductsContractedPerMonthByFinancialYear(year);
+
     return {
-      categories: result,
+      categories: this.parseContractedProductsPerPeriod(q, true, 12, 0),
       financialYears: await this.getFinancialYears(),
+    };
+  }
+
+  async getCompanyStatistics(id: number): Promise<ContractedProductsAnalysis> {
+    const q = await RawQueries.getProductsContractedPerFinancialYearByCompany(id);
+    const parsedQ = this.parseContractedProductsPerPeriod(
+      q, false, 10, dateToFinancialYear(new Date()) - 10,
+    );
+
+    return {
+      categories: parsedQ,
+      financialYears: await this.getFinancialYears(dateToFinancialYear(new Date()) - 10),
     };
   }
 }
