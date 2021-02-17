@@ -118,7 +118,7 @@ export class UserController extends Controller {
    * @param req Express.js request object
    * @param id ID of the user
    */
-  @Put('{id}/avatar')
+  @Put('{id}/logo')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async uploadUserAvatar(@Request() req: express.Request, id: number) {
@@ -135,7 +135,7 @@ export class UserController extends Controller {
    * @param req Express.js request object
    * @param id ID of the user
    */
-  @Delete('{id}/avatar')
+  @Delete('{id}/logo')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async deleteUserAvatar(@Request() req: express.Request, id:number): Promise<User> {
