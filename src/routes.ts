@@ -596,6 +596,16 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "AnalysisResultByYear": {
+        "dataType": "refObject",
+        "properties": {
+            "amount": {"dataType":"double","required":true},
+            "nrOfProducts": {"dataType":"double","required":true},
+            "financialYear": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "BaseFile": {
         "dataType": "refObject",
         "properties": {
@@ -1413,6 +1423,29 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProductInvoices.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/product/:id/statistics',
+            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            function (request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new ProductController();
+
+
+            const promise = controller.getProductStatistics.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

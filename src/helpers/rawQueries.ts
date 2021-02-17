@@ -35,6 +35,10 @@ export interface AnalysisResult {
   nrOfProducts: number,
 }
 
+export interface AnalysisResultByYear extends AnalysisResult {
+  financialYear: number;
+}
+
 export interface ProductsPerCategoryPerMonth {
   categoryId: number,
   month: number,
@@ -52,6 +56,12 @@ function arrayToQueryArray(arr: string[] | number[]) {
     }
   });
   return `${result.substring(0, result.length - 2)})`;
+}
+
+function currentFinancialYear(): number {
+  const now = new Date();
+  now.setMonth(now.getMonth() + 8)
+  return now.getFullYear();
 }
 
 function inOrBeforeYearFilter(column: string, year: number): string {
@@ -336,6 +346,20 @@ export default class RawQueries {
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" = 'PAID' AND
           ${inYearFilter('i."startDate"', year)} )
+    `);
+  };
+
+  static getProductInstancesByFinancialYear = (id: number): Promise<AnalysisResultByYear[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts",
+        COALESCE(EXTRACT(YEAR FROM a1."createdAt" + interval '6' month), ${currentFinancialYear()}) as year
+      FROM product_instance p
+      JOIN invoice i ON (p."invoiceId" = i.id)
+      JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" <> 'CREATED' AND p."productId" = ${id})
+      GROUP_BY year
     `);
   };
 }
