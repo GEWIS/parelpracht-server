@@ -145,7 +145,7 @@ export class CompanyController extends Controller {
    * @param req Express.js request object
    * @param id ID of the user
    */
-  @Put('{id}/avatar')
+  @Put('{id}/logo')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async uploadCompanyLogo(@Request() req: express.Request, id: number) {
@@ -156,7 +156,7 @@ export class CompanyController extends Controller {
    * Delete a logo for a company
    * @param id Id of the company
    */
-  @Delete('{id}/avatar')
+  @Delete('{id}/logo')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCompanyLogo(id: number): Promise<Company> {
