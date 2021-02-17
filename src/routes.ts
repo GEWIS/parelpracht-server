@@ -601,7 +601,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "amount": {"dataType":"double","required":true},
             "nrOfProducts": {"dataType":"double","required":true},
-            "financialYear": {"dataType":"double","required":true},
+            "year": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
