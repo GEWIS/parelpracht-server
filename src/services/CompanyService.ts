@@ -44,7 +44,7 @@ export default class CompanyService {
   }
 
   async getCompany(id: number): Promise<Company> {
-    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities', 'invoices'] }); // May need more relations
+    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities', 'invoices', 'files'] }); // May need more relations
     if (company === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
@@ -124,6 +124,9 @@ export default class CompanyService {
     }
     if (company.contacts.length > 0) {
       throw new ApiError(HTTPStatus.BadRequest, 'Company has contacts');
+    }
+    if (company.files.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Company has files');
     }
 
     await this.repo.delete(company.id);
