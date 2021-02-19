@@ -109,21 +109,26 @@ export default class FileService {
 
   async generateContractFile(params: FullGenerateContractParams): Promise<ContractFile> {
     const file = await this.createFileObject(params);
-    const signee1 = await new UserService().getUser(params.signee1Id);
-    const signee2 = await new UserService().getUser(params.signee2Id);
+    let signee1;
+    let signee2;
+    if (params.contentType === ContractType.CONTRACT) {
+      signee1 = await new UserService().getUser(params.signee1Id);
+      signee2 = await new UserService().getUser(params.signee2Id);
+
+      if (!(signee1.roles.map((r) => r.name)).includes('SIGNEE')) {
+        throw new ApiError(HTTPStatus.BadRequest, 'Signee 1 is not authorized to sign');
+      }
+      if (!(signee2.roles.map((r) => r.name)).includes('SIGNEE')) {
+        throw new ApiError(HTTPStatus.BadRequest, 'Signee 2 is not authorized to sign');
+      }
+    }
+
     const p = {
       ...params,
       signee1,
       signee2,
       sender: this.actor,
     } as any as ContractGenSettings;
-
-    if (!(signee1.roles.map((r) => r.name)).includes('SIGNEE')) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Signee 1 is not authorized to sign');
-    }
-    if (!(signee2.roles.map((r) => r.name)).includes('SIGNEE')) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Signee 2 is not authorized to sign');
-    }
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
     if (contract.products.length === 0) {

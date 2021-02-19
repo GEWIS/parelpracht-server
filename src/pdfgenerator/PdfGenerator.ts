@@ -359,7 +359,11 @@ export default class PdfGenerator {
       settings.language, false, contract.title, `C${contract.id}`);
     file = this.createProductTables(file, contract.products, settings.language,
       settings.showDiscountPercentages);
-    file = this.createSignees(file, settings.signee1, settings.signee2);
+    if (settings.contentType === ContractType.CONTRACT
+      && settings.signee1 !== undefined && settings.signee2 !== undefined
+    ) {
+      file = this.createSignees(file, settings.signee1, settings.signee2);
+    }
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }

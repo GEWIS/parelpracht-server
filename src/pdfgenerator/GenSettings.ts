@@ -23,8 +23,8 @@ export interface ContractGenSettings {
   fileType: ReturnFileType,
   saveToDisk: boolean,
   showDiscountPercentages: boolean,
-  signee1: User,
-  signee2: User,
+  signee1?: User,
+  signee2?: User,
   sender: User,
 }
 
