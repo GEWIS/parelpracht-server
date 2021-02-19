@@ -745,7 +745,8 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "categories": {"dataType":"array","array":{"ref":"ProductsPerCategory"},"required":true},
-            "financialYears": {"dataType":"array","array":{"dataType":"double"},"required":true},
+            "labels": {"dataType":"array","array":{"dataType":"string"}},
+            "financialYears": {"dataType":"array","array":{"dataType":"double"}},
         },
         "additionalProperties": false,
     },

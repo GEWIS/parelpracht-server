@@ -2,7 +2,7 @@ import { createQueryBuilder } from 'typeorm';
 import RawQueries, {
   AnalysisResult,
   AnalysisResultByYear,
-  ProductsPerCategoryPerPeriod
+  ProductsPerCategoryPerPeriod,
 } from '../helpers/rawQueries';
 import { dateToFinancialYear } from '../helpers/timestamp';
 
@@ -28,7 +28,8 @@ interface ProductsPerCategory {
 
 export interface ContractedProductsAnalysis {
   categories: ProductsPerCategory[];
-  financialYears: number[];
+  labels?: string[];
+  financialYears?: number[];
 }
 
 function rangeToArray(start: number, end: number, step: number): number[] {
@@ -179,7 +180,8 @@ export default class StatisticsService {
 
     return {
       categories: parsedQ,
-      financialYears: await this.getFinancialYears(dateToFinancialYear(new Date()) - 10),
+      labels: (await this.getFinancialYears(dateToFinancialYear(new Date()) - 10))
+        .map((i) => i.toString()),
     };
   }
 
@@ -197,6 +199,6 @@ export default class StatisticsService {
       }
     }
 
-    return result;
+    return result.sort((a, b) => a.year - b.year);
   }
 }

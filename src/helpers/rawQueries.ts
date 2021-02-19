@@ -247,7 +247,7 @@ export default class RawQueries {
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED' AND ${inYearFilter('a1."createdAt"', year)})
       GROUP BY p."categoryId", period
-      ORDER BY period, p."categoryId";
+      ORDER BY p."categoryId", period;
     `);
   };
 
