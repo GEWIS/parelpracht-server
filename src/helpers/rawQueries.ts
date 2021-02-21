@@ -3,6 +3,7 @@ import { ListParams } from '../controllers/ListParams';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 
 export interface RecentContract {
   id: number,
@@ -73,6 +74,32 @@ function inYearFilter(column: string, year: number): string {
 }
 
 export default class RawQueries {
+  static getContractSummaries = (): Promise<ContractSummary[]> => {
+    return getManager().query(`
+      SELECT c.id, max(c.title) as title, COALESCE(sum(p."basePrice" - p.discount), 0) as value, max(a1."subType") as "status"
+      FROM contract c
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      LEFT JOIN product_instance p ON (c.id = p."contractId")
+      WHERE (a2.id IS NULL)
+      GROUP by c.id
+    `);
+  };
+
+  static getInvoiceSummaries = (): Promise<InvoiceSummary[]> => {
+    return getManager().query(`
+      SELECT i.id, max(i.title) as title, max(i."companyId") as "companyId", sum(p."basePrice" - p.discount) as value, max(a1."subType") as "status"
+      FROM invoice i
+      JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      LEFT JOIN product_instance p ON (i.id = p."invoiceId")
+      WHERE (a2.id IS NULL)
+      GROUP by i.id
+    `);
+  };
+
   static getContractWithProductsAndTheirStatuses = (lp: ListParams, result: 'data' | 'count') => {
     let query = '';
 

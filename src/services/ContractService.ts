@@ -17,6 +17,7 @@ import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
+import { ContractSummary } from '../entity/Summaries';
 
 export interface ContractParams {
   title: string;
@@ -24,12 +25,6 @@ export interface ContractParams {
   contactId: number;
   comments?: string;
   assignedToId?: number;
-}
-
-export interface ContractSummary {
-  id: number;
-  title: string;
-  status: ContractStatus;
 }
 
 export interface ContractListResponse {
@@ -118,13 +113,7 @@ export default class ContractService {
   }
 
   async getContractSummaries(): Promise<ContractSummary[]> {
-    // TODO: do not return statusDate in the output objects
-    return getRepository(ContractActivity).createQueryBuilder('a')
-      .select(['max(c.id) as id', 'max(c.title) as title', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
-      .innerJoin('a.contract', 'c', 'a.contractId = c.id')
-      .groupBy('a.contractId')
-      .where("a.type = 'STATUS'")
-      .getRawMany<ContractSummary>();
+    return RawQueries.getContractSummaries();
   }
 
   async getAllContractsExtensive(params: ListParams): Promise<any> {

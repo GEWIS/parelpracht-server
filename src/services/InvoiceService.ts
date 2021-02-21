@@ -18,6 +18,7 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 // eslint-disable-next-line import/no-cycle
 import ServerSettingsService from './ServerSettingsService';
 import { ServerSetting } from '../entity/ServerSetting';
+import { InvoiceSummary } from '../entity/Summaries';
 
 export interface InvoiceParams {
   title: string;
@@ -30,13 +31,6 @@ export interface InvoiceParams {
 export interface InvoiceCreateParams extends InvoiceParams {
   productInstanceIds: number[];
   companyId: number;
-}
-
-export interface InvoiceSummary {
-  id: number;
-  title: string;
-  companyId: number;
-  status: InvoiceStatus;
 }
 
 export interface InvoiceListResponse {
@@ -124,13 +118,7 @@ export default class InvoiceService {
   }
 
   async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
-    // TODO: do not return statusDate in the output objects
-    return getRepository(InvoiceActivity).createQueryBuilder('a')
-      .select(['max(i.id) as id', 'max(i.title) as title', 'max(i.companyId) as "companyId"', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
-      .innerJoin('a.invoice', 'i', 'a.invoiceId = i.id')
-      .groupBy('a.invoiceId')
-      .where("a.type = 'STATUS'")
-      .getRawMany<InvoiceSummary>();
+    return RawQueries.getInvoiceSummaries();
   }
 
   async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
@@ -217,7 +205,6 @@ export default class InvoiceService {
       value: milliseconds.toString(),
     };
     await new ServerSettingsService().setSetting(setting);
-    console.log(setting);
   }
 
   async transferAssignments(fromUser: User, toUser: User): Promise<void> {
