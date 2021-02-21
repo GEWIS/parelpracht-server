@@ -189,6 +189,6 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
-    await this.repo.delete(instance.id);
+    await this.repo.update(instance.id, { invoiceId: undefined });
   }
 }

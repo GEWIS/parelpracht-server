@@ -206,7 +206,6 @@ export default class InvoiceService {
     const settingValue = setting?.value;
     const milliseconds = settingValue ? parseInt(settingValue, 10) : undefined;
     const result = milliseconds ? new Date(milliseconds) : undefined;
-    console.log(result);
     return result;
   }
 
