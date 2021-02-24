@@ -702,6 +702,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"double","required":true},
             "name": {"dataType":"string","required":true},
+            "logoFilename": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
