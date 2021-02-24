@@ -142,7 +142,6 @@ export default class PdfGenerator {
     t = PdfGenerator.fr(t, '%{subject}\n', subject);
     t = PdfGenerator.fr(t, '%{ourreference}', ourReference);
     t = PdfGenerator.fr(t, '%{yourreference}', theirReference);
-    t = PdfGenerator.fr(t, '%{senderemail}\n', sender.email);
 
     if (useInvoiceAddress) {
       t = PdfGenerator.fr(t, '%{street}\n', company.invoiceAddressStreet!);
@@ -171,6 +170,15 @@ export default class PdfGenerator {
       }
     }
     t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+    
+    let mail = '';
+    if (sender.replyToEmail.length > 0) {
+      mail = sender.replyToEmail;
+    } else {
+      mail = 'ceb@gewis.nl';
+    }
+
+    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
 
     return t;
   }
@@ -424,7 +432,6 @@ export default class PdfGenerator {
     t = PdfGenerator.fr(t, '%{subject}\n', params.subject);
     t = PdfGenerator.fr(t, '%{ourreference}\n', params.ourReference);
     t = PdfGenerator.fr(t, '%{yourreference}\n', params.theirReference ?? '');
-    t = PdfGenerator.fr(t, '%{senderemail}\n', fileObj.createdBy.email);
     t = PdfGenerator.fr(t, '%{street}\n', params.recipient.street);
     t = PdfGenerator.fr(t, '%{postalcode}\n', params.recipient.postalCode);
     t = PdfGenerator.fr(t, '%{city}\n', params.recipient.city);
@@ -446,6 +453,15 @@ export default class PdfGenerator {
       }
     }
     t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+
+    let mail = '';
+    if (fileObj.createdBy.replyToEmail.length > 0) {
+      mail = fileObj.createdBy.replyToEmail;
+    } else {
+      mail = 'ceb@gewis.nl';
+    }
+    
+    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
 
     let totalPrice = 0;
     let table = '';
