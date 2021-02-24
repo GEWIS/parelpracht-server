@@ -1,18 +1,19 @@
 import Mail from 'nodemailer/lib/mailer';
 import { User } from '../../entity/User';
+import { Invoice } from '../../entity/Invoice';
 
-export const newUser = (user: User, resetLink: string): Mail.Options => ({
-  subject: 'Your account has been created - ParelPracht',
-  to: user.email,
-  from: process.env.MAIL_FROM,
-  html: `
-    <p>Dear ${user.firstName}, <br/><br/>
-      An account has been created for you in ParelPracht, the Customer Relationship Managment system of study association GEWIS.<br/>
-      This email address (${user.email}) will be your username.<br/>
-      Follow <a href=${resetLink}>this link</a> to set your password and start using ParelPracht.
-      The link expires in 7 days.<br/><br/>
+export const newInvoice = (receiver: User, invoice: Invoice): Mail.Options => {
+  return {
+    subject: `New Invoice F${invoice.id} - ParelPracht`,
+    to: receiver.email,
+    from: process.env.MAIL_FROM,
+    html: `
+    <p>Dear ${receiver.firstName}, <br/><br/>
+      An invoice has just been created in ParelPracht.<br/>
+      The invoice ID is F${invoice.id}, and was sent by ${invoice.createdBy.firstName} to ${invoice.company}.
+      For any questions about the invoice, you can email ${invoice.createdBy.firstName} at ${invoice.createdBy.email}.
 
-      In the future you can access ParelPracht by going to <a href="parelpracht.gewis.nl">parelpracht.gewis.nl</a>. For any questions, we suggest you to get in contact with the External Affairs Officer of GEWIS, who can be reached by emailing to <a href="mailto:ceb@gewis.nl">ceb@gewis.nl</a>.<br/><br/>
+      At your convenience you can redirect yourself to ParelPracht by using the following link: <a href="parelpracht.gewis.nl">parelpracht.gewis.nl</a>.<br/><br/>
 
       We wish you best of luck with all your future endeavours for our beautiful association.<br>
       </p>
@@ -58,4 +59,5 @@ export const newUser = (user: User, resetLink: string): Mail.Options => ({
         </tbody>
     </table>
   `,
-});
+  };
+};
