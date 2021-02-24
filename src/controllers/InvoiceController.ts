@@ -10,7 +10,6 @@ import InvoiceService, {
   InvoiceCreateParams,
   InvoiceListResponse,
   InvoiceParams,
-  InvoiceSummary,
 } from '../services/InvoiceService';
 import { ListParams } from './ListParams';
 import ActivityService, {
@@ -35,6 +34,7 @@ import { CustomInvoiceGenSettings, Language, ReturnFileType } from '../pdfgenera
 import { ExpiredInvoice } from '../helpers/rawQueries';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import { InvoiceSummary } from '../entity/Summaries';
 
 @Route('invoice')
 @Tags('Invoice')

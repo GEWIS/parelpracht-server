@@ -17,7 +17,6 @@ import { Contract } from '../entity/Contract';
 import ContractService, {
   ContractListResponse,
   ContractParams,
-  ContractSummary,
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
@@ -41,13 +40,14 @@ import FileService, {
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 import FileHelper from '../helpers/fileHelper';
-import { validate, validateActivityParams, validateFileParams, } from '../helpers/validation';
+import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { RecentContract } from '../helpers/rawQueries';
+import { ContractSummary } from '../entity/Summaries';
 
 @Route('contract')
 @Tags('Contract')

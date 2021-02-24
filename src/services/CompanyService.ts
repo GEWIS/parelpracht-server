@@ -29,6 +29,7 @@ export interface CompanyParams {
 export interface CompanySummary {
   id: number;
   name: string;
+  logoFilename: string;
 }
 
 export interface CompanyListResponse {
@@ -98,7 +99,7 @@ export default class CompanyService {
   }
 
   async getCompanySummaries(): Promise<CompanySummary[]> {
-    return this.repo.find({ select: ['id', 'name'] });
+    return this.repo.find({ select: ['id', 'name', 'logoFilename'] });
   }
 
   createCompany(params: CompanyParams): Promise<Company> {

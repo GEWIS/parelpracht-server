@@ -41,6 +41,7 @@ export interface UserSummary {
   lastNamePreposition: string;
   lastName: string;
   email: string;
+  avatarFilename: string;
 }
 
 export interface UserListResponse {
@@ -125,7 +126,7 @@ export default class UserService {
 
   async getUserSummaries(): Promise<UserSummary[]> {
     return this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename'],
     });
   }
 
