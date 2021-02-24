@@ -2,12 +2,12 @@ import Mail from 'nodemailer/lib/mailer';
 import { User } from '../../entity/User';
 import { Invoice } from '../../entity/Invoice';
 
-
-export const newInvoice = (receiver: User, invoice: Invoice ): Mail.Options => ({
-  subject: 'New Invoice F${invoice.id} - ParelPracht',
-  to: receiver.email,
-  from: process.env.MAIL_FROM,
-  html: `
+export const newInvoice = (receiver: User, invoice: Invoice): Mail.Options => {
+  return {
+    subject: `New Invoice F${invoice.id} - ParelPracht`,
+    to: receiver.email,
+    from: process.env.MAIL_FROM,
+    html: `
     <p>Dear ${receiver.firstName}, <br/><br/>
       An invoice has just been created in ParelPracht.<br/>
       The invoice ID is F${invoice.id}, and was sent by ${invoice.createdBy.firstName} to ${invoice.company}.
@@ -59,4 +59,5 @@ export const newInvoice = (receiver: User, invoice: Invoice ): Mail.Options => (
         </tbody>
     </table>
   `,
-});
+  };
+};

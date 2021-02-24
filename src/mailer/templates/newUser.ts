@@ -7,7 +7,7 @@ export const newUser = (user: User, resetLink: string): Mail.Options => ({
   from: process.env.MAIL_FROM,
   html: `
     <p>Dear ${user.firstName}, <br/><br/>
-      An account has been created for you in ParelPracht, the Customer Relationship Managment system from study association GEWIS.<br/>
+      An account has been created for you in ParelPracht, the Customer Relationship Managment system of study association GEWIS.<br/>
       This email address (${user.email}) will be your username.<br/>
       Follow <a href=${resetLink}>this link</a> to set your password and start using ParelPracht.
       The link expires in 7 days.<br/><br/>
