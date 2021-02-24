@@ -1048,6 +1048,7 @@ const models: TsoaRoute.Models = {
             "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
+            "avatarFilename": {"dataType":"string","required":true},
         },
         "additionalProperties": false,
     },
