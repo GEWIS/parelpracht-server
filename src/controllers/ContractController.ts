@@ -40,7 +40,7 @@ import FileService, {
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 import FileHelper from '../helpers/fileHelper';
-import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
+import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
@@ -256,7 +256,7 @@ export class ContractController extends Controller {
   public async addProductInstanceComment(
     id: number, prodId: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     const p = {
       ...params,
@@ -430,7 +430,7 @@ export class ContractController extends Controller {
   public async addContractComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,

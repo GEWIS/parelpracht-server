@@ -16,7 +16,7 @@ import ActivityService, {
 import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
-import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
+import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
 import ContractService from '../services/ContractService';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
@@ -264,7 +264,7 @@ export class CompanyController extends Controller {
   public async addCompanyComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,
