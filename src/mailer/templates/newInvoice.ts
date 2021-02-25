@@ -1,19 +1,28 @@
-import Mail from 'nodemailer/lib/mailer';
+import Mail, { Attachment } from 'nodemailer/lib/mailer';
 import { User } from '../../entity/User';
 import { Invoice } from '../../entity/Invoice';
 
 export const newInvoice = (receiver: User, invoice: Invoice): Mail.Options => {
+  const attachments: Attachment[] = invoice.files.map((f) => {
+    const a: Attachment = {
+      filename: f.downloadName,
+      path: f.location,
+    };
+    return a;
+  });
+
   return {
     subject: `New Invoice F${invoice.id} - ParelPracht`,
-    to: receiver.email,
+    to: receiver.sendEmailsToReplyToEmail && receiver.replyToEmail !== '' ? receiver.replyToEmail : receiver.email,
     from: process.env.MAIL_FROM,
+    attachments,
     html: `
     <p>Dear ${receiver.firstName}, <br/><br/>
       An invoice has just been created in ParelPracht.<br/>
-      The invoice ID is F${invoice.id}, and was sent by ${invoice.createdBy.firstName} to ${invoice.company}.
-      For any questions about the invoice, you can email ${invoice.createdBy.firstName} at ${invoice.createdBy.email}.
+      The invoice ID is F${invoice.id}, and was sent by ${invoice.createdBy.firstName} to ${invoice.company.name}.
+      For any questions about the invoice, you can email ${invoice.createdBy.firstName} at ${invoice.createdBy.replyToEmail !== '' ? invoice.createdBy.replyToEmail : invoice.createdBy.email}.
 
-      At your convenience you can redirect yourself to ParelPracht by using the following link: <a href="parelpracht.gewis.nl">parelpracht.gewis.nl</a>.<br/><br/>
+      At your convenience you can view this invoice in ParelPracht by using the following link: <a href="${process.env.SERVER_HOST}/invoice/${invoice.id}">${process.env.SERVER_HOST}/invoice/${invoice.id}</a>.<br/><br/>
 
       We wish you best of luck with all your future endeavours for our beautiful association.<br>
       </p>

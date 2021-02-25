@@ -124,6 +124,15 @@ export default class UserService {
     };
   }
 
+  async getTreasurersToSendEmail(): Promise<User[]> {
+    return this.repo.find({
+      where: {
+        receiveEmails: true,
+      },
+      relations: ['roles'],
+    });
+  }
+
   async getUserSummaries(): Promise<UserSummary[]> {
     return this.repo.find({
       select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename'],

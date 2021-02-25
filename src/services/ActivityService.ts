@@ -16,6 +16,11 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+import UserService from './UserService';
+import { Roles } from '../entity/enums/Roles';
+import { Mailer } from '../mailer/Mailer';
+import { newInvoice } from '../mailer/templates/newInvoice';
+import { sendInvoiceEmails } from '../helpers/mailBuilder';
 
 export interface ActivityParams {
   description: string;
@@ -244,6 +249,11 @@ export default class ActivityService {
       case InvoiceActivity:
         activity.invoiceId = params.entityId;
         statusParam = { invoiceId: params.entityId };
+
+        if (params.type === ActivityType.STATUS && params.subType === InvoiceStatus.SENT) {
+          await sendInvoiceEmails(params.entityId);
+        }
+
         break;
       case ProductInstanceActivity:
         activity.productInstanceId = params.entityId;
