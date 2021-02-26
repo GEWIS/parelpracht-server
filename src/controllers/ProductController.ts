@@ -7,7 +7,9 @@ import { body } from 'express-validator';
 import { Product } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams, PaginationParams } from './ListParams';
-import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,

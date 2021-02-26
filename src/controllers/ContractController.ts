@@ -153,7 +153,7 @@ export class ContractController extends Controller {
     id: number, @Body() params: Partial<ContractParams>, @Request() req: express.Request,
   ): Promise<Contract> {
     await this.validateContractParams(req);
-    return new ContractService().updateContract(id, params);
+    return new ContractService({ actor: req.user as User }).updateContract(id, params);
   }
 
   /**

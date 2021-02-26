@@ -18,6 +18,13 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
+import {
+  createEditActivityDescription,
+  createReassignActivityDescription,
+  getEntityChanges,
+} from '../helpers/activity';
+// eslint-disable-next-line import/no-cycle
+import UserService from './UserService';
 
 export interface ContractParams {
   title: string;
@@ -158,8 +165,42 @@ export default class ContractService {
   }
 
   async updateContract(id: number, params: Partial<ContractParams>): Promise<Contract> {
+    let contract = await this.repo.findOne(id);
+    if (contract === undefined) throw new ApiError(HTTPStatus.NotFound);
+    const changes = getEntityChanges<Contract>(params as Partial<Contract>, contract);
+
+    // If nothing has changed, we can simply return the
+    if (Object.keys(changes).length === 0) {
+      return contract;
+    }
+
     await this.repo.update(id, params);
-    const contract = await this.repo.findOne(id);
+
+    // If the assigned user has changes, we create an activity for this.
+    if (Object.keys(changes).includes('assignedToId')) {
+      await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
+        description: createReassignActivityDescription(
+          await new UserService().getUser(changes.assignedToId!),
+          await new UserService().getUser(contract.assignedToId),
+        ),
+        entityId: id,
+        type: ActivityType.REASSIGN,
+      } as any as FullActivityParams);
+      // Remove this change, because we have created an activity for it.
+      delete changes.assignedToId;
+    }
+
+    // If any other properties have changed, we create an "EDIT" activity for this.
+    if (Object.keys(changes).length > 0) {
+      await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
+        description: createEditActivityDescription(changes, contract),
+        entityId: id,
+        type: ActivityType.EDIT,
+      } as any as FullActivityParams);
+    }
+
+    // Get the new contract object and return it
+    contract = await this.getContract(id);
     return contract!;
   }
 
