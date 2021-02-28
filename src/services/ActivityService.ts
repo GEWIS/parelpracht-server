@@ -16,11 +16,9 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
-import UserService from './UserService';
-import { Roles } from '../entity/enums/Roles';
-import { Mailer } from '../mailer/Mailer';
-import { newInvoice } from '../mailer/templates/newInvoice';
+// eslint-disable-next-line import/no-cycle
 import { sendInvoiceEmails } from '../helpers/mailBuilder';
+import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
 
 export interface ActivityParams {
   description: string;
@@ -89,6 +87,14 @@ export default class ActivityService {
     }
 
     return activity!;
+  }
+
+  async getActivity(id: number, relations: string[] = []): Promise<BaseActivity> {
+    const activity = await this.repo.findOne(id, { relations });
+    if (activity === undefined) {
+      throw new ApiError(HTTPStatus.NotFound, `An activity with ID ${id} cannot be found`);
+    }
+    return activity;
   }
 
   /**
@@ -183,38 +189,17 @@ export default class ActivityService {
   }
 
   /**
-   * Create an activity object with a lot of validation
-   * @param params Parameters to create an activity with
+   * Validate the status of the new activity
+   * @param act Activity to be created
+   * @param statusParam Simple object with an entity ID and a value, used to query the data
    */
-  async createActivity(params: FullActivityParams): Promise<BaseActivity> {
-    // @ts-ignore
-    let activity = new this.EntityActivity();
-    activity = {
-      ...activity,
-      description: params.description,
-      type: params.type,
-      subType: params.subType,
-      createdBy: this.actor,
-    };
-
-    let statusParam = {};
+  private async validateNewStatus(act: BaseActivity, statusParam: object): Promise<void> {
+    if (act.type !== ActivityType.STATUS) return;
+    let activity;
 
     switch (this.EntityActivity) {
-      case CompanyActivity:
-        activity.companyId = params.entityId;
-        break;
-      case ProductActivity:
-        activity.productId = params.entityId;
-        break;
       case ContractActivity:
-        activity.contractId = params.entityId;
-        statusParam = { contractId: params.entityId };
-
-        // The rest of the code is validating the to-be status
-        if (activity.type !== ActivityType.STATUS) {
-          break;
-        }
-
+        activity = <ContractActivity>act;
         // eslint-disable-next-line no-case-declarations
         const contract = await new ContractService().getContract(activity.contractId);
         // eslint-disable-next-line no-case-declarations
@@ -247,26 +232,18 @@ export default class ActivityService {
 
         break;
       case InvoiceActivity:
-        activity.invoiceId = params.entityId;
-        statusParam = { invoiceId: params.entityId };
-
-        if (params.type === ActivityType.STATUS && params.subType === InvoiceStatus.SENT) {
-          await sendInvoiceEmails(params.entityId);
+        activity = <InvoiceActivity>act;
+        if (activity.subType === InvoiceStatus.SENT) {
+          await sendInvoiceEmails(activity.invoiceId);
         }
 
         break;
       case ProductInstanceActivity:
-        activity.productInstanceId = params.entityId;
-        statusParam = { productInstanceId: params.entityId };
-
-        // The rest of the code is validating the to-be status
-        if (activity.type !== ActivityType.STATUS) {
-          break;
-        }
+        activity = <ProductInstanceActivity>act;
 
         // If we want to set the status to delivered or cancelled, we need to do some validation
-        if (params.subType === ProductInstanceStatus.DELIVERED
-          || params.subType === ProductInstanceStatus.CANCELLED
+        if (activity.subType === ProductInstanceStatus.DELIVERED
+          || activity.subType === ProductInstanceStatus.CANCELLED
         ) {
           const prodIns = await new ProductInstanceService().getProduct(activity.productInstanceId);
 
@@ -279,18 +256,85 @@ export default class ActivityService {
         }
         break;
       default:
-        throw new TypeError(`Type ${this.EntityActivity.constructor.name} is not a valid entity activity`);
+        return;
     }
 
     // If the activity is a status, verify that it's unique for this entity
-    if (params.type === ActivityType.STATUS
-      && (await this.getStatuses(statusParam)).includes(activity.subType)
-    ) {
+    if ((await this.getStatuses(statusParam)).includes(activity.subType)) {
       throw new ApiError(HTTPStatus.BadRequest, `Given entity already has or had status ${activity.subType}`);
     }
+  }
+
+  /**
+   * Create an activity object with a lot of validation
+   * @param params Parameters to create an activity with
+   */
+  async createActivity(params: FullActivityParams): Promise<BaseActivity> {
+    // @ts-ignore
+    let activity = new this.EntityActivity();
+    activity = {
+      ...activity,
+      description: params.description,
+      type: params.type,
+      subType: params.subType,
+      createdBy: this.actor,
+    };
+
+    let statusParam = {};
+
+    switch (this.EntityActivity) {
+      case CompanyActivity:
+        activity.companyId = params.entityId;
+        break;
+      case ProductActivity:
+        activity.productId = params.entityId;
+        break;
+      case ContractActivity:
+        activity.contractId = params.entityId;
+        statusParam = { contractId: params.entityId };
+        break;
+      case InvoiceActivity:
+        activity.invoiceId = params.entityId;
+        statusParam = { invoiceId: params.entityId };
+        break;
+      case ProductInstanceActivity:
+        activity.productInstanceId = params.entityId;
+        statusParam = { productInstanceId: params.entityId };
+        break;
+      default:
+        throw new TypeError(`Type ${this.EntityActivity.constructor.name} is not a valid entity activity`);
+    }
+
+    await this.validateNewStatus(activity, statusParam);
 
     // Save the activity to the database
     activity = await this.repo.save(activity);
+
+    let ac;
+    switch (this.EntityActivity) {
+      case CompanyActivity:
+        ac = (await this.getActivity(activity.id, ['company'])) as CompanyActivity;
+        await ac.company.setUpdatedAtToNow();
+        break;
+      case ProductActivity:
+        ac = (await this.getActivity(activity.id, ['product'])) as ProductActivity;
+        await ac.product.setUpdatedAtToNow();
+        break;
+      case ContractActivity:
+        ac = (await this.getActivity(activity.id, ['contract'])) as ContractActivity;
+        await ac.contract.setUpdatedAtToNow();
+        break;
+      case InvoiceActivity:
+        ac = (await this.getActivity(activity.id, ['invoice'])) as InvoiceActivity;
+        await ac.invoice.setUpdatedAtToNow();
+        break;
+      case ProductInstanceActivity:
+        ac = (await this.getActivity(activity.id, ['productInstance', 'productInstance.contract'])) as ProductInstanceActivity;
+        await ac.productInstance.setUpdatedAtToNow();
+        break;
+      default:
+        throw new TypeError(`Type ${this.EntityActivity.constructor.name} is not a valid entity activity`);
+    }
 
     // If the status of a ProductInstance was changed, check whether we can also update the contract
     if (this.EntityActivity === ProductInstanceActivity && activity.type === ActivityType.STATUS) {
@@ -299,6 +343,48 @@ export default class ActivityService {
     }
 
     return activity;
+  }
+
+  /**
+   * Add a product to the activities of this contract, either
+   * by creating a new activity or updating the most recent one.
+   * @param productName Name of the product
+   * @param contractId ID of the contract
+   */
+  async createProductActivity(productName: string, contractId: number) {
+    if (this.EntityActivity !== ContractActivity) {
+      throw new Error('Can only create a ProductActivity for contracts');
+    }
+
+    const previousActivity = await this.repo.findOne({
+      where: {
+        contractId,
+        createdById: this.actor?.id,
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+    });
+
+    // When there exists a previous activity...
+    if (previousActivity !== undefined
+      // And this activity is a PRODUCT activity...
+      && previousActivity.type === ActivityType.ADDPRODUCT
+      // And this activity has been updated no more than 5 minutes ago...
+      && previousActivity.updatedAt > new Date(Date.now() - 1000 * 60 * 5)
+    ) {
+      // Update this activity with an updated description
+      await this.updateActivity(contractId, previousActivity.id, {
+        description: appendProductActivityDescription([productName], previousActivity.description),
+      });
+    } else {
+      // Add a new Product activity
+      await this.createActivity({
+        description: createAddProductActivityDescription([productName]),
+        entityId: contractId,
+        type: ActivityType.ADDPRODUCT,
+      });
+    }
   }
 
   /**

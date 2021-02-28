@@ -8,6 +8,10 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import FileHelper from '../helpers/fileHelper';
+import { createActivitiesForEntityEdits } from '../helpers/activity';
+import { CompanyActivity } from '../entity/activity/CompanyActivity';
+import { User } from '../entity/User';
+import ActivityService from './ActivityService';
 
 // May not be correct yet
 export interface CompanyParams {
@@ -40,8 +44,12 @@ export interface CompanyListResponse {
 export default class CompanyService {
   repo: Repository<Company>;
 
-  constructor() {
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Company);
+    this.actor = options?.actor;
   }
 
   async getCompany(id: number): Promise<Company> {
@@ -110,9 +118,13 @@ export default class CompanyService {
   }
 
   async updateCompany(id: number, params: Partial<CompanyParams>): Promise<Company> {
-    await this.repo.update(id, params);
-    const company = await this.repo.findOne(id);
-    return company!;
+    const company = await this.getCompany(id);
+
+    if (!(await createActivitiesForEntityEdits<Company>(
+      this.repo, company, params, new ActivityService(CompanyActivity, { actor: this.actor }),
+    ))) return company;
+
+    return this.getCompany(id);
   }
 
   async deleteCompany(id: number) {

@@ -29,7 +29,7 @@ import FileService, {
 import BaseFile from '../entity/file/BaseFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import FileHelper from '../helpers/fileHelper';
-import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
+import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import { CustomInvoiceGenSettings, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ExpiredInvoice } from '../helpers/rawQueries';
 import { ActivityType } from '../entity/enums/ActivityType';
@@ -138,7 +138,7 @@ export class InvoiceController extends Controller {
     id: number, @Body() params: Partial<InvoiceParams>, @Request() req: express.Request,
   ): Promise<Invoice> {
     await this.validateInvoiceParams(req);
-    return new InvoiceService().updateInvoice(id, params);
+    return new InvoiceService({ actor: req.user as User }).updateInvoice(id, params);
   }
 
   /**
@@ -333,7 +333,7 @@ export class InvoiceController extends Controller {
   public async addInvoiceComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,

@@ -40,7 +40,9 @@ import FileService, {
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 import FileHelper from '../helpers/fileHelper';
-import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
@@ -153,7 +155,7 @@ export class ContractController extends Controller {
     id: number, @Body() params: Partial<ContractParams>, @Request() req: express.Request,
   ): Promise<Contract> {
     await this.validateContractParams(req);
-    return new ContractService().updateContract(id, params);
+    return new ContractService({ actor: req.user as User }).updateContract(id, params);
   }
 
   /**
@@ -201,19 +203,23 @@ export class ContractController extends Controller {
     @Request() req: express.Request,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
-    return new ProductInstanceService().updateProduct(id, prodId, params);
+    return new ProductInstanceService({ actor: req.user as User })
+      .updateProduct(id, prodId, params);
   }
 
   /**
    * Remove product from contract
    * @param id ID of the contract
    * @param prodId ID of the product instance
+   * @param req Express.js Request object
    */
   @Delete('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductInstance(id: number, prodId: number): Promise<void> {
-    return new ProductInstanceService().deleteProduct(id, prodId);
+  public async deleteProductInstance(
+    id: number, prodId: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductInstanceService({ actor: req.user as User }).deleteProduct(id, prodId);
   }
 
   /**
@@ -256,7 +262,7 @@ export class ContractController extends Controller {
   public async addProductInstanceComment(
     id: number, prodId: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     const p = {
       ...params,
@@ -430,7 +436,7 @@ export class ContractController extends Controller {
   public async addContractComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,

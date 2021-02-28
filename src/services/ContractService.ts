@@ -18,6 +18,9 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
+import {
+  createActivitiesForEntityEdits,
+} from '../helpers/activity';
 
 export interface ContractParams {
   title: string;
@@ -158,9 +161,13 @@ export default class ContractService {
   }
 
   async updateContract(id: number, params: Partial<ContractParams>): Promise<Contract> {
-    await this.repo.update(id, params);
-    const contract = await this.repo.findOne(id);
-    return contract!;
+    const contract = await this.getContract(id);
+
+    if (!(await createActivitiesForEntityEdits<Contract>(
+      this.repo, contract, params, new ActivityService(ContractActivity, { actor: this.actor }),
+    ))) return contract;
+
+    return this.getContract(id);
   }
 
   async deleteContract(id: number): Promise<void> {

@@ -221,7 +221,7 @@ const models: TsoaRoute.Models = {
             "activities": {"dataType":"array","array":{"ref":"ProductInstanceActivity"},"required":true},
             "basePrice": {"dataType":"double","required":true},
             "discount": {"dataType":"double","required":true},
-            "comments": {"dataType":"string"},
+            "details": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
@@ -289,7 +289,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ActivityType": {
         "dataType": "refEnum",
-        "enums": ["STATUS","COMMENT"],
+        "enums": ["STATUS","COMMENT","EDIT","REASSIGN","ADDPRODUCT","DELPRODUCT"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "InvoiceActivity": {
@@ -2324,6 +2324,7 @@ export function RegisterRoutes(app: express.Router) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

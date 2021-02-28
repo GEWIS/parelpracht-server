@@ -50,6 +50,14 @@ export const validateActivityParams = async (
   ].concat(validations), req);
 };
 
+export const validateCommentParams = async (
+  req: express.Request, validations: ValidationChain[] = [],
+) => {
+  await validate([
+    body('description').isString().notEmpty().trim(),
+  ].concat(validations), req);
+};
+
 export const validateFileParams = async (
   req: express.Request, validations: ValidationChain[] = [],
 ) => {

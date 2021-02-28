@@ -7,7 +7,9 @@ import { body } from 'express-validator';
 import { Product } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams, PaginationParams } from './ListParams';
-import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,
@@ -111,7 +113,7 @@ export class ProductController extends Controller {
       id: number, @Body() params: Partial<ProductParams>,
   ): Promise<Product> {
     await this.validateProductParams(req);
-    return new ProductService().updateProduct(id, params);
+    return new ProductService({ actor: req.user as User }).updateProduct(id, params);
   }
 
   /**
@@ -234,7 +236,7 @@ export class ProductController extends Controller {
   public async addProductComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,
