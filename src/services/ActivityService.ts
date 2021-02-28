@@ -89,6 +89,14 @@ export default class ActivityService {
     return activity!;
   }
 
+  async getActivity(id: number, relations: string[] = []): Promise<BaseActivity> {
+    const activity = await this.repo.findOne(id, { relations });
+    if (activity === undefined) {
+      throw new ApiError(HTTPStatus.NotFound, `An activity with ID ${id} cannot be found`);
+    }
+    return activity;
+  }
+
   /**
    * Get the current status-enum belong to the given entity
    */
@@ -301,6 +309,32 @@ export default class ActivityService {
 
     // Save the activity to the database
     activity = await this.repo.save(activity);
+
+    let ac;
+    switch (this.EntityActivity) {
+      case CompanyActivity:
+        ac = (await this.getActivity(activity.id, ['company'])) as CompanyActivity;
+        await ac.company.setUpdatedAtToNow();
+        break;
+      case ProductActivity:
+        ac = (await this.getActivity(activity.id, ['product'])) as ProductActivity;
+        await ac.product.setUpdatedAtToNow();
+        break;
+      case ContractActivity:
+        ac = (await this.getActivity(activity.id, ['contract'])) as ContractActivity;
+        await ac.contract.setUpdatedAtToNow();
+        break;
+      case InvoiceActivity:
+        ac = (await this.getActivity(activity.id, ['invoice'])) as InvoiceActivity;
+        await ac.invoice.setUpdatedAtToNow();
+        break;
+      case ProductInstanceActivity:
+        ac = (await this.getActivity(activity.id, ['productInstance', 'productInstance.contract'])) as ProductInstanceActivity;
+        await ac.productInstance.setUpdatedAtToNow();
+        break;
+      default:
+        throw new TypeError(`Type ${this.EntityActivity.constructor.name} is not a valid entity activity`);
+    }
 
     // If the status of a ProductInstance was changed, check whether we can also update the contract
     if (this.EntityActivity === ProductInstanceActivity && activity.type === ActivityType.STATUS) {
