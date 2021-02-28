@@ -113,7 +113,7 @@ export class ProductController extends Controller {
       id: number, @Body() params: Partial<ProductParams>,
   ): Promise<Product> {
     await this.validateProductParams(req);
-    return new ProductService().updateProduct(id, params);
+    return new ProductService({ actor: req.user as User }).updateProduct(id, params);
   }
 
   /**

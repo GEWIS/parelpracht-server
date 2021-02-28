@@ -19,6 +19,9 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import ServerSettingsService from './ServerSettingsService';
 import { ServerSetting } from '../entity/ServerSetting';
 import { InvoiceSummary } from '../entity/Summaries';
+import {
+  createActivitiesForEntityEdits,
+} from '../helpers/activity';
 
 export interface InvoiceParams {
   title: string;
@@ -158,9 +161,13 @@ export default class InvoiceService {
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {
-    await this.repo.update(id, params);
-    const invoice = await this.repo.findOne(id);
-    return invoice!;
+    const invoice = await this.getInvoice(id);
+
+    if (!(await createActivitiesForEntityEdits<Invoice>(
+      this.repo, invoice, params, new ActivityService(InvoiceActivity, { actor: this.actor }),
+    ))) return invoice;
+
+    return this.getInvoice(id);
   }
 
   async deleteInvoice(id: number) {

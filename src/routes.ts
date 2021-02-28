@@ -221,7 +221,7 @@ const models: TsoaRoute.Models = {
             "activities": {"dataType":"array","array":{"ref":"ProductInstanceActivity"},"required":true},
             "basePrice": {"dataType":"double","required":true},
             "discount": {"dataType":"double","required":true},
-            "comments": {"dataType":"string"},
+            "details": {"dataType":"string"},
         },
         "additionalProperties": false,
     },

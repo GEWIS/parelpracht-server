@@ -124,7 +124,7 @@ export class CompanyController extends Controller {
     id: number, @Body() params: Partial<CompanyParams>, @Request() req: express.Request,
   ): Promise<Company> {
     await this.validateCompanyParams(req);
-    return new CompanyService().updateCompany(id, params);
+    return new CompanyService({ actor: req.user as User }).updateCompany(id, params);
   }
 
   /**

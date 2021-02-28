@@ -138,7 +138,7 @@ export class InvoiceController extends Controller {
     id: number, @Body() params: Partial<InvoiceParams>, @Request() req: express.Request,
   ): Promise<Invoice> {
     await this.validateInvoiceParams(req);
-    return new InvoiceService().updateInvoice(id, params);
+    return new InvoiceService({ actor: req.user as User }).updateInvoice(id, params);
   }
 
   /**

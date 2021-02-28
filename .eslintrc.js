@@ -18,6 +18,7 @@ module.exports = {
     'class-methods-use-this': 'off',
     '@typescript-eslint/no-unused-vars': ['warn'],
     'arrow-body-style': 'off',
+    'import/no-cycle': 'off',
   },
   parserOptions: {
     project: ['./tsconfig.json', './test/tsconfig.json'],

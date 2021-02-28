@@ -1,4 +1,6 @@
-import { FindManyOptions, getRepository, IsNull, Not, Repository } from 'typeorm';
+import {
+  FindManyOptions, getRepository, IsNull, Not, Repository,
+} from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
@@ -15,7 +17,10 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
-import { createDelProductActivityDescription } from '../helpers/activity';
+import {
+  createActivitiesForEntityEdits,
+  createDelProductActivityDescription,
+} from '../helpers/activity';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -149,7 +154,12 @@ export default class ProductInstanceService {
   ): Promise<ProductInstance> {
     let productInstance = await this.repo.findOne(productInstanceId);
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
-    await this.repo.update(productInstance.id, params);
+
+    if (!(await createActivitiesForEntityEdits<ProductInstance>(
+      this.repo, productInstance, params,
+      new ActivityService(ProductInstanceActivity, { actor: this.actor }),
+    ))) return productInstance;
+
     productInstance = await this.repo.findOne(productInstanceId)!;
     return productInstance!;
   }

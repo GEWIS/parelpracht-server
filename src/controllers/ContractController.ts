@@ -203,7 +203,8 @@ export class ContractController extends Controller {
     @Request() req: express.Request,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
-    return new ProductInstanceService().updateProduct(id, prodId, params);
+    return new ProductInstanceService({ actor: req.user as User })
+      .updateProduct(id, prodId, params);
   }
 
   /**
