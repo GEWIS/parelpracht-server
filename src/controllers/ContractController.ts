@@ -40,7 +40,9 @@ import FileService, {
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 import FileHelper from '../helpers/fileHelper';
-import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
@@ -208,12 +210,15 @@ export class ContractController extends Controller {
    * Remove product from contract
    * @param id ID of the contract
    * @param prodId ID of the product instance
+   * @param req Express.js Request object
    */
   @Delete('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductInstance(id: number, prodId: number): Promise<void> {
-    return new ProductInstanceService().deleteProduct(id, prodId);
+  public async deleteProductInstance(
+    id: number, prodId: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductInstanceService({ actor: req.user as User }).deleteProduct(id, prodId);
   }
 
   /**

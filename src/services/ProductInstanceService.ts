@@ -15,7 +15,7 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
-import { ContractListResponse } from './ContractService';
+import { createDelProductActivityDescription } from '../helpers/activity';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -77,12 +77,19 @@ export default class ProductInstanceService {
 
     productInstance = await this.repo.save(productInstance);
 
-    await new ActivityService(ProductInstanceActivity, { actor: this.actor }).createActivity({
-      entityId: productInstance.id,
-      type: ActivityType.STATUS,
-      subType: ProductInstanceStatus.NOTDELIVERED,
-      description: '',
-    } as FullActivityParams);
+    // Create two activities:
+    await Promise.all([
+      // An activity that states that this productInstance has been created
+      new ActivityService(ProductInstanceActivity, { actor: this.actor }).createActivity({
+        entityId: productInstance.id,
+        type: ActivityType.STATUS,
+        subType: ProductInstanceStatus.NOTDELIVERED,
+        description: '',
+      } as FullActivityParams),
+      // An activity that states that this product has been added to the contract
+      new ActivityService(ContractActivity, { actor: this.actor })
+        .createProductActivity(product.nameEnglish, contractId),
+    ]);
 
     productInstance = (await this.repo.findOne(productInstance.id, { relations: ['activities'] }))!;
     return productInstance;
@@ -148,7 +155,7 @@ export default class ProductInstanceService {
   }
 
   async deleteProduct(contractId: number, productInstanceId: number): Promise<void> {
-    let productInstance = await this.getProduct(productInstanceId, ['activities']);
+    let productInstance = await this.getProduct(productInstanceId, ['activities', 'product']);
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
 
     if (productInstance.activities.filter((a) => a.type === ActivityType.STATUS).length > 1) {
@@ -159,6 +166,13 @@ export default class ProductInstanceService {
     }
 
     await this.repo.delete(productInstance.id);
+
+    await new ActivityService(ContractActivity, { actor: this.actor })
+      .createActivity({
+        description: createDelProductActivityDescription([productInstance.product.nameEnglish]),
+        entityId: productInstance.contractId,
+        type: ActivityType.DELPRODUCT,
+      });
   }
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {

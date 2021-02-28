@@ -3,5 +3,6 @@ export enum ActivityType {
   COMMENT = 'COMMENT',
   EDIT = 'EDIT',
   REASSIGN = 'REASSIGN',
-  PRODUCT = 'PRODUCT',
+  ADDPRODUCT = 'ADDPRODUCT',
+  DELPRODUCT = 'DELPRODUCT',
 }

@@ -18,6 +18,7 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 // eslint-disable-next-line import/no-cycle
 import { sendInvoiceEmails } from '../helpers/mailBuilder';
+import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
 
 export interface ActivityParams {
   description: string;
@@ -308,6 +309,48 @@ export default class ActivityService {
     }
 
     return activity;
+  }
+
+  /**
+   * Add a product to the activities of this contract, either
+   * by creating a new activity or updating the most recent one.
+   * @param productName Name of the product
+   * @param contractId ID of the contract
+   */
+  async createProductActivity(productName: string, contractId: number) {
+    if (this.EntityActivity !== ContractActivity) {
+      throw new Error('Can only create a ProductActivity for contracts');
+    }
+
+    const previousActivity = await this.repo.findOne({
+      where: {
+        contractId,
+        createdById: this.actor?.id,
+      },
+      order: {
+        updatedAt: 'DESC',
+      },
+    });
+
+    // When there exists a previous activity...
+    if (previousActivity !== undefined
+      // And this activity is a PRODUCT activity...
+      && previousActivity.type === ActivityType.ADDPRODUCT
+      // And this activity has been updated no more than 5 minutes ago...
+      && previousActivity.updatedAt > new Date(Date.now() - 1000 * 60 * 5)
+    ) {
+      // Update this activity with an updated description
+      await this.updateActivity(contractId, previousActivity.id, {
+        description: appendProductActivityDescription([productName], previousActivity.description),
+      });
+    } else {
+      // Add a new Product activity
+      await this.createActivity({
+        description: createAddProductActivityDescription([productName]),
+        entityId: contractId,
+        type: ActivityType.ADDPRODUCT,
+      });
+    }
   }
 
   /**

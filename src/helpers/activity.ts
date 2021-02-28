@@ -17,6 +17,33 @@ export function getEntityChanges<T extends object>(
   return result;
 }
 
+function printStringArrayToString(items: string[]): string {
+  if (items.length === 0) {
+    return '';
+  }
+  if (items.length === 1) {
+    return items[0];
+  }
+
+  return items.reduce((result, s, i) => {
+    if (i === items.length - 1) {
+      return `${result.substring(0, result.length - 2)} and ${s}`;
+    }
+    return `${result}${s}, `;
+  }, '');
+}
+
+function splitStringToStringArray(list: string): string[] {
+  // Split the string on comma's
+  const split = list.split(',');
+  // Split the final string in the items on the word "and"
+  const lastTwo = split[split.length - 1].split('and');
+  // Remove the last item, because we have split it separately
+  split.splice(split.length - 1, 1);
+  // Merge everything and trim every string
+  return split.concat(lastTwo).map((s) => s.trim());
+}
+
 function parsePropertyChanges<T>(
   newProperties: Partial<T>, oldProperties: T,
 ): string {
@@ -29,19 +56,7 @@ function parsePropertyChanges<T>(
     return `${_.startCase(k)} from ${oldProperties[k].toString()} to ${newProperties[k].toString()}`;
   });
 
-  // If there is only one change, return this only change
-  if (parsedChanges.length === 1) {
-    return parsedChanges[0];
-  }
-
-  // If there are more than 1 changes, merge them all into a single,
-  // beautiful string and return this.
-  return parsedChanges.reduce((result, s, i) => {
-    if (i === parsedChanges.length) {
-      return `${result}and ${s}`;
-    }
-    return `${result}${s}, `;
-  });
+  return printStringArrayToString(parsedChanges);
 }
 
 export function createEditActivityDescription<T>(
@@ -54,4 +69,20 @@ export function createReassignActivityDescription(
   newUser: User, oldUser: User,
 ): string {
   return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}`;
+}
+
+export function createAddProductActivityDescription(products: string[]): string {
+  return `Added ${printStringArrayToString(products)}.`;
+}
+
+export function appendProductActivityDescription(
+  products: string[], currentDescription: string,
+): string {
+  const printedProductList = currentDescription.substring(6, currentDescription.length - 1);
+  const currentProducts = splitStringToStringArray(printedProductList);
+  return createAddProductActivityDescription(currentProducts.concat(products));
+}
+
+export function createDelProductActivityDescription(products: string[]): string {
+  return `Removed ${printStringArrayToString(products)}.`;
 }
