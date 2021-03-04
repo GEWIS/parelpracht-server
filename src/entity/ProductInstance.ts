@@ -10,8 +10,6 @@ import { Invoice } from './Invoice';
 import { Product } from './Product';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
-// eslint-disable-next-line import/no-cycle
-import { ProductActivity } from './activity/ProductActivity';
 
 @Entity()
 export class ProductInstance extends BaseEnt {
@@ -56,7 +54,7 @@ export class ProductInstance extends BaseEnt {
 
   /** Any comments regarding this product instance */
   @Column({ type: 'text', nullable: true, default: '' })
-  comments?: string;
+  details?: string;
 
   public price(): number {
     return this.basePrice - this.discount;
@@ -64,5 +62,15 @@ export class ProductInstance extends BaseEnt {
 
   public discountPercentage(): string {
     return `${((this.discount / this.basePrice) * 100).toFixed(2)}`;
+  }
+
+  async setUpdatedAtToNow(): Promise<void> {
+    const promises: Promise<void>[] = [];
+    if (this.contract !== undefined) {
+      promises.push(this.contract.setUpdatedAtToNow());
+    }
+    promises.push(super.setUpdatedAtToNow());
+
+    await Promise.all(promises);
   }
 }

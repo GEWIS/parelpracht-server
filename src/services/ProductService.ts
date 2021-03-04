@@ -6,11 +6,17 @@ import { ProductStatus } from '../entity/enums/ProductStatus';
 import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
+import { User } from '../entity/User';
+import { createActivitiesForEntityEdits } from '../helpers/activity';
+import { ProductActivity } from '../entity/activity/ProductActivity';
+import ActivityService from './ActivityService';
 
 export interface ProductParams {
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
+  minTarget?: number;
+  maxTarget?: number;
   status: ProductStatus;
   description?: string;
   categoryId: number;
@@ -35,8 +41,12 @@ export interface ProductListResponse {
 export default class ProductService {
   repo: Repository<Product>;
 
-  constructor() {
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Product);
+    this.actor = options?.actor;
   }
 
   async getProduct(id: number, relations: string[] = []): Promise<Product> {
@@ -105,9 +115,13 @@ export default class ProductService {
   }
 
   async updateProduct(id: number, params: Partial<ProductParams>): Promise<Product> {
-    await this.repo.update(id, params);
-    const product = await this.repo.findOne(id);
-    return product!;
+    const product = await this.getProduct(id);
+
+    if (!(await createActivitiesForEntityEdits<Product>(
+      this.repo, product, params, new ActivityService(ProductActivity, { actor: this.actor }),
+    ))) return product;
+
+    return this.getProduct(id);
   }
 
   async deleteProduct(id: number) {

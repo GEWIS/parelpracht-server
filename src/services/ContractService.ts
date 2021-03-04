@@ -16,6 +16,11 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { cartesian, cartesianArrays } from '../helpers/filters';
+import { Roles } from '../entity/enums/Roles';
+import { ContractSummary } from '../entity/Summaries';
+import {
+  createActivitiesForEntityEdits,
+} from '../helpers/activity';
 
 export interface ContractParams {
   title: string;
@@ -23,12 +28,6 @@ export interface ContractParams {
   contactId: number;
   comments?: string;
   assignedToId?: number;
-}
-
-export interface ContractSummary {
-  id: number;
-  title: string;
-  status: ContractStatus;
 }
 
 export interface ContractListResponse {
@@ -117,13 +116,7 @@ export default class ContractService {
   }
 
   async getContractSummaries(): Promise<ContractSummary[]> {
-    // TODO: do not return statusDate in the output objects
-    return getRepository(ContractActivity).createQueryBuilder('a')
-      .select(['max(c.id) as id', 'max(c.title) as title', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
-      .innerJoin('a.contract', 'c', 'a.contractId = c.id')
-      .groupBy('a.contractId')
-      .where("a.type = 'STATUS'")
-      .getRawMany<ContractSummary>();
+    return RawQueries.getContractSummaries();
   }
 
   async getAllContractsExtensive(params: ListParams): Promise<any> {
@@ -133,8 +126,9 @@ export default class ContractService {
     };
   }
 
-  async getRecentContracts(): Promise<RecentContract[]> {
-    return RawQueries.getRecentContractsWithStatus(5);
+  async getRecentContracts(actor: User): Promise<RecentContract[]> {
+    const userId = actor.hasRole(Roles.ADMIN) ? undefined : actor.id;
+    return RawQueries.getRecentContractsWithStatus(5, userId);
   }
 
   async createContract(params: ContractParams): Promise<Contract> {
@@ -167,9 +161,13 @@ export default class ContractService {
   }
 
   async updateContract(id: number, params: Partial<ContractParams>): Promise<Contract> {
-    await this.repo.update(id, params);
-    const contract = await this.repo.findOne(id);
-    return contract!;
+    const contract = await this.getContract(id);
+
+    if (!(await createActivitiesForEntityEdits<Contract>(
+      this.repo, contract, params, new ActivityService(ContractActivity, { actor: this.actor }),
+    ))) return contract;
+
+    return this.getContract(id);
   }
 
   async deleteContract(id: number): Promise<void> {
@@ -183,5 +181,13 @@ export default class ContractService {
     }
 
     await this.repo.delete(id);
+  }
+
+  async transferAssignments(fromUser: User, toUser: User): Promise<void> {
+    await this.repo.createQueryBuilder()
+      .update()
+      .set({ assignedToId: toUser.id })
+      .where('assignedToId = :id', { id: fromUser.id })
+      .execute();
   }
 }

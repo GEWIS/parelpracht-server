@@ -1,6 +1,5 @@
 import {
-  Body,
-  Tags, Controller, Post, Route, Put, Get, Query, Security, Response, Delete, Request,
+  Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -17,11 +16,16 @@ import ActivityService, {
 import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
-import { validate, validateActivityParams } from '../helpers/validation';
+import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
 import ContractService from '../services/ContractService';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
+import FileService, { FileParams } from '../services/FileService';
+import FileHelper from '../helpers/fileHelper';
+import BaseFile from '../entity/file/BaseFile';
+import { CompanyFile } from '../entity/file/CompanyFile';
+import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
 
 @Route('company')
 @Tags('Company')
@@ -120,7 +124,7 @@ export class CompanyController extends Controller {
     id: number, @Body() params: Partial<CompanyParams>, @Request() req: express.Request,
   ): Promise<Company> {
     await this.validateCompanyParams(req);
-    return new CompanyService().updateCompany(id, params);
+    return new CompanyService({ actor: req.user as User }).updateCompany(id, params);
   }
 
   /**
@@ -135,6 +139,29 @@ export class CompanyController extends Controller {
     id: number, @Request() req: express.Request,
   ): Promise<void> {
     return new CompanyService().deleteCompany(id);
+  }
+
+  /**
+   * Upload a logo for a company
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Put('{id}/logo')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadCompanyLogo(@Request() req: express.Request, id: number) {
+    await FileService.uploadCompanyLogo(req, id);
+  }
+
+  /**
+   * Delete a logo for a company
+   * @param id Id of the company
+   */
+  @Delete('{id}/logo')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteCompanyLogo(id: number): Promise<Company> {
+    return new CompanyService().deleteCompanyLogo(id);
   }
 
   /**
@@ -159,6 +186,72 @@ export class CompanyController extends Controller {
     return new CompanyService().getContacts(id);
   }
 
+  @Get('{id}/statistics')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getCompanyStatistics(id: number): Promise<ContractedProductsAnalysis> {
+    return new StatisticsService().getCompanyStatistics(id);
+  }
+
+  /**
+   * Upload a file to a company
+   * @param id Id of the company
+   * @param req Express.js request object
+   */
+  @Post('{id}/file/upload')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async uploadCompanyFile(
+    id: number, @Request() req: express.Request,
+  ): Promise<CompanyFile> {
+    return new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id);
+  }
+
+  /**
+   * Get a saved file from a company
+   * @param id ID of the company
+   * @param fileId ID of the file
+   * @return The requested file as download
+   */
+  @Get('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getCompanyFile(id: number, fileId: number): Promise<any> {
+    const file = <CompanyFile>(await new FileService(CompanyFile).getFile(id, fileId));
+
+    return FileHelper.putFileInResponse(this, file);
+  }
+
+  /**
+   * Change the attributes of a file
+   * @param id ID of the company
+   * @param fileId ID of the file
+   * @param params Update subset of the parameters of the file
+   * @param req Express.js request object
+   */
+  @Put('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updateCompanyFile(
+    id: number, fileId: number, @Body() params: Partial<FileParams>,
+    @Request() req: express.Request,
+  ): Promise<BaseFile> {
+    await validateFileParams(req);
+    return new FileService(CompanyFile).updateFile(id, fileId, params);
+  }
+
+  /**
+   * Delete a file from the system
+   * @param id ID of the company
+   * @param fileId ID of the file
+   */
+  @Delete('{id}/file/{fileId}')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteCompanyFile(id: number, fileId: number): Promise<void> {
+    return new FileService(CompanyFile).deleteFile(id, fileId, true);
+  }
+
   /**
    * Add a activity comment to this company
    * @param id ID of the company
@@ -171,7 +264,7 @@ export class CompanyController extends Controller {
   public async addCompanyComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,

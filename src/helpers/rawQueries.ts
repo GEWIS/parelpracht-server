@@ -3,6 +3,7 @@ import { ListParams } from '../controllers/ListParams';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 
 export interface RecentContract {
   id: number,
@@ -35,9 +36,13 @@ export interface AnalysisResult {
   nrOfProducts: number,
 }
 
-export interface ProductsPerCategoryPerMonth {
+export interface AnalysisResultByYear extends AnalysisResult {
+  year: number;
+}
+
+export interface ProductsPerCategoryPerPeriod {
   categoryId: number,
-  month: number,
+  period: number,
   amount: number,
   nrOfProducts: number,
 }
@@ -54,6 +59,12 @@ function arrayToQueryArray(arr: string[] | number[]) {
   return `${result.substring(0, result.length - 2)})`;
 }
 
+function currentFinancialYear(): number {
+  const now = new Date();
+  now.setMonth(now.getMonth() + 8);
+  return now.getFullYear();
+}
+
 function inOrBeforeYearFilter(column: string, year: number): string {
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) <= ${year}`;
 }
@@ -63,6 +74,32 @@ function inYearFilter(column: string, year: number): string {
 }
 
 export default class RawQueries {
+  static getContractSummaries = (): Promise<ContractSummary[]> => {
+    return getManager().query(`
+      SELECT c.id, max(c.title) as title, COALESCE(sum(p."basePrice" - p.discount), 0) as value, max(a1."subType") as "status"
+      FROM contract c
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      LEFT JOIN product_instance p ON (c.id = p."contractId")
+      WHERE (a2.id IS NULL)
+      GROUP by c.id
+    `);
+  };
+
+  static getInvoiceSummaries = (): Promise<InvoiceSummary[]> => {
+    return getManager().query(`
+      SELECT i.id, max(i.title) as title, max(i."companyId") as "companyId", sum(p."basePrice" - p.discount) as value, max(a1."subType") as "status"
+      FROM invoice i
+      JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      LEFT JOIN product_instance p ON (i.id = p."invoiceId")
+      WHERE (a2.id IS NULL)
+      GROUP by i.id
+    `);
+  };
+
   static getContractWithProductsAndTheirStatuses = (lp: ListParams, result: 'data' | 'count') => {
     let query = '';
 
@@ -154,7 +191,8 @@ export default class RawQueries {
     return getManager().query(query);
   };
 
-  static getRecentContractsWithStatus = (limit: number): Promise<RecentContract[]> => {
+  static getRecentContractsWithStatus = (limit: number, userId?: number):
+  Promise<RecentContract[]> => {
     return getManager().query(`
     SELECT c.id, c.title, c."companyId", c."assignedToId", c."contactId", a1."createdAt",
         a1."updatedAt", a1."type", a1."description", a1."createdById", a1."subType"
@@ -162,7 +200,7 @@ export default class RawQueries {
     JOIN contract_activity a1 ON (c.id = a1."contractId")
     LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-    WHERE (a2.id IS NULL)
+    WHERE (a2.id IS NULL ${userId ? `AND c."assignedToId" = ${userId}` : ''})
     ORDER BY a1."updatedAt" desc
     LIMIT ${limit};
   `);
@@ -225,18 +263,18 @@ export default class RawQueries {
    *
    ************************ */
   static getProductsContractedPerMonthByFinancialYear = (year: number):
-  Promise<ProductsPerCategoryPerMonth[]> => {
+  Promise<ProductsPerCategoryPerPeriod[]> => {
     return getManager().query(`
-      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as month, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
       FROM product_instance pi
       JOIN product p ON (p.id = pi."productId")
       JOIN contract c ON (c.id = pi."contractId")
-      JOIN contract_activity a1 ON (c.id = a1."contractId")
-      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED' AND ${inYearFilter('a1."createdAt"', year)})
-      GROUP BY p."categoryId", month
-      ORDER BY month, p."categoryId";
+      GROUP BY p."categoryId", period
+      ORDER BY p."categoryId", period;
     `);
   };
 
@@ -245,8 +283,8 @@ export default class RawQueries {
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
       FROM product_instance p
       JOIN contract c ON (p."contractId" = c.id)
-      JOIN contract_activity a1 ON (c.id = a1."contractId" AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
-      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" IN ('CREATED', 'PROPOSED', 'SENT') )
     `);
@@ -257,8 +295,8 @@ export default class RawQueries {
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
       FROM product_instance p
       JOIN contract c ON (p."contractId" = c.id)
-      JOIN contract_activity a1 ON (c.id = a1."contractId" AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
-      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'CANCELLED', 'FINISHED') AND
           (p."invoiceId" IS NULL OR (
@@ -273,12 +311,12 @@ export default class RawQueries {
     return getManager().query(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
       FROM product_instance p
-      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND ${inOrBeforeYearFilter('pa1."createdAt"', year)})
-      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND ${inOrBeforeYearFilter('pa2."createdAt"', year)} AND
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS' AND ${inOrBeforeYearFilter('pa1."createdAt"', year)})
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND ${inOrBeforeYearFilter('pa2."createdAt"', year)} AND
           (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
       JOIN contract c ON (p."contractId" = c.id)
-      JOIN contract_activity a1 ON (c.id = a1."contractId" AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
-      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'CANCELLED', 'FINISHED') AND pa1."subType" = 'DELIVERED' AND
           (p."invoiceId" IS NULL OR (
@@ -294,15 +332,15 @@ export default class RawQueries {
     return getManager().query(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
       FROM product_instance p
-      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND ${inYearFilter('pa1."createdAt"', year)})
-      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND ${inYearFilter('pa2."createdAt"', year)} AND
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS' AND ${inYearFilter('pa1."createdAt"', year)})
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND ${inYearFilter('pa2."createdAt"', year)} AND
           (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
       JOIN invoice i ON (p."invoiceId" = i.id)
-      JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId")
-      LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND
+      JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId" AND ia1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND ia1.type = 'STATUS' AND
           (ia1."createdAt" < ia2."createdAt" OR (ia1."createdAt" = ia2."createdAt" AND ia1.id < ia2.id)))
       WHERE (ia2.id IS NULL AND ia1."subType" IN ('CREATED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
-          pa2.id is NULL AND pa2."subType" = 'NOTDELIVERED' AND
+          pa2.id is NULL AND pa1."subType" = 'NOTDELIVERED' AND
           ${inYearFilter('i."startDate"', year)} )
     `);
   };
@@ -312,15 +350,15 @@ export default class RawQueries {
     return getManager().query(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
       FROM product_instance p
-      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId")
-      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS')
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND
           (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
       JOIN invoice i ON (p."invoiceId" = i.id)
-      JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId")
-      LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND
+      JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId" AND ia1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND ia2.type = 'STATUS' AND
           (ia1."createdAt" < ia2."createdAt" OR (ia1."createdAt" = ia2."createdAt" AND ia1.id < ia2.id)))
       WHERE (ia2.id IS NULL AND ia1."subType" IN ('CREATED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
-          pa2.id is NULL AND pa2."subType" = 'DELIVERED' AND
+          pa2.id is NULL AND pa1."subType" = 'DELIVERED' AND
           ${inYearFilter('i."startDate"', year)} )
     `);
   };
@@ -330,11 +368,43 @@ export default class RawQueries {
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
       FROM product_instance p
       JOIN invoice i ON (p."invoiceId" = i.id)
-      JOIN invoice_activity a1 ON (i.id = a1."invoiceId")
-      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND
+      JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
       WHERE (a2.id IS NULL AND a1."subType" = 'PAID' AND
           ${inYearFilter('i."startDate"', year)} )
+    `);
+  };
+
+  static getProductInstancesByFinancialYear = (id: number): Promise<AnalysisResultByYear[]> => {
+    return getManager().query(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts",
+        COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) as year
+      FROM product_instance p
+      LEFT JOIN invoice i ON (p."invoiceId" = i.id)
+      LEFT JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND p."productId" = ${id} AND
+          COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) > ${currentFinancialYear() - 10})
+      GROUP BY year
+    `);
+  };
+
+  static getProductsContractedPerFinancialYearByCompany = (id: number):
+  Promise<ProductsPerCategoryPerPeriod[]> => {
+    return getManager().query(`
+      SELECT p."categoryId", EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+      FROM product_instance pi
+      JOIN product p ON (p.id = pi."productId")
+      JOIN contract c ON (c.id = pi."contractId")
+      JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" = 'CONFIRMED' AND c."companyId" = ${id} AND
+          EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) > ${currentFinancialYear() - 10})
+      GROUP BY p."categoryId", period
+      ORDER BY period, p."categoryId";
     `);
   };
 }

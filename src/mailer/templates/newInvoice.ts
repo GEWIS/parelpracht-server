@@ -1,18 +1,28 @@
-import Mail from 'nodemailer/lib/mailer';
+import Mail, { Attachment } from 'nodemailer/lib/mailer';
 import { User } from '../../entity/User';
+import { Invoice } from '../../entity/Invoice';
 
-export const newUser = (user: User, resetLink: string): Mail.Options => ({
-  subject: 'Your account has been created - ParelPracht',
-  to: user.email,
-  from: process.env.MAIL_FROM,
-  html: `
-    <p>Dear ${user.firstName}, <br/><br/>
-      An account has been created for you in ParelPracht, the Customer Relationship Managment system of study association GEWIS.<br/>
-      This email address (${user.email}) will be your username.<br/>
-      Follow <a href=${resetLink}>this link</a> to set your password and start using ParelPracht.
-      The link expires in 7 days.<br/><br/>
+export const newInvoice = (receiver: User, invoice: Invoice): Mail.Options => {
+  const attachments: Attachment[] = invoice.files.map((f) => {
+    const a: Attachment = {
+      filename: f.downloadName,
+      path: f.location,
+    };
+    return a;
+  });
 
-      In the future you can access ParelPracht by going to <a href="parelpracht.gewis.nl">parelpracht.gewis.nl</a>. For any questions, we suggest you to get in contact with the External Affairs Officer of GEWIS, who can be reached by emailing to <a href="mailto:ceb@gewis.nl">ceb@gewis.nl</a>.<br/><br/>
+  return {
+    subject: `New Invoice F${invoice.id} - ParelPracht`,
+    to: receiver.sendEmailsToReplyToEmail && receiver.replyToEmail !== '' ? receiver.replyToEmail : receiver.email,
+    from: process.env.MAIL_FROM,
+    attachments,
+    html: `
+    <p>Dear ${receiver.firstName}, <br/><br/>
+      An invoice has just been created in ParelPracht.<br/>
+      The invoice ID is F${invoice.id}, and was sent by ${invoice.createdBy.firstName} to ${invoice.company.name}.
+      For any questions about the invoice, you can email ${invoice.createdBy.firstName} at ${invoice.createdBy.replyToEmail !== '' ? invoice.createdBy.replyToEmail : invoice.createdBy.email}.
+
+      At your convenience you can view this invoice in ParelPracht by using the following link: <a href="${process.env.SERVER_HOST}/invoice/${invoice.id}">${process.env.SERVER_HOST}/invoice/${invoice.id}</a>.<br/><br/>
 
       We wish you best of luck with all your future endeavours for our beautiful association.<br>
       </p>
@@ -58,4 +68,5 @@ export const newUser = (user: User, resetLink: string): Mail.Options => ({
         </tbody>
     </table>
   `,
-});
+  };
+};

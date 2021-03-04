@@ -1,32 +1,47 @@
 import {
-  Body, Controller, Post, Route, Put, Tags, Get, Delete, Security, Response, Request,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Request,
+  Response,
+  Route,
+  Security,
+  Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Contract } from '../entity/Contract';
 import ContractService, {
-  ContractListResponse, ContractParams, ContractSummary,
+  ContractListResponse,
+  ContractParams,
 } from '../services/ContractService';
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
-  ActivityParams, FullActivityParams, ContractStatusParams, ProductInstanceStatusParams,
+  ActivityParams,
+  ContractStatusParams,
+  FullActivityParams,
+  ProductInstanceStatusParams,
 } from '../services/ActivityService';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
-import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import FileService, {
-  FileParams, FullGenerateContractParams, GenerateContractParams,
+  FileParams,
+  FullGenerateContractParams,
+  GenerateContractParams,
 } from '../services/FileService';
 import { ContractFile } from '../entity/file/ContractFile';
 import BaseFile from '../entity/file/BaseFile';
 import FileHelper from '../helpers/fileHelper';
 import {
-  validate, validateActivityParams, validateFileParams,
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
 } from '../helpers/validation';
 import ContactService from '../services/ContactService';
 import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
@@ -34,6 +49,7 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { RecentContract } from '../helpers/rawQueries';
+import { ContractSummary } from '../entity/Summaries';
 
 @Route('contract')
 @Tags('Contract')
@@ -90,12 +106,13 @@ export class ContractController extends Controller {
 
   /**
    * getRecentContracts() - retrieve a list of all recently edited contracts
+   * @param req Express.js request object
    */
   @Get('recent')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getRecentContracts(): Promise<RecentContract[]> {
-    return new ContractService().getRecentContracts();
+  public async getRecentContracts(@Request() req: express.Request): Promise<RecentContract[]> {
+    return new ContractService().getRecentContracts(req.user! as User);
   }
 
   /**
@@ -138,7 +155,7 @@ export class ContractController extends Controller {
     id: number, @Body() params: Partial<ContractParams>, @Request() req: express.Request,
   ): Promise<Contract> {
     await this.validateContractParams(req);
-    return new ContractService().updateContract(id, params);
+    return new ContractService({ actor: req.user as User }).updateContract(id, params);
   }
 
   /**
@@ -186,19 +203,23 @@ export class ContractController extends Controller {
     @Request() req: express.Request,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
-    return new ProductInstanceService().updateProduct(id, prodId, params);
+    return new ProductInstanceService({ actor: req.user as User })
+      .updateProduct(id, prodId, params);
   }
 
   /**
    * Remove product from contract
    * @param id ID of the contract
    * @param prodId ID of the product instance
+   * @param req Express.js Request object
    */
   @Delete('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductInstance(id: number, prodId: number): Promise<void> {
-    return new ProductInstanceService().deleteProduct(id, prodId);
+  public async deleteProductInstance(
+    id: number, prodId: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductInstanceService({ actor: req.user as User }).deleteProduct(id, prodId);
   }
 
   /**
@@ -241,7 +262,7 @@ export class ContractController extends Controller {
   public async addProductInstanceComment(
     id: number, prodId: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
     const p = {
       ...params,
@@ -415,7 +436,7 @@ export class ContractController extends Controller {
   public async addContractComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,

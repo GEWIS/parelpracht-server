@@ -5,7 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Contract } from '../entity/Contract';
 import { Invoice } from '../entity/Invoice';
 import {
-  ContractGenSettings, ContractType, InvoiceGenSettings, Language, ReturnFileType,
+  ContractGenSettings,
+  ContractType,
+  CustomInvoiceGenSettings,
+  InvoiceGenSettings,
+  Language,
+  ReturnFileType,
 } from './GenSettings';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { Company } from '../entity/Company';
@@ -15,6 +20,7 @@ import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
 import { Gender } from '../entity/enums/Gender';
+import BaseFile from '../entity/file/BaseFile';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -136,7 +142,6 @@ export default class PdfGenerator {
     t = PdfGenerator.fr(t, '%{subject}\n', subject);
     t = PdfGenerator.fr(t, '%{ourreference}', ourReference);
     t = PdfGenerator.fr(t, '%{yourreference}', theirReference);
-    t = PdfGenerator.fr(t, '%{senderemail}\n', sender.email);
 
     if (useInvoiceAddress) {
       t = PdfGenerator.fr(t, '%{street}\n', company.invoiceAddressStreet!);
@@ -165,6 +170,15 @@ export default class PdfGenerator {
       }
     }
     t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+    
+    let mail = '';
+    if (sender.replyToEmail.length > 0) {
+      mail = sender.replyToEmail;
+    } else {
+      mail = 'ceb@gewis.nl';
+    }
+
+    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
 
     return t;
   }
@@ -261,6 +275,24 @@ export default class PdfGenerator {
       }
     }
 
+    if (fT !== '') {
+      if (language === Language.DUTCH) {
+        fT = `\\begin{tabularx}{\\textwidth}{X r}\\toprule
+          Beschrijving & Bedrag (EUR)\\\\\\midrule
+          ${fT}
+          \\cmidrule{2-2} \\textbf{Totaal} & {\\bfseries %{totaalprijs}
+          }\\\\\\bottomrule
+          \\end{tabularx}`;
+      } else if (language === Language.ENGLISH) {
+        fT = `\\begin{tabularx}{\\textwidth}{X r}\\toprule
+          Description & Amount (EUR)\\\\\\midrule
+          ${fT}
+          \\cmidrule{2-2} \\textbf{Total} & {\\bfseries %{totaalprijs}
+          }\\\\\\bottomrule
+          \\end{tabularx}`;
+      }
+    }
+
     f = PdfGenerator.fr(f, '%{producten}', mT);
     f = PdfGenerator.fr(f, '%{aanleverspecificatie}', dT);
     f = PdfGenerator.fr(f, '%{tabelproducten}', fT);
@@ -335,7 +367,11 @@ export default class PdfGenerator {
       settings.language, false, contract.title, `C${contract.id}`);
     file = this.createProductTables(file, contract.products, settings.language,
       settings.showDiscountPercentages);
-    file = this.createSignees(file, settings.signee1, settings.signee2);
+    if (settings.contentType === ContractType.CONTRACT
+      && settings.signee1 !== undefined && settings.signee2 !== undefined
+    ) {
+      file = this.createSignees(file, settings.signee1, settings.signee2);
+    }
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }
@@ -368,6 +404,88 @@ export default class PdfGenerator {
     file = this.createProductTables(file, invoice.products, settings.language,
       settings.showDiscountPercentages);
 
+    if (settings.language === Language.DUTCH) {
+      file = PdfGenerator.fr(file, '%{factuuraanleiding}\n', 'de door ons verrichte activiteiten');
+    } else if (settings.language === Language.ENGLISH) {
+      file = PdfGenerator.fr(file, '%{factuuraanleiding}\n', 'the activities performed by us');
+    }
+
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
+  }
+
+  async generateCustomInvoice(params: CustomInvoiceGenSettings, fileObj: BaseFile) {
+    let templateLocation;
+    if (params.language === Language.DUTCH) {
+      templateLocation = path.join(this.templateDir, invoiceDutch);
+    } else if (params.language === Language.ENGLISH) {
+      templateLocation = path.join(this.templateDir, invoiceEnglish);
+    }
+    if (templateLocation == null) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
+    }
+
+    let t = fs.readFileSync(templateLocation).toString();
+    t = PdfGenerator.fr(t, '%{contactperson}\n', params.recipient.name);
+    t = PdfGenerator.fr(t, '%{sender}\n', fileObj.createdBy.fullName());
+    t = PdfGenerator.fr(t, '%{senderfunctie}\n', fileObj.createdBy.function);
+    t = PdfGenerator.fr(t, '%{company}\n', params.recipient.organizationName ?? '');
+    t = PdfGenerator.fr(t, '%{subject}\n', params.subject);
+    t = PdfGenerator.fr(t, '%{ourreference}\n', params.ourReference);
+    t = PdfGenerator.fr(t, '%{yourreference}\n', params.theirReference ?? '');
+    t = PdfGenerator.fr(t, '%{street}\n', params.recipient.street);
+    t = PdfGenerator.fr(t, '%{postalcode}\n', params.recipient.postalCode);
+    t = PdfGenerator.fr(t, '%{city}\n', params.recipient.city);
+    t = PdfGenerator.fr(t, '%{country}\n', params.recipient.country ?? '');
+    t = PdfGenerator.fr(t, '%{factuuraanleiding}\n', params.invoiceReason);
+
+    let greeting = '';
+    if (params.language === Language.DUTCH) {
+      switch (params.recipient.gender) {
+        case Gender.MALE: greeting = `heer ${params.recipient.name}`; break;
+        case Gender.FEMALE: greeting = `mevrouw ${params.recipient.name}`; break;
+        default: greeting = params.recipient.name;
+      }
+    } else if (params.language === Language.ENGLISH) {
+      switch (params.recipient.gender) {
+        case Gender.MALE: greeting = `mr. ${params.recipient.name}`; break;
+        case Gender.FEMALE: greeting = `ms. ${params.recipient.name}`; break;
+        default: greeting = params.recipient.name;
+      }
+    }
+    t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+
+    let mail = '';
+    if (fileObj.createdBy.replyToEmail.length > 0) {
+      mail = fileObj.createdBy.replyToEmail;
+    } else {
+      mail = 'ceb@gewis.nl';
+    }
+    
+    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
+
+    let totalPrice = 0;
+    let table = '';
+    params.products.forEach((p) => {
+      totalPrice += p.amount * p.pricePerOne;
+      table += `${p.name} & ${Currency.priceAttributeToEuro(p.pricePerOne, params.language === Language.DUTCH)} & ${p.amount} & ${Currency.priceAttributeToEuro(p.amount * p.pricePerOne, params.language === Language.DUTCH)}\\\\\n`;
+    });
+    if (params.language === Language.DUTCH) {
+      table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
+        Beschrijving & Bedrag (EUR) & Aantal & Subtotaal (EUR) \\\\\\midrule
+        ${table}
+        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, true)}
+        }\\\\\\bottomrule
+        \\end{tabularx}`;
+    } else if (params.language === Language.ENGLISH) {
+      table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
+        Description & Price (EUR) & Amount & Subtotal (EUR) \\\\\\midrule
+        ${table}
+        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, false)}
+        }\\\\\\bottomrule
+        \\end{tabularx}`;
+    }
+    t = PdfGenerator.fr(t, '%{tabelproducten}', table);
+
+    return this.finishFileGeneration(t, params.fileType, false);
   }
 }

@@ -13,6 +13,7 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 import {
   ContractGenSettings,
   ContractType,
+  CustomInvoiceGenSettings,
   InvoiceGenSettings,
   Language,
   ReturnFileType,
@@ -20,11 +21,17 @@ import {
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
 import InvoiceService from './InvoiceService';
 import ContractService from './ContractService';
-import FileHelper, { uploadDirLoc } from '../helpers/fileHelper';
+import FileHelper, {
+  uploadCompanyLogoDirLoc,
+  uploadDirLoc,
+  uploadUserAvatarDirLoc,
+} from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
 import ContactService from './ContactService';
 import { User } from '../entity/User';
 import { validateFileParams } from '../helpers/validation';
+import { CompanyFile } from '../entity/file/CompanyFile';
+import CompanyService from './CompanyService';
 
 export interface FileParams {
   name: string;
@@ -83,6 +90,9 @@ export default class FileService {
       case ProductFile:
         if (file.productId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product'); }
         break;
+      case CompanyFile:
+        if (file.companyId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this company'); }
+        break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
@@ -99,21 +109,26 @@ export default class FileService {
 
   async generateContractFile(params: FullGenerateContractParams): Promise<ContractFile> {
     const file = await this.createFileObject(params);
-    const signee1 = await new UserService().getUser(params.signee1Id);
-    const signee2 = await new UserService().getUser(params.signee2Id);
+    let signee1;
+    let signee2;
+    if (params.contentType === ContractType.CONTRACT) {
+      signee1 = await new UserService().getUser(params.signee1Id);
+      signee2 = await new UserService().getUser(params.signee2Id);
+
+      if (!(signee1.roles.map((r) => r.name)).includes('SIGNEE')) {
+        throw new ApiError(HTTPStatus.BadRequest, 'Signee 1 is not authorized to sign');
+      }
+      if (!(signee2.roles.map((r) => r.name)).includes('SIGNEE')) {
+        throw new ApiError(HTTPStatus.BadRequest, 'Signee 2 is not authorized to sign');
+      }
+    }
+
     const p = {
       ...params,
       signee1,
       signee2,
       sender: this.actor,
     } as any as ContractGenSettings;
-
-    if (!(signee1.roles.map((r) => r.name)).includes('SIGNEE')) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Signee 1 is not authorized to sign');
-    }
-    if (!(signee2.roles.map((r) => r.name)).includes('SIGNEE')) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Signee 2 is not authorized to sign');
-    }
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
     if (contract.products.length === 0) {
@@ -163,7 +178,22 @@ export default class FileService {
     return file;
   }
 
-  private handleFile(request: express.Request): Promise<void> {
+  static async generateCustomInvoice(
+    params: CustomInvoiceGenSettings, sender: User,
+  ): Promise<BaseFile> {
+    const file = {
+      name: params.subject,
+      downloadName: `${params.ourReference} - ${params.subject}`,
+      createdById: sender.id,
+      createdBy: sender,
+    } as any as BaseFile;
+
+    file.location = await new PdfGenerator().generateCustomInvoice(params, file);
+
+    return file;
+  }
+
+  private static handleFile(request: express.Request): Promise<void> {
     const multerSingle = multer().single('file');
     return new Promise((resolve, reject) => {
       // @ts-ignore
@@ -177,7 +207,7 @@ export default class FileService {
   }
 
   async uploadFile(request: express.Request, entityId: number) {
-    await this.handleFile(request);
+    await FileService.handleFile(request);
     await validateFileParams(request);
     const params = {
       name: request.body.name,
@@ -224,6 +254,9 @@ export default class FileService {
       case ProductFile:
         file.productId = params.entityId;
         break;
+      case CompanyFile:
+        file.companyId = params.entityId;
+        break;
       default:
         throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
@@ -255,5 +288,53 @@ export default class FileService {
     if (disk) FileHelper.removeFile(file!);
 
     await this.repo.delete(file!.id);
+  }
+
+  /*
+  The two methods below are static, because they do not interact with File entities.
+  They need no repo object, so to make life easier, they are static.
+  Also, they need to process uploading and verifying files, so therefore they are
+  defined in this service. and not in their "own" service.
+   */
+  static async uploadCompanyLogo(request: express.Request, companyId: number) {
+    const company = await new CompanyService().getCompany(companyId);
+    await FileService.handleFile(request);
+
+    const fileExtension = mime.getExtension(request.file.mimetype) || '';
+    if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Company logo needs to be an image file');
+    }
+
+    const randomFileName = `${uuidv4()}.${fileExtension}`;
+    const fileLocation = path.join(__dirname, '/../../', uploadCompanyLogoDirLoc, randomFileName);
+    company.logoFilename = randomFileName;
+    fs.writeFileSync(fileLocation, request.file.buffer);
+    try {
+      await company.save();
+    } catch (err) {
+      FileHelper.removeFileAtLoc(fileLocation);
+      throw new Error(err);
+    }
+  }
+
+  static async uploadUserAvatar(request: express.Request, userId: number) {
+    const user = await new UserService().getUser(userId);
+    await FileService.handleFile(request);
+
+    const fileExtension = mime.getExtension(request.file.mimetype) || '';
+    if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'User avatar needs to be an image file');
+    }
+
+    const randomFileName = `${uuidv4()}.${fileExtension}`;
+    const fileLocation = path.join(__dirname, '/../../', uploadUserAvatarDirLoc, randomFileName);
+    user.avatarFilename = randomFileName;
+    fs.writeFileSync(fileLocation, request.file.buffer);
+    try {
+      await user.save();
+    } catch (err) {
+      FileHelper.removeFileAtLoc(fileLocation);
+      throw new Error(err);
+    }
   }
 }

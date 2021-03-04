@@ -1,6 +1,5 @@
 import {
-  FindConditions,
-  FindManyOptions, getRepository, ILike, In, Repository,
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
@@ -10,6 +9,12 @@ import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import AuthService from './AuthService';
+import { Roles } from '../entity/enums/Roles';
+// eslint-disable-next-line import/no-cycle
+import ContractService from './ContractService';
+// eslint-disable-next-line import/no-cycle
+import InvoiceService from './InvoiceService';
+import FileHelper from '../helpers/fileHelper';
 
 export interface UserParams {
   email: string;
@@ -18,9 +23,16 @@ export interface UserParams {
   lastName: string;
   function: string;
   gender: Gender;
+  replyToEmail?: string;
+  receiveEmails?: boolean;
+  sendEmailsToReplyToEmail?: boolean;
   comment?: string;
 
   roles?: Roles[]
+}
+
+export interface TransferUserParams {
+  toUserId: number;
 }
 
 export interface UserSummary {
@@ -29,19 +41,12 @@ export interface UserSummary {
   lastNamePreposition: string;
   lastName: string;
   email: string;
+  avatarFilename: string;
 }
 
 export interface UserListResponse {
   list: User[];
   count: number;
-}
-
-export enum Roles {
-  SIGNEE = 'SIGNEE',
-  FINANCIAL = 'FINANCIAL',
-  ADMIN = 'ADMIN',
-  GENERAL = 'GENERAL',
-  AUDIT = 'AUDIT',
 }
 
 export default class UserService {
@@ -119,9 +124,18 @@ export default class UserService {
     };
   }
 
+  async getTreasurersToSendEmail(): Promise<User[]> {
+    return this.repo.find({
+      where: {
+        receiveEmails: true,
+      },
+      relations: ['roles'],
+    });
+  }
+
   async getUserSummaries(): Promise<UserSummary[]> {
     return this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename'],
     });
   }
 
@@ -193,5 +207,31 @@ export default class UserService {
         { name: Roles.AUDIT },
       ]),
     );
+  }
+
+  async deleteUserAvatar(id: number): Promise<User> {
+    const user = await this.getUser(id);
+    if (user.avatarFilename === '') return user;
+
+    try {
+      FileHelper.removeFileAtLoc(user.avatarFilename);
+    } finally {
+      await this.repo.update(user.id, { avatarFilename: '' });
+    }
+
+    return this.getUser(id);
+  }
+
+  async transferAssignments(fromUserId: number, toUserId: number): Promise<void> {
+    const fromUser = await this.getUser(fromUserId);
+    const toUser = await this.getUser(toUserId);
+    if (!toUser.hasRole(Roles.GENERAL)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'User does not have the "general" role');
+    }
+
+    await Promise.all([
+      new ContractService().transferAssignments(fromUser, toUser),
+      new InvoiceService().transferAssignments(fromUser, toUser),
+    ]);
   }
 }

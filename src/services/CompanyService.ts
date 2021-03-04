@@ -7,6 +7,11 @@ import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
+import FileHelper from '../helpers/fileHelper';
+import { createActivitiesForEntityEdits } from '../helpers/activity';
+import { CompanyActivity } from '../entity/activity/CompanyActivity';
+import { User } from '../entity/User';
+import ActivityService from './ActivityService';
 
 // May not be correct yet
 export interface CompanyParams {
@@ -28,6 +33,7 @@ export interface CompanyParams {
 export interface CompanySummary {
   id: number;
   name: string;
+  logoFilename: string;
 }
 
 export interface CompanyListResponse {
@@ -38,12 +44,16 @@ export interface CompanyListResponse {
 export default class CompanyService {
   repo: Repository<Company>;
 
-  constructor() {
+  /** Represents the logged in user, performing an operation */
+  actor?: User;
+
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Company);
+    this.actor = options?.actor;
   }
 
   async getCompany(id: number): Promise<Company> {
-    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities', 'invoices'] }); // May need more relations
+    const company = await this.repo.findOne(id, { relations: ['contracts', 'contacts', 'activities', 'invoices', 'files'] }); // May need more relations
     if (company === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
@@ -97,7 +107,7 @@ export default class CompanyService {
   }
 
   async getCompanySummaries(): Promise<CompanySummary[]> {
-    return this.repo.find({ select: ['id', 'name'] });
+    return this.repo.find({ select: ['id', 'name', 'logoFilename'] });
   }
 
   createCompany(params: CompanyParams): Promise<Company> {
@@ -108,9 +118,13 @@ export default class CompanyService {
   }
 
   async updateCompany(id: number, params: Partial<CompanyParams>): Promise<Company> {
-    await this.repo.update(id, params);
-    const company = await this.repo.findOne(id);
-    return company!;
+    const company = await this.getCompany(id);
+
+    if (!(await createActivitiesForEntityEdits<Company>(
+      this.repo, company, params, new ActivityService(CompanyActivity, { actor: this.actor }),
+    ))) return company;
+
+    return this.getCompany(id);
   }
 
   async deleteCompany(id: number) {
@@ -124,8 +138,24 @@ export default class CompanyService {
     if (company.contacts.length > 0) {
       throw new ApiError(HTTPStatus.BadRequest, 'Company has contacts');
     }
+    if (company.files.length > 0) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Company has files');
+    }
 
     await this.repo.delete(company.id);
+  }
+
+  async deleteCompanyLogo(id: number): Promise<Company> {
+    const company = await this.getCompany(id);
+    if (company.logoFilename === '') return company;
+
+    try {
+      FileHelper.removeFileAtLoc(company.logoFilename);
+    } finally {
+      await this.repo.update(company.id, { logoFilename: '' });
+    }
+
+    return this.getCompany(id);
   }
 
   async getContacts(id: number): Promise<Contact[]> {

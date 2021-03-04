@@ -68,7 +68,7 @@ createConnection().then(async (connection) => {
 
   passport.deserializeUser(async (id: number, done) => {
     const userRepo = getRepository(User);
-    const user = await userRepo.findOne({ id });
+    const user = await userRepo.findOne({ id }, { relations: ['roles'] });
     if (user === undefined) {
       return done(null, false);
     }
@@ -93,6 +93,9 @@ createConnection().then(async (connection) => {
   if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
     fs.mkdirSync(path.join(__dirname, '/../data/uploads'));
   }
+  if (!fs.existsSync(path.join(__dirname, '/../data/logos'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/logos'));
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({
@@ -107,6 +110,8 @@ createConnection().then(async (connection) => {
       res.sendFile(path.join(__dirname, './public/swagger.json'));
     });
   }
+
+  app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
 
   // Announce port that is listened to in the console
   app.listen(PORT, () => {

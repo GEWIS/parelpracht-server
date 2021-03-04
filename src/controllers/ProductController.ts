@@ -7,7 +7,9 @@ import { body } from 'express-validator';
 import { Product } from '../entity/Product';
 import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
 import { ListParams, PaginationParams } from './ListParams';
-import { validate, validateActivityParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import { WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,
@@ -24,6 +26,7 @@ import { ProductStatus } from '../entity/enums/ProductStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
 import ProductInstanceService, { ProductInstanceListResponse } from '../services/ProductInstanceService';
+import { AnalysisResultByYear } from '../helpers/rawQueries';
 
 @Route('product')
 @Tags('Product')
@@ -110,7 +113,7 @@ export class ProductController extends Controller {
       id: number, @Body() params: Partial<ProductParams>,
   ): Promise<Product> {
     await this.validateProductParams(req);
-    return new ProductService().updateProduct(id, params);
+    return new ProductService({ actor: req.user as User }).updateProduct(id, params);
   }
 
   /**
@@ -153,6 +156,13 @@ export class ProductController extends Controller {
     id: number, @Body() params: PaginationParams,
   ): Promise<ProductInstanceListResponse> {
     return new ProductInstanceService().getProductInvoices(id, params.skip, params.take);
+  }
+
+  @Get('{id}/statistics')
+  @Security('local', ['GENERAL', 'ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async getProductStatistics(id: number): Promise<AnalysisResultByYear[]> {
+    return new StatisticsService().getProductsContractedByFinancialYear(id);
   }
 
   /**
@@ -226,7 +236,7 @@ export class ProductController extends Controller {
   public async addProductComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
-    await validateActivityParams(req);
+    await validateCommentParams(req);
     const p = {
       ...params,
       entityId: id,

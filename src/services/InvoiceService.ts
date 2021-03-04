@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {
   FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
@@ -16,6 +15,13 @@ import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+// eslint-disable-next-line import/no-cycle
+import ServerSettingsService from './ServerSettingsService';
+import { ServerSetting } from '../entity/ServerSetting';
+import { InvoiceSummary } from '../entity/Summaries';
+import {
+  createActivitiesForEntityEdits,
+} from '../helpers/activity';
 
 export interface InvoiceParams {
   title: string;
@@ -30,16 +36,10 @@ export interface InvoiceCreateParams extends InvoiceParams {
   companyId: number;
 }
 
-export interface InvoiceSummary {
-  id: number;
-  title: string;
-  companyId: number;
-  status: InvoiceStatus;
-}
-
 export interface InvoiceListResponse {
   list: Invoice[];
   count: number;
+  lastSeen?: Date;
 }
 
 export default class InvoiceService {
@@ -116,17 +116,12 @@ export default class InvoiceService {
         take: params.take,
       }),
       count: await this.repo.count(findOptions),
+      lastSeen: await this.getTreasurerLastSeen(),
     };
   }
 
   async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
-    // TODO: do not return statusDate in the output objects
-    return getRepository(InvoiceActivity).createQueryBuilder('a')
-      .select(['max(i.id) as id', 'max(i.title) as title', 'max(i.companyId) as "companyId"', 'max(a.subType) as status', 'max(a.createdAt) as "statusDate"'])
-      .innerJoin('a.invoice', 'i', 'a.invoiceId = i.id')
-      .groupBy('a.invoiceId')
-      .where("a.type = 'STATUS'")
-      .getRawMany<InvoiceSummary>();
+    return RawQueries.getInvoiceSummaries();
   }
 
   async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
@@ -166,9 +161,13 @@ export default class InvoiceService {
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {
-    await this.repo.update(id, params);
-    const invoice = await this.repo.findOne(id);
-    return invoice!;
+    const invoice = await this.getInvoice(id);
+
+    if (!(await createActivitiesForEntityEdits<Invoice>(
+      this.repo, invoice, params, new ActivityService(InvoiceActivity, { actor: this.actor }),
+    ))) return invoice;
+
+    return this.getInvoice(id);
   }
 
   async deleteInvoice(id: number) {
@@ -195,5 +194,31 @@ export default class InvoiceService {
       if (i.activities.length <= 1) result.push(i);
     });
     return result;
+  }
+
+  async getTreasurerLastSeen(): Promise<Date | undefined> {
+    const setting = await new ServerSettingsService().getSetting('treasurerLastSeen');
+    const settingValue = setting?.value;
+    const milliseconds = settingValue ? parseInt(settingValue, 10) : undefined;
+    const result = milliseconds ? new Date(milliseconds) : undefined;
+    return result;
+  }
+
+  async setTreasurerLastSeen(): Promise<void> {
+    const date = new Date();
+    const milliseconds = date.getTime();
+    const setting: ServerSetting = {
+      name: 'treasurerLastSeen',
+      value: milliseconds.toString(),
+    };
+    await new ServerSettingsService().setSetting(setting);
+  }
+
+  async transferAssignments(fromUser: User, toUser: User): Promise<void> {
+    await this.repo.createQueryBuilder()
+      .update()
+      .set({ assignedToId: toUser.id })
+      .where('assignedToId = :id', { id: fromUser.id })
+      .execute();
   }
 }

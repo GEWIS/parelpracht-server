@@ -12,7 +12,7 @@ import { ListParams } from './ListParams';
 import { WrappedApiError } from '../helpers/error';
 import { ProductCategory } from '../entity/ProductCategory';
 import { validate } from '../helpers/validation';
-import StatisticsService, { ContractedProductsPerMonth } from '../services/StatisticsService';
+import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
 
 @Route('category')
 @Tags('Product Category')
@@ -111,7 +111,7 @@ export class ProductCategoryController extends Controller {
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getContractedProductsStatistics(year: number):
-  Promise<ContractedProductsPerMonth> {
+  Promise<ContractedProductsAnalysis> {
     return new StatisticsService().getProductContractedPerMonth(year);
   }
 }
