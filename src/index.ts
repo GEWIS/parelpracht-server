@@ -53,10 +53,11 @@ createConnection().then(async (connection) => {
     cookie: { },
   } as session.SessionOptions;
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && process.env.USE_HTTPS === 'true') {
     sess.cookie!.secure = true; // serve secure cookies
   }
 
+  app.set('trust proxy', 2);
   app.use(session(sess));
 
   app.use(passport.initialize());
