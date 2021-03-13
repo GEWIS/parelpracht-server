@@ -141,7 +141,7 @@ export default class UserService {
 
   async deleteUser(id: number, actor: User): Promise<void> {
     if (id === actor.id) {
-      throw new ApiError(HTTPStatus.Forbidden, 'You cannot delete yourself');
+      throw new ApiError(HTTPStatus.BadRequest, 'You cannot delete yourself');
     }
     const user = await this.repo.findOne(id, { relations: ['roles'] });
     if (user === undefined) {
