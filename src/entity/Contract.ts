@@ -20,8 +20,8 @@ export class Contract extends BaseEnt {
   @Column()
   title!: string;
 
-  @Column({ type: 'integer' })
-  companyId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly companyId!: number;
 
   /** Company this contract has been closed with */
   @ManyToOne(() => Company, (company) => company.contracts)
@@ -33,8 +33,8 @@ export class Contract extends BaseEnt {
   @JoinTable()
   products!: ProductInstance[];
 
-  @Column({ type: 'integer' })
-  createdById!: number;
+  @Column({ type: 'integer', update: false })
+  readonly createdById!: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'createdById' })
@@ -47,8 +47,8 @@ export class Contract extends BaseEnt {
   @JoinColumn({ name: 'assignedToId' })
   assignedTo!: User;
 
-  @Column({ type: 'integer' })
-  contactId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly contactId!: number;
 
   /** Comments regarding this contract, if there are any */
   @Column({ type: 'text', default: '' })

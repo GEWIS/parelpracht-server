@@ -7,8 +7,8 @@ import { Company } from '../Company';
 
 @Entity()
 export class CompanyFile extends BaseFile {
-  @Column({ type: 'integer' })
-  companyId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly companyId!: number;
 
   /** Company related to this file */
   @ManyToOne(() => Company, (company) => company.files)

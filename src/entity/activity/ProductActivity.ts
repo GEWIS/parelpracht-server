@@ -8,8 +8,8 @@ import { Product } from '../Product';
 
 @Entity()
 export class ProductActivity extends BaseActivity {
-  @Column({ type: 'integer' })
-  productId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly productId!: number;
 
   /** Product related to this activity */
   @ManyToOne(() => Product, (product) => product.activities, {
