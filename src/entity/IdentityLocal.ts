@@ -2,7 +2,6 @@ import {
   Column, CreateDateColumn, DeleteDateColumn, Entity,
   JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn, VersionColumn,
 } from 'typeorm';
-import { BaseEnt } from './BaseEnt';
 import { User } from './User';
 
 @Entity()
@@ -10,9 +9,6 @@ export class IdentityLocal {
   /** ID of the associated user */
   @PrimaryColumn('integer')
   readonly id!: number;
-
-  @Column({ unique: true })
-  email!: string;
 
   @Column()
   verifiedEmail!: boolean;

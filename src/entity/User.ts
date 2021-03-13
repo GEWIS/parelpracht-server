@@ -41,7 +41,7 @@ export class User extends BaseEnt {
   lastName!: string;
 
   /** Email address of the user */
-  @Column()
+  @Column({ unique: true })
   email!: string;
 
   /** Email address used in PDF files */

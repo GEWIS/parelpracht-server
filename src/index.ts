@@ -45,7 +45,7 @@ createConnection().then(async (connection) => {
   const sess = {
     store: new TypeormStore({
       cleanupLimit: 2,
-      limitSubquery: true,
+      limitSubquery: false,
       ttl: 84600,
     }).connect(sessionRepo),
     secret: process.env.SESSION_SECRET!,

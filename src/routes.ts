@@ -245,7 +245,6 @@ const models: TsoaRoute.Models = {
             "invoiceAddressCountry": {"dataType":"string","required":true},
             "status": {"ref":"CompanyStatus","required":true},
             "phoneNumber": {"dataType":"string"},
-            "endDate": {"dataType":"datetime"},
             "logoFilename": {"dataType":"string","required":true},
             "comments": {"dataType":"string"},
             "contracts": {"dataType":"array","array":{"ref":"Contract"},"required":true},
@@ -722,14 +721,13 @@ const models: TsoaRoute.Models = {
             "invoiceAddressCity": {"dataType":"string"},
             "invoiceAddressCountry": {"dataType":"string"},
             "status": {"ref":"CompanyStatus"},
-            "endDate": {"dataType":"datetime"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_CompanyParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"comments":{"dataType":"string"},"phoneNumber":{"dataType":"string"},"addressStreet":{"dataType":"string"},"addressPostalCode":{"dataType":"string"},"addressCity":{"dataType":"string"},"addressCountry":{"dataType":"string"},"invoiceAddressStreet":{"dataType":"string"},"invoiceAddressPostalCode":{"dataType":"string"},"invoiceAddressCity":{"dataType":"string"},"invoiceAddressCountry":{"dataType":"string"},"status":{"ref":"CompanyStatus"},"endDate":{"dataType":"datetime"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string"},"comments":{"dataType":"string"},"phoneNumber":{"dataType":"string"},"addressStreet":{"dataType":"string"},"addressPostalCode":{"dataType":"string"},"addressCity":{"dataType":"string"},"addressCountry":{"dataType":"string"},"invoiceAddressStreet":{"dataType":"string"},"invoiceAddressPostalCode":{"dataType":"string"},"invoiceAddressCity":{"dataType":"string"},"invoiceAddressCountry":{"dataType":"string"},"status":{"ref":"CompanyStatus"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductsPerCategory": {
