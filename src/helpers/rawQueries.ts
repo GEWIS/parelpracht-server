@@ -4,6 +4,7 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
+import { ApiError, HTTPStatus } from './error';
 
 export interface RecentContract {
   id: number,
@@ -74,8 +75,30 @@ function inYearFilter(column: string, year: number): string {
 }
 
 export default class RawQueries {
-  static getContractSummaries = (): Promise<ContractSummary[]> => {
-    return getManager().query(`
+  private readonly database: 'mysql' | 'postgres';
+
+  constructor() {
+    switch (process.env.TYPEORM_CONNECTION) {
+      case 'mariadb':
+      case 'mysql':
+        this.database = 'mysql';
+        break;
+      case 'postgres':
+        this.database = 'postgres';
+        break;
+      default:
+        throw new Error(`Database type ${process.env.TYPEORM_CONNECTION} is not supported by the raw queries of ParelPracht`);
+    }
+  }
+
+  private postProcessing(query: string) {
+    const q = this.database === 'mysql' ? query.split('"').join('') : query;
+    console.log(q);
+    return getManager().query(q);
+  }
+
+  getContractSummaries = (): Promise<ContractSummary[]> => {
+    return this.postProcessing(`
       SELECT c.id, max(c.title) as title, COALESCE(sum(p."basePrice" - p.discount), 0) as value, max(a1."subType") as "status"
       FROM contract c
       JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
@@ -87,8 +110,8 @@ export default class RawQueries {
     `);
   };
 
-  static getInvoiceSummaries = (): Promise<InvoiceSummary[]> => {
-    return getManager().query(`
+  getInvoiceSummaries = (): Promise<InvoiceSummary[]> => {
+    return this.postProcessing(`
       SELECT i.id, max(i.title) as title, max(i."companyId") as "companyId", sum(p."basePrice" - p.discount) as value, max(a1."subType") as "status"
       FROM invoice i
       JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
@@ -100,7 +123,12 @@ export default class RawQueries {
     `);
   };
 
-  static getContractWithProductsAndTheirStatuses = (lp: ListParams, result: 'data' | 'count') => {
+  // TODO: Make this query work with MySQL / MariaDB.
+  getContractWithProductsAndTheirStatuses = (lp: ListParams, result: 'data' | 'count') => {
+    if (this.database === 'mysql') {
+      throw new ApiError(HTTPStatus.InternalServerError, 'MegaTable does not yet support the mysql database');
+    }
+
     let query = '';
 
     let [companyFilter, productFilter, statusFilter, invoicedFilter] = ['', '', '', ''];
@@ -176,7 +204,7 @@ export default class RawQueries {
     `;
 
     if (result === 'count') {
-      return getManager().query(`
+      return this.postProcessing(`
         SELECT COUNT(*)
         FROM (
           ${query}
@@ -188,12 +216,11 @@ export default class RawQueries {
       query += `LIMIT ${lp.take}`;
       if (lp.skip) query += ` OFFSET ${lp.skip}`;
     }
-    return getManager().query(query);
+    return this.postProcessing(query);
   };
 
-  static getRecentContractsWithStatus = (limit: number, userId?: number):
-  Promise<RecentContract[]> => {
-    return getManager().query(`
+  getRecentContractsWithStatus = (limit: number, userId?: number): Promise<RecentContract[]> => {
+    return this.postProcessing(`
     SELECT c.id, c.title, c."companyId", c."assignedToId", c."contactId", a1."createdAt",
         a1."updatedAt", a1."type", a1."description", a1."createdById", a1."subType"
     FROM contract c
@@ -206,8 +233,8 @@ export default class RawQueries {
   `);
   };
 
-  static getExpiredInvoices = (): Promise<ExpiredInvoice[]> => {
-    return getManager().query(`
+  getExpiredInvoices = (): Promise<ExpiredInvoice[]> => {
+    return this.postProcessing(`
     SELECT i.id, i.version, i."startDate", i."companyId", i."assignedToId", i."createdAt", a1."updatedAt", a1."createdById", (
       SELECT sum(p."basePrice" - p.discount)
       FROM product_instance p
@@ -221,7 +248,7 @@ export default class RawQueries {
   `);
   };
 
-  static async getContractIdsByStatus(statuses: ContractStatus[]): Promise<number[]> {
+  async getContractIdsByStatus(statuses: ContractStatus[]): Promise<number[]> {
     if (statuses.length === 0) return [];
 
     let whereClause = `a1."subType" = '${statuses[0]}'`;
@@ -229,7 +256,7 @@ export default class RawQueries {
       whereClause += ` OR a1."subType" = '${statuses[i]}'`;
     }
 
-    return getManager().query(`
+    return this.postProcessing(`
     SELECT c.id
     FROM contract c
     JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS')
@@ -239,7 +266,7 @@ export default class RawQueries {
     `);
   }
 
-  static async getInvoiceIdsByStatus(statuses: InvoiceStatus[]): Promise<number[]> {
+  async getInvoiceIdsByStatus(statuses: InvoiceStatus[]): Promise<number[]> {
     if (statuses.length === 0) return [];
 
     let whereClause = `a1."subType" = '${statuses[0]}'`;
@@ -247,7 +274,7 @@ export default class RawQueries {
       whereClause += ` OR a1."subType" = '${statuses[i]}'`;
     }
 
-    return getManager().query(`
+    return this.postProcessing(`
     SELECT i.id
     FROM invoice i
     JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
@@ -262,10 +289,10 @@ export default class RawQueries {
    *   Statistical queries
    *
    ************************ */
-  static getProductsContractedPerMonthByFinancialYear = (year: number):
+  getProductsContractedPerMonthByFinancialYear = (year: number):
   Promise<ProductsPerCategoryPerPeriod[]> => {
-    return getManager().query(`
-      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+    return this.postProcessing(`
+      SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.id) as "nrOfProducts"
       FROM product_instance pi
       JOIN product p ON (p.id = pi."productId")
       JOIN contract c ON (c.id = pi."contractId")
@@ -278,9 +305,9 @@ export default class RawQueries {
     `);
   };
 
-  static getTotalSuggestedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+  getTotalSuggestedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
       JOIN contract c ON (p."contractId" = c.id)
       JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
@@ -290,9 +317,9 @@ export default class RawQueries {
     `);
   };
 
-  static getTotalSignedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+  getTotalSignedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
       JOIN contract c ON (p."contractId" = c.id)
       JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
@@ -307,9 +334,9 @@ export default class RawQueries {
     `);
   };
 
-  static getTotalDeliveredAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+  getTotalDeliveredAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
       JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS' AND ${inOrBeforeYearFilter('pa1."createdAt"', year)})
       LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND ${inOrBeforeYearFilter('pa2."createdAt"', year)} AND
@@ -327,10 +354,10 @@ export default class RawQueries {
     `);
   };
 
-  static getTotalNonDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
+  getTotalNonDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
   Promise<AnalysisResult[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
       JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS' AND ${inYearFilter('pa1."createdAt"', year)})
       LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND ${inYearFilter('pa2."createdAt"', year)} AND
@@ -345,10 +372,10 @@ export default class RawQueries {
     `);
   };
 
-  static getTotalDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
+  getTotalDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
   Promise<AnalysisResult[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
       JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS')
       LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND
@@ -363,9 +390,9 @@ export default class RawQueries {
     `);
   };
 
-  static getTotalInvoicesPaidAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts"
+  getTotalInvoicesPaidAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
       JOIN invoice i ON (p."invoiceId" = i.id)
       JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
@@ -376,9 +403,9 @@ export default class RawQueries {
     `);
   };
 
-  static getProductInstancesByFinancialYear = (id: number): Promise<AnalysisResultByYear[]> => {
-    return getManager().query(`
-      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.*) as "nrOfProducts",
+  getProductInstancesByFinancialYear = (id: number): Promise<AnalysisResultByYear[]> => {
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts",
         COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) as year
       FROM product_instance p
       LEFT JOIN invoice i ON (p."invoiceId" = i.id)
@@ -391,10 +418,10 @@ export default class RawQueries {
     `);
   };
 
-  static getProductsContractedPerFinancialYearByCompany = (id: number):
+  getProductsContractedPerFinancialYearByCompany = (id: number):
   Promise<ProductsPerCategoryPerPeriod[]> => {
-    return getManager().query(`
-      SELECT p."categoryId", EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.*) as "nrOfProducts"
+    return this.postProcessing(`
+      SELECT p."categoryId", EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.id) as "nrOfProducts"
       FROM product_instance pi
       JOIN product p ON (p.id = pi."productId")
       JOIN contract c ON (c.id = pi."contractId")

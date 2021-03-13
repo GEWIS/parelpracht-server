@@ -16,7 +16,9 @@ import ActivityService, {
 import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
-import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
 import ContractService from '../services/ContractService';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
@@ -38,7 +40,7 @@ export class CompanyController extends Controller {
       body('addressStreet').notEmpty().trim(),
       body('addressPostalCode').notEmpty().trim(),
       body('addressCity').notEmpty().trim(),
-      body('addressCountry').notEmpty().trim(),
+      body('addressCountry').trim(),
       body('invoiceAddressStreet').trim(),
       body('invoiceAddressPostalCode').trim(),
       body('invoiceAddressCity').trim(),
