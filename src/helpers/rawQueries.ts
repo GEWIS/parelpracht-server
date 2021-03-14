@@ -93,7 +93,6 @@ export default class RawQueries {
 
   private postProcessing(query: string) {
     const q = this.database === 'mysql' ? query.split('"').join('') : query;
-    console.log(q);
     return getManager().query(q);
   }
 
@@ -123,15 +122,10 @@ export default class RawQueries {
     `);
   };
 
-  // TODO: Make this query work with MySQL / MariaDB.
-  getContractWithProductsAndTheirStatuses = (lp: ListParams, result: 'data' | 'count') => {
-    if (this.database === 'mysql') {
-      throw new ApiError(HTTPStatus.InternalServerError, 'MegaTable does not yet support the mysql database');
-    }
-
+  getContractWithProductsAndTheirStatuses = async (lp: ListParams, result: 'data' | 'count') => {
     let query = '';
-
     let [companyFilter, productFilter, statusFilter, invoicedFilter] = ['', '', '', ''];
+
     if (lp.filters) {
       lp.filters?.forEach((f) => {
         if (f.column === 'companyId') {
@@ -153,9 +147,130 @@ export default class RawQueries {
       });
     }
 
-    const sorting = lp.sorting && lp.sorting.column === 'companyName' ? `order by company.name ${lp.sorting.direction}` : '';
+    if (this.database === 'mysql') {
+      if (result === 'count') {
+        return this.postProcessing(`
+          SELECT COUNT(DISTINCT contract."companyId") as count
+          FROM product_instance p
+          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
+          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+            a2.type = 'STATUS')
+          LEFT JOIN contract ON contract.id = p."contractId"
+          WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter})
+        `);
+      }
 
-    query += `
+      const sorting = lp.sorting !== undefined && lp.sorting.column === 'companyName' ? `company.name ${lp.sorting.direction}` : 'company.id';
+
+      query += `
+        SELECT company.id as id, company.name as name,
+          contract.id as "contractId", contract.title as "contractTitle",
+          p.id as "productInstanceId", p."productId" as "productId", p."invoiceId" as "invoiceId", a1."subType" as "subType", p."basePrice" as "basePrice", p.discount as discount, p.details as details
+        FROM product_instance p
+        JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
+        LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+          a2.type = 'STATUS')
+        LEFT JOIN contract ON contract.id = p."contractId"
+        LEFT JOIN company ON company.id = contract."companyId"
+        WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter} AND company.id IN (
+          SELECT id
+          FROM (
+            SELECT ROW_NUMBER() OVER (ORDER BY company.id) as rownr, company.id as id
+            FROM product_instance p
+            JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
+            LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+              (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+              a2.type = 'STATUS')
+            LEFT JOIN contract ON contract.id = p."contractId"
+            LEFT JOIN company ON company.id = contract."companyId"
+            WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter})
+            GROUP BY company.id
+            ORDER BY company.id
+          ) as x
+          ${lp.take ? `WHERE (rownr > ${lp.skip || 0} AND rownr < ${(lp.skip || 0) + lp.take}` : ''})
+        ))
+        ORDER BY ${sorting}, contract.id, p.id
+      `;
+
+      // MySQL is not able to return JSON many-to-one relations as JSON objects.
+      // Therefore, the query above returns all product instances with their contract
+      // and company information. This is a lot of duplicate information, so we need
+      // to parse all these rows to a list of objects without duplicate information.
+      const data: any[] = await this.postProcessing(query);
+      const r = [];
+      let companyId = -1;
+      let contractId = -1;
+
+      for (let i = 0; i < data.length; i++) {
+        if (companyId === data[i].id) {
+          if (contractId === data[i].contractId) {
+            r[r.length - 1].contracts[r[r.length - 1].contracts.length - 1].products.push({
+              id: data[i].productInstanceId,
+              productId: data[i].productId,
+              invoiceId: data[i].invoiceId,
+              basePrice: data[i].basePrice,
+              discount: data[i].discount,
+              type: ActivityType.STATUS,
+              subType: data[i].subType,
+              details: data[i].details,
+            });
+          } else {
+            r[r.length - 1].contracts.push({
+              id: data[i].contractId,
+              title: data[i].contractTitle,
+              products: [
+                {
+                  id: data[i].productInstanceId,
+                  productId: data[i].productId,
+                  invoiceId: data[i].invoiceId,
+                  basePrice: data[i].basePrice,
+                  discount: data[i].discount,
+                  type: ActivityType.STATUS,
+                  subType: data[i].subType,
+                  details: data[i].details,
+                },
+              ],
+            });
+            contractId = data[i].contractId;
+          }
+        } else {
+          r.push({
+            id: data[i].id,
+            name: data[i].name,
+            contracts: [
+              {
+                id: data[i].contractId,
+                title: data[i].contractTitle,
+                products: [
+                  {
+                    id: data[i].productInstanceId,
+                    productId: data[i].productId,
+                    invoiceId: data[i].invoiceId,
+                    basePrice: data[i].basePrice,
+                    discount: data[i].discount,
+                    type: ActivityType.STATUS,
+                    subType: data[i].subType,
+                    details: data[i].details,
+                  },
+                ],
+              },
+            ],
+          });
+          companyId = data[i].id;
+          contractId = data[i].contractId;
+        }
+      }
+
+      return r;
+    }
+
+    if (this.database === 'postgres') {
+      // @ts-ignore
+      const sorting = lp.sorting && lp.sorting.column === 'companyName' ? `order by company.name ${lp.sorting.direction}` : '';
+
+      query += `
       SELECT company.id, company.name,
       (
       select array_to_json(array_agg(row_to_json(t)))
@@ -203,20 +318,24 @@ export default class RawQueries {
       ${sorting}
     `;
 
-    if (result === 'count') {
-      return this.postProcessing(`
+      if (result === 'count') {
+        return this.postProcessing(`
         SELECT COUNT(*)
         FROM (
           ${query}
         ) x
       `);
+      }
+
+      if (lp.take) {
+        query += `LIMIT ${lp.take}`;
+        if (lp.skip) query += ` OFFSET ${lp.skip}`;
+      }
+
+      return this.postProcessing(query);
     }
 
-    if (lp.take) {
-      query += `LIMIT ${lp.take}`;
-      if (lp.skip) query += ` OFFSET ${lp.skip}`;
-    }
-    return this.postProcessing(query);
+    return [];
   };
 
   getRecentContractsWithStatus = (limit: number, userId?: number): Promise<RecentContract[]> => {
