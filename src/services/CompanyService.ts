@@ -27,7 +27,6 @@ export interface CompanyParams {
   invoiceAddressCity?: string;
   invoiceAddressCountry?: string;
   status?: CompanyStatus;
-  endDate?: Date;
 }
 
 export interface CompanySummary {

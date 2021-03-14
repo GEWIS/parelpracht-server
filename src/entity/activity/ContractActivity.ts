@@ -9,8 +9,8 @@ import { ContractStatus } from '../enums/ContractStatus';
 
 @Entity()
 export class ContractActivity extends BaseActivity {
-  @Column({ type: 'integer' })
-  contractId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly contractId!: number;
 
   /** Contract related to this activity */
   @ManyToOne(() => Contract, (contract) => contract.activities, {
@@ -24,6 +24,7 @@ export class ContractActivity extends BaseActivity {
     type: 'enum',
     enum: ContractStatus,
     nullable: true,
+    update: false,
   })
-  subType?: ContractStatus;
+  readonly subType?: ContractStatus;
 }

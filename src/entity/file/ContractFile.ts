@@ -7,8 +7,8 @@ import { Contract } from '../Contract';
 
 @Entity()
 export class ContractFile extends BaseFile {
-  @Column({ type: 'integer' })
-  contractId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly contractId!: number;
 
   /** Contract related to this file */
   @ManyToOne(() => Contract, (contract) => contract.files)

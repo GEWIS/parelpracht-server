@@ -2,17 +2,13 @@ import {
   Column, CreateDateColumn, DeleteDateColumn, Entity,
   JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn, VersionColumn,
 } from 'typeorm';
-import { BaseEnt } from './BaseEnt';
 import { User } from './User';
 
 @Entity()
 export class IdentityLocal {
   /** ID of the associated user */
   @PrimaryColumn('integer')
-  id!: number;
-
-  @Column({ unique: true })
-  email!: string;
+  readonly id!: number;
 
   @Column()
   verifiedEmail!: boolean;
@@ -36,14 +32,14 @@ export class IdentityLocal {
 
   /** Date at which this entity has last been updated */
   @UpdateDateColumn()
-  readonly updatedAt!: Date;
+  updatedAt!: Date;
 
   /** If this entity has been soft-deleted, this is the date
    *  at which the entity has been deleted */
   @DeleteDateColumn()
-  readonly deletedAt?: Date;
+  deletedAt?: Date;
 
   /** Version number of this entity */
   @VersionColumn()
-  readonly version!: number;
+  version!: number;
 }
