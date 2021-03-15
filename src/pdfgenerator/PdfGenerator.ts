@@ -58,17 +58,16 @@ export default class PdfGenerator {
 
   /**
    * Convert a given tex file to a PDF and save it the saveDir or workDir
-   * @param fileLocation {string }Absolute location of the .tex file
-   * @param fileName {string }Name of the new .pdf file
+   * @param input {string} Input "file" in a string
+   * @param fileName {string} Name of the new .pdf file
    * @param saveToDisk {boolean} Whether the file should be saved to disk. If not,
    * it will be saved to the /tmp directory
    * @returns {string} absolute location of the new .pdf file
    */
   private async convertTexToPdf(
-    fileLocation: string, fileName: string, saveToDisk: boolean,
+    input: string, fileName: string, saveToDisk: boolean,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      const input = fs.createReadStream(fileLocation);
       let outputLoc: string;
       if (saveToDisk) {
         outputLoc = path.join(this.saveDir, fileName);
@@ -76,7 +75,7 @@ export default class PdfGenerator {
         outputLoc = path.join(this.workDir, fileName);
       }
       const output = fs.createWriteStream(outputLoc);
-      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/') });
+      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/'), passes: 3 });
       pdf.pipe(output);
       pdf.on('error', (err) => {
         FileHelper.removeFileLoc(outputLoc);
@@ -170,7 +169,7 @@ export default class PdfGenerator {
       }
     }
     t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
-    
+
     let mail = '';
     if (sender.replyToEmail.length > 0) {
       mail = sender.replyToEmail;
@@ -328,8 +327,8 @@ export default class PdfGenerator {
     }
 
     if (fileType === ReturnFileType.PDF) {
-      const tempFileLocation = this.saveFileToDisk(file, `${fileName}.tex`, this.workDir);
-      result = await this.convertTexToPdf(tempFileLocation, `${fileName}.pdf`, saveToDisk);
+      // const tempFileLocation = this.saveFileToDisk(file, `${fileName}.tex`, this.workDir);
+      result = await this.convertTexToPdf(file, `${fileName}.pdf`, saveToDisk);
     }
 
     return result;
@@ -460,7 +459,7 @@ export default class PdfGenerator {
     } else {
       mail = 'ceb@gewis.nl';
     }
-    
+
     t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
 
     let totalPrice = 0;
