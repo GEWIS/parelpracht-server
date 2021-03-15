@@ -161,7 +161,7 @@ export default class ProductService {
     await this.pricingRepo.save({
       id,
       description: '',
-      data: JSON.stringify([]),
+      data: JSON.stringify([['']]),
     } as ProductPricing);
     return this.getPricing(id);
   }
