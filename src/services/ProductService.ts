@@ -10,6 +10,7 @@ import { User } from '../entity/User';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import ActivityService from './ActivityService';
+import { ProductPricing } from '../entity/ProductPricing';
 
 export interface ProductParams {
   nameDutch: string;
@@ -24,6 +25,11 @@ export interface ProductParams {
   contractTextEnglish: string;
   deliverySpecificationDutch?: string;
   deliverySpecificationEnglish?: string;
+}
+
+export interface PricingParams {
+  description: string;
+  data: string;
 }
 
 export interface ProductSummary {
@@ -41,16 +47,19 @@ export interface ProductListResponse {
 export default class ProductService {
   repo: Repository<Product>;
 
+  pricingRepo: Repository<ProductPricing>;
+
   /** Represents the logged in user, performing an operation */
   actor?: User;
 
   constructor(options?: { actor?: User }) {
     this.repo = getRepository(Product);
+    this.pricingRepo = getRepository(ProductPricing);
     this.actor = options?.actor;
   }
 
   async getProduct(id: number, relations: string[] = []): Promise<Product> {
-    const product = await this.repo.findOne(id, { relations: ['files', 'activities'].concat(relations) });
+    const product = await this.repo.findOne(id, { relations: ['files', 'activities', 'pricing'].concat(relations) });
     if (product === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
     }
@@ -134,5 +143,39 @@ export default class ProductService {
     }
 
     await this.repo.delete(product.id);
+  }
+
+  private async getPricing(id: number): Promise<ProductPricing> {
+    const pricing = await this.pricingRepo.findOne(id);
+    if (pricing === undefined) throw new ApiError(HTTPStatus.NotFound);
+    return pricing;
+  }
+
+  async addPricing(id: number): Promise<ProductPricing> {
+    await this.getProduct(id);
+    const pricing = await this.pricingRepo.findOne(id);
+    if (pricing !== undefined) {
+      throw new ApiError(HTTPStatus.BadRequest, 'This product already has a pricing attribute');
+    }
+
+    await this.pricingRepo.save({
+      id,
+      description: '',
+      data: JSON.stringify([]),
+    } as ProductPricing);
+    return this.getPricing(id);
+  }
+
+  async updatePricing(
+    id: number, params: Partial<PricingParams>,
+  ): Promise<ProductPricing> {
+    const pricing = await this.getPricing(id);
+    await this.pricingRepo.update(pricing.id, params);
+    return this.getPricing(pricing.id);
+  }
+
+  async deletePricing(id: number) {
+    const pricing = await this.getPricing(id);
+    await this.pricingRepo.delete(pricing.id);
   }
 }

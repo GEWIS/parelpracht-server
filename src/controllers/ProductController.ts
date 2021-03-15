@@ -5,7 +5,12 @@ import {
 import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
-import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
+import ProductService, {
+  PricingParams,
+  ProductListResponse,
+  ProductParams,
+  ProductSummary,
+} from '../services/ProductService';
 import { ListParams, PaginationParams } from './ListParams';
 import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
@@ -27,6 +32,7 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
 import ProductInstanceService, { ProductInstanceListResponse } from '../services/ProductInstanceService';
 import { AnalysisResultByYear } from '../helpers/rawQueries';
+import { ProductPricing } from '../entity/ProductPricing';
 
 @Route('product')
 @Tags('Product')
@@ -128,6 +134,49 @@ export class ProductController extends Controller {
     id: number, @Request() req: express.Request,
   ): Promise<void> {
     return new ProductService().deleteProduct(id);
+  }
+
+  /**
+   * Add a pricing attribute to a product
+   * @param id ID of the product
+   * @param req Express.js request object
+   */
+  @Post('{id}/pricing')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addPricing(
+    id: number, @Request() req: express.Request,
+  ): Promise<ProductPricing> {
+    return new ProductService({ actor: req.user as User }).addPricing(id);
+  }
+
+  /**
+   * Update the pricing attribute of a product
+   * @param id ID of the product
+   * @param params Description string and JSON table (nested array)
+   * @param req Express.js request object
+   */
+  @Put('{id}/pricing')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updatePricing(
+    id: number, @Body() params: Partial<PricingParams>, @Request() req: express.Request,
+  ): Promise<ProductPricing> {
+    return new ProductService({ actor: req.user as User }).updatePricing(id, params);
+  }
+
+  /**
+   * Remove the pricing attribute of a product
+   * @param id ID of the product
+   * @param req Express.js request object
+   */
+  @Delete('{id}/pricing')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deletePricing(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductService({ actor: req.user as User }).deletePricing(id);
   }
 
   /**
