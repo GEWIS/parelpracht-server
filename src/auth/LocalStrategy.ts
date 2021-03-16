@@ -57,6 +57,14 @@ export const localLogin = (
     if (err) { return next(err); }
     if (!user) { return next(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
     return req.logIn(user, (e: any) => {
+      // When the user enabled "remember me", we give the session cookie an
+      // expiration date of 30 days
+      if (req.body.rememberMe === true) {
+        req.session.cookie.maxAge = 2592000000; // 30 * 24 * 60 * 60 * 1000 (30 days)
+      // Otherwise, just create it as a temporary session cookie
+      } else {
+        req.session.cookie.maxAge = undefined;
+      }
       if (e) { return next(e); }
       return res.send();
     });
