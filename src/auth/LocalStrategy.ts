@@ -9,6 +9,7 @@ import { ApiError, HTTPStatus } from '../helpers/error';
 
 const INVALID_LOGIN = 'Invalid email or password.';
 const VERIFY_ACCOUNT = 'Please verify your account and set your password with the link received by email.';
+const ACCOUNT_INACTIVE = 'This account has been deactivated. If this is a mistake, please contact an administrator.';
 
 export function generateSalt(): string {
   return crypto.randomBytes(16).toString('hex');
@@ -32,13 +33,18 @@ export default new LocalStrategy({
   const userRepo = getRepository(User);
   const identityRepo = getRepository(IdentityLocal);
 
-  const user = await userRepo.findOne({ email });
+  const user = await userRepo.findOne({ email }, { relations: ['roles'] });
   const identity = user !== undefined ? await identityRepo.findOne(user.id) : undefined;
 
   // Check if the identity is found
   if (identity === undefined) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
   if (identity.hash === undefined || identity.salt === undefined) {
     return done(new ApiError(HTTPStatus.BadRequest, VERIFY_ACCOUNT));
+  }
+
+  // Check whether the user account is active
+  if (user?.roles.length === 0) {
+    return done(new ApiError(HTTPStatus.BadRequest, ACCOUNT_INACTIVE));
   }
 
   if (!validPassword(password, identity.salt, identity.hash)) {
