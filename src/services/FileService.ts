@@ -214,6 +214,9 @@ export default class FileService {
       entityId,
     } as FullFileParams;
     let file = await this.createFileObject(params);
+    if (request.body.name === '') {
+      request.body.name = file.downloadName;
+    }
 
     const randomFileName = `${uuidv4()}.${mime.getExtension(request.file.mimetype)}`;
     file.location = path.join(__dirname, '/../../', uploadDirLoc, randomFileName);

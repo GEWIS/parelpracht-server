@@ -9,7 +9,7 @@ export default abstract class BaseFile extends BaseEnt {
 
   /** Name of the file as shown when downloaded */
   @Column({ default: '', update: false })
-  readonly downloadName!: string;
+  downloadName!: string;
 
   /** Location of the file on disk */
   @Column()

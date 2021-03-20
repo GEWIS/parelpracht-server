@@ -62,6 +62,6 @@ export const validateFileParams = async (
   req: express.Request, validations: ValidationChain[] = [],
 ) => {
   await validate([
-    body('name').notEmpty().trim(),
+    body('name').trim(),
   ].concat(validations), req);
 };
