@@ -42,6 +42,7 @@ export interface UserSummary {
   lastName: string;
   email: string;
   avatarFilename: string;
+  roles: Roles[];
 }
 
 export interface UserListResponse {
@@ -134,8 +135,20 @@ export default class UserService {
   }
 
   async getUserSummaries(): Promise<UserSummary[]> {
-    return this.repo.find({
+    const users = await this.repo.find({
       select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename'],
+      relations: ['roles'],
+    });
+    return users.map((u) => {
+      return {
+        id: u.id,
+        firstName: u.firstName,
+        lastNamePreposition: u.lastNamePreposition,
+        lastName: u.lastName,
+        email: u.email,
+        avatarFilename: u.avatarFilename,
+        roles: u.roles.map((r) => r.name),
+      } as UserSummary;
     });
   }
 
