@@ -1,5 +1,5 @@
 import {
-  Column, Entity, JoinColumn, ManyToOne, OneToMany,
+  Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
@@ -11,6 +11,7 @@ import { ProductFile } from './file/ProductFile';
 // eslint-disable-next-line import/no-cycle
 import { ProductCategory } from './ProductCategory';
 import { ProductStatus } from './enums/ProductStatus';
+import { ProductPricing } from './ProductPricing';
 
 @Entity()
 export class Product extends BaseEnt {
@@ -81,4 +82,8 @@ export class Product extends BaseEnt {
   /** All files regarding this product */
   @OneToMany(() => ProductFile, (file) => file.product)
   files!: ProductFile[];
+
+  /** Optional ProductPricing object */
+  @OneToOne(() => ProductPricing, (pricing) => pricing.product)
+  pricing?: ProductPricing;
 }
