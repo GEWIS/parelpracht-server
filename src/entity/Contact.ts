@@ -48,8 +48,8 @@ export class Contact extends BaseEnt {
   @Column({ type: 'enum', enum: ContactFunction, default: ContactFunction.NORMAL })
   function!: ContactFunction;
 
-  @Column({ type: 'integer' })
-  companyId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly companyId!: number;
 
   /** Company this contact person works at */
   @ManyToOne(() => Company, (company) => company.contracts)

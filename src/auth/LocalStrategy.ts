@@ -29,9 +29,11 @@ export default new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
 }, async (email, password, done) => {
+  const userRepo = getRepository(User);
   const identityRepo = getRepository(IdentityLocal);
 
-  const identity = await identityRepo.findOne({ email });
+  const user = await userRepo.findOne({ email });
+  const identity = user !== undefined ? await identityRepo.findOne(user.id) : undefined;
 
   // Check if the identity is found
   if (identity === undefined) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
@@ -43,7 +45,6 @@ export default new LocalStrategy({
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
-  const userRepo = getRepository(User);
   return done(null, await userRepo.findOne({ id: identity.id }));
 });
 

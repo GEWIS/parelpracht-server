@@ -9,7 +9,7 @@ import { User } from './User';
 export class Role {
   /** Name of the role */
   @PrimaryColumn()
-  name!: string;
+  readonly name!: string;
 
   /** All users having this role */
   @ManyToMany(() => User, (user) => user.roles, { onDelete: 'CASCADE' })

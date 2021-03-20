@@ -8,8 +8,8 @@ import { Company } from '../Company';
 
 @Entity()
 export class CompanyActivity extends BaseActivity {
-  @Column({ type: 'integer' })
-  companyId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly companyId!: number;
 
   /** Company related to this activity */
   @ManyToOne(() => Company, (company) => company.activities, {

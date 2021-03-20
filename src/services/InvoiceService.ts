@@ -84,7 +84,7 @@ export default class InvoiceService {
       });
 
       if (statusFilterValues.length > 0) {
-        const ids = await RawQueries.getInvoiceIdsByStatus(statusFilterValues);
+        const ids = await new RawQueries().getInvoiceIdsByStatus(statusFilterValues);
         // @ts-ignore
         filters.id = In(ids.map((o) => o.id));
       }
@@ -121,11 +121,11 @@ export default class InvoiceService {
   }
 
   async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
-    return RawQueries.getInvoiceSummaries();
+    return new RawQueries().getInvoiceSummaries();
   }
 
   async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
-    return RawQueries.getExpiredInvoices();
+    return new RawQueries().getExpiredInvoices();
   }
 
   async createInvoice(params: InvoiceCreateParams): Promise<Invoice> {

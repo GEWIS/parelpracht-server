@@ -9,8 +9,8 @@ import { InvoiceStatus } from '../enums/InvoiceStatus';
 
 @Entity()
 export class InvoiceActivity extends BaseActivity {
-  @Column({ type: 'integer' })
-  invoiceId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly invoiceId!: number;
 
   /** Invoice related to this activity */
   @ManyToOne(() => Invoice, (invoice) => invoice.activities, {
@@ -24,6 +24,7 @@ export class InvoiceActivity extends BaseActivity {
     type: 'enum',
     enum: InvoiceStatus,
     nullable: true,
+    update: false,
   })
-  subType?: InvoiceStatus;
+  readonly subType?: InvoiceStatus;
 }

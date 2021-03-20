@@ -46,7 +46,7 @@ export default class AuthService {
   async forgotPassword(userEmail: string): Promise<void> {
     const email = userEmail.toLowerCase();
     const user = await this.userRepo.findOne({ email });
-    const identity = await this.identityRepo.findOne({ email });
+    const identity = user !== undefined ? await this.identityRepo.findOne(user.id) : undefined;
 
     if (user === undefined || identity === undefined) {
       return;
@@ -62,7 +62,7 @@ export default class AuthService {
   async createIdentityLocal(user: User): Promise<void> {
     let identity = this.identityRepo.create({
       id: user.id,
-      email: user.email,
+      // email: user.email,
       verifiedEmail: false,
       salt: generateSalt(),
     });
@@ -123,7 +123,7 @@ export default class AuthService {
           const salt = generateSalt();
           await this.identityRepo.update(user.id, {
             id: user.id,
-            email: user.email,
+            // email: user.email,
             verifiedEmail: true,
             hash: hashPassword(newPassword, salt),
             salt,

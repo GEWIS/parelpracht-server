@@ -30,11 +30,11 @@ export class Invoice extends BaseEnt {
   @Column({ default: () => 'now()' })
   startDate!: Date;
 
-  @Column({ type: 'integer' })
-  companyId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly companyId!: number;
 
-  @Column({ type: 'integer' })
-  createdById!: number;
+  @Column({ type: 'integer', update: false })
+  readonly createdById!: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'createdById' })
