@@ -29,7 +29,9 @@ import FileService, {
 import BaseFile from '../entity/file/BaseFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import FileHelper from '../helpers/fileHelper';
-import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
+import {
+  validate, validateActivityParams, validateCommentParams, validateFileParams,
+} from '../helpers/validation';
 import { CustomInvoiceGenSettings, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ExpiredInvoice } from '../helpers/rawQueries';
 import { ActivityType } from '../entity/enums/ActivityType';
@@ -132,7 +134,7 @@ export class InvoiceController extends Controller {
    * @param req Express.js request object
    */
   @Put('{id}')
-  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateInvoice(
     id: number, @Body() params: Partial<InvoiceParams>, @Request() req: express.Request,
@@ -305,7 +307,7 @@ export class InvoiceController extends Controller {
    * @param req Express.js request object
    */
   @Post('{id}/status')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'FINANCIAL'])
   @Response<WrappedApiError>(401)
   public async addInvoiceStatus(
     id: number, @Body() params: InvoiceStatusParams, @Request() req: express.Request,

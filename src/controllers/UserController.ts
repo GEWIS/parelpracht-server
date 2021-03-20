@@ -61,11 +61,17 @@ export class UserController extends Controller {
   /**
    * getUser() - retrieve single user
    * @param id ID of user to retrieve
+   * @param req Express.js request object
    */
   @Get('{id}')
-  @Security('local', ['ADMIN', 'AUDIT'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getUser(id: number): Promise<User> {
+  public async getUser(id: number, @Request() req: express.Request): Promise<User> {
+    const actor = req.user as User;
+    if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can view and change other users');
+    }
+
     return new UserService().getUser(id);
   }
 
@@ -104,13 +110,18 @@ export class UserController extends Controller {
    * @param params Update subset of parameter of user
    */
   @Put('{id}')
-  @Security('local', ['ADMIN'])
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async updateUser(
     @Request() req: express.Request, id: number, @Body() params: Partial<UserParams>,
   ): Promise<User> {
+    const actor = req.user as User;
+    if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
+    }
+
     await this.validateUserParams(req);
-    return new UserService().updateUser(id, params, req.user as User);
+    return new UserService().updateUser(id, params, actor);
   }
 
   /**
@@ -124,7 +135,7 @@ export class UserController extends Controller {
   public async uploadUserAvatar(@Request() req: express.Request, id: number) {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Forbidden, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
     }
 
     await FileService.uploadUserAvatar(req, id);
@@ -141,7 +152,7 @@ export class UserController extends Controller {
   public async deleteUserAvatar(@Request() req: express.Request, id:number): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Forbidden, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
     }
 
     return new UserService().deleteUserAvatar(id);
@@ -161,7 +172,7 @@ export class UserController extends Controller {
   ): Promise<void> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Forbidden, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
     }
 
     await validate([
