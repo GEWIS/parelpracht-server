@@ -101,6 +101,31 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Profile": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
+            "gender": {"ref":"Gender","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastNamePreposition": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "replyToEmail": {"dataType":"string","required":true},
+            "comment": {"dataType":"string","required":true},
+            "function": {"dataType":"string","required":true},
+            "avatarFilename": {"dataType":"string","required":true},
+            "receiveEmails": {"dataType":"boolean","required":true},
+            "sendEmailsToReplyToEmail": {"dataType":"boolean","required":true},
+            "roles": {"dataType":"array","array":{"ref":"Role"},"required":true},
+            "hasApiKey": {"dataType":"boolean"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ApiError": {
         "dataType": "refObject",
         "properties": {

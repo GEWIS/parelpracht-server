@@ -17,6 +17,10 @@ export interface AuthStatus {
   authenticated: boolean;
 }
 
+export interface Profile extends User {
+  hasApiKey?: boolean;
+}
+
 export default class AuthService {
   identityRepo: Repository<IdentityLocal>;
 
@@ -42,11 +46,19 @@ export default class AuthService {
     };
   }
 
-  async getProfile(req: express.Request): Promise<User> {
-    return (await this.userRepo.findOne(
+  async getProfile(req: express.Request): Promise<Profile> {
+    const user = (await this.userRepo.findOne(
       (req.user as User).id,
       { relations: ['roles'] },
-    ))!;
+    ))! as Profile;
+
+    const identity = (await this.identityApiKeyRepo.findOne(
+      user.id,
+    ));
+
+    user.hasApiKey = identity?.apiKey !== undefined;
+
+    return user;
   }
 
   async logout(req: express.Request) : Promise<void> {

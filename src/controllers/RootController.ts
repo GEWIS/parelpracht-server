@@ -7,7 +7,7 @@ import { body } from 'express-validator';
 import { User } from '../entity/User';
 import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
-import AuthService, { AuthStatus } from '../services/AuthService';
+import AuthService, { AuthStatus, Profile } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
 
 export interface ResetPasswordRequest {
@@ -31,7 +31,7 @@ export class RootController extends Controller {
   @Get('profile')
   @Security('local')
   @Response<WrappedApiError>(401)
-  public async getProfile(@Request() req: express.Request): Promise<User> {
+  public async getProfile(@Request() req: express.Request): Promise<Profile> {
     return new AuthService().getProfile(req);
   }
 
