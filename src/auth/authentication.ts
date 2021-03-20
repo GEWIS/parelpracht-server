@@ -1,7 +1,26 @@
 import express from 'express';
 import { getRepository } from 'typeorm';
+import { IdentityApiKey } from '../entity/IdentityApiKey';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+
+async function authWithApiKey(apiKey: string) {
+  const key = apiKey.split(' ')[1];
+
+  if (key === undefined) {
+    throw new ApiError(HTTPStatus.Unauthorized, 'Unknown API Key');
+  }
+
+  const identity = (await getRepository(IdentityApiKey)
+    .findOne({ apiKey: key }))!;
+
+  if (identity === undefined) {
+    throw new ApiError(HTTPStatus.Unauthorized, 'Unknown API Key');
+  }
+
+  return (await getRepository(User)
+    .findOne(identity.id, { relations: ['roles'] }))!;
+}
 
 export async function expressAuthentication(
   request: express.Request,
@@ -10,6 +29,11 @@ export async function expressAuthentication(
 ): Promise<any> {
   switch (securityName) {
     case 'local': {
+      const auth = request.header('Authentication');
+      if (auth) {
+        return authWithApiKey(auth);
+      }
+
       if (!request.isAuthenticated() || request.user === undefined) {
         throw new ApiError(HTTPStatus.Unauthorized, 'You are not logged in.');
       }

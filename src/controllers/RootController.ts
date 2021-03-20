@@ -57,4 +57,31 @@ export class RootController extends Controller {
     ], req);
     return new AuthService().resetPassword(reqBody.password, reqBody.token);
   }
+
+  @Post('generateApiKey')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async generateApiKey(
+  @Request() req: express.Request,
+  ) {
+    return new AuthService().generateApiKey(req);
+  }
+
+  @Get('getApiKey')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async getApiKey(
+  @Request() req: express.Request,
+  ) {
+    return new AuthService().getApiKey(req);
+  }
+
+  @Post('revokeApiKey')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async revokeApiKey(
+  @Request() req: express.Request,
+  ) {
+    await new AuthService().revokeApiKey(req);
+  }
 }
