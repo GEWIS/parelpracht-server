@@ -1069,6 +1069,7 @@ const models: TsoaRoute.Models = {
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
             "avatarFilename": {"dataType":"string","required":true},
+            "roles": {"dataType":"array","array":{"dataType":"refEnum","enums":["SIGNEE","FINANCIAL","ADMIN","GENERAL","AUDIT"]},"required":true},
         },
         "additionalProperties": false,
     },
