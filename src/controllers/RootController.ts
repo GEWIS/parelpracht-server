@@ -9,6 +9,7 @@ import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
 import AuthService, { AuthStatus, Profile } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
+import StatisticsService from '../services/StatisticsService';
 
 export interface ResetPasswordRequest {
   password: string;
@@ -83,5 +84,13 @@ export class RootController extends Controller {
   @Request() req: express.Request,
   ) {
     await new AuthService().revokeApiKey(req);
+  }
+
+  @Get('generalInfo')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async getGeneralInfo() {
+    console.log('Get financial years');
+    return new StatisticsService().getFinancialYears();
   }
 }

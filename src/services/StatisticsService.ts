@@ -48,7 +48,7 @@ function appendZeroesToStart(array: number[], newLength: number) {
 }
 
 export default class StatisticsService {
-  private async getFinancialYears(firstYear?: number): Promise<number[]> {
+  public async getFinancialYears(firstYear?: number): Promise<number[]> {
     if (firstYear) return rangeToArray(firstYear, dateToFinancialYear(new Date()), 1);
 
     const startYear = await createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();

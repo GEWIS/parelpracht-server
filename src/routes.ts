@@ -1356,8 +1356,30 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/generalInfo',
+            authenticateMiddleware([{"local":[]}]),
+            function (request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new RootController();
+
+
+            const promise = controller.getGeneralInfo.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/table',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
@@ -1402,7 +1424,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/:id',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -2994,7 +3016,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/invoice/:id',
-            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3239,7 +3261,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/status',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","FINANCIAL"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3695,7 +3717,7 @@ export function RegisterRoutes(app: express.Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/category/table',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
             function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
