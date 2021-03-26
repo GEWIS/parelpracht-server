@@ -4,7 +4,31 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
-import { ApiError, HTTPStatus } from './error';
+import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+
+export interface ETCompany {
+  id: number,
+  name: string,
+  contracts: ETContract[],
+}
+
+export interface ETContract {
+  id: number
+  title: string,
+  products: ETProductInstance[],
+}
+
+export interface ETProductInstance {
+  id: number
+  productId: number,
+  details?: string,
+  basePrice: number,
+  discount: number,
+  createdAt: Date,
+  updatedAt: Date,
+  subType: ProductInstanceStatus,
+  invoiceDate?: Date,
+}
 
 export interface RecentContract {
   id: number,
@@ -46,6 +70,13 @@ export interface ProductsPerCategoryPerPeriod {
   period: number,
   amount: number,
   nrOfProducts: number,
+}
+
+interface MegaTableFilters {
+  company: string,
+  invoice: string,
+  status: string,
+  product: string,
 }
 
 function arrayToQueryArray(arr: string[] | number[]) {
@@ -139,73 +170,84 @@ export default class RawQueries {
     `);
   };
 
-  getContractWithProductsAndTheirStatuses = async (lp: ListParams, result: 'data' | 'count') => {
-    let query = '';
-    let [companyFilter, productFilter, statusFilter, invoicedFilter] = ['', '', '', ''];
+  private processFilters(lp: ListParams): MegaTableFilters {
+    let [company, product, status, invoice] = ['', '', '', ''];
 
     if (lp.filters) {
       lp.filters?.forEach((f) => {
         if (f.column === 'companyId') {
-          companyFilter = `AND company.id IN ${arrayToQueryArray(f.values)}`;
+          company = `AND company.id IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'productId') {
-          productFilter = `AND p."productId" IN ${arrayToQueryArray(f.values)}`;
+          product = `AND p."productId" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'status') {
-          statusFilter = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
+          status = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'invoiced') {
           if (f.values[0] === -1) {
-            invoicedFilter = 'AND p."invoiceId" IS NULL';
+            invoice = 'AND p."invoiceId" IS NULL';
           } else {
-            invoicedFilter = `AND ${inYearsFilter('invoice."startDate"', f.values)}`;
+            invoice = `AND ${inYearsFilter('invoice."startDate"', f.values)}`;
           }
         }
       });
     }
 
-    if (this.database === 'mysql' || true) {
-      if (result === 'count') {
-        return this.postProcessing(`
+    return {
+      company, product, status, invoice,
+    };
+  }
+
+  getContractWithProductsAndTheirStatusesCount = async (lp: ListParams): Promise<number> => {
+    const filters = this.processFilters(lp);
+
+    const result = await this.postProcessing(`
           SELECT COUNT(DISTINCT contract."companyId") as count
           FROM product_instance p
-          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
+          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
           LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
             (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
             a2.type = 'STATUS')
           LEFT JOIN contract ON contract.id = p."contractId"
           LEFT JOIN invoice ON invoice.id = p."invoiceId"
-          WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter})
+          WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
         `);
-      }
+    return parseInt(result[0].count, 10);
+  };
 
-      const sorting = lp.sorting !== undefined && lp.sorting.column === 'companyName' ? `company.name ${lp.sorting.direction}` : 'company.id';
+  getContractWithProductsAndTheirStatuses = async (lp: ListParams): Promise<ETCompany[]> => {
+    let query = '';
 
-      query += `
+    const filters = this.processFilters(lp);
+
+    const sorting = lp.sorting !== undefined && lp.sorting.column === 'companyName' ? `company.name ${lp.sorting.direction}` : 'company.id';
+
+    query += `
         SELECT company.id as id, company.name as name,
           contract.id as "contractId", contract.title as "contractTitle",
           p.id as "productInstanceId", p."productId" as "productId", invoice."startDate" as "invoiceDate", a1."subType" as "subType", p."basePrice" as "basePrice", p.discount as discount, p.details as details
         FROM product_instance p
-        JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
+        JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
         LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
           a2.type = 'STATUS')
         LEFT JOIN contract ON contract.id = p."contractId"
         LEFT JOIN company ON company.id = contract."companyId"
         LEFT JOIN invoice ON invoice.id = p."invoiceId"
-        WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter} AND company.id IN (
+        WHERE (a2.id is NULL ${filters.company} ${filters.invoice} ${filters.product} AND company.id IN (
           SELECT id
           FROM (
             SELECT ROW_NUMBER() OVER (ORDER BY company.id) as rownr, company.id as id
             FROM product_instance p
-            JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
+            JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
             LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
               (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
               a2.type = 'STATUS')
             LEFT JOIN contract ON contract.id = p."contractId"
             LEFT JOIN company ON company.id = contract."companyId"
             LEFT JOIN invoice ON invoice.id = p."invoiceId"
-            WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter})
+            WHERE (a2.id is NULL ${filters.company} ${filters.invoice} ${filters.product})
             GROUP BY company.id
             ORDER BY company.id
           ) as x
@@ -214,30 +256,51 @@ export default class RawQueries {
         ORDER BY ${sorting}, contract.id, p.id
       `;
 
-      // MySQL is not able to return JSON many-to-one relations as JSON objects.
-      // Therefore, the query above returns all product instances with their contract
-      // and company information. This is a lot of duplicate information, so we need
-      // to parse all these rows to a list of objects without duplicate information.
-      const data: any[] = await this.postProcessing(query);
-      const r = [];
-      let companyId = -1;
-      let contractId = -1;
+    // MySQL is not able to return JSON many-to-one relations as JSON objects.
+    // Therefore, the query above returns all product instances with their contract
+    // and company information. This is a lot of duplicate information, so we need
+    // to parse all these rows to a list of objects without duplicate information.
+    const data: any[] = await this.postProcessing(query);
+    const r = [];
+    let companyId = -1;
+    let contractId = -1;
 
-      for (let i = 0; i < data.length; i++) {
-        if (companyId === data[i].id) {
-          if (contractId === data[i].contractId) {
-            r[r.length - 1].contracts[r[r.length - 1].contracts.length - 1].products.push({
-              id: data[i].productInstanceId,
-              productId: data[i].productId,
-              invoiceDate: data[i].invoiceDate,
-              basePrice: data[i].basePrice,
-              discount: data[i].discount,
-              type: ActivityType.STATUS,
-              subType: data[i].subType,
-              details: data[i].details,
-            });
-          } else {
-            r[r.length - 1].contracts.push({
+    for (let i = 0; i < data.length; i++) {
+      if (companyId === data[i].id) {
+        if (contractId === data[i].contractId) {
+          r[r.length - 1].contracts[r[r.length - 1].contracts.length - 1].products.push({
+            id: data[i].productInstanceId,
+            productId: data[i].productId,
+            invoiceDate: data[i].invoiceDate,
+            basePrice: data[i].basePrice,
+            discount: data[i].discount,
+            subType: data[i].subType,
+            details: data[i].details,
+          });
+        } else {
+          r[r.length - 1].contracts.push({
+            id: data[i].contractId,
+            title: data[i].contractTitle,
+            products: [
+              {
+                id: data[i].productInstanceId,
+                productId: data[i].productId,
+                invoiceDate: data[i].invoiceDate,
+                basePrice: data[i].basePrice,
+                discount: data[i].discount,
+                subType: data[i].subType,
+                details: data[i].details,
+              },
+            ],
+          });
+          contractId = data[i].contractId;
+        }
+      } else {
+        r.push({
+          id: data[i].id,
+          name: data[i].name,
+          contracts: [
+            {
               id: data[i].contractId,
               title: data[i].contractTitle,
               products: [
@@ -247,115 +310,19 @@ export default class RawQueries {
                   invoiceDate: data[i].invoiceDate,
                   basePrice: data[i].basePrice,
                   discount: data[i].discount,
-                  type: ActivityType.STATUS,
                   subType: data[i].subType,
                   details: data[i].details,
                 },
               ],
-            });
-            contractId = data[i].contractId;
-          }
-        } else {
-          r.push({
-            id: data[i].id,
-            name: data[i].name,
-            contracts: [
-              {
-                id: data[i].contractId,
-                title: data[i].contractTitle,
-                products: [
-                  {
-                    id: data[i].productInstanceId,
-                    productId: data[i].productId,
-                    invoiceDate: data[i].invoiceDate,
-                    basePrice: data[i].basePrice,
-                    discount: data[i].discount,
-                    type: ActivityType.STATUS,
-                    subType: data[i].subType,
-                    details: data[i].details,
-                  },
-                ],
-              },
-            ],
-          });
-          companyId = data[i].id;
-          contractId = data[i].contractId;
-        }
+            },
+          ],
+        });
+        companyId = data[i].id;
+        contractId = data[i].contractId;
       }
-
-      return r;
     }
 
-    if (this.database === 'postgres') {
-      // @ts-ignore
-      const sorting = lp.sorting && lp.sorting.column === 'companyName' ? `order by company.name ${lp.sorting.direction}` : '';
-
-      query += `
-      SELECT company.id, company.name,
-      (
-      select array_to_json(array_agg(row_to_json(t)))
-      from (
-          select contract.id, contract.title,
-        (
-          select array_to_json(array_agg(row_to_json(d)))
-          from (
-          SELECT p.*, a1.*
-          FROM product_instance p
-          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
-          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
-            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
-             a2.type = 'STATUS')
-          WHERE (a2.id IS NULL AND contract.id = p."contractId" ${productFilter} ${invoicedFilter})
-          ) d
-        ) as products
-        from contract
-        where (contract."companyId" = company.id AND (
-          SELECT COUNT(*)
-          FROM product_instance p
-          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
-          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
-            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
-             a2.type = 'STATUS')
-          WHERE (a2.id IS NULL AND contract.id = p."contractId" ${productFilter} ${invoicedFilter})
-          ) > 0)
-      ) t
-      ) as contracts
-      from company
-      where ((
-        SELECT COUNT(*)
-        FROM contract qc
-        WHERE (qc."companyId" = company.id)
-      ) > 0 AND (
-        SELECT COUNT(*)
-        FROM contract contract
-        JOIN product_instance p ON (p."contractId" = contract.id)
-        JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
-        LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
-          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
-           a2.type = 'STATUS')
-        WHERE (a2.id IS NULL AND contract."companyId" = company.id ${productFilter} ${invoicedFilter})
-      ) > 0) ${companyFilter}
-      ${sorting}
-    `;
-
-      if (result === 'count') {
-        return this.postProcessing(`
-        SELECT COUNT(*)
-        FROM (
-          ${query}
-        ) x
-      `);
-      }
-
-      if (lp.take) {
-        query += `LIMIT ${lp.take}`;
-        if (lp.skip) query += ` OFFSET ${lp.skip}`;
-      }
-
-      return this.postProcessing(query);
-    }
-
-    return [];
+    return r as ETCompany[];
   };
 
   getRecentContractsWithStatus = (limit: number, userId?: number): Promise<RecentContract[]> => {

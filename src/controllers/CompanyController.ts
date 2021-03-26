@@ -7,7 +7,12 @@ import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
-import CompanyService, { CompanyListResponse, CompanyParams, CompanySummary } from '../services/CompanyService';
+import CompanyService, {
+  CompanyListResponse,
+  CompanyParams,
+  CompanySummary,
+  ETCompanyListResponse,
+} from '../services/CompanyService';
 import { ListParams } from './ListParams';
 import ActivityService, {
   ActivityParams,
@@ -20,7 +25,6 @@ import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
 } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
-import ContractService from '../services/ContractService';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import FileService, { FileParams } from '../services/FileService';
@@ -83,8 +87,8 @@ export class CompanyController extends Controller {
   @Response<WrappedApiError>(401)
   public async getAllContractsExtensive(
     @Body() lp: ListParams,
-  ): Promise<any> {
-    return new ContractService().getAllContractsExtensive(lp);
+  ): Promise<ETCompanyListResponse> {
+    return new CompanyService().getAllCompaniesExtensive(lp);
   }
 
   /**

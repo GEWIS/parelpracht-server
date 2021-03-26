@@ -119,13 +119,6 @@ export default class ContractService {
     return new RawQueries().getContractSummaries();
   }
 
-  async getAllContractsExtensive(params: ListParams): Promise<any> {
-    return {
-      list: await new RawQueries().getContractWithProductsAndTheirStatuses(params, 'data'),
-      count: parseInt((await new RawQueries().getContractWithProductsAndTheirStatuses(params, 'count'))[0].count, 10),
-    };
-  }
-
   async getRecentContracts(actor: User): Promise<RecentContract[]> {
     const userId = actor.hasRole(Roles.ADMIN) ? undefined : actor.id;
     return new RawQueries().getRecentContractsWithStatus(5, userId);
