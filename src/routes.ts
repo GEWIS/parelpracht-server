@@ -793,6 +793,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "list": {"dataType":"array","array":{"ref":"ETCompany"},"required":true},
             "count": {"dataType":"double","required":true},
+            "extra": {"dataType":"nestedObjectLiteral","nestedProperties":{"nrOfProducts":{"dataType":"double","required":true},"sumProducts":{"dataType":"double","required":true}},"required":true},
         },
         "additionalProperties": false,
     },

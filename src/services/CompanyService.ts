@@ -42,8 +42,12 @@ export interface CompanyListResponse {
 }
 
 export interface ETCompanyListResponse {
-  list: ETCompany[]
+  list: ETCompany[];
   count: number;
+  extra: {
+    sumProducts: number;
+    nrOfProducts: number;
+  }
 }
 
 export default class CompanyService {
@@ -180,8 +184,16 @@ export default class CompanyService {
 
   async getAllCompaniesExtensive(params: ListParams): Promise<ETCompanyListResponse> {
     return {
-      list: await new RawQueries().getContractWithProductsAndTheirStatuses(params),
-      count: await new RawQueries().getContractWithProductsAndTheirStatusesCount(params),
+      list: await new RawQueries()
+        .getContractWithProductsAndTheirStatuses(params),
+      count: await new RawQueries()
+        .getContractWithProductsAndTheirStatusesCount(params),
+      extra: {
+        nrOfProducts: await new RawQueries()
+          .getContractWithProductsAndTheirStatusesCountProd(params),
+        sumProducts: await new RawQueries()
+          .getContractWithProductsAndTheirStatusesSumProducts(params),
+      },
     };
   }
 }

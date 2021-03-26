@@ -216,6 +216,40 @@ export default class RawQueries {
     return parseInt(result[0].count, 10);
   };
 
+  getContractWithProductsAndTheirStatusesCountProd = async (lp: ListParams): Promise<number> => {
+    const filters = this.processFilters(lp);
+
+    const result = await this.postProcessing(`
+          SELECT COUNT(DISTINCT p.id) as count
+          FROM product_instance p
+          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
+          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+            a2.type = 'STATUS')
+          LEFT JOIN contract ON contract.id = p."contractId"
+          LEFT JOIN invoice ON invoice.id = p."invoiceId"
+          WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+        `);
+    return parseInt(result[0].count, 10);
+  };
+
+  getContractWithProductsAndTheirStatusesSumProducts = async (lp: ListParams): Promise<number> => {
+    const filters = this.processFilters(lp);
+
+    const result = await this.postProcessing(`
+          SELECT SUM(p."basePrice" - p."discount") as sum
+          FROM product_instance p
+          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
+          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+            a2.type = 'STATUS')
+          LEFT JOIN contract ON contract.id = p."contractId"
+          LEFT JOIN invoice ON invoice.id = p."invoiceId"
+          WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+        `);
+    return parseInt(result[0].sum, 10);
+  };
+
   getContractWithProductsAndTheirStatuses = async (lp: ListParams): Promise<ETCompany[]> => {
     let query = '';
 
