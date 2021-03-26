@@ -66,12 +66,28 @@ function currentFinancialYear(): number {
   return now.getFullYear();
 }
 
+function yearsToSQLArray(years: number[]): string {
+  return years.reduce((result, year, i) => {
+    let r = `${result}${year}`;
+    if (i !== years.length - 1) {
+      r += ', ';
+    } else {
+      r += ')';
+    }
+    return r;
+  }, '(');
+}
+
 function inOrBeforeYearFilter(column: string, year: number): string {
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) <= ${year}`;
 }
 
 function inYearFilter(column: string, year: number): string {
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) = ${year}`;
+}
+
+function inYearsFilter(column: string, years: number[]): string {
+  return `EXTRACT(YEAR FROM ${column} + interval '6' month) IN ${yearsToSQLArray(years)}`;
 }
 
 export default class RawQueries {
@@ -93,6 +109,7 @@ export default class RawQueries {
 
   private postProcessing(query: string) {
     const q = this.database === 'mysql' ? query.split('"').join('') : query;
+    console.log(q);
     return getManager().query(q);
   }
 
@@ -138,16 +155,16 @@ export default class RawQueries {
           statusFilter = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'invoiced') {
-          if (f.values[0]) {
-            invoicedFilter = 'AND p."invoiceId" IS NOT NULL';
-          } else {
+          if (f.values[0] === -1) {
             invoicedFilter = 'AND p."invoiceId" IS NULL';
+          } else {
+            invoicedFilter = `AND ${inYearsFilter('invoice."startDate"', f.values)}`;
           }
         }
       });
     }
 
-    if (this.database === 'mysql') {
+    if (this.database === 'mysql' || true) {
       if (result === 'count') {
         return this.postProcessing(`
           SELECT COUNT(DISTINCT contract."companyId") as count
@@ -157,6 +174,7 @@ export default class RawQueries {
             (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
             a2.type = 'STATUS')
           LEFT JOIN contract ON contract.id = p."contractId"
+          LEFT JOIN invoice ON invoice.id = p."invoiceId"
           WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter})
         `);
       }
@@ -166,7 +184,7 @@ export default class RawQueries {
       query += `
         SELECT company.id as id, company.name as name,
           contract.id as "contractId", contract.title as "contractTitle",
-          p.id as "productInstanceId", p."productId" as "productId", p."invoiceId" as "invoiceId", a1."subType" as "subType", p."basePrice" as "basePrice", p.discount as discount, p.details as details
+          p.id as "productInstanceId", p."productId" as "productId", invoice."startDate" as "invoiceDate", a1."subType" as "subType", p."basePrice" as "basePrice", p.discount as discount, p.details as details
         FROM product_instance p
         JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${statusFilter})
         LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
@@ -174,6 +192,7 @@ export default class RawQueries {
           a2.type = 'STATUS')
         LEFT JOIN contract ON contract.id = p."contractId"
         LEFT JOIN company ON company.id = contract."companyId"
+        LEFT JOIN invoice ON invoice.id = p."invoiceId"
         WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter} AND company.id IN (
           SELECT id
           FROM (
@@ -185,6 +204,7 @@ export default class RawQueries {
               a2.type = 'STATUS')
             LEFT JOIN contract ON contract.id = p."contractId"
             LEFT JOIN company ON company.id = contract."companyId"
+            LEFT JOIN invoice ON invoice.id = p."invoiceId"
             WHERE (a2.id is NULL ${companyFilter} ${invoicedFilter} ${companyFilter})
             GROUP BY company.id
             ORDER BY company.id
@@ -209,7 +229,7 @@ export default class RawQueries {
             r[r.length - 1].contracts[r[r.length - 1].contracts.length - 1].products.push({
               id: data[i].productInstanceId,
               productId: data[i].productId,
-              invoiceId: data[i].invoiceId,
+              invoiceDate: data[i].invoiceDate,
               basePrice: data[i].basePrice,
               discount: data[i].discount,
               type: ActivityType.STATUS,
@@ -224,7 +244,7 @@ export default class RawQueries {
                 {
                   id: data[i].productInstanceId,
                   productId: data[i].productId,
-                  invoiceId: data[i].invoiceId,
+                  invoiceDate: data[i].invoiceDate,
                   basePrice: data[i].basePrice,
                   discount: data[i].discount,
                   type: ActivityType.STATUS,
@@ -247,7 +267,7 @@ export default class RawQueries {
                   {
                     id: data[i].productInstanceId,
                     productId: data[i].productId,
-                    invoiceId: data[i].invoiceId,
+                    invoiceDate: data[i].invoiceDate,
                     basePrice: data[i].basePrice,
                     discount: data[i].discount,
                     type: ActivityType.STATUS,
