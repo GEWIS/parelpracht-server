@@ -903,14 +903,14 @@ const models: TsoaRoute.Models = {
             "productId": {"dataType":"double","required":true},
             "basePrice": {"dataType":"double","required":true},
             "discount": {"dataType":"double"},
-            "comments": {"dataType":"string"},
+            "details": {"dataType":"string"},
         },
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_ProductInstanceParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"basePrice":{"dataType":"double"},"discount":{"dataType":"double"},"comments":{"dataType":"string"}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double"},"basePrice":{"dataType":"double"},"discount":{"dataType":"double"},"details":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductInstanceStatusParams": {

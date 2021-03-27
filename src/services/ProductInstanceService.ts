@@ -26,7 +26,7 @@ export interface ProductInstanceParams {
   productId: number,
   basePrice: number,
   discount?: number,
-  comments?: string;
+  details?: string;
 }
 
 export interface ProductInstanceListResponse {
