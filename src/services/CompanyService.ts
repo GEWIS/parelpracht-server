@@ -12,6 +12,7 @@ import { createActivitiesForEntityEdits } from '../helpers/activity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
 import ActivityService from './ActivityService';
+import RawQueries, { ETCompany } from '../helpers/rawQueries';
 
 // May not be correct yet
 export interface CompanyParams {
@@ -38,6 +39,15 @@ export interface CompanySummary {
 export interface CompanyListResponse {
   list: Company[];
   count: number;
+}
+
+export interface ETCompanyListResponse {
+  list: ETCompany[];
+  count: number;
+  extra: {
+    sumProducts: number;
+    nrOfProducts: number;
+  }
 }
 
 export default class CompanyService {
@@ -170,5 +180,20 @@ export default class CompanyService {
     });
 
     return contacts;
+  }
+
+  async getAllCompaniesExtensive(params: ListParams): Promise<ETCompanyListResponse> {
+    return {
+      list: await new RawQueries()
+        .getContractWithProductsAndTheirStatuses(params),
+      count: await new RawQueries()
+        .getContractWithProductsAndTheirStatusesCount(params),
+      extra: {
+        nrOfProducts: await new RawQueries()
+          .getContractWithProductsAndTheirStatusesCountProd(params),
+        sumProducts: await new RawQueries()
+          .getContractWithProductsAndTheirStatusesSumProducts(params),
+      },
+    };
   }
 }

@@ -90,7 +90,6 @@ export class RootController extends Controller {
   @Security('local')
   @Response<WrappedApiError>(400)
   public async getGeneralInfo() {
-    console.log('Get financial years');
     return new StatisticsService().getFinancialYears();
   }
 }
