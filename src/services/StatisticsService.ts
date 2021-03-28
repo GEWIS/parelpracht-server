@@ -186,8 +186,9 @@ export default class StatisticsService {
     };
   }
 
-  async getProductsContractedByFinancialYear(id: number): Promise<AnalysisResultByYear[]> {
-    const result = await new RawQueries().getProductInstancesByFinancialYear(id);
+  async getProductsInvoicedByFinancialYear(id: number): Promise<AnalysisResultByYear[]> {
+    const result = (await new RawQueries().getProductInstancesByFinancialYear(id))
+      .concat(await new RawQueries().getDeferredProductInstances(id));
     if (result.length === 0) return result;
 
     for (let i = 1; i < result.length; i++) {

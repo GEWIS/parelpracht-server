@@ -548,11 +548,25 @@ export default class RawQueries {
         COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) as year
       FROM product_instance p
       LEFT JOIN invoice i ON (p."invoiceId" = i.id)
-      LEFT JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
-      LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
+      LEFT JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND a2.type = 'STATUS' AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-      WHERE (a2.id IS NULL AND p."productId" = ${id} AND
+      WHERE (a2.id IS NULL AND a1."subType" != '${ProductInstanceStatus.DEFERRED}' AND p."productId" = ${id} AND
           COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) > ${currentFinancialYear() - 10})
+      GROUP BY year
+    `);
+  };
+
+  getDeferredProductInstances = (id: number): Promise<AnalysisResultByYear> => {
+    return this.postProcessing(`
+      SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts",
+        ${currentFinancialYear() + 1} as year
+      FROM product_instance p
+      LEFT JOIN invoice i ON (p."invoiceId" = i.id)
+      LEFT JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS')
+      LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND a2.type = 'STATUS' AND
+          (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
+      WHERE (a2.id IS NULL AND a1."subType" = '${ProductInstanceStatus.DEFERRED}' AND p."productId" = ${id})
       GROUP BY year
     `);
   };
