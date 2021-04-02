@@ -3,7 +3,11 @@ import { body, ValidationChain, validationResult } from 'express-validator';
 import { ApiError, HTTPStatus } from './error';
 import ContactService from '../services/ContactService';
 
-// parallel processing
+/**
+ * Run a list of validations (in parallel) on a request object
+ * @param validations Array of validations to execute on the request
+ * @param req Express.js request object
+ */
 export const validate = async (
   validations: ValidationChain[],
   req: express.Request,
@@ -16,7 +20,12 @@ export const validate = async (
   }
 };
 
-// sequential processing, stops running validations chain if the previous one have failed.
+/**
+ * Run a list of validations (in sequence) on a request object.
+ * Stops running validations chain if the previous one have failed.
+ * @param validations Array of validations to execute on the request
+ * @param req Express.js request object
+ */
 export const validateSeq = async (
   validations: ValidationChain[],
   req: express.Request,
@@ -33,6 +42,11 @@ export const validateSeq = async (
   }
 };
 
+/**
+ * Validate whether the given contact is in the given company
+ * @param contactId ID of the contact to check
+ * @param req Express.js request object, with the company id in the body
+ */
 export const contactInCompany = async (contactId: number, req: express.Request) => {
   new ContactService().getContact(contactId).then((contact) => {
     if (contact.companyId !== req.body.companyId) {
@@ -42,6 +56,11 @@ export const contactInCompany = async (contactId: number, req: express.Request) 
   });
 };
 
+/**
+ * Validate the parameters of an activity
+ * @param req Express.js request object
+ * @param validations Optional additional validations to execute
+ */
 export const validateActivityParams = async (
   req: express.Request, validations: ValidationChain[] = [],
 ) => {
@@ -50,6 +69,11 @@ export const validateActivityParams = async (
   ].concat(validations), req);
 };
 
+/**
+ * Validate the parameters of a comment activity
+ * @param req Express.js request object
+ * @param validations Optional additional validations to execute
+ */
 export const validateCommentParams = async (
   req: express.Request, validations: ValidationChain[] = [],
 ) => {
@@ -58,6 +82,11 @@ export const validateCommentParams = async (
   ].concat(validations), req);
 };
 
+/**
+ * Validate the parameters of a file object
+ * @param req Express.js request object
+ * @param validations Optional additional validations to execute
+ */
 export const validateFileParams = async (
   req: express.Request, validations: ValidationChain[] = [],
 ) => {

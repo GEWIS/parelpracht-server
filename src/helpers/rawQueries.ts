@@ -5,6 +5,7 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+import { currentFinancialYear } from './timestamp';
 
 export interface ETCompany {
   id: number,
@@ -79,6 +80,10 @@ interface MegaTableFilters {
   product: string,
 }
 
+/**
+ * Convert a JavaScript array to an SQL array (in a string)
+ * @param arr Array to convert
+ */
 function arrayToQueryArray(arr: string[] | number[]) {
   let result = '(';
   arr.forEach((a: string | number) => {
@@ -91,24 +96,6 @@ function arrayToQueryArray(arr: string[] | number[]) {
   return `${result.substring(0, result.length - 2)})`;
 }
 
-function currentFinancialYear(): number {
-  const now = new Date();
-  now.setMonth(now.getMonth() + 8);
-  return now.getFullYear();
-}
-
-function yearsToSQLArray(years: number[]): string {
-  return years.reduce((result, year, i) => {
-    let r = `${result}${year}`;
-    if (i !== years.length - 1) {
-      r += ', ';
-    } else {
-      r += ')';
-    }
-    return r;
-  }, '(');
-}
-
 function inOrBeforeYearFilter(column: string, year: number): string {
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) <= ${year}`;
 }
@@ -118,7 +105,7 @@ function inYearFilter(column: string, year: number): string {
 }
 
 function inYearsFilter(column: string, years: number[]): string {
-  return `EXTRACT(YEAR FROM ${column} + interval '6' month) IN ${yearsToSQLArray(years)}`;
+  return `EXTRACT(YEAR FROM ${column} + interval '6' month) IN ${arrayToQueryArray(years)}`;
 }
 
 export default class RawQueries {

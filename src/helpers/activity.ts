@@ -11,6 +11,11 @@ import { Contact } from '../entity/Contact';
 import { ProductCategory } from '../entity/ProductCategory';
 import Currency from './currency';
 
+/**
+ * Compares two entity objects and returns an object only containing the (new) differences
+ * @param newEntity The new entity object
+ * @param oldEntity The old entity object
+ */
 function getEntityChanges<T extends object>(
   newEntity: Partial<T>, oldEntity: T,
 ): Partial<T> {
@@ -27,6 +32,13 @@ function getEntityChanges<T extends object>(
   return result;
 }
 
+/**
+ * Convert an array of strings to a single string, where all items are split by
+ * commas and a final ", and"
+ * @param items An array of strings to convert to a single string
+ * @param preSuffix An optional prefix / suffix to put before and after every
+ * string in the items array
+ */
 function printStringArrayToString(items: string[], preSuffix = ''): string {
   if (items.length === 0) {
     return '';
@@ -43,6 +55,11 @@ function printStringArrayToString(items: string[], preSuffix = ''): string {
   }, '');
 }
 
+/**
+ * Split a single summation string into an array of strings. The split is
+ * executed on commas and the word "and".
+ * @param list A list of different things, to convert to an array.
+ */
 function splitStringToStringArray(list: string): string[] {
   // Split the string on comma's
   const split = list.split(',');
@@ -54,6 +71,12 @@ function splitStringToStringArray(list: string): string[] {
   return split.concat(lastTwo).map((s) => s.trim());
 }
 
+/**
+ * Parse all property changes into a single string, where all properties
+ * with their old and new values are included
+ * @param newProperties Partial with only the newly changed properties
+ * @param oldProperties The old entity
+ */
 async function parsePropertyChanges<T>(
   newProperties: Partial<T>, oldProperties: T,
 ): Promise<string> {
@@ -138,22 +161,41 @@ async function parsePropertyChanges<T>(
   return printStringArrayToString(parsedChanges);
 }
 
+/**
+ * Create the description of an edit-entity-activity
+ * @param newProperties Partial with only the newly changed properties
+ * @param oldProperties The old entity
+ */
 async function createEditActivityDescription<T>(
   newProperties: Partial<T>, oldProperties: T,
 ): Promise<string> {
   return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties)}.`;
 }
 
+/**
+ * Create the description of an reassign-activity
+ * @param newUser User who received the assignment
+ * @param oldUser User who "lost" the assignment
+ */
 function createReassignActivityDescription(
   newUser: User, oldUser: User,
 ): string {
   return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}`;
 }
 
+/**
+ * Create the description of an add-product-activity (for contracts)
+ * @param products Array of product names
+ */
 export function createAddProductActivityDescription(products: string[]): string {
   return `Added ${printStringArrayToString(products, '"')}.`;
 }
 
+/**
+ * Add an extra product to an existing description of adding products
+ * @param products Array of products to be added to the "old" description
+ * @param currentDescription The current description of the add-product-activity
+ */
 export function appendProductActivityDescription(
   products: string[], currentDescription: string,
 ): string {
@@ -162,6 +204,10 @@ export function appendProductActivityDescription(
   return createAddProductActivityDescription(currentProducts.concat(products));
 }
 
+/**
+ * Create the description of a product-removed-activity
+ * @param products Array of product names, which have been removed
+ */
 export function createDelProductActivityDescription(products: string[]): string {
   return `Removed ${printStringArrayToString(products, '"')}.`;
 }

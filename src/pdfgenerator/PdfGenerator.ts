@@ -78,7 +78,7 @@ export default class PdfGenerator {
       const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/'), passes: 3 });
       pdf.pipe(output);
       pdf.on('error', (err) => {
-        FileHelper.removeFileLoc(outputLoc);
+        FileHelper.removeFileAtLoc(outputLoc);
         reject(err);
       });
       pdf.on('finish', () => resolve(outputLoc));
