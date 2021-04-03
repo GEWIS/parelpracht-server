@@ -1095,7 +1095,6 @@ const models: TsoaRoute.Models = {
             "firstName": {"dataType":"string","required":true},
             "lastNamePreposition": {"dataType":"string","required":true},
             "lastName": {"dataType":"string","required":true},
-            "companyName": {"dataType":"string","required":true},
             "companyId": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
