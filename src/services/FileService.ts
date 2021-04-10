@@ -24,7 +24,7 @@ import ContractService from './ContractService';
 import FileHelper, {
   uploadCompanyLogoDirLoc,
   uploadDirLoc,
-  uploadUserAvatarDirLoc,
+  uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc,
 } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
 import ContactService from './ContactService';
@@ -332,6 +332,27 @@ export default class FileService {
     const randomFileName = `${uuidv4()}.${fileExtension}`;
     const fileLocation = path.join(__dirname, '/../../', uploadUserAvatarDirLoc, randomFileName);
     user.avatarFilename = randomFileName;
+    fs.writeFileSync(fileLocation, request.file.buffer);
+    try {
+      await user.save();
+    } catch (err) {
+      FileHelper.removeFileAtLoc(fileLocation);
+      throw new Error(err);
+    }
+  }
+
+  static async uploadUserBackground(request: express.Request, userId: number) {
+    const user = await new UserService().getUser(userId);
+    await FileService.handleFile(request);
+
+    const fileExtension = mime.getExtension(request.file.mimetype) || '';
+    if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'User background needs to be an image file');
+    }
+
+    const randomFileName = `${uuidv4()}.${fileExtension}`;
+    const fileLocation = path.join(__dirname, '/../../', uploadUserBackgroundDirLoc, randomFileName);
+    user.backgroundFilename = randomFileName;
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await user.save();

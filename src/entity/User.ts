@@ -60,6 +60,10 @@ export class User extends BaseEnt {
   @Column({ default: '' })
   avatarFilename!: string;
 
+  /** Optional filename of the user's background */
+  @Column({ default: '' })
+  backgroundFilename!: string;
+
   /** Whether this user wishes to receive (regular) email updates, e.g. sent invoices */
   @Column({ default: false })
   receiveEmails!: boolean;

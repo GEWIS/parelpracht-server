@@ -10,6 +10,7 @@ export const uploadDirLoc = 'data/uploads/';
 export const templateDirLoc = 'data/templates/';
 export const uploadCompanyLogoDirLoc = 'data/logos';
 export const uploadUserAvatarDirLoc = 'data/logos';
+export const uploadUserBackgroundDirLoc = 'data/backgrounds';
 
 export default class FileHelper {
   /**

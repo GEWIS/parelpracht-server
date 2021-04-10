@@ -42,6 +42,7 @@ export interface UserSummary {
   lastName: string;
   email: string;
   avatarFilename: string;
+  backgroundFilename: string;
   roles: Roles[];
 }
 
@@ -136,7 +137,7 @@ export default class UserService {
 
   async getUserSummaries(): Promise<UserSummary[]> {
     const users = await this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename', 'backgroundFilename'],
       relations: ['roles'],
     });
     return users.map((u) => {
@@ -147,6 +148,7 @@ export default class UserService {
         lastName: u.lastName,
         email: u.email,
         avatarFilename: u.avatarFilename,
+        backgroundFilename: u.backgroundFilename,
         roles: u.roles.map((r) => r.name),
       } as UserSummary;
     });
@@ -230,6 +232,19 @@ export default class UserService {
       FileHelper.removeFileAtLoc(user.avatarFilename);
     } finally {
       await this.repo.update(user.id, { avatarFilename: '' });
+    }
+
+    return this.getUser(id);
+  }
+
+  async deleteUserBackground(id: number): Promise<User> {
+    const user = await this.getUser(id);
+    if (user.backgroundFilename === '') return user;
+
+    try {
+      FileHelper.removeFileAtLoc(user.backgroundFilename);
+    } finally {
+      await this.repo.update(user.id, { backgroundFilename: '' });
     }
 
     return this.getUser(id);

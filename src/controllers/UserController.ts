@@ -17,6 +17,8 @@ import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { Roles } from '../entity/enums/Roles';
 import FileService from '../services/FileService';
+import { ProductCategory } from "../entity/ProductCategory";
+import ProductCategoryService from "../services/ProductCategoryService";
 
 @Route('user')
 @Tags('User')
@@ -156,6 +158,40 @@ export class UserController extends Controller {
     }
 
     return new UserService().deleteUserAvatar(id);
+  }
+
+  /**
+   * Upload a background for this user. Can only be done for yourself
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Put('{id}/background')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async uploadUserBackground(@Request() req: express.Request, id: number) {
+    const actor = req.user as User;
+    if (actor.id !== id) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. You can only upload your own background.');
+    }
+
+    await FileService.uploadUserBackground(req, id);
+  }
+
+  /**
+   * Delete the background for this user. Can only be done for yourself, or by an admin
+   * @param req Express.js request object
+   * @param id ID of the user
+   */
+  @Delete('{id}/background')
+  @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
+  @Response<WrappedApiError>(401)
+  public async deleteUserBackground(@Request() req: express.Request, id:number): Promise<User> {
+    const actor = req.user as User;
+    if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can delete other user backgrounds.');
+    }
+
+    return new UserService().deleteUserBackground(id);
   }
 
   /**
