@@ -1,26 +1,26 @@
 {
-    "compilerOptions": {
-      "outDir": "dist/",
-      "rootDir": "src/",
-      "module": "commonjs",
-      "lib": [
-        "es6",
-        "es2020",
-      ],
-      "strict": true,
-      "target": "es2016",
-      "declaration": true,
-      "noImplicitAny": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "sourceMap": true,
-      "composite": true,
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "resolveJsonModule": true,
-    },
-    "include": [
-      "src/**/*.ts",
-      "src/public/swagger.json"
-    ]
-  }
+	"compilerOptions": {
+	  "outDir": "dist/",
+	  "rootDir": "src/",
+	  "module": "commonjs",
+	  "lib": [
+		"es6",
+		"es2020"
+	  ],
+	  "strict": true,
+	  "target": "es2016",
+	  "declaration": true,
+	  "noImplicitAny": true,
+	  "emitDecoratorMetadata": true,
+	  "experimentalDecorators": true,
+	  "sourceMap": true,
+	  "composite": true,
+	  "esModuleInterop": true,
+	  "forceConsistentCasingInFileNames": true,
+	  "resolveJsonModule": true
+	},
+	"include": [
+	  "src/**/*.ts",
+	  "src/public/swagger.json"
+	]
+}
