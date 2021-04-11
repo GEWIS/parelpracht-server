@@ -1202,7 +1202,7 @@ export function RegisterRoutes(app: express.Router) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
         app.post('/api/setup',
-            function RootController_postSetup(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"SetupParams"},
             };
@@ -1220,11 +1220,11 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.postSetup.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/authStatus',
-            function RootController_getAuthStatus(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -1242,12 +1242,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAuthStatus.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/profile',
             authenticateMiddleware([{"local":[]}]),
-            function RootController_getProfile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -1265,11 +1265,11 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProfile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/logout',
-            function RootController_logout(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -1287,11 +1287,11 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.logout.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/forgotPassword',
-            function RootController_forgotPassword(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     email: {"in":"query","name":"email","required":true,"dataType":"string"},
             };
@@ -1309,11 +1309,11 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.forgotPassword.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/resetPassword',
-            function RootController_resetPassword(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     reqBody: {"in":"body","name":"reqBody","required":true,"ref":"ResetPasswordRequest"},
@@ -1332,12 +1332,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.resetPassword.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/generateApiKey',
             authenticateMiddleware([{"local":[]}]),
-            function RootController_generateApiKey(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -1355,12 +1355,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.generateApiKey.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/getApiKey',
             authenticateMiddleware([{"local":[]}]),
-            function RootController_getApiKey(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -1378,12 +1378,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getApiKey.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/revokeApiKey',
             authenticateMiddleware([{"local":[]}]),
-            function RootController_revokeApiKey(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -1401,12 +1401,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.revokeApiKey.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/generalInfo',
             authenticateMiddleware([{"local":[]}]),
-            function RootController_getGeneralInfo(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -1423,12 +1423,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getGeneralInfo.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_getAllProducts(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -1446,12 +1446,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllProducts.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/compact',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ProductController_getProductSummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -1468,12 +1468,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProductSummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_getProduct(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -1491,12 +1491,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProduct.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductController_createProduct(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     params: {"in":"body","name":"params","required":true,"ref":"ProductParams"},
@@ -1515,12 +1515,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createProduct.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/product/:id',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductController_updateProduct(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -1540,12 +1540,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateProduct.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/product/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_deleteProduct(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -1564,12 +1564,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProduct.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/:id/pricing',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductController_addPricing(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -1588,12 +1588,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addPricing.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/product/:id/pricing',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductController_updatePricing(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_PricingParams_"},
@@ -1613,12 +1613,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updatePricing.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/product/:id/pricing',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductController_deletePricing(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -1637,12 +1637,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deletePricing.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/:id/contracts',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function ProductController_getProductContracts(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"PaginationParams"},
@@ -1661,12 +1661,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProductContracts.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/:id/invoices',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function ProductController_getProductInvoices(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"PaginationParams"},
@@ -1685,12 +1685,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProductInvoices.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/:id/statistics',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_getProductStatistics(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -1708,12 +1708,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProductStatistics.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/:id/file/upload',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_uploadProductFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -1732,12 +1732,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadProductFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_getProductFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -1756,12 +1756,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getProductFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/product/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_updateProductFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -1782,12 +1782,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateProductFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/product/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_deleteProductFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -1806,12 +1806,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProductFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/product/:id/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_addProductComment(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ActivityParams"},
@@ -1831,12 +1831,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addProductComment.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/product/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_updateProductActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -1857,12 +1857,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateProductActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/product/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductController_deleteProductActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -1881,12 +1881,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProductActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/product/stats/statuses/:year',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ProductController_getDashboardProductInstanceStatistics(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     year: {"in":"path","name":"year","required":true,"dataType":"double"},
             };
@@ -1904,12 +1904,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getDashboardProductInstanceStatistics.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/company/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function CompanyController_getAllCompanies(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -1927,12 +1927,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllCompanies.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/compact',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function CompanyController_getCompanySummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -1949,12 +1949,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getCompanySummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/company/extensive',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function CompanyController_getAllContractsExtensive(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -1972,12 +1972,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllContractsExtensive.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function CompanyController_getCompany(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -1995,12 +1995,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getCompany.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/company',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function CompanyController_createCompany(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"CompanyParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -2019,12 +2019,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createCompany.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/company/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_updateCompany(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_CompanyParams_"},
@@ -2044,12 +2044,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateCompany.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/company/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_deleteCompany(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -2068,12 +2068,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteCompany.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/company/:id/logo',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_uploadCompanyLogo(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -2092,12 +2092,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadCompanyLogo.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/company/:id/logo',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_deleteCompanyLogo(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -2115,12 +2115,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteCompanyLogo.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id/invoices',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function CompanyController_getUnresolvedInvoices(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -2138,12 +2138,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getUnresolvedInvoices.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id/contacts',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function CompanyController_getContacts(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -2161,12 +2161,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContacts.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id/statistics',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_getCompanyStatistics(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -2184,12 +2184,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getCompanyStatistics.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/company/:id/file/upload',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_uploadCompanyFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -2208,12 +2208,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadCompanyFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_getCompanyFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -2232,12 +2232,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getCompanyFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/company/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_updateCompanyFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -2258,12 +2258,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateCompanyFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/company/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_deleteCompanyFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -2282,12 +2282,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteCompanyFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/company/:id/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_addCompanyComment(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ActivityParams"},
@@ -2307,12 +2307,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addCompanyComment.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/company/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_updateCompanyActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -2333,12 +2333,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateCompanyActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/company/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function CompanyController_deleteCompanyActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -2357,12 +2357,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteCompanyActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/table',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ContractController_getAllContracts(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -2380,12 +2380,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllContracts.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract/compact',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ContractController_getContractSummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -2402,12 +2402,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContractSummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract/recent',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ContractController_getRecentContracts(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
@@ -2425,12 +2425,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getRecentContracts.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract/:id',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ContractController_getContract(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -2448,12 +2448,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContract.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_createContract(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     params: {"in":"body","name":"params","required":true,"ref":"ContractParams"},
@@ -2472,12 +2472,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createContract.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/contract/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_updateContract(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_ContractParams_"},
@@ -2497,12 +2497,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateContract.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/contract/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_deleteContract(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -2521,12 +2521,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteContract.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/product',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_addProductInstance(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ProductInstanceParams"},
@@ -2546,12 +2546,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addProductInstance.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/contract/:id/product/:prodId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_updateProductInstance(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2572,12 +2572,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateProductInstance.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/contract/:id/product/:prodId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_deleteProductInstance(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2597,12 +2597,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProductInstance.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/product/:prodId/status',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_addProductInstanceStatus(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2623,12 +2623,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addProductInstanceStatus.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/product/:prodId/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_addProductInstanceComment(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2649,12 +2649,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addProductInstanceComment.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/contract/:id/product/:prodId/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_updateProductInstanceActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2676,12 +2676,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateProductInstanceActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/contract/:id/product/:prodId/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_deleteProductInstanceActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2701,12 +2701,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProductInstanceActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/file/generate',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_generateContractFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"GenerateContractParams"},
@@ -2726,12 +2726,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.generateContractFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/file/upload',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_uploadContractFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -2750,12 +2750,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadContractFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contract/:id/file/:fileId',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ContractController_getContractFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -2774,12 +2774,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContractFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/contract/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_updateContractFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -2800,12 +2800,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateContractFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/contract/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_deleteContractFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -2824,12 +2824,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteContractFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/status',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_addContractStatus(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ContractStatusParams"},
@@ -2849,12 +2849,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addContractStatus.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contract/:id/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_addContractComment(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ActivityParams"},
@@ -2874,12 +2874,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addContractComment.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/contract/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_updateContractActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -2900,12 +2900,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateContractActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/contract/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContractController_deleteContractActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -2924,12 +2924,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteContractActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/table',
             authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function InvoiceController_getAllInvoices(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -2947,12 +2947,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllInvoices.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice/compact',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function InvoiceController_getInvoiceSummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -2969,12 +2969,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getInvoiceSummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice/expired',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function InvoiceController_getExpiredInvoices(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -2991,12 +2991,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getExpiredInvoices.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/invoice/lastseen',
             authenticateMiddleware([{"local":["FINANCIAL"]}]),
-            function InvoiceController_updateLastSeenByTreasurer(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -3013,12 +3013,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateLastSeenByTreasurer.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice/:id',
             authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function InvoiceController_getInvoice(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -3036,12 +3036,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getInvoice.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_createInvoice(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     params: {"in":"body","name":"params","required":true,"ref":"InvoiceCreateParams"},
@@ -3060,12 +3060,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createInvoice.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/invoice/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_updateInvoice(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_InvoiceParams_"},
@@ -3085,12 +3085,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateInvoice.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/invoice/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_deleteInvoice(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3109,12 +3109,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteInvoice.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/product',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_addProduct(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double","required":true}}},
@@ -3134,12 +3134,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addProduct.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/invoice/:id/product/:prodId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_deleteProduct(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -3158,12 +3158,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteProduct.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/file/generate',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_generateInvoiceFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"GenerateInvoiceParams"},
@@ -3183,12 +3183,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.generateInvoiceFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/file/upload',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_uploadInvoiceFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3207,12 +3207,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadInvoiceFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/invoice/:id/file/:fileId',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function InvoiceController_getInvoiceFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -3231,12 +3231,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getInvoiceFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/invoice/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_updateInvoiceFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -3257,12 +3257,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateInvoiceFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/invoice/:id/file/:fileId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_deleteInvoiceFile(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     fileId: {"in":"path","name":"fileId","required":true,"dataType":"double"},
@@ -3281,12 +3281,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteInvoiceFile.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/custom',
             authenticateMiddleware([{"local":["FINANCIAL","ADMIN"]}]),
-            function InvoiceController_generateCustomInvoice(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"CustomInvoiceGenSettings"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3305,12 +3305,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.generateCustomInvoice.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/status',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","FINANCIAL"]}]),
-            function InvoiceController_addInvoiceStatus(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"InvoiceStatusParams"},
@@ -3330,12 +3330,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addInvoiceStatus.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_addInvoiceComment(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ActivityParams"},
@@ -3355,12 +3355,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.addInvoiceComment.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/invoice/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_updateInvoiceActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -3381,12 +3381,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateInvoiceActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/invoice/:id/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function InvoiceController_deleteInvoiceActivity(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     activityId: {"in":"path","name":"activityId","required":true,"dataType":"double"},
@@ -3405,12 +3405,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteInvoiceActivity.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contact/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function ContactController_getAllContacts(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -3428,12 +3428,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllContacts.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contact/compact',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ContactController_getContactSummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -3450,12 +3450,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContactSummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/contact/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function ContactController_getContact(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -3473,12 +3473,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContact.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/contact',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContactController_createContact(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"ContactParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3497,12 +3497,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createContact.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/contact/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContactController_updateContact(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_ContactParams_"},
@@ -3522,12 +3522,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateContact.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/contact/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ContactController_deleteContact(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3546,12 +3546,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteContact.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/user/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_getAllUsers(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -3569,12 +3569,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllUsers.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/user/compact',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_getUserSummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -3591,12 +3591,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getUserSummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/user/:id',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_getUser(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3615,12 +3615,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getUser.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/user/:id',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function UserController_deleteUser(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3639,12 +3639,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteUser.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/user',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function UserController_createUser(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"UserParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3663,12 +3663,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createUser.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/user/:id',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_updateUser(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3688,12 +3688,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateUser.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/user/:id/logo',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_uploadUserAvatar(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3712,12 +3712,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadUserAvatar.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/user/:id/logo',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_deleteUserAvatar(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3736,12 +3736,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteUserAvatar.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/user/:id/background',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_uploadUserBackground(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3760,12 +3760,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.uploadUserBackground.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/user/:id/background',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function UserController_deleteUserBackground(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3784,12 +3784,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteUserBackground.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/user/:id/assignments',
             authenticateMiddleware([{"local":["ADMIN","GENERAL"]}]),
-            function UserController_transferAssignments(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
@@ -3809,12 +3809,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.transferAssignments.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/category/table',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductCategoryController_getAllCategories(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     lp: {"in":"body","name":"lp","required":true,"ref":"ListParams"},
             };
@@ -3832,12 +3832,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getAllCategories.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/category/compact',
             authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
-            function ProductCategoryController_getCategorySummaries(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
             };
 
@@ -3854,12 +3854,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getCategorySummaries.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/category',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductCategoryController_createCategory(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"CategoryParams"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3878,12 +3878,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.createCategory.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/category/:id',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
-            function ProductCategoryController_getCategory(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
             };
@@ -3901,12 +3901,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getCategory.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.put('/api/category/:id',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductCategoryController_updateCategory(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"Partial_CategoryParams_"},
@@ -3926,12 +3926,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.updateCategory.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.delete('/api/category/:id',
             authenticateMiddleware([{"local":["ADMIN"]}]),
-            function ProductCategoryController_deleteCategory(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     req: {"in":"request","name":"req","required":true,"dataType":"object"},
@@ -3950,12 +3950,12 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.deleteCategory.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/category/stats/contracted/:year',
             authenticateMiddleware([{"local":["SIGNEE","FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
-            function ProductCategoryController_getContractedProductsStatistics(request: any, response: any, next: any) {
+            function (request: any, response: any, next: any) {
             const args = {
                     year: {"in":"path","name":"year","required":true,"dataType":"double"},
             };
@@ -3973,14 +3973,14 @@ export function RegisterRoutes(app: express.Router) {
 
 
             const promise = controller.getContractedProductsStatistics.apply(controller, validatedArgs as any);
-            promiseHandler(controller, promise, response, undefined, next);
+            promiseHandler(controller, promise, response, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
     function authenticateMiddleware(security: TsoaRoute.Security[] = []) {
-        return function runAuthenticationMiddleware(request: any, _response: any, next: any) {
+        return (request: any, _response: any, next: any) => {
             let responded = 0;
             let success = false;
 
@@ -4033,14 +4033,14 @@ export function RegisterRoutes(app: express.Router) {
         return 'getHeaders' in object && 'getStatus' in object && 'setStatus' in object;
     }
 
-    function promiseHandler(controllerObj: any, promise: any, response: any, successStatus: any, next: any) {
+    function promiseHandler(controllerObj: any, promise: any, response: any, next: any) {
         return Promise.resolve(promise)
             .then((data: any) => {
-                let statusCode = successStatus;
+                let statusCode;
                 let headers;
                 if (isController(controllerObj)) {
                     headers = controllerObj.getHeaders();
-                    statusCode = controllerObj.getStatus() || statusCode;
+                    statusCode = controllerObj.getStatus();
                 }
 
                 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -4053,21 +4053,18 @@ export function RegisterRoutes(app: express.Router) {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
     function returnHandler(response: any, statusCode?: number, data?: any, headers: any = {}) {
-        if (response.headersSent) {
-            return;
-        }
         Object.keys(headers).forEach((name: string) => {
             response.set(name, headers[name]);
         });
         if (data && typeof data.pipe === 'function' && data.readable && typeof data._read === 'function') {
             data.pipe(response);
-        } else if (data !== null && data !== undefined) {
+        } else if (data || data === false) { // === false allows boolean result
             response.status(statusCode || 200).json(data);
         } else {
             response.status(statusCode || 204).end();
         }
     }
-
+    
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
     function responder(response: any): TsoaResponse<HttpStatusCodeLiteral, unknown>  {
@@ -4095,14 +4092,6 @@ export function RegisterRoutes(app: express.Router) {
                     return validationService.ValidateParam(args[key], request.body, name, fieldErrors, undefined, {"noImplicitAdditionalProperties":"silently-remove-extras"});
                 case 'body-prop':
                     return validationService.ValidateParam(args[key], request.body[name], name, fieldErrors, 'body.', {"noImplicitAdditionalProperties":"silently-remove-extras"});
-                case 'formData':
-                    if (args[key].dataType === 'file') {
-                        return validationService.ValidateParam(args[key], request.file, name, fieldErrors, undefined, {"noImplicitAdditionalProperties":"silently-remove-extras"});
-                    } else if (args[key].dataType === 'array' && args[key].array.dataType === 'file') {
-                        return validationService.ValidateParam(args[key], request.files, name, fieldErrors, undefined, {"noImplicitAdditionalProperties":"silently-remove-extras"});
-                    } else {
-                        return validationService.ValidateParam(args[key], request.body[name], name, fieldErrors, undefined, {"noImplicitAdditionalProperties":"silently-remove-extras"});
-                    }
                 case 'res':
                     return responder(response);
             }
