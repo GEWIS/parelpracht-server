@@ -98,6 +98,9 @@ createConnection().then(async (connection) => {
   if (!fs.existsSync(path.join(__dirname, '/../data/logos'))) {
     fs.mkdirSync(path.join(__dirname, '/../data/logos'));
   }
+  if (!fs.existsSync(path.join(__dirname, '/../data/backgrounds'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/backgrounds'));
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({
@@ -114,6 +117,7 @@ createConnection().then(async (connection) => {
   }
 
   app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
+  app.use('/static/backgrounds', express.static(path.join(__dirname, '../data/backgrounds')));
 
   // Announce port that is listened to in the console
   app.listen(PORT, () => {
