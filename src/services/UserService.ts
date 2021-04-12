@@ -166,6 +166,8 @@ export default class UserService {
     if (user === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
+    await this.deleteUserAvatar(user.id);
+    await this.deleteUserBackground(user.id);
     await this.repo.softDelete(user.id);
     await new AuthService().deleteIdentities(user.id);
   }
