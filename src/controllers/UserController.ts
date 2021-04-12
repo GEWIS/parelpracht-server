@@ -17,8 +17,6 @@ import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { Roles } from '../entity/enums/Roles';
 import FileService from '../services/FileService';
-import { ProductCategory } from "../entity/ProductCategory";
-import ProductCategoryService from "../services/ProductCategoryService";
 
 @Route('user')
 @Tags('User')

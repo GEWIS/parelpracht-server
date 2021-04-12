@@ -1,6 +1,7 @@
 import {
   FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
+import path from 'path';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -14,7 +15,10 @@ import { Roles } from '../entity/enums/Roles';
 import ContractService from './ContractService';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
-import FileHelper from '../helpers/fileHelper';
+import FileHelper, {
+  uploadUserAvatarDirLoc,
+  uploadUserBackgroundDirLoc
+} from '../helpers/fileHelper';
 
 export interface UserParams {
   email: string;
@@ -229,7 +233,10 @@ export default class UserService {
     if (user.avatarFilename === '') return user;
 
     try {
-      FileHelper.removeFileAtLoc(user.avatarFilename);
+      FileHelper.removeFileAtLoc(path.join(__dirname,
+        '/../../',
+        uploadUserAvatarDirLoc,
+        user.avatarFilename));
     } finally {
       await this.repo.update(user.id, { avatarFilename: '' });
     }
@@ -240,9 +247,11 @@ export default class UserService {
   async deleteUserBackground(id: number): Promise<User> {
     const user = await this.getUser(id);
     if (user.backgroundFilename === '') return user;
-
     try {
-      FileHelper.removeFileAtLoc(user.backgroundFilename);
+      FileHelper.removeFileAtLoc(path.join(__dirname,
+        '/../../',
+        uploadUserBackgroundDirLoc,
+        user.backgroundFilename));
     } finally {
       await this.repo.update(user.id, { backgroundFilename: '' });
     }
