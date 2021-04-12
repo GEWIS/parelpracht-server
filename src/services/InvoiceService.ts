@@ -161,6 +161,12 @@ export default class InvoiceService {
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {
+    // check if the invoice is not sent in the past
+    if (params.startDate !== undefined && params.startDate.setHours(0, 0, 0, 0)
+      < new Date().setHours(0, 0, 0, 0)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice start date cannot be in the past');
+    }
+
     const invoice = await this.getInvoice(id);
 
     if (!(await createActivitiesForEntityEdits<Invoice>(
