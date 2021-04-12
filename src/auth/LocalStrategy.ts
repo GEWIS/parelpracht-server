@@ -3,6 +3,7 @@ import { getRepository } from 'typeorm';
 import crypto from 'crypto';
 import passport from 'passport';
 import express from 'express';
+import validator from 'validator'
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -32,8 +33,12 @@ export default new LocalStrategy({
 }, async (email, password, done) => {
   const userRepo = getRepository(User);
   const identityRepo = getRepository(IdentityLocal);
+  const userEmail = validator.normalizeEmail(email);
+  if (userEmail === false) {
+    return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
+  }
 
-  const user = await userRepo.findOne({ email }, { relations: ['roles'] });
+  const user = await userRepo.findOne({ email: userEmail }, { relations: ['roles'] });
   const identity = user !== undefined ? await identityRepo.findOne(user.id) : undefined;
 
   // Check if the identity is found
