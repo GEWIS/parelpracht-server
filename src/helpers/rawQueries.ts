@@ -6,6 +6,7 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { currentFinancialYear } from './timestamp';
+import { ApiError, HTTPStatus } from './error';
 
 export interface ETCompany {
   id: number,
@@ -96,15 +97,50 @@ function arrayToQueryArray(arr: string[] | number[]) {
   return `${result.substring(0, result.length - 2)})`;
 }
 
+/*
+*   Type and string-checking
+*/
+
+function arrayNumberError(array: number[], msg: string) {
+  if (array.some((x) => { return Number.isNaN(x); })) {
+    throw new ApiError(HTTPStatus.BadRequest, msg);
+  }
+}
+
+function arrayLetterError(array: string[], msg: string) {
+  if (!array.every((x) => { return /^[a-zA-Z]+$/.test(x); })) {
+    throw new ApiError(HTTPStatus.BadRequest, msg);
+  }
+}
+
+function numberError(x: number, msg: string) {
+  if (Number.isNaN(x)) {
+    throw new ApiError(HTTPStatus.BadRequest, msg);
+  }
+}
+
+function letterError(x: string, msg: string) {
+  if (!/^[a-zA-Z]+$/.test(x)) {
+    throw new ApiError(HTTPStatus.BadRequest, msg);
+  }
+}
+
+/*
+*   Year helper functions
+*/
+
 function inOrBeforeYearFilter(column: string, year: number): string {
+  numberError(year, 'Year is not a number');
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) <= ${year}`;
 }
 
 function inYearFilter(column: string, year: number): string {
+  numberError(year, 'Year is not a number');
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) = ${year}`;
 }
 
 function inYearsFilter(column: string, years: number[]): string {
+  arrayNumberError(years, 'Year is not a number');
   return `EXTRACT(YEAR FROM ${column} + interval '6' month) IN ${arrayToQueryArray(years)}`;
 }
 
@@ -162,18 +198,22 @@ export default class RawQueries {
     if (lp.filters) {
       lp.filters?.forEach((f) => {
         if (f.column === 'companyId') {
-          company = `AND company.id IN ${arrayToQueryArray(f.values)}`;
+          arrayNumberError(f.values, 'CompanyID is not a number');
+          company = `AND contract."companyId" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'productId') {
+          arrayNumberError(f.values, 'ProductID is not a number');
           product = `AND p."productId" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'status') {
+          arrayLetterError(f.values, 'Status is not letter-only');
           status = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'invoiced') {
           if (f.values[0] === -1) {
             invoice = 'AND p."invoiceId" IS NULL';
           } else {
+            arrayNumberError(f.values, 'InvoiceID is not a number');
             invoice = `AND ${inYearsFilter('invoice."startDate"', f.values)}`;
           }
         }
@@ -240,6 +280,9 @@ export default class RawQueries {
     let query = '';
 
     const filters = this.processFilters(lp);
+
+    letterError(lp.sorting!.direction, 'Sort direction is not letter-only');
+    numberError(lp.skip!, 'Skip-number is not a number');
 
     const sorting = lp.sorting !== undefined && lp.sorting.column === 'companyName' ? `company.name ${lp.sorting.direction}` : 'company.id';
 
@@ -346,6 +389,9 @@ export default class RawQueries {
   };
 
   getRecentContractsWithStatus = (limit: number, userId?: number): Promise<RecentContract[]> => {
+    numberError(limit, 'Limit is not a number');
+    numberError(userId!, 'userID is not a number');
+
     return this.postProcessing(`
     SELECT c.id, c.title, c."companyId", c."assignedToId", c."contactId", a1."createdAt",
         a1."updatedAt", a1."type", a1."description", a1."createdById", a1."subType"
@@ -377,6 +423,8 @@ export default class RawQueries {
   async getContractIdsByStatus(statuses: ContractStatus[]): Promise<number[]> {
     if (statuses.length === 0) return [];
 
+    arrayLetterError(statuses, 'Status is not letter-only');
+
     let whereClause = `a1."subType" = '${statuses[0]}'`;
     for (let i = 1; i < statuses.length; i++) {
       whereClause += ` OR a1."subType" = '${statuses[i]}'`;
@@ -394,6 +442,8 @@ export default class RawQueries {
 
   async getInvoiceIdsByStatus(statuses: InvoiceStatus[]): Promise<number[]> {
     if (statuses.length === 0) return [];
+
+    arrayLetterError(statuses, 'Status is not letter-only');
 
     let whereClause = `a1."subType" = '${statuses[0]}'`;
     for (let i = 1; i < statuses.length; i++) {
@@ -530,6 +580,8 @@ export default class RawQueries {
   };
 
   getProductInstancesByFinancialYear = (id: number): Promise<AnalysisResultByYear[]> => {
+    numberError(id, 'ID is not a number');
+
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts",
         COALESCE(EXTRACT(YEAR FROM i."startDate" + interval '6' month), ${currentFinancialYear()}) as year
@@ -545,6 +597,8 @@ export default class RawQueries {
   };
 
   getDeferredProductInstances = (id: number): Promise<AnalysisResultByYear> => {
+    numberError(id, 'ID is not a number');
+
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts",
         ${currentFinancialYear() + 1} as year
@@ -560,6 +614,8 @@ export default class RawQueries {
 
   getProductsContractedPerFinancialYearByCompany = (id: number):
   Promise<ProductsPerCategoryPerPeriod[]> => {
+    numberError(id, 'ID is not a number');
+
     return this.postProcessing(`
       SELECT p."categoryId", EXTRACT(YEAR FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.id) as "nrOfProducts"
       FROM product_instance pi

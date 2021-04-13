@@ -10,6 +10,8 @@ import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
 import { ProductCategory } from '../entity/ProductCategory';
 import Currency from './currency';
+import { timeToYearDayTime } from './timestamp';
+import { Invoice } from '../entity/Invoice';
 
 /**
  * Compares two entity objects and returns an object only containing the (new) differences
@@ -23,9 +25,12 @@ function getEntityChanges<T extends object>(
 
   Object.keys(newEntity).forEach((k) => {
     // @ts-ignore
-    if (newEntity[k] !== oldEntity[k]) {
+    if (!(newEntity[k] instanceof Date && newEntity[k].getTime() === oldEntity[k].getTime())) {
       // @ts-ignore
-      result[k] = newEntity[k];
+      if (newEntity[k] !== oldEntity[k]) {
+      // @ts-ignore
+        result[k] = newEntity[k];
+      }
     }
   });
 
@@ -153,6 +158,12 @@ async function parsePropertyChanges<T>(
     if (k === 'basePrice' || k === 'discount' || k === 'targetPrice') {
       parsedOld = `€ ${Currency.priceAttributeToEuro(parseInt(parsedOld, 10), false)}`;
       parsedNew = `€ ${Currency.priceAttributeToEuro(parseInt(parsedNew, 10), false)}`;
+    }
+    // Parse dates of invoices to DD-MM-YYYY
+    if (k === 'startDate') {
+      parsedField = 'invoice date';
+      parsedOld = `${timeToYearDayTime(processedOld[k])}`;
+      parsedNew = `${timeToYearDayTime(processedNew[k])}`;
     }
 
     return `${parsedField} from "${parsedOld}" to "${parsedNew}"`;

@@ -18,3 +18,10 @@ export function currentFinancialYear(): number {
   now.setMonth(now.getMonth() + 8);
   return now.getFullYear();
 }
+
+export function timeToYearDayTime(date: Date): string {
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+  return `${day}-${month}-${year}`;
+}
