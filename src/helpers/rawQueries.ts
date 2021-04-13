@@ -163,7 +163,6 @@ export default class RawQueries {
 
   private postProcessing(query: string) {
     const q = this.database === 'mysql' ? query.split('"').join('') : query;
-    console.log(q);
     return getManager().query(q);
   }
 

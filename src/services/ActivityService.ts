@@ -241,19 +241,6 @@ export default class ActivityService {
       case ProductInstanceActivity:
         activity = <ProductInstanceActivity>act;
 
-        // If we want to set the status to delivered or cancelled, we need to do some validation
-        if (activity.subType === ProductInstanceStatus.DELIVERED
-          || activity.subType === ProductInstanceStatus.CANCELLED
-        ) {
-          const prodIns = await new ProductInstanceService().getProduct(activity.productInstanceId);
-
-          // Verify that the contract that belongs to this prodInstance, has the status "confirmed"
-          if (!(await new ActivityService(ContractActivity)
-            .getStatuses({ contractId: prodIns.contractId })).includes(ContractStatus.CONFIRMED)
-          ) {
-            throw new ApiError(HTTPStatus.BadRequest, 'Contract has not yet been confirmed! Please do this first');
-          }
-        }
         break;
       default:
         return;
