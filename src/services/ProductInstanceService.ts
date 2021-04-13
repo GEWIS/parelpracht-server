@@ -215,4 +215,9 @@ export default class ProductInstanceService {
 
     await this.repo.update(instance.id, { invoiceId: undefined });
   }
+
+  async removeDeferredStatuses(): Promise<void> {
+    await getRepository(ProductInstanceActivity)
+      .delete({ subType: ProductInstanceStatus.DEFERRED });
+  }
 }

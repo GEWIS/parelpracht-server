@@ -11,6 +11,7 @@ import { createConnection, getRepository } from 'typeorm';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
+import startEvents from './timedevents/cron';
 
 import swaggerDocument from './public/swagger.json';
 import { RegisterRoutes } from './routes';
@@ -123,4 +124,7 @@ createConnection().then(async (connection) => {
   app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
   });
+
+  // Enable timed events
+  startEvents();
 });
