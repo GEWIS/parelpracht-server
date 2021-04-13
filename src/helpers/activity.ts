@@ -159,9 +159,11 @@ async function parsePropertyChanges<T>(
       parsedOld = `€ ${Currency.priceAttributeToEuro(parseInt(parsedOld, 10), false)}`;
       parsedNew = `€ ${Currency.priceAttributeToEuro(parseInt(parsedNew, 10), false)}`;
     }
-    if (k === 'CreatedAt' || k === 'updatedAt' || k === 'deletedAt') {
-      parsedOld = `${timeToYearDayTime(parsedOld)}`;
-      parsedNew = `${timeToYearDayTime(parsedNew)}`;
+    // Parse dates of invoices to DD-MM-YYYY
+    if (k === 'startDate') {
+      parsedField = 'invoice date';
+      parsedOld = `${timeToYearDayTime(processedOld[k])}`;
+      parsedNew = `${timeToYearDayTime(processedNew[k])}`;
     }
 
     return `${parsedField} from "${parsedOld}" to "${parsedNew}"`;
