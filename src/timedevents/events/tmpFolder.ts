@@ -6,7 +6,7 @@ export default async function tmpFolder() {
   console.log('Remove temp folder...');
   await rimraf(path.join(__dirname, '../../../tmp'), (e) => {
     if (e) {
-      throw e;
+      console.error(e);
     } else {
       console.log('Folder deleted');
       fs.mkdirSync(path.join(__dirname, '../../../tmp'));
