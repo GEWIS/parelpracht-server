@@ -21,7 +21,11 @@ export function currentFinancialYear(): number {
 
 export function timeToYearDayTime(date: Date): string {
   const year = date.getFullYear();
-  const month = date.getMonth();
-  const day = date.getDate();
-  return `${day}-${month}-${year}`;
+  let month = (date.getMonth() + 1).toString();
+  let day = date.getDate().toString();
+
+  if (Number(day) < 10) { day = `0${day}`; }
+  if (Number(month) < 10) { month = `0${month}`; }
+
+  return `${year}-${month}-${day}`;
 }
