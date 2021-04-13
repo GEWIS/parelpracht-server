@@ -408,6 +408,10 @@ export default class ActivityService {
    * @param activityId ID of the activity
    */
   async deleteActivity(entityId: number, activityId: number): Promise<void> {
+    if (this.EntityActivity === InvoiceActivity) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete activities from invoices');
+    }
+
     let activity = await this.repo.findOne(activityId);
     activity = this.validateActivity(activity, entityId);
 

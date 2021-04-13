@@ -225,6 +225,11 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
+    const statuses = await new ActivityService(InvoiceActivity).getStatuses({ invoiceId });
+    if (statuses.length > 1) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
+    }
+
     await this.repo.update(instance.id, { invoiceId: undefined });
   }
 

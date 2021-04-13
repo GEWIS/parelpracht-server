@@ -210,11 +210,20 @@ export default class RawQueries {
           status = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
         }
         if (f.column === 'invoiced') {
-          if (f.values[0] === -1) {
+          // Get the index of the "-1" value (not invoiced), if it exists
+          const i = f.values.findIndex((v) => v === -1);
+          // Only filter on "not invoiced"
+          if (i >= 0 && f.values.length === 1) {
             invoice = 'AND p."invoiceId" IS NULL';
-          } else {
+          // Only filter on a financial year
+          } else if (i < 0 && f.values.length > 0) {
             arrayNumberError(f.values, 'InvoiceID is not a number');
             invoice = `AND ${inYearsFilter('invoice."startDate"', f.values)}`;
+          // Filter on both "not invoiced" as well as one or more financial years
+          } else if (i >= 0 && f.values.length > 1) {
+            arrayNumberError(f.values, 'InvoiceID is not a number');
+            f.values.splice(i, 1);
+            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', f.values)})`;
           }
         }
       });
