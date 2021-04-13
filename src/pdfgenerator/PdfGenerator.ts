@@ -221,7 +221,7 @@ export default class PdfGenerator {
 
       if (language === Language.DUTCH) {
         if (prodInst.product.contractTextDutch !== '') {
-          mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.product.description}}\\\\\n`;
+          mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''}}\\\\\n`;
           mT += `${prodInst.product.contractTextDutch}}\n`;
         }
 
@@ -230,7 +230,7 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationDutch}}\n`;
         }
 
-        fT += `${prodInst.product.nameDutch} ${prodInst.product.description} & ${Currency.priceAttributeToEuro(prodInst.basePrice, true)} \\\\\n`;
+        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, true)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Korting ';
           if (showDiscountPercentages) {
@@ -240,7 +240,7 @@ export default class PdfGenerator {
         }
       } else if (language === Language.ENGLISH) {
         if (prodInst.product.contractTextEnglish !== '') {
-          mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.product.description}}\\\\\n`;
+          mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''}}\\\\\n`;
           mT += `${prodInst.product.contractTextEnglish}}\n`;
         }
 
@@ -249,7 +249,7 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationEnglish}}\n`;
         }
 
-        fT += `${prodInst.product.nameEnglish} ${prodInst.product.description} & ${Currency.priceAttributeToEuro(prodInst.basePrice, false)} \\\\\n`;
+        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, false)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Discount ';
           if (showDiscountPercentages) {
