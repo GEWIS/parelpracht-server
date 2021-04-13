@@ -1,23 +1,22 @@
-import { FindConditions, FindManyOptions, getRepository, ILike, In, Repository, } from 'typeorm';
+import {
+  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
+} from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
-// eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
-// eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
-// eslint-disable-next-line import/no-cycle
 import ServerSettingsService from './ServerSettingsService';
 import { ServerSetting } from '../entity/ServerSetting';
 import { InvoiceSummary } from '../entity/Summaries';
-import { createActivitiesForEntityEdits, } from '../helpers/activity';
+import { createActivitiesForEntityEdits } from '../helpers/activity';
 
 export interface InvoiceParams {
   title: string;
