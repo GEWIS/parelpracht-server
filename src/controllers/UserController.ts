@@ -17,8 +17,6 @@ import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { Roles } from '../entity/enums/Roles';
 import FileService from '../services/FileService';
-import { ProductCategory } from "../entity/ProductCategory";
-import ProductCategoryService from "../services/ProductCategoryService";
 
 @Route('user')
 @Tags('User')
@@ -139,7 +137,9 @@ export class UserController extends Controller {
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
     }
-
+    // delete the old avatar
+    await this.deleteUserAvatar(req, id);
+    // upload the new avatar
     await FileService.uploadUserAvatar(req, id);
   }
 
@@ -173,7 +173,9 @@ export class UserController extends Controller {
     if (actor.id !== id) {
       throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. You can only upload your own background.');
     }
-
+    // delete the old background
+    await this.deleteUserBackground(req, id);
+    // upload the new background
     await FileService.uploadUserBackground(req, id);
   }
 
