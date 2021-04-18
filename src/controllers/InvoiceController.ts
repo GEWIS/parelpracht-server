@@ -361,16 +361,4 @@ export class InvoiceController extends Controller {
     await validateActivityParams(req);
     return new ActivityService(InvoiceActivity).updateActivity(id, activityId, params);
   }
-
-  /**
-   * Delete an activity
-   * @param id ID of the invoice
-   * @param activityId ID of the activity
-   */
-  @Delete('{id}/activity/{activityId}')
-  @Security('local', ['GENERAL', 'ADMIN'])
-  @Response<WrappedApiError>(401)
-  public async deleteInvoiceActivity(id: number, activityId: number): Promise<void> {
-    return new ActivityService(InvoiceActivity).deleteActivity(id, activityId);
-  }
 }
