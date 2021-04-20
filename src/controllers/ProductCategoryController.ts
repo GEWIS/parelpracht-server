@@ -28,7 +28,7 @@ export class ProductCategoryController extends Controller {
    * @param lp List parameters to sort and filter the list
    */
   @Post('table')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllCategories(
     @Body() lp: ListParams,

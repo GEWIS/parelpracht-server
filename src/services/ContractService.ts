@@ -80,7 +80,7 @@ export default class ContractService {
       });
 
       if (statusFilterValues.length > 0) {
-        const ids = await RawQueries.getContractIdsByStatus(statusFilterValues);
+        const ids = await new RawQueries().getContractIdsByStatus(statusFilterValues);
         // @ts-ignore
         filters.id = In(ids.map((o) => o.id));
       }
@@ -116,19 +116,12 @@ export default class ContractService {
   }
 
   async getContractSummaries(): Promise<ContractSummary[]> {
-    return RawQueries.getContractSummaries();
-  }
-
-  async getAllContractsExtensive(params: ListParams): Promise<any> {
-    return {
-      list: await RawQueries.getContractWithProductsAndTheirStatuses(params, 'data'),
-      count: parseInt((await RawQueries.getContractWithProductsAndTheirStatuses(params, 'count'))[0].count, 10),
-    };
+    return new RawQueries().getContractSummaries();
   }
 
   async getRecentContracts(actor: User): Promise<RecentContract[]> {
     const userId = actor.hasRole(Roles.ADMIN) ? undefined : actor.id;
-    return RawQueries.getRecentContractsWithStatus(5, userId);
+    return new RawQueries().getRecentContractsWithStatus(5, userId);
   }
 
   async createContract(params: ContractParams): Promise<Contract> {

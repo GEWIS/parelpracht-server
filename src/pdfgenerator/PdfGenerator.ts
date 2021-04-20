@@ -58,17 +58,16 @@ export default class PdfGenerator {
 
   /**
    * Convert a given tex file to a PDF and save it the saveDir or workDir
-   * @param fileLocation {string }Absolute location of the .tex file
-   * @param fileName {string }Name of the new .pdf file
+   * @param input {string} Input "file" in a string
+   * @param fileName {string} Name of the new .pdf file
    * @param saveToDisk {boolean} Whether the file should be saved to disk. If not,
    * it will be saved to the /tmp directory
    * @returns {string} absolute location of the new .pdf file
    */
   private async convertTexToPdf(
-    fileLocation: string, fileName: string, saveToDisk: boolean,
+    input: string, fileName: string, saveToDisk: boolean,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
-      const input = fs.createReadStream(fileLocation);
       let outputLoc: string;
       if (saveToDisk) {
         outputLoc = path.join(this.saveDir, fileName);
@@ -76,10 +75,10 @@ export default class PdfGenerator {
         outputLoc = path.join(this.workDir, fileName);
       }
       const output = fs.createWriteStream(outputLoc);
-      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/') });
+      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/'), passes: 3 });
       pdf.pipe(output);
       pdf.on('error', (err) => {
-        FileHelper.removeFileLoc(outputLoc);
+        FileHelper.removeFileAtLoc(outputLoc);
         reject(err);
       });
       pdf.on('finish', () => resolve(outputLoc));
@@ -170,7 +169,7 @@ export default class PdfGenerator {
       }
     }
     t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
-    
+
     let mail = '';
     if (sender.replyToEmail.length > 0) {
       mail = sender.replyToEmail;
@@ -222,7 +221,7 @@ export default class PdfGenerator {
 
       if (language === Language.DUTCH) {
         if (prodInst.product.contractTextDutch !== '') {
-          mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.product.description}}\\\\\n`;
+          mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''}}\\\\\n`;
           mT += `${prodInst.product.contractTextDutch}}\n`;
         }
 
@@ -231,7 +230,7 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationDutch}}\n`;
         }
 
-        fT += `${prodInst.product.nameDutch} ${prodInst.product.description} & ${Currency.priceAttributeToEuro(prodInst.basePrice, true)} \\\\\n`;
+        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, true)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Korting ';
           if (showDiscountPercentages) {
@@ -241,7 +240,7 @@ export default class PdfGenerator {
         }
       } else if (language === Language.ENGLISH) {
         if (prodInst.product.contractTextEnglish !== '') {
-          mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.product.description}}\\\\\n`;
+          mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''}}\\\\\n`;
           mT += `${prodInst.product.contractTextEnglish}}\n`;
         }
 
@@ -250,7 +249,7 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationEnglish}}\n`;
         }
 
-        fT += `${prodInst.product.nameEnglish} ${prodInst.product.description} & ${Currency.priceAttributeToEuro(prodInst.basePrice, false)} \\\\\n`;
+        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, false)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Discount ';
           if (showDiscountPercentages) {
@@ -328,8 +327,8 @@ export default class PdfGenerator {
     }
 
     if (fileType === ReturnFileType.PDF) {
-      const tempFileLocation = this.saveFileToDisk(file, `${fileName}.tex`, this.workDir);
-      result = await this.convertTexToPdf(tempFileLocation, `${fileName}.pdf`, saveToDisk);
+      // const tempFileLocation = this.saveFileToDisk(file, `${fileName}.tex`, this.workDir);
+      result = await this.convertTexToPdf(file, `${fileName}.pdf`, saveToDisk);
     }
 
     return result;
@@ -460,7 +459,7 @@ export default class PdfGenerator {
     } else {
       mail = 'ceb@gewis.nl';
     }
-    
+
     t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
 
     let totalPrice = 0;

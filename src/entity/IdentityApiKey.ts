@@ -5,19 +5,12 @@ import {
 import { User } from './User';
 
 @Entity()
-export class IdentityLocal {
-  /** ID of the associated user */
+export class IdentityApiKey {
   @PrimaryColumn('integer')
   readonly id!: number;
 
-  @Column()
-  verifiedEmail!: boolean;
-
   @Column({ nullable: true })
-  salt?: string;
-
-  @Column({ nullable: true })
-  hash?: string;
+  apiKey?: string;
 
   @Column({ nullable: true })
   lastLogin?: Date;

@@ -13,7 +13,7 @@ import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
 
 @Entity()
 export class ProductInstance extends BaseEnt {
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', update: false })
   readonly productId!: number;
 
   /** The ID of the product, this entity is instanced from */
@@ -21,7 +21,7 @@ export class ProductInstance extends BaseEnt {
   @JoinColumn({ name: 'productId' })
   product!: Product;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', update: false })
   readonly contractId!: number;
 
   /** Contract this product is used in */

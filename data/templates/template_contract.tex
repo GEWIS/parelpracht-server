@@ -4,28 +4,28 @@
 %% Stijl
 %% All documentation can be found on https://gewis.nl/~stijl/
 
-%%      _____                _             __                     
-%%    |  _  |              | |           / _|_                   
-%%   | | | |_   _____ _ __| | ___  __ _| |_(_)                  
-%%  | | | \ \ / / _ \ '__| |/ _ \/ _` |  _|                    
-%% \ \_/ /\ V /  __/ |  | |  __/ (_| | |  _                   
-%% \___/  \_/ \___|_|  |_|\___|\__,_|_| (_)                  
-%%                                                           
-%%      _____ _ _      _                                          
-%%    /  __ \ (_)    | |                                    _    
-%%   | /  \/ |_  ___| | __  _ __ ___   ___ _ __  _   _   _| |_  
-%%  | |   | | |/ __| |/ / | '_ ` _ \ / _ \ '_ \| | | | |_   _| 
-%% | \__/\ | | (__|   <  | | | | | |  __/ | | | |_| |   |_|   
-%% \____/_|_|\___|_|\_\ |_| |_| |_|\___|_| |_|\__,_|         
-%%                                                           
-%%       _____                                     _           _   
-%%     /  __ \                                   (_)         | |  
-%%    | /  \/ ___  _ __  _   _   _ __  _ __ ___  _  ___  ___| |_ 
+%%      _____                _             __
+%%    |  _  |              | |           / _|_
+%%   | | | |_   _____ _ __| | ___  __ _| |_(_)
+%%  | | | \ \ / / _ \ '__| |/ _ \/ _` |  _|
+%% \ \_/ /\ V /  __/ |  | |  __/ (_| | |  _
+%% \___/  \_/ \___|_|  |_|\___|\__,_|_| (_)
+%%
+%%      _____ _ _      _
+%%    /  __ \ (_)    | |                                    _
+%%   | /  \/ |_  ___| | __  _ __ ___   ___ _ __  _   _   _| |_
+%%  | |   | | |/ __| |/ / | '_ ` _ \ / _ \ '_ \| | | | |_   _|
+%% | \__/\ | | (__|   <  | | | | | |  __/ | | | |_| |   |_|
+%% \____/_|_|\___|_|\_\ |_| |_| |_|\___|_| |_|\__,_|
+%%
+%%       _____                                     _           _
+%%     /  __ \                                   (_)         | |
+%%    | /  \/ ___  _ __  _   _   _ __  _ __ ___  _  ___  ___| |_
 %%   | |    / _ \| '_ \| | | | | '_ \| '__/ _ \| |/ _ \/ __| __|
-%%  | \__/\ (_) | |_) | |_| | | |_) | | | (_) | |  __/ (__| |_ 
+%%  | \__/\ (_) | |_) | |_| | | |_) | | | (_) | |  __/ (__| |_
 %%  \____/\___/| .__/ \__, | | .__/|_|  \___/| |\___|\___|\__|
-%%            | |     __/ | | |            _/ |              
-%%           |_|    |___/  |_|           |__/               
+%%            | |     __/ | | |            _/ |
+%%           |_|    |___/  |_|           |__/
 %% Using overleaf? Click on menu and then on copy project
 
 
@@ -42,15 +42,8 @@
     }
 \makeatother
 
-%% In this example we show some Lorem Ipsum; it is not neccessary to include this package if you are not going to use it
-\usepackage{lipsum}
-
-%% In case we want to use a different sender or contact details, we set it here
-%\setSenderName{Ouderdagcommissie}
-%\setSenderMail{odc@gewis.nl}
-%\setSenderPhone{+31 123 456789}
-%\setSenderWeb{odc.gewis.nl}
-
+%% To compile LaTeX files with unicode in them, we use this package to compile them correctly without weird characters.
+\usepackage[utf8]{inputenc}
 
 %% Set the recipient (required parameters have to be set, but can be set as empty string if needed)
 \setType{Contract}           % (optional) Set the Type which is printed above the address - e.g. "Confidential"
@@ -83,6 +76,10 @@
 \newcommand{\GEWIScontact}{%{sender}
 \\%{senderfunctie}
 }
+\newcommand{\contractantOne}{%{contractant1}
+}
+\newcommand{\contractantTwo}{%{contractant2}
+}
 \hyphenation{%{sender}
 }
 \newcommand{\COMPANYcontact}{%{contactperson}
@@ -102,15 +99,12 @@ Met vriendelijke groet,\\[2\baselineskip]
 \GEWIScontact
 
 \section{Overeenkomst}
-Ondergetekenden, \COMPANYcontact
-namens \GEWISRecipient, en %{contractant1}
- en %{contractant2}
- namens studievereniging GEWIS, hierna te noemen GEWIS, verklaren het volgende te zijn overeengekomen:
+Ondergetekenden, \COMPANYcontact\ namens \GEWISRecipient\, en \contractantOne\ en \contractantTwo\ namens studievereniging GEWIS, hierna te noemen GEWIS, verklaren het volgende te zijn overeengekomen:
  \begin{itemize}
  	%{producten}
  \end{itemize}
 Het door \GEWISRecipient\ aan GEWIS verschuldigde bedrag voor deze overeenkomst bedraagt \euro{}%{totaalprijs}
-, zoals gespecificeerd in de bijlage. Betaling door \GEWISRecipient\ zal plaatsvinden op basis van door GEWIS aan te leveren facturen, die na iedere activiteit, indien mogelijk samen met bewijsmateriaal, verstuurd zullen worden. Tenzij schriftelijk anders overeengekomen, zal \GEWISRecipient de factuur betalen binnen de betalingstermijn van 15 werkdagen.
+, zoals gespecificeerd in de bijlage. Betaling door \GEWISRecipient\ zal plaatsvinden op basis van door GEWIS aan te leveren facturen, die na iedere activiteit, indien mogelijk samen met bewijsmateriaal, verstuurd zullen worden. Tenzij schriftelijk anders overeengekomen, zal \GEWISRecipient\ de factuur betalen binnen de betalingstermijn van 15 werkdagen.
 \\[2\baselineskip]
 \begin{minipage}[t]{0.4\textwidth}
 Eindhoven, \today,\\
@@ -131,7 +125,7 @@ namens \GEWISRecipient,\\[3\baselineskip]
 \COMPANYcontact
 \end{minipage}
 
- 
+
 \section{Bijlage}
 %{aanleverspecificatie}
 

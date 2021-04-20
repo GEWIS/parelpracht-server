@@ -7,21 +7,16 @@ import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { cartesian, cartesianArrays } from '../helpers/filters';
-// eslint-disable-next-line import/no-cycle
 import ProductInstanceService from './ProductInstanceService';
-// eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
-// eslint-disable-next-line import/no-cycle
 import ServerSettingsService from './ServerSettingsService';
 import { ServerSetting } from '../entity/ServerSetting';
 import { InvoiceSummary } from '../entity/Summaries';
-import {
-  createActivitiesForEntityEdits,
-} from '../helpers/activity';
+import { createActivitiesForEntityEdits } from '../helpers/activity';
 
 export interface InvoiceParams {
   title: string;
@@ -84,7 +79,7 @@ export default class InvoiceService {
       });
 
       if (statusFilterValues.length > 0) {
-        const ids = await RawQueries.getInvoiceIdsByStatus(statusFilterValues);
+        const ids = await new RawQueries().getInvoiceIdsByStatus(statusFilterValues);
         // @ts-ignore
         filters.id = In(ids.map((o) => o.id));
       }
@@ -121,11 +116,11 @@ export default class InvoiceService {
   }
 
   async getInvoiceSummaries(): Promise<InvoiceSummary[]> {
-    return RawQueries.getInvoiceSummaries();
+    return new RawQueries().getInvoiceSummaries();
   }
 
   async getExpiredInvoices(): Promise<ExpiredInvoice[]> {
-    return RawQueries.getExpiredInvoices();
+    return new RawQueries().getExpiredInvoices();
   }
 
   async createInvoice(params: InvoiceCreateParams): Promise<Invoice> {
@@ -161,7 +156,13 @@ export default class InvoiceService {
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {
+    // check if the invoice is not sent in the past
     const invoice = await this.getInvoice(id);
+    if (params.startDate !== undefined && params.startDate.setHours(0, 0, 0, 0)
+      < new Date().setHours(0, 0, 0, 0) && params.startDate.setHours(0, 0, 0, 0)
+      < invoice.startDate.setHours(0, 0, 0, 0)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice start date cannot be in the past or before the original start date.');
+    }
 
     if (!(await createActivitiesForEntityEdits<Invoice>(
       this.repo, invoice, params, new ActivityService(InvoiceActivity, { actor: this.actor }),
@@ -200,8 +201,7 @@ export default class InvoiceService {
     const setting = await new ServerSettingsService().getSetting('treasurerLastSeen');
     const settingValue = setting?.value;
     const milliseconds = settingValue ? parseInt(settingValue, 10) : undefined;
-    const result = milliseconds ? new Date(milliseconds) : undefined;
-    return result;
+    return milliseconds ? new Date(milliseconds) : undefined;
   }
 
   async setTreasurerLastSeen(): Promise<void> {

@@ -1,6 +1,7 @@
 import {
   FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
+import path from 'path';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -14,7 +15,10 @@ import { Roles } from '../entity/enums/Roles';
 import ContractService from './ContractService';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
-import FileHelper from '../helpers/fileHelper';
+import FileHelper, {
+  uploadUserAvatarDirLoc,
+  uploadUserBackgroundDirLoc
+} from '../helpers/fileHelper';
 
 export interface UserParams {
   email: string;
@@ -42,6 +46,8 @@ export interface UserSummary {
   lastName: string;
   email: string;
   avatarFilename: string;
+  backgroundFilename: string;
+  roles: Roles[];
 }
 
 export interface UserListResponse {
@@ -134,19 +140,34 @@ export default class UserService {
   }
 
   async getUserSummaries(): Promise<UserSummary[]> {
-    return this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename'],
+    const users = await this.repo.find({
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'email', 'avatarFilename', 'backgroundFilename'],
+      relations: ['roles'],
+    });
+    return users.map((u) => {
+      return {
+        id: u.id,
+        firstName: u.firstName,
+        lastNamePreposition: u.lastNamePreposition,
+        lastName: u.lastName,
+        email: u.email,
+        avatarFilename: u.avatarFilename,
+        backgroundFilename: u.backgroundFilename,
+        roles: u.roles.map((r) => r.name),
+      } as UserSummary;
     });
   }
 
   async deleteUser(id: number, actor: User): Promise<void> {
     if (id === actor.id) {
-      throw new ApiError(HTTPStatus.Forbidden, 'You cannot delete yourself');
+      throw new ApiError(HTTPStatus.BadRequest, 'You cannot delete yourself');
     }
     const user = await this.repo.findOne(id, { relations: ['roles'] });
     if (user === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
+    await this.deleteUserAvatar(user.id);
+    await this.deleteUserBackground(user.id);
     await this.repo.softDelete(user.id);
     await new AuthService().deleteIdentities(user.id);
   }
@@ -214,9 +235,27 @@ export default class UserService {
     if (user.avatarFilename === '') return user;
 
     try {
-      FileHelper.removeFileAtLoc(user.avatarFilename);
+      FileHelper.removeFileAtLoc(path.join(__dirname,
+        '/../../',
+        uploadUserAvatarDirLoc,
+        user.avatarFilename));
     } finally {
       await this.repo.update(user.id, { avatarFilename: '' });
+    }
+
+    return this.getUser(id);
+  }
+
+  async deleteUserBackground(id: number): Promise<User> {
+    const user = await this.getUser(id);
+    if (user.backgroundFilename === '') return user;
+    try {
+      FileHelper.removeFileAtLoc(path.join(__dirname,
+        '/../../',
+        uploadUserBackgroundDirLoc,
+        user.backgroundFilename));
+    } finally {
+      await this.repo.update(user.id, { backgroundFilename: '' });
     }
 
     return this.getUser(id);

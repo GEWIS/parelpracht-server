@@ -1,6 +1,9 @@
 import Mail from 'nodemailer/lib/mailer';
 import { createTransporter } from './transporter';
 
+/**
+ * Singleton class to handle all mail-related operations
+ */
 export class Mailer {
   static instance: Mailer;
 

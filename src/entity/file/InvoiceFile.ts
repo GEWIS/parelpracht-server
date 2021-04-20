@@ -7,8 +7,8 @@ import { Invoice } from '../Invoice';
 
 @Entity()
 export class InvoiceFile extends BaseFile {
-  @Column({ type: 'integer' })
-  invoiceId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly invoiceId!: number;
 
   /** Invoice related to this file */
   @ManyToOne(() => Invoice, (invoice) => invoice.files)

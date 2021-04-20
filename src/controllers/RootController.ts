@@ -7,8 +7,9 @@ import { body } from 'express-validator';
 import { User } from '../entity/User';
 import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
-import AuthService, { AuthStatus } from '../services/AuthService';
+import AuthService, { AuthStatus, Profile } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
+import StatisticsService from '../services/StatisticsService';
 
 export interface ResetPasswordRequest {
   password: string;
@@ -31,7 +32,7 @@ export class RootController extends Controller {
   @Get('profile')
   @Security('local')
   @Response<WrappedApiError>(401)
-  public async getProfile(@Request() req: express.Request): Promise<User> {
+  public async getProfile(@Request() req: express.Request): Promise<Profile> {
     return new AuthService().getProfile(req);
   }
 
@@ -56,5 +57,39 @@ export class RootController extends Controller {
       body('password').isStrongPassword(),
     ], req);
     return new AuthService().resetPassword(reqBody.password, reqBody.token);
+  }
+
+  @Post('generateApiKey')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async generateApiKey(
+  @Request() req: express.Request,
+  ) {
+    return new AuthService().generateApiKey(req);
+  }
+
+  @Get('getApiKey')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async getApiKey(
+  @Request() req: express.Request,
+  ) {
+    return new AuthService().getApiKey(req);
+  }
+
+  @Post('revokeApiKey')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async revokeApiKey(
+  @Request() req: express.Request,
+  ) {
+    await new AuthService().revokeApiKey(req);
+  }
+
+  @Get('generalInfo')
+  @Security('local')
+  @Response<WrappedApiError>(400)
+  public async getGeneralInfo() {
+    return new StatisticsService().getFinancialYears();
   }
 }

@@ -1,30 +1,30 @@
 import {
-  Column, CreateDateColumn, DeleteDateColumn, Entity,
-  JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn, VersionColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity, JoinColumn, OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+  VersionColumn,
 } from 'typeorm';
-import { User } from './User';
+import { Product } from './Product';
 
 @Entity()
-export class IdentityLocal {
-  /** ID of the associated user */
+export class ProductPricing {
   @PrimaryColumn('integer')
   readonly id!: number;
 
+  /** Piece of text to be placed above the table */
   @Column()
-  verifiedEmail!: boolean;
+  description!: string;
 
-  @Column({ nullable: true })
-  salt?: string;
+  /** Table parsed as a JSON object */
+  @Column({ type: 'json' })
+  data!: string;
 
-  @Column({ nullable: true })
-  hash?: string;
-
-  @Column({ nullable: true })
-  lastLogin?: Date;
-
-  @OneToOne(() => User, { onDelete: 'CASCADE', primary: true })
+  @OneToOne(() => Product, { onDelete: 'CASCADE', primary: true })
   @JoinColumn({ name: 'id' })
-  user!: User;
+  product!: Product;
 
   /** Date at which this entity has been created */
   @CreateDateColumn({ update: false })

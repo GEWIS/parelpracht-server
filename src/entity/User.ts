@@ -41,7 +41,7 @@ export class User extends BaseEnt {
   lastName!: string;
 
   /** Email address of the user */
-  @Column()
+  @Column({ unique: true })
   email!: string;
 
   /** Email address used in PDF files */
@@ -59,6 +59,10 @@ export class User extends BaseEnt {
   /** Optional filename of the user's avatar */
   @Column({ default: '' })
   avatarFilename!: string;
+
+  /** Optional filename of the user's background */
+  @Column({ default: '' })
+  backgroundFilename!: string;
 
   /** Whether this user wishes to receive (regular) email updates, e.g. sent invoices */
   @Column({ default: false })

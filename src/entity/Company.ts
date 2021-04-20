@@ -56,10 +56,6 @@ export class Company extends BaseEnt {
   @Column({ default: '' })
   phoneNumber?: string;
 
-  /** Optional end date of the collaboration with this company */
-  @Column({ nullable: true })
-  endDate?: Date;
-
   /** Optional filename of a logo image */
   @Column({ default: '' })
   logoFilename!: string;

@@ -5,7 +5,12 @@ import {
 import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
-import ProductService, { ProductListResponse, ProductParams, ProductSummary } from '../services/ProductService';
+import ProductService, {
+  PricingParams,
+  ProductListResponse,
+  ProductParams,
+  ProductSummary,
+} from '../services/ProductService';
 import { ListParams, PaginationParams } from './ListParams';
 import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
@@ -27,6 +32,7 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import StatisticsService, { DashboardProductInstanceStats } from '../services/StatisticsService';
 import ProductInstanceService, { ProductInstanceListResponse } from '../services/ProductInstanceService';
 import { AnalysisResultByYear } from '../helpers/rawQueries';
+import { ProductPricing } from '../entity/ProductPricing';
 
 @Route('product')
 @Tags('Product')
@@ -51,7 +57,7 @@ export class ProductController extends Controller {
    * @param lp List parameters to sort and filter the list
    */
   @Post('table')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getAllProducts(
     @Body() lp: ListParams,
@@ -75,7 +81,7 @@ export class ProductController extends Controller {
    * @param id ID of product to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getProduct(id: number): Promise<Product> {
     return new ProductService().getProduct(id);
@@ -131,6 +137,49 @@ export class ProductController extends Controller {
   }
 
   /**
+   * Add a pricing attribute to a product
+   * @param id ID of the product
+   * @param req Express.js request object
+   */
+  @Post('{id}/pricing')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async addPricing(
+    id: number, @Request() req: express.Request,
+  ): Promise<ProductPricing> {
+    return new ProductService({ actor: req.user as User }).addPricing(id);
+  }
+
+  /**
+   * Update the pricing attribute of a product
+   * @param id ID of the product
+   * @param params Description string and JSON table (nested array)
+   * @param req Express.js request object
+   */
+  @Put('{id}/pricing')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updatePricing(
+    id: number, @Body() params: Partial<PricingParams>, @Request() req: express.Request,
+  ): Promise<ProductPricing> {
+    return new ProductService({ actor: req.user as User }).updatePricing(id, params);
+  }
+
+  /**
+   * Remove the pricing attribute of a product
+   * @param id ID of the product
+   * @param req Express.js request object
+   */
+  @Delete('{id}/pricing')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deletePricing(
+    id: number, @Request() req: express.Request,
+  ): Promise<void> {
+    return new ProductService({ actor: req.user as User }).deletePricing(id);
+  }
+
+  /**
    * Return a list of product instances with their contracts
    * @param id Product id
    * @param params Skip and take to allow for pagination
@@ -162,7 +211,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getProductStatistics(id: number): Promise<AnalysisResultByYear[]> {
-    return new StatisticsService().getProductsContractedByFinancialYear(id);
+    return new StatisticsService().getProductsInvoicedByFinancialYear(id);
   }
 
   /**

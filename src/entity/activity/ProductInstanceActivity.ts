@@ -9,8 +9,8 @@ import { ProductInstanceStatus } from '../enums/ProductActivityStatus';
 
 @Entity()
 export class ProductInstanceActivity extends BaseActivity {
-  @Column({ type: 'integer' })
-  productInstanceId!: number;
+  @Column({ type: 'integer', update: false })
+  readonly productInstanceId!: number;
 
   /** ProductInstance related to this activity */
   @ManyToOne(() => ProductInstance, (productInstance) => productInstance.activities, {
@@ -24,6 +24,7 @@ export class ProductInstanceActivity extends BaseActivity {
     type: 'enum',
     enum: ProductInstanceStatus,
     nullable: true,
+    update: false,
   })
-  subType?: ProductInstanceStatus;
+  readonly subType?: ProductInstanceStatus;
 }

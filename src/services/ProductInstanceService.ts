@@ -26,7 +26,7 @@ export interface ProductInstanceParams {
   productId: number,
   basePrice: number,
   discount?: number,
-  comments?: string;
+  details?: string;
 }
 
 export interface ProductInstanceListResponse {
@@ -153,7 +153,19 @@ export default class ProductInstanceService {
     contractId: number, productInstanceId: number, params: Partial<ProductInstance>,
   ): Promise<ProductInstance> {
     let productInstance = await this.repo.findOne(productInstanceId);
+
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
+
+    const contractStatuses = await
+    new ActivityService(ContractActivity).getStatuses({
+      contractId,
+    });
+
+    if (contractStatuses.includes(ContractStatus.CONFIRMED)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'The contract status is confirmed.');
+    }
+
+    if (productInstance.invoiceId != null) { throw new ApiError(HTTPStatus.BadRequest, 'Product is already in an invoice.'); }
 
     if (!(await createActivitiesForEntityEdits<ProductInstance>(
       this.repo, productInstance, params,
@@ -213,6 +225,16 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
+    const statuses = await new ActivityService(InvoiceActivity).getStatuses({ invoiceId });
+    if (statuses.length > 1) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
+    }
+
     await this.repo.update(instance.id, { invoiceId: undefined });
+  }
+
+  async removeDeferredStatuses(): Promise<void> {
+    await getRepository(ProductInstanceActivity)
+      .delete({ subType: ProductInstanceStatus.DEFERRED });
   }
 }

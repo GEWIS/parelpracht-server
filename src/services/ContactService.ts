@@ -26,7 +26,6 @@ export interface ContactSummary {
   firstName: string;
   lastNamePreposition: string;
   lastName: string;
-  companyName: string;
   companyId: number;
 }
 
@@ -121,14 +120,9 @@ export default class ContactService {
   }
 
   async getContactSummaries(): Promise<ContactSummary[]> {
-    const contacts = await this.repo.find({
+    return this.repo.find({
       select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'companyId'],
-      relations: ['company'],
     });
-    return contacts.map((x) => ({
-      companyName: x.company.name,
-      ...x,
-    }));
   }
 
   async createContact(params: ContactParams): Promise<Contact> {

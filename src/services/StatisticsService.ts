@@ -48,7 +48,7 @@ function appendZeroesToStart(array: number[], newLength: number) {
 }
 
 export default class StatisticsService {
-  private async getFinancialYears(firstYear?: number): Promise<number[]> {
+  public async getFinancialYears(firstYear?: number): Promise<number[]> {
     if (firstYear) return rangeToArray(firstYear, dateToFinancialYear(new Date()), 1);
 
     const startYear = await createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
@@ -63,13 +63,14 @@ export default class StatisticsService {
 
   async getDashboardProductInstanceStatistics(year: number):
   Promise<DashboardProductInstanceStats> {
+    const rawQueries = new RawQueries();
     const responses = await Promise.all([
-      RawQueries.getTotalSuggestedAmountByFinancialYear(year),
-      RawQueries.getTotalSignedAmountByFinancialYear(year),
-      RawQueries.getTotalDeliveredAmountByFinancialYear(year),
-      RawQueries.getTotalNonDeliveredProductsInvoicedAmountByFinancialYear(year),
-      RawQueries.getTotalDeliveredProductsInvoicedAmountByFinancialYear(year),
-      RawQueries.getTotalInvoicesPaidAmountByFinancialYear(year),
+      rawQueries.getTotalSuggestedAmountByFinancialYear(year),
+      rawQueries.getTotalSignedAmountByFinancialYear(year),
+      rawQueries.getTotalDeliveredAmountByFinancialYear(year),
+      rawQueries.getTotalNonDeliveredProductsInvoicedAmountByFinancialYear(year),
+      rawQueries.getTotalDeliveredProductsInvoicedAmountByFinancialYear(year),
+      rawQueries.getTotalInvoicesPaidAmountByFinancialYear(year),
       this.getFinancialYears(),
     ]);
 
@@ -164,7 +165,7 @@ export default class StatisticsService {
   }
 
   async getProductContractedPerMonth(year: number): Promise<ContractedProductsAnalysis> {
-    const q = await RawQueries.getProductsContractedPerMonthByFinancialYear(year);
+    const q = await new RawQueries().getProductsContractedPerMonthByFinancialYear(year);
 
     return {
       categories: this.parseContractedProductsPerPeriod(q, true, 12, 0),
@@ -173,7 +174,7 @@ export default class StatisticsService {
   }
 
   async getCompanyStatistics(id: number): Promise<ContractedProductsAnalysis> {
-    const q = await RawQueries.getProductsContractedPerFinancialYearByCompany(id);
+    const q = await new RawQueries().getProductsContractedPerFinancialYearByCompany(id);
     const parsedQ = this.parseContractedProductsPerPeriod(
       q, false, 10, dateToFinancialYear(new Date()) - 10,
     );
@@ -185,8 +186,9 @@ export default class StatisticsService {
     };
   }
 
-  async getProductsContractedByFinancialYear(id: number): Promise<AnalysisResultByYear[]> {
-    const result = await RawQueries.getProductInstancesByFinancialYear(id);
+  async getProductsInvoicedByFinancialYear(id: number): Promise<AnalysisResultByYear[]> {
+    const result = (await new RawQueries().getProductInstancesByFinancialYear(id))
+      .concat(await new RawQueries().getDeferredProductInstances(id));
     if (result.length === 0) return result;
 
     for (let i = 1; i < result.length; i++) {

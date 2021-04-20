@@ -11,6 +11,7 @@ import { createConnection, getRepository } from 'typeorm';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
+import startEvents from './timedevents/cron';
 
 import swaggerDocument from './public/swagger.json';
 import { RegisterRoutes } from './routes';
@@ -45,6 +46,7 @@ createConnection().then(async (connection) => {
   const sess = {
     store: new TypeormStore({
       cleanupLimit: 2,
+      limitSubquery: false,
       ttl: 84600,
     }).connect(sessionRepo),
     secret: process.env.SESSION_SECRET!,
@@ -97,6 +99,9 @@ createConnection().then(async (connection) => {
   if (!fs.existsSync(path.join(__dirname, '/../data/logos'))) {
     fs.mkdirSync(path.join(__dirname, '/../data/logos'));
   }
+  if (!fs.existsSync(path.join(__dirname, '/../data/backgrounds'))) {
+    fs.mkdirSync(path.join(__dirname, '/../data/backgrounds'));
+  }
 
   // Give additional error information when in development mode.
   app.use(errorhandler({
@@ -113,9 +118,13 @@ createConnection().then(async (connection) => {
   }
 
   app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
+  app.use('/static/backgrounds', express.static(path.join(__dirname, '../data/backgrounds')));
 
   // Announce port that is listened to in the console
   app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
   });
+
+  // Enable timed events
+  startEvents();
 });

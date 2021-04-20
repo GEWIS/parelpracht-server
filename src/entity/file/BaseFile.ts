@@ -8,15 +8,15 @@ export default abstract class BaseFile extends BaseEnt {
   name!: string;
 
   /** Name of the file as shown when downloaded */
-  @Column({ default: '' })
+  @Column({ default: '', update: false })
   downloadName!: string;
 
   /** Location of the file on disk */
   @Column()
   location!: string;
 
-  @Column({ type: 'integer' })
-  createdById!: number;
+  @Column({ type: 'integer', update: false })
+  readonly createdById!: number;
 
   /** User who created this file */
   @ManyToOne(() => User)
