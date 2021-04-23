@@ -13,10 +13,10 @@ COPY tsoa.json /usr/src/app
 COPY src /usr/src/app/src
 COPY data/templates /usr/src/app/data/templates
 
-ENV NODE_ENV production
-
 RUN npm ci
 RUN npm install pm2 -g
+
+ENV NODE_ENV production
 
 RUN npm run tsoa && npm run build
 EXPOSE 3001
