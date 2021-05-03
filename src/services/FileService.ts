@@ -183,7 +183,7 @@ export default class FileService {
   ): Promise<BaseFile> {
     const file = {
       name: params.subject,
-      downloadName: `${params.ourReference} - ${params.subject}`,
+      downloadName: `${params.ourReference} - ${params.subject}.${params.fileType.toLowerCase()}`,
       createdById: sender.id,
       createdBy: sender,
     } as any as BaseFile;
