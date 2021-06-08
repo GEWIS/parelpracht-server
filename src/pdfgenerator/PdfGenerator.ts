@@ -431,9 +431,9 @@ export default class PdfGenerator {
     t = PdfGenerator.fr(t, '%{subject}\n', params.subject);
     t = PdfGenerator.fr(t, '%{ourreference}\n', params.ourReference);
     t = PdfGenerator.fr(t, '%{yourreference}\n', params.theirReference ?? '');
-    t = PdfGenerator.fr(t, '%{street}\n', params.recipient.street);
-    t = PdfGenerator.fr(t, '%{postalcode}\n', params.recipient.postalCode);
-    t = PdfGenerator.fr(t, '%{city}\n', params.recipient.city);
+    t = PdfGenerator.fr(t, '%{street}\n', params.recipient.street ?? '');
+    t = PdfGenerator.fr(t, '%{postalcode}\n', params.recipient.postalCode ?? '');
+    t = PdfGenerator.fr(t, '%{city}\n', params.recipient.city ?? '');
     t = PdfGenerator.fr(t, '%{country}\n', params.recipient.country ?? '');
     t = PdfGenerator.fr(t, '%{factuuraanleiding}\n', params.invoiceReason);
 
