@@ -17,6 +17,7 @@
     "clean": "rimraf \"dist/\" \"tsconfig.tsbuildinfo\"",
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
+    "db:validate": "node dist/dbvalidator/validate.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "The 39th board of Study Association GEWIS",
