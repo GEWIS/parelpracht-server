@@ -41,9 +41,9 @@ interface CustomRecipient {
   name: string,
   gender: Gender,
   organizationName?: string,
-  street: string,
-  postalCode: string,
-  city: string,
+  street?: string,
+  postalCode?: string,
+  city?: string,
   country?: string,
 }
 
