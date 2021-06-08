@@ -30,14 +30,13 @@ export const newApiKey = (user: User, apiRevokeLink: string): Mail.Options => ({
                 </td>
 
                 <td colspan=2>
-                    <b>The 39th board of GEWIS</b><br />
-                    <i>The amazing creators of ParelPracht</i>
+                    <b>ParelPracht</b>
                     <br />
                 </td>
             </tr>
             <tr style="vertical-align: bottom;">
                 <td style="width: 50%;">
-                    <a style="text-decoration: none; color: #D40000;" href="mailto:best2021@gewis.nl">best2021@gewis.nl</a> <br>
+                    <a style="text-decoration: none; color: #D40000;" href="mailto:parelpracht@gewis.nl">parelpracht@gewis.nl</a> <br>
                     <a style="text-decoration: none; color: #D40000;" href="https://www.gewis.nl/">www.gewis.nl</a>
                 </td>
                 <td style="width: 50%; color: #D40000;">
