@@ -49,6 +49,7 @@ export interface GenerateContractParams extends FileParams {
   saveToDisk: boolean,
   signee1Id: number,
   signee2Id: number,
+  recipientId: number,
 }
 export interface FullGenerateContractParams extends FullFileParams, GenerateContractParams {}
 
@@ -109,6 +110,7 @@ export default class FileService {
 
   async generateContractFile(params: FullGenerateContractParams): Promise<ContractFile> {
     const file = await this.createFileObject(params);
+    const recipient = await new ContactService().getContact(params.recipientId);
     let signee1;
     let signee2;
     if (params.contentType === ContractType.CONTRACT) {
@@ -127,16 +129,17 @@ export default class FileService {
       ...params,
       signee1,
       signee2,
+      recipient,
       sender: this.actor,
-    } as any as ContractGenSettings;
+    } as ContractGenSettings;
 
-    const contract = await new ContractService().getContract(params.entityId, ['products.product']);
+    const contract = await new ContractService().getContract(params.entityId, ['company', 'products.product']);
     if (contract.products.length === 0) {
       throw new ApiError(HTTPStatus.BadRequest, 'Contract does not have any products');
     }
 
     file.location = await new PdfGenerator().generateContract(contract, p);
-    file.downloadName = `C${file.contractId} ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `C${file.contractId}-${contract.company} - ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {
@@ -158,13 +161,13 @@ export default class FileService {
       sender: this.actor,
     } as any as InvoiceGenSettings;
 
-    const invoice = await new InvoiceService().getInvoice(params.entityId, ['products.product']);
+    const invoice = await new InvoiceService().getInvoice(params.entityId, ['company', 'products.product']);
     if (invoice.products.length === 0) {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice does not have any products');
     }
 
     file.location = await new PdfGenerator().generateInvoice(invoice, p);
-    file.downloadName = `F${file.invoiceId} ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `F${file.invoiceId}-${invoice.company} - ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {

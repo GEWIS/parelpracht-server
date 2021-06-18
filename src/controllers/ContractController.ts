@@ -332,6 +332,7 @@ export class ContractController extends Controller {
       body('saveToDisk').isBoolean(),
       body('signee1Id').isInt(),
       body('signee2Id').isInt(),
+      body('recipientId').isInt(),
     ], req);
     const file = await new FileService(ContractFile, { actor: req.user as User })
       .generateContractFile({

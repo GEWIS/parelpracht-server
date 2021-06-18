@@ -26,6 +26,7 @@ export interface ContractGenSettings {
   signee1?: User,
   signee2?: User,
   sender: User,
+  recipient: Contact,
 }
 
 export interface InvoiceGenSettings {
