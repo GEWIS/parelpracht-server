@@ -27,6 +27,7 @@ export interface ContactSummary {
   lastNamePreposition: string;
   lastName: string;
   companyId: number;
+  function: ContactFunction;
 }
 
 export interface ContactListResponse {
@@ -121,7 +122,7 @@ export default class ContactService {
 
   async getContactSummaries(): Promise<ContactSummary[]> {
     return this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'companyId'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'companyId', 'function'],
     });
   }
 
