@@ -260,6 +260,12 @@ export default class PdfGenerator {
       }
     }
 
+    if (mT !== '') {
+      mT = `\\begin{itemize}\n
+        ${mT}\n
+        \\end{itemize}`;
+    }
+
     if (dT !== '') {
       if (language === Language.DUTCH) {
         dT = `\\subsection{Aanleverspecificatie}\n
@@ -362,7 +368,7 @@ export default class PdfGenerator {
     }
 
     let file = fs.readFileSync(templateLocation).toString();
-    file = this.generateBaseTexLetter(file, contract.company, contract.contact, settings.sender,
+    file = this.generateBaseTexLetter(file, contract.company, settings.recipient, settings.sender,
       settings.language, false, contract.title, `C${contract.id}`);
     file = this.createProductTables(file, contract.products, settings.language,
       settings.showDiscountPercentages);

@@ -324,7 +324,6 @@ export class ContractController extends Controller {
     id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
   ): Promise<any> {
     await validate([
-      body('name').notEmpty(),
       body('language').isIn(Object.values(Language)),
       body('contentType').isIn(Object.values(ContractType)),
       body('fileType').isIn(Object.values(ReturnFileType)),
@@ -332,6 +331,7 @@ export class ContractController extends Controller {
       body('saveToDisk').isBoolean(),
       body('signee1Id').isInt(),
       body('signee2Id').isInt(),
+      body('recipientId').isInt(),
     ], req);
     const file = await new FileService(ContractFile, { actor: req.user as User })
       .generateContractFile({

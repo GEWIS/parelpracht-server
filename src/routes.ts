@@ -942,7 +942,7 @@ const models: TsoaRoute.Models = {
     "GenerateContractParams": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
             "language": {"ref":"Language","required":true},
             "contentType": {"ref":"ContractType","required":true},
             "fileType": {"ref":"ReturnFileType","required":true},
@@ -950,6 +950,7 @@ const models: TsoaRoute.Models = {
             "saveToDisk": {"dataType":"boolean","required":true},
             "signee1Id": {"dataType":"double","required":true},
             "signee2Id": {"dataType":"double","required":true},
+            "recipientId": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
@@ -1023,7 +1024,7 @@ const models: TsoaRoute.Models = {
     "GenerateInvoiceParams": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
             "language": {"ref":"Language","required":true},
             "fileType": {"ref":"ReturnFileType","required":true},
             "showDiscountPercentages": {"dataType":"boolean","required":true},
@@ -1107,7 +1108,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "gender": {"ref":"Gender","required":true},
-            "firstName": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string"},
             "lastNamePreposition": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
