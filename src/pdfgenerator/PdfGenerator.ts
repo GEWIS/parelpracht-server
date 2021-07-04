@@ -260,6 +260,12 @@ export default class PdfGenerator {
       }
     }
 
+    if (mT !== '') {
+      mT = `\\begin{itemize}\n
+        ${mT}\n
+        \\end{itemize}`;
+    }
+
     if (dT !== '') {
       if (language === Language.DUTCH) {
         dT = `\\subsection{Aanleverspecificatie}\n
