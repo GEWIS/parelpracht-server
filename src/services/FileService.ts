@@ -133,13 +133,13 @@ export default class FileService {
       sender: this.actor,
     } as ContractGenSettings;
 
-    const contract = await new ContractService().getContract(params.entityId, ['company', 'products.product']);
-    if (contract.products.length === 0) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Contract does not have any products');
-    }
+    const contract = await new ContractService().getContract(params.entityId, ['products.product']);
+    // if (contract.products.length === 0) {
+    //   throw new ApiError(HTTPStatus.BadRequest, 'Contract does not have any products');
+    // }
 
     file.location = await new PdfGenerator().generateContract(contract, p);
-    file.downloadName = `C${file.contractId}-${contract.company} - ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `C${file.contractId}-${contract.company.name} - ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {
@@ -161,13 +161,13 @@ export default class FileService {
       sender: this.actor,
     } as any as InvoiceGenSettings;
 
-    const invoice = await new InvoiceService().getInvoice(params.entityId, ['company', 'products.product']);
-    if (invoice.products.length === 0) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Invoice does not have any products');
-    }
+    const invoice = await new InvoiceService().getInvoice(params.entityId, ['products.product']);
+    // if (invoice.products.length === 0) {
+    //   throw new ApiError(HTTPStatus.BadRequest, 'Invoice does not have any products');
+    // }
 
     file.location = await new PdfGenerator().generateInvoice(invoice, p);
-    file.downloadName = `F${file.invoiceId}-${invoice.company} - ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `F${file.invoiceId}-${invoice.company.name} - ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {

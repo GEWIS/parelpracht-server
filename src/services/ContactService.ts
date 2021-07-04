@@ -11,7 +11,7 @@ import { cartesian, cartesianArrays } from '../helpers/filters';
 // May not be correct yet
 export interface ContactParams {
   gender: Gender;
-  firstName: string;
+  firstName?: string;
   lastNamePreposition?: string;
   lastName: string;
   email: string;

@@ -21,7 +21,7 @@ export class Contact extends BaseEnt {
   gender!: Gender;
 
   /** The first name of the contact */
-  @Column()
+  @Column({ default: '' })
   firstName!: string;
 
   /** The middle name of the contact, if he/she has one */
@@ -62,9 +62,11 @@ export class Contact extends BaseEnt {
 
   public fullName() {
     if (this.lastNamePreposition === '') {
-      return `${this.firstName} ${this.lastName}`;
+      // firstName can be an empty string, so trimming the result deletes the space
+      return `${this.firstName} ${this.lastName}`.trim();
     }
-    return `${this.firstName} ${this.lastNamePreposition} ${this.lastName}`;
+    // firstName can be an empty string, so trimming the result deletes the space
+    return `${this.firstName} ${this.lastNamePreposition} ${this.lastName}`.trim();
   }
 
   public formalGreet() {

@@ -1107,7 +1107,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "gender": {"ref":"Gender","required":true},
-            "firstName": {"dataType":"string","required":true},
+            "firstName": {"dataType":"string"},
             "lastNamePreposition": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
             "email": {"dataType":"string","required":true},
