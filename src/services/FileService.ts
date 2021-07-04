@@ -34,7 +34,7 @@ import { CompanyFile } from '../entity/file/CompanyFile';
 import CompanyService from './CompanyService';
 
 export interface FileParams {
-  name: string;
+  name?: string;
 }
 
 export interface FullFileParams extends FileParams {

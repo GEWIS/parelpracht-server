@@ -942,7 +942,7 @@ const models: TsoaRoute.Models = {
     "GenerateContractParams": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
             "language": {"ref":"Language","required":true},
             "contentType": {"ref":"ContractType","required":true},
             "fileType": {"ref":"ReturnFileType","required":true},
@@ -1024,7 +1024,7 @@ const models: TsoaRoute.Models = {
     "GenerateInvoiceParams": {
         "dataType": "refObject",
         "properties": {
-            "name": {"dataType":"string","required":true},
+            "name": {"dataType":"string"},
             "language": {"ref":"Language","required":true},
             "fileType": {"ref":"ReturnFileType","required":true},
             "showDiscountPercentages": {"dataType":"boolean","required":true},

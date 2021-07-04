@@ -324,7 +324,6 @@ export class ContractController extends Controller {
     id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
   ): Promise<any> {
     await validate([
-      body('name').notEmpty(),
       body('language').isIn(Object.values(Language)),
       body('contentType').isIn(Object.values(ContractType)),
       body('fileType').isIn(Object.values(ReturnFileType)),
