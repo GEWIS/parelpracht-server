@@ -592,6 +592,7 @@ const models: TsoaRoute.Models = {
             "nameDutch": {"dataType":"string","required":true},
             "nameEnglish": {"dataType":"string","required":true},
             "targetPrice": {"dataType":"double","required":true},
+            "status": {"ref":"ProductStatus","required":true},
         },
         "additionalProperties": false,
     },

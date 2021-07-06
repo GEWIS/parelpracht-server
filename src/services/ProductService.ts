@@ -37,6 +37,7 @@ export interface ProductSummary {
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
+  status: ProductStatus;
 }
 
 export interface ProductListResponse {
@@ -113,7 +114,7 @@ export default class ProductService {
   }
 
   async getProductSummaries(): Promise<ProductSummary[]> {
-    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice'] });
+    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice', 'status'] });
   }
 
   createProduct(params: ProductParams): Promise<Product> {
