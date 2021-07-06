@@ -21,6 +21,7 @@ import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
 import { Gender } from '../entity/enums/Gender';
 import BaseFile from '../entity/file/BaseFile';
+import replaceAll from '../helpers/replaceAll';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -86,35 +87,6 @@ export default class PdfGenerator {
   }
 
   /**
-   * Replace all occurences of the "from" string with the "to" string in the "src" string
-   * @param src {string} Source
-   * @param from {string} String to replace
-   * @param to {string} To replace all with
-   */
-  private static fr(src: string, from: string, to: string) {
-    let src2 = src;
-    const fromAll = [from];
-
-    // If there is a newline symbol in the string (\n), replace them all with the Windows
-    // newline symbol (\r\n)
-    const newLines = (from.match(/\n/g) || []).length;
-    if (newLines > 0) {
-      fromAll.push(from.replace('\n', '\r\n'));
-    }
-    for (let i = 0; i < newLines - 1; i++) {
-      fromAll[1] = fromAll[1].replace('\n', '\r\n');
-    }
-
-    for (let i = 0; i < fromAll.length; i++) {
-      const count = (src.match(new RegExp(fromAll[i], 'g')) || []).length;
-      for (let j = 0; j < count; j++) {
-        src2 = src2.replace(fromAll[i], to);
-      }
-    }
-    return src2;
-  }
-
-  /**
    * Given the template string, replace the "basic" placeholder strings with actual information
    * @param template {string} The template tex file, parsed to a string
    * @param company {Company} Company the .pdf is addressed to
@@ -134,24 +106,24 @@ export default class PdfGenerator {
   ): string {
     let t = template;
 
-    t = PdfGenerator.fr(t, '%{contactperson}\n', recipient.fullName());
-    t = PdfGenerator.fr(t, '%{sender}\n', sender.fullName());
-    t = PdfGenerator.fr(t, '%{senderfunctie}\n', sender.function);
-    t = PdfGenerator.fr(t, '%{company}\n', company.name);
-    t = PdfGenerator.fr(t, '%{subject}\n', subject);
-    t = PdfGenerator.fr(t, '%{ourreference}', ourReference);
-    t = PdfGenerator.fr(t, '%{yourreference}', theirReference);
+    t = replaceAll(t, '%{contactperson}\n', recipient.fullName());
+    t = replaceAll(t, '%{sender}\n', sender.fullName());
+    t = replaceAll(t, '%{senderfunctie}\n', sender.function);
+    t = replaceAll(t, '%{company}\n', company.name);
+    t = replaceAll(t, '%{subject}\n', subject);
+    t = replaceAll(t, '%{ourreference}', ourReference);
+    t = replaceAll(t, '%{yourreference}', theirReference);
 
     if (useInvoiceAddress) {
-      t = PdfGenerator.fr(t, '%{street}\n', company.invoiceAddressStreet!);
-      t = PdfGenerator.fr(t, '%{postalcode}\n', company.invoiceAddressPostalCode!);
-      t = PdfGenerator.fr(t, '%{city}\n', company.invoiceAddressCity!);
-      t = PdfGenerator.fr(t, '%{country}\n', company.invoiceAddressCountry!);
+      t = replaceAll(t, '%{street}\n', company.invoiceAddressStreet!);
+      t = replaceAll(t, '%{postalcode}\n', company.invoiceAddressPostalCode!);
+      t = replaceAll(t, '%{city}\n', company.invoiceAddressCity!);
+      t = replaceAll(t, '%{country}\n', company.invoiceAddressCountry!);
     } else {
-      t = PdfGenerator.fr(t, '%{street}\n', company.addressStreet);
-      t = PdfGenerator.fr(t, '%{postalcode}\n', company.addressPostalCode!);
-      t = PdfGenerator.fr(t, '%{city}\n', company.addressCity!);
-      t = PdfGenerator.fr(t, '%{country}\n', company.addressCountry!);
+      t = replaceAll(t, '%{street}\n', company.addressStreet);
+      t = replaceAll(t, '%{postalcode}\n', company.addressPostalCode!);
+      t = replaceAll(t, '%{city}\n', company.addressCity!);
+      t = replaceAll(t, '%{country}\n', company.addressCountry!);
     }
 
     let greeting = '';
@@ -168,7 +140,7 @@ export default class PdfGenerator {
         default: greeting = recipient.fullName();
       }
     }
-    t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+    t = replaceAll(t, '%{ontvanger}\n', greeting);
 
     let mail = '';
     if (sender.replyToEmail.length > 0) {
@@ -177,7 +149,7 @@ export default class PdfGenerator {
       mail = 'ceb@gewis.nl';
     }
 
-    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
+    t = replaceAll(t, '%{senderemail}\n', mail);
 
     return t;
   }
@@ -191,10 +163,10 @@ export default class PdfGenerator {
    */
   private createSignees(file: string, signee1: User, signee2: User) {
     let f = file;
-    f = PdfGenerator.fr(f, '%{contractant1}\n', signee1.fullName());
-    f = PdfGenerator.fr(f, '%{contractant1_functie}\n', signee1.function);
-    f = PdfGenerator.fr(f, '%{contractant2}\n', signee2.fullName());
-    f = PdfGenerator.fr(f, '%{contractant2_functie}\n', signee2.function);
+    f = replaceAll(f, '%{contractant1}\n', signee1.fullName());
+    f = replaceAll(f, '%{contractant1_functie}\n', signee1.function);
+    f = replaceAll(f, '%{contractant2}\n', signee2.fullName());
+    f = replaceAll(f, '%{contractant2_functie}\n', signee2.function);
     return f;
   }
 
@@ -298,13 +270,13 @@ export default class PdfGenerator {
       }
     }
 
-    f = PdfGenerator.fr(f, '%{producten}', mT);
-    f = PdfGenerator.fr(f, '%{aanleverspecificatie}', dT);
-    f = PdfGenerator.fr(f, '%{tabelproducten}', fT);
+    f = replaceAll(f, '%{producten}', mT);
+    f = replaceAll(f, '%{aanleverspecificatie}', dT);
+    f = replaceAll(f, '%{tabelproducten}', fT);
     if (language === Language.DUTCH) {
-      f = PdfGenerator.fr(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, true));
+      f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, true));
     } else if (language === Language.ENGLISH) {
-      f = PdfGenerator.fr(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
+      f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
     }
     return f;
   }
@@ -410,9 +382,9 @@ export default class PdfGenerator {
       settings.showDiscountPercentages);
 
     if (settings.language === Language.DUTCH) {
-      file = PdfGenerator.fr(file, '%{factuuraanleiding}\n', 'de door ons verrichte activiteiten');
+      file = replaceAll(file, '%{factuuraanleiding}\n', 'de door ons verrichte activiteiten');
     } else if (settings.language === Language.ENGLISH) {
-      file = PdfGenerator.fr(file, '%{factuuraanleiding}\n', 'the activities performed by us');
+      file = replaceAll(file, '%{factuuraanleiding}\n', 'the activities performed by us');
     }
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
@@ -430,18 +402,18 @@ export default class PdfGenerator {
     }
 
     let t = fs.readFileSync(templateLocation).toString();
-    t = PdfGenerator.fr(t, '%{contactperson}\n', params.recipient.name);
-    t = PdfGenerator.fr(t, '%{sender}\n', fileObj.createdBy.fullName());
-    t = PdfGenerator.fr(t, '%{senderfunctie}\n', fileObj.createdBy.function);
-    t = PdfGenerator.fr(t, '%{company}\n', params.recipient.organizationName ?? '');
-    t = PdfGenerator.fr(t, '%{subject}\n', params.subject);
-    t = PdfGenerator.fr(t, '%{ourreference}\n', params.ourReference);
-    t = PdfGenerator.fr(t, '%{yourreference}\n', params.theirReference ?? '');
-    t = PdfGenerator.fr(t, '%{street}\n', params.recipient.street ?? '');
-    t = PdfGenerator.fr(t, '%{postalcode}\n', params.recipient.postalCode ?? '');
-    t = PdfGenerator.fr(t, '%{city}\n', params.recipient.city ?? '');
-    t = PdfGenerator.fr(t, '%{country}\n', params.recipient.country ?? '');
-    t = PdfGenerator.fr(t, '%{factuuraanleiding}\n', params.invoiceReason);
+    t = replaceAll(t, '%{contactperson}\n', params.recipient.name);
+    t = replaceAll(t, '%{sender}\n', fileObj.createdBy.fullName());
+    t = replaceAll(t, '%{senderfunctie}\n', fileObj.createdBy.function);
+    t = replaceAll(t, '%{company}\n', params.recipient.organizationName ?? '');
+    t = replaceAll(t, '%{subject}\n', params.subject);
+    t = replaceAll(t, '%{ourreference}\n', params.ourReference);
+    t = replaceAll(t, '%{yourreference}\n', params.theirReference ?? '');
+    t = replaceAll(t, '%{street}\n', params.recipient.street ?? '');
+    t = replaceAll(t, '%{postalcode}\n', params.recipient.postalCode ?? '');
+    t = replaceAll(t, '%{city}\n', params.recipient.city ?? '');
+    t = replaceAll(t, '%{country}\n', params.recipient.country ?? '');
+    t = replaceAll(t, '%{factuuraanleiding}\n', params.invoiceReason);
 
     let greeting = '';
     if (params.language === Language.DUTCH) {
@@ -457,7 +429,7 @@ export default class PdfGenerator {
         default: greeting = params.recipient.name;
       }
     }
-    t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+    t = replaceAll(t, '%{ontvanger}\n', greeting);
 
     let mail = '';
     if (fileObj.createdBy.replyToEmail.length > 0) {
@@ -466,7 +438,7 @@ export default class PdfGenerator {
       mail = 'ceb@gewis.nl';
     }
 
-    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
+    t = replaceAll(t, '%{senderemail}\n', mail);
 
     let totalPrice = 0;
     let table = '';
@@ -489,7 +461,7 @@ export default class PdfGenerator {
         }\\\\\\bottomrule
         \\end{tabularx}`;
     }
-    t = PdfGenerator.fr(t, '%{tabelproducten}', table);
+    t = replaceAll(t, '%{tabelproducten}', table);
 
     return this.finishFileGeneration(t, params.fileType, false);
   }

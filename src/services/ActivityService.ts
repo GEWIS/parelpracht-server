@@ -234,7 +234,7 @@ export default class ActivityService {
       case InvoiceActivity:
         activity = <InvoiceActivity>act;
         if (activity.subType === InvoiceStatus.SENT) {
-          await sendInvoiceEmails(activity.invoiceId);
+          sendInvoiceEmails(activity.invoiceId);
         }
 
         break;

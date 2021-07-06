@@ -7,6 +7,7 @@ import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { currentFinancialYear } from './timestamp';
 import { ApiError, HTTPStatus } from './error';
+import replaceAll from './replaceAll';
 
 export interface ETCompany {
   id: number,
@@ -162,7 +163,11 @@ export default class RawQueries {
   }
 
   private postProcessing(query: string) {
-    const q = this.database === 'mysql' ? query.split('"').join('') : query;
+    let q = query;
+    if (this.database === 'mysql') {
+      q = q.split('"').join('');
+      q = replaceAll(q, 'current_date', 'current_date()');
+    }
     return getManager().query(q);
   }
 
@@ -425,7 +430,7 @@ export default class RawQueries {
     JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
     LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a1.type = 'STATUS' AND
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-    WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '1' day);
+    WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '21' day);
   `);
   };
 
