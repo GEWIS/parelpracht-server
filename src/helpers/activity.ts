@@ -11,31 +11,7 @@ import { Contact } from '../entity/Contact';
 import { ProductCategory } from '../entity/ProductCategory';
 import Currency from './currency';
 import { timeToYearDayTime } from './timestamp';
-import { Invoice } from '../entity/Invoice';
-
-/**
- * Compares two entity objects and returns an object only containing the (new) differences
- * @param newEntity The new entity object
- * @param oldEntity The old entity object
- */
-function getEntityChanges<T extends object>(
-  newEntity: Partial<T>, oldEntity: T,
-): Partial<T> {
-  const result: Partial<T> = {};
-
-  Object.keys(newEntity).forEach((k) => {
-    // @ts-ignore
-    if (!(newEntity[k] instanceof Date && newEntity[k].getTime() === oldEntity[k].getTime())) {
-      // @ts-ignore
-      if (newEntity[k] !== oldEntity[k]) {
-      // @ts-ignore
-        result[k] = newEntity[k];
-      }
-    }
-  });
-
-  return result;
-}
+import getEntityChanges from './entityChanges';
 
 /**
  * Convert an array of strings to a single string, where all items are split by
