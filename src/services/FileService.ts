@@ -15,7 +15,6 @@ import {
   ContractType,
   CustomInvoiceGenSettings,
   InvoiceGenSettings,
-  Language,
   ReturnFileType,
 } from '../pdfgenerator/GenSettings';
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
@@ -31,6 +30,7 @@ import ContactService from './ContactService';
 import { User } from '../entity/User';
 import { validateFileParams } from '../helpers/validation';
 import { CompanyFile } from '../entity/file/CompanyFile';
+import { Language } from '../entity/enums/Language';
 import CompanyService from './CompanyService';
 
 export interface FileParams {

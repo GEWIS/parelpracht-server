@@ -44,10 +44,11 @@ import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
 } from '../helpers/validation';
 import ContactService from '../services/ContactService';
-import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { ContractType, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
+import { Language } from '../entity/enums/Language';
 import { RecentContract } from '../helpers/rawQueries';
 import { ContractSummary } from '../entity/Summaries';
 

@@ -9,7 +9,6 @@ import {
   ContractType,
   CustomInvoiceGenSettings,
   InvoiceGenSettings,
-  Language,
   ReturnFileType,
 } from './GenSettings';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -20,6 +19,7 @@ import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
 import { Gender } from '../entity/enums/Gender';
+import { Language } from '../entity/enums/Language';
 import BaseFile from '../entity/file/BaseFile';
 import replaceAll from '../helpers/replaceAll';
 
@@ -93,6 +93,7 @@ export default class PdfGenerator {
    * @param recipient {Contact} Contact the .pdf is addressed to
    * @param sender {User} Person who sent this letter
    * @param language {Language} Language of the letter
+   * @param date {Date} Date at which the letter is sent
    * @param useInvoiceAddress {boolean} Whether the invoice address should be used instead of
    * the "standard" address
    * @param subject {string} Subject of the letter
@@ -102,7 +103,8 @@ export default class PdfGenerator {
    */
   private generateBaseTexLetter(
     template: string, company: Company, recipient: Contact, sender: User, language: Language,
-    useInvoiceAddress: boolean, subject: string, ourReference: string = '', theirReference: string = '',
+    date: Date, useInvoiceAddress: boolean, subject: string, ourReference: string = '-',
+    theirReference: string = '-',
   ): string {
     let t = template;
 
@@ -111,8 +113,16 @@ export default class PdfGenerator {
     t = replaceAll(t, '%{senderfunctie}\n', sender.function);
     t = replaceAll(t, '%{company}\n', company.name);
     t = replaceAll(t, '%{subject}\n', subject);
-    t = replaceAll(t, '%{ourreference}', ourReference);
-    t = replaceAll(t, '%{yourreference}', theirReference);
+    t = replaceAll(t, '%{ourreference}\n', ourReference);
+    t = replaceAll(t, '%{yourreference}\n', theirReference);
+
+    let locales;
+    switch (language) {
+      case Language.DUTCH: locales = 'nl-NL'; break;
+      case Language.ENGLISH: locales = 'en-US'; break;
+      default: throw new Error(`Unknown language: ${language}`);
+    }
+    t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(date));
 
     if (useInvoiceAddress) {
       t = replaceAll(t, '%{street}\n', company.invoiceAddressStreet!);
@@ -202,13 +212,13 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationDutch}}\n`;
         }
 
-        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, true)} \\\\\n`;
+        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, language)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Korting ';
           if (showDiscountPercentages) {
             fT += `(${prodInst.discountPercentage()}\\%) `;
           }
-          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, true)} \\\\\n`;
+          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, language)} \\\\\n`;
         }
       } else if (language === Language.ENGLISH) {
         if (prodInst.product.contractTextEnglish !== '') {
@@ -221,13 +231,13 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationEnglish}}\n`;
         }
 
-        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, false)} \\\\\n`;
+        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, language)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Discount ';
           if (showDiscountPercentages) {
             fT += `(${prodInst.discountPercentage()}\\%) `;
           }
-          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, false)} \\\\\n`;
+          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, language)} \\\\\n`;
         }
       }
     }
@@ -273,11 +283,7 @@ export default class PdfGenerator {
     f = replaceAll(f, '%{producten}', mT);
     f = replaceAll(f, '%{aanleverspecificatie}', dT);
     f = replaceAll(f, '%{tabelproducten}', fT);
-    if (language === Language.DUTCH) {
-      f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, true));
-    } else if (language === Language.ENGLISH) {
-      f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
-    }
+    f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, language));
     return f;
   }
 
@@ -341,7 +347,7 @@ export default class PdfGenerator {
 
     let file = fs.readFileSync(templateLocation).toString();
     file = this.generateBaseTexLetter(file, contract.company, settings.recipient, settings.sender,
-      settings.language, false, contract.title, `C${contract.id}`);
+      settings.language, new Date(), false, contract.title, `C${contract.id}`);
     file = this.createProductTables(file, contract.products, settings.language,
       settings.showDiscountPercentages);
     if (settings.contentType === ContractType.CONTRACT
@@ -377,14 +383,14 @@ export default class PdfGenerator {
     let file = fs.readFileSync(templateLocation).toString();
     // TODO: Give each invoice a title as well
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      settings.language, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber);
+      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber);
     file = this.createProductTables(file, invoice.products, settings.language,
       settings.showDiscountPercentages);
 
     if (settings.language === Language.DUTCH) {
-      file = replaceAll(file, '%{factuuraanleiding}\n', 'de door ons verrichte activiteiten');
+      file = replaceAll(file, '%{occasion}\n', 'de door ons verrichte activiteiten');
     } else if (settings.language === Language.ENGLISH) {
-      file = replaceAll(file, '%{factuuraanleiding}\n', 'the activities performed by us');
+      file = replaceAll(file, '%{occasion}\n', 'the activities performed by us');
     }
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
@@ -413,7 +419,7 @@ export default class PdfGenerator {
     t = replaceAll(t, '%{postalcode}\n', params.recipient.postalCode ?? '');
     t = replaceAll(t, '%{city}\n', params.recipient.city ?? '');
     t = replaceAll(t, '%{country}\n', params.recipient.country ?? '');
-    t = replaceAll(t, '%{factuuraanleiding}\n', params.invoiceReason);
+    t = replaceAll(t, '%{occasion}\n', params.invoiceReason);
 
     let greeting = '';
     if (params.language === Language.DUTCH) {
@@ -444,20 +450,20 @@ export default class PdfGenerator {
     let table = '';
     params.products.forEach((p) => {
       totalPrice += p.amount * p.pricePerOne;
-      table += `${p.name} & ${Currency.priceAttributeToEuro(p.pricePerOne, params.language === Language.DUTCH)} & ${p.amount} & ${Currency.priceAttributeToEuro(p.amount * p.pricePerOne, params.language === Language.DUTCH)}\\\\\n`;
+      table += `${p.name} & ${Currency.priceAttributeToEuro(p.pricePerOne, params.language)} & ${p.amount} & ${Currency.priceAttributeToEuro(p.amount * p.pricePerOne, params.language)}\\\\\n`;
     });
     if (params.language === Language.DUTCH) {
       table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
         Beschrijving & Bedrag (EUR) & Aantal & Subtotaal (EUR) \\\\\\midrule
         ${table}
-        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, true)}
+        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, Language.DUTCH)}
         }\\\\\\bottomrule
         \\end{tabularx}`;
     } else if (params.language === Language.ENGLISH) {
       table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
         Description & Price (EUR) & Amount & Subtotal (EUR) \\\\\\midrule
         ${table}
-        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, false)}
+        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, Language.ENGLISH)}
         }\\\\\\bottomrule
         \\end{tabularx}`;
     }

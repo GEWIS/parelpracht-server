@@ -32,9 +32,10 @@ import FileHelper from '../helpers/fileHelper';
 import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
 } from '../helpers/validation';
-import { CustomInvoiceGenSettings, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { CustomInvoiceGenSettings, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ExpiredInvoice } from '../helpers/rawQueries';
 import { ActivityType } from '../entity/enums/ActivityType';
+import { Language } from '../entity/enums/Language';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { InvoiceSummary } from '../entity/Summaries';
 

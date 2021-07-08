@@ -12,6 +12,7 @@ import { ProductCategory } from '../entity/ProductCategory';
 import Currency from './currency';
 import { timeToYearDayTime } from './timestamp';
 import getEntityChanges from './entityChanges';
+import { Language } from '../entity/enums/Language';
 
 /**
  * Convert an array of strings to a single string, where all items are split by
@@ -132,8 +133,8 @@ async function parsePropertyChanges<T>(
     let parsedNew = processedNew[k].toString();
     // Parse prices from ugly integers in cents to beautifully formatted prices
     if (k === 'basePrice' || k === 'discount' || k === 'targetPrice') {
-      parsedOld = `€ ${Currency.priceAttributeToEuro(parseInt(parsedOld, 10), false)}`;
-      parsedNew = `€ ${Currency.priceAttributeToEuro(parseInt(parsedNew, 10), false)}`;
+      parsedOld = `€ ${Currency.priceAttributeToEuro(parseInt(parsedOld, 10), Language.ENGLISH)}`;
+      parsedNew = `€ ${Currency.priceAttributeToEuro(parseInt(parsedNew, 10), Language.ENGLISH)}`;
     }
     // Parse dates of invoices to DD-MM-YYYY
     if (k === 'startDate') {

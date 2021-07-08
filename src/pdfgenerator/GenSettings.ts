@@ -1,11 +1,7 @@
 import { User } from '../entity/User';
 import { Contact } from '../entity/Contact';
 import { Gender } from '../entity/enums/Gender';
-
-export enum Language {
-  DUTCH = 'DUTCH',
-  ENGLISH = 'ENGLISH',
-}
+import { Language } from '../entity/enums/Language';
 
 export enum ContractType {
   CONTRACT = 'CONTRACT',

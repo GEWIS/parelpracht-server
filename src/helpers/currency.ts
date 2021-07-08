@@ -1,12 +1,16 @@
+import { Language } from '../entity/enums/Language';
+
 export default class Currency {
-  /**
-   * Convert an integer of eurocents to a parsed string in euros
-   * @param price The price in cents
-   * @param comma Whether the cents are after a comma or a dot
-   */
-  public static priceAttributeToEuro(price: number, comma: boolean): string {
-    const result = (Math.round(price) / 100).toFixed(2);
-    if (comma) return result.replace('.', ',');
-    return result;
+  public static priceAttributeToEuro(price: number, language: Language): string {
+    let locale;
+    switch (language) {
+      case Language.DUTCH: locale = 'nl-NL'; break;
+      case Language.ENGLISH: locale = 'nl-NL'; break;
+      default: throw new TypeError(`Unknown language: ${language}`);
+    }
+
+    return new Intl.NumberFormat(locale,
+      { maximumFractionDigits: 2, minimumFractionDigits: 2 }
+    ).format(price / 100);
   }
 }
