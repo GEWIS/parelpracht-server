@@ -7,6 +7,7 @@ import {
 } from './contracts';
 import { allInvoicesAreCreated } from './invoices';
 import { allProductInstancesWereNotDelivered } from './productInstances';
+import { replaceGEWISRecipient } from './GEWISrecipient';
 
 dotenv.config({ path: '.env' });
 
@@ -38,6 +39,7 @@ createConnection({
     allProductInstancesWereNotDelivered(connection),
     allProductsAreCancelledIfContractIsCancelled(connection),
     allProductsAreDeliveredIfContractIsFinished(connection),
+    replaceGEWISRecipient(connection),
   ]);
   console.log(`Database validated in ${(new Date().getTime() - t1.getTime())}ms`);
 });
