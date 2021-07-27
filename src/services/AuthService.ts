@@ -1,6 +1,7 @@
 import express from 'express';
 import { getRepository, Repository } from 'typeorm';
 import jwt from 'jsonwebtoken';
+import validator from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { Mailer } from '../mailer/Mailer';
@@ -66,7 +67,10 @@ export default class AuthService {
   }
 
   async forgotPassword(userEmail: string): Promise<void> {
-    const email = userEmail.toLowerCase();
+    let email = validator.normalizeEmail(userEmail);
+    if (email === false) {
+      email = '';
+    }
     const user = await this.userRepo.findOne({ email });
     const identity = user !== undefined ? await this.identityRepo.findOne(user.id) : undefined;
 
