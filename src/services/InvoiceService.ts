@@ -43,7 +43,7 @@ export default class InvoiceService {
 
   actor?: User;
 
-  constructor(options?: {actor?: User}) {
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Invoice);
     this.actor = options?.actor;
   }
@@ -150,7 +150,8 @@ export default class InvoiceService {
       entityId: invoice.id,
       type: ActivityType.STATUS,
       subType: InvoiceStatus.CREATED,
-      description: '',
+      descriptionDutch: '',
+      descriptionEnglish: '',
     } as FullActivityParams);
 
     return this.getInvoice(invoice.id);

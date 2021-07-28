@@ -29,7 +29,8 @@ export async function allContractsAreCreated(connection: Connection) {
         contractId: c.id,
         type: ActivityType.STATUS,
         subType: ContractStatus.CREATED,
-        description: '',
+        descriptionEnglish: '',
+        descriptionDutch: '',
       } as ContractActivity);
 
       logResult += `C${c.id}, `;
@@ -57,7 +58,6 @@ export async function allProductsAreCancelledIfContractIsCancelled(connection: C
       const cancelledActivity = c.activities.find((a) => a.subType === ContractStatus.CANCELLED);
 
       if (cancelledActivity) {
-
         c.products.forEach((p) => {
           const index = p.activities.find((a) => a.subType === ProductInstanceStatus.CANCELLED);
 
@@ -69,7 +69,8 @@ export async function allProductsAreCancelledIfContractIsCancelled(connection: C
               createdById: c.createdById,
               type: ActivityType.STATUS,
               subType: ProductInstanceStatus.CANCELLED,
-              description: '',
+              descriptionEnglish: '',
+              descriptionDutch: '',
             } as ProductInstanceActivity);
 
             logResult += `C${c.id} (P${p.id}), `;
@@ -111,7 +112,8 @@ export async function allProductsAreDeliveredIfContractIsFinished(connection: Co
               createdById: c.createdById,
               type: ActivityType.STATUS,
               subType: ProductInstanceStatus.DELIVERED,
-              description: '',
+              descriptionEnglish: '',
+              descriptionDutch: '',
             } as ProductInstanceActivity);
 
             logResult += `C${c.id} (P${p.id}), `;

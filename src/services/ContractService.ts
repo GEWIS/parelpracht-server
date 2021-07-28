@@ -147,7 +147,8 @@ export default class ContractService {
       entityId: contract.id,
       type: ActivityType.STATUS,
       subType: ContractStatus.CREATED,
-      description: '',
+      descriptionDutch: '',
+      descriptionEnglish: '',
     } as FullActivityParams);
 
     return this.getContract(contract.id);

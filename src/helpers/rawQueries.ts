@@ -408,7 +408,7 @@ export default class RawQueries {
 
     return this.postProcessing(`
     SELECT c.id, c.title, c."companyId", c."assignedToId", c."contactId", a1."createdAt",
-        a1."updatedAt", a1."type", a1."description", a1."createdById", a1."subType"
+        a1."updatedAt", a1."type", a1."descriptionEnglish", a1."descriptionDutch", a1."createdById", a1."subType"
     FROM contract c
     JOIN contract_activity a1 ON (c.id = a1."contractId")
     LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND

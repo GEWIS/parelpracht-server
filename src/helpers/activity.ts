@@ -20,8 +20,9 @@ import { Language } from '../entity/enums/Language';
  * @param items An array of strings to convert to a single string
  * @param preSuffix An optional prefix / suffix to put before and after every
  * string in the items array
+ * @param language Language to print the string in
  */
-function printStringArrayToString(items: string[], preSuffix = ''): string {
+function printStringArrayToString(items: string[], language: Language, preSuffix = ''): string {
   if (items.length === 0) {
     return '';
   }
@@ -29,9 +30,16 @@ function printStringArrayToString(items: string[], preSuffix = ''): string {
     return items[0];
   }
 
+  let conjunction: string;
+  switch (language) {
+    case Language.DUTCH: conjunction = 'en'; break;
+    case Language.ENGLISH: conjunction = 'and'; break;
+    default: throw new TypeError(`Unknown language: ${language}`);
+  }
+
   return items.reduce((result, s, i) => {
     if (i === items.length - 1) {
-      return `${result.substring(0, result.length - 2)} and ${preSuffix}${s}${preSuffix}`;
+      return `${result.substring(0, result.length - 2)} ${conjunction} ${preSuffix}${s}${preSuffix}`;
     }
     return `${result}${preSuffix}${s}${preSuffix}, `;
   }, '');
@@ -58,9 +66,10 @@ function splitStringToStringArray(list: string): string[] {
  * with their old and new values are included
  * @param newProperties Partial with only the newly changed properties
  * @param oldProperties The old entity
+ * @param language Language to print the string in
  */
 async function parsePropertyChanges<T>(
-  newProperties: Partial<T>, oldProperties: T,
+  newProperties: Partial<T>, oldProperties: T, language: Language,
 ): Promise<string> {
   const keys = Object.getOwnPropertyNames(newProperties);
   if (keys.length === 0) return '';
@@ -78,6 +87,17 @@ async function parsePropertyChanges<T>(
         newEnt = await getRepository(Product).findOne(newProperties.productId);
         // @ts-ignore
         oldEnt = await getRepository(Product).findOne(oldProperties.productId);
+        switch (language) {
+          case Language.DUTCH:
+            processedNew.product = newEnt !== undefined ? newEnt.nameDutch : '...';
+            processedOld.product = oldEnt !== undefined ? oldEnt.nameDutch : '...';
+            break;
+          case Language.ENGLISH:
+            processedNew.product = newEnt !== undefined ? newEnt.nameEnglish : '...';
+            processedOld.product = oldEnt !== undefined ? oldEnt.nameEnglish : '...';
+            break;
+          default: throw new TypeError(`Unknown language: ${language}`);
+        }
         processedNew.product = newEnt !== undefined ? newEnt.nameEnglish : '...';
         processedOld.product = oldEnt !== undefined ? oldEnt.nameEnglish : '...';
         break;
@@ -146,58 +166,93 @@ async function parsePropertyChanges<T>(
     return `${parsedField} from "${parsedOld}" to "${parsedNew}"`;
   });
 
-  return printStringArrayToString(parsedChanges);
+  return printStringArrayToString(parsedChanges, language);
 }
 
 /**
  * Create the description of an edit-entity-activity
  * @param newProperties Partial with only the newly changed properties
  * @param oldProperties The old entity
+ * @param language Language to print the string in
  */
 async function createEditActivityDescription<T>(
-  newProperties: Partial<T>, oldProperties: T,
+  newProperties: Partial<T>, oldProperties: T, language: Language,
 ): Promise<string> {
-  return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties)}.`;
+  switch (language) {
+    case Language.DUTCH:
+      return `${await parsePropertyChanges<T>(newProperties, oldProperties, language)} aangepast.`;
+    case Language.ENGLISH:
+      return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties, language)}.`;
+    default: throw new TypeError(`Unknown language: ${language}`);
+  }
 }
 
 /**
  * Create the description of an reassign-activity
  * @param newUser User who received the assignment
  * @param oldUser User who "lost" the assignment
+ * @param language Language to print the string in
  */
 function createReassignActivityDescription(
-  newUser: User, oldUser: User,
+  newUser: User, oldUser: User, language: Language,
 ): string {
-  return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}`;
+  switch (language) {
+    case Language.DUTCH:
+      return `Aangepast van ${oldUser.fullName()} naar ${newUser.fullName()}.`;
+    case Language.ENGLISH:
+      return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}.`;
+    default: throw new TypeError(`Unknown language: ${language}`);
+  }
 }
 
 /**
  * Create the description of an add-product-activity (for contracts)
  * @param products Array of product names
+ * @param language Language to print the string in
  */
-export function createAddProductActivityDescription(products: string[]): string {
-  return `Added ${printStringArrayToString(products, '"')}.`;
+export function createAddProductActivityDescription(
+  products: string[], language: Language,
+): string {
+  switch (language) {
+    case Language.DUTCH:
+      return `${printStringArrayToString(products, language, '"')} toegevoegd.`;
+    case Language.ENGLISH:
+      return `Added ${printStringArrayToString(products, language, '"')}.`;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
+  }
 }
 
 /**
  * Add an extra product to an existing description of adding products
  * @param products Array of products to be added to the "old" description
  * @param currentDescription The current description of the add-product-activity
+ * @param language Language to print the string in
  */
 export function appendProductActivityDescription(
-  products: string[], currentDescription: string,
+  products: string[], currentDescription: string, language: Language,
 ): string {
   const printedProductList = currentDescription.substring(6, currentDescription.length - 1);
   const currentProducts = splitStringToStringArray(printedProductList);
-  return createAddProductActivityDescription(currentProducts.concat(products));
+  return createAddProductActivityDescription(currentProducts.concat(products), language);
 }
 
 /**
  * Create the description of a product-removed-activity
  * @param products Array of product names, which have been removed
+ * @param language Language to print the string in
  */
-export function createDelProductActivityDescription(products: string[]): string {
-  return `Removed ${printStringArrayToString(products, '"')}.`;
+export function createDelProductActivityDescription(
+  products: string[], language: Language,
+): string {
+  switch (language) {
+    case Language.DUTCH:
+      return `${printStringArrayToString(products, language, '"')} verwijderd.`;
+    case Language.ENGLISH:
+      return `Removed ${printStringArrayToString(products, language, '"')}.`;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
+  }
 }
 
 /**
@@ -225,12 +280,21 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
   // If the assigned user has changed, we create an activity for this.
   if (Object.keys(changes).includes('assignedToId')) {
     await activityService.createActivity({
-      description: createReassignActivityDescription(
+      descriptionDutch: createReassignActivityDescription(
         // @ts-ignore As checked in the if-statement above, the "changes" variable does have
         // an assignedToId value
         await new UserService().getUser(changes.assignedToId!),
         // @ts-ignore Therefore, the real entity must also have this property by definition
         await new UserService().getUser(entity.assignedToId),
+        Language.DUTCH,
+      ),
+      descriptionEnglish: createReassignActivityDescription(
+        // @ts-ignore As checked in the if-statement above, the "changes" variable does have
+        // an assignedToId value
+        await new UserService().getUser(changes.assignedToId!),
+        // @ts-ignore Therefore, the real entity must also have this property by definition
+        await new UserService().getUser(entity.assignedToId),
+        Language.ENGLISH,
       ),
       entityId: entity.id,
       type: ActivityType.REASSIGN,
@@ -242,7 +306,8 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
   // If any other properties have changed, we create an "EDIT" activity for this.
   if (Object.keys(changes).length > 0) {
     await activityService.createActivity({
-      description: await createEditActivityDescription(changes, entity),
+      descriptionDutch: await createEditActivityDescription(changes, entity, Language.DUTCH),
+      descriptionEnglish: await createEditActivityDescription(changes, entity, Language.ENGLISH),
       entityId: entity.id,
       type: ActivityType.EDIT,
     });

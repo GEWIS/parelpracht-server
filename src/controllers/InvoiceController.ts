@@ -316,11 +316,13 @@ export class InvoiceController extends Controller {
     await validateActivityParams(req, [
       body('subType').isIn(Object.values(InvoiceStatus)),
     ]);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+      subType: params.subType,
       entityId: id,
       type: ActivityType.STATUS,
-    } as FullActivityParams;
+    };
     return new ActivityService(InvoiceActivity, { actor: req.user as User }).createActivity(p);
   }
 
@@ -337,11 +339,12 @@ export class InvoiceController extends Controller {
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
       entityId: id,
       type: ActivityType.COMMENT,
-    } as FullActivityParams;
+    };
     return new ActivityService(InvoiceActivity, { actor: req.user as User }).createActivity(p);
   }
 
@@ -360,6 +363,10 @@ export class InvoiceController extends Controller {
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
-    return new ActivityService(InvoiceActivity).updateActivity(id, activityId, params);
+    const p: Partial<FullActivityParams> = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+    };
+    return new ActivityService(InvoiceActivity).updateActivity(id, activityId, p);
   }
 }

@@ -17,10 +17,8 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
-import {
-  createActivitiesForEntityEdits,
-  createDelProductActivityDescription,
-} from '../helpers/activity';
+import { createActivitiesForEntityEdits, createDelProductActivityDescription } from '../helpers/activity';
+import { Language } from '../entity/enums/Language';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -89,7 +87,8 @@ export default class ProductInstanceService {
         entityId: productInstance.id,
         type: ActivityType.STATUS,
         subType: ProductInstanceStatus.NOTDELIVERED,
-        description: '',
+        descriptionDutch: '',
+        descriptionEnglish: '',
       } as FullActivityParams),
       // An activity that states that this product has been added to the contract
       new ActivityService(ContractActivity, { actor: this.actor })
@@ -191,7 +190,12 @@ export default class ProductInstanceService {
 
     await new ActivityService(ContractActivity, { actor: this.actor })
       .createActivity({
-        description: createDelProductActivityDescription([productInstance.product.nameEnglish]),
+        descriptionDutch: createDelProductActivityDescription(
+          [productInstance.product.nameEnglish], Language.DUTCH,
+        ),
+        descriptionEnglish: createDelProductActivityDescription(
+          [productInstance.product.nameEnglish], Language.ENGLISH,
+        ),
         entityId: productInstance.contractId,
         type: ActivityType.DELPRODUCT,
       });

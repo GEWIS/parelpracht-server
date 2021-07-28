@@ -27,7 +27,8 @@ export async function allProductInstancesWereNotDelivered(connection: Connection
         createdById: p.contract.createdById,
         type: ActivityType.STATUS,
         subType: ProductInstanceStatus.NOTDELIVERED,
-        description: '',
+        descriptionEnglish: '',
+        descriptionDutch: '',
       } as ProductInstanceActivity);
 
       logResult += `C${p.contractId} (P${p.id}), `;

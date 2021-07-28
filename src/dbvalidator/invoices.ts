@@ -25,7 +25,8 @@ export async function allInvoicesAreCreated(connection: Connection) {
         invoiceId: i.id,
         type: ActivityType.STATUS,
         subType: InvoiceStatus.CREATED,
-        description: '',
+        descriptionEnglish: '',
+        descriptionDutch: '',
       } as InvoiceActivity);
 
       logResult += `F${i.id}, `;

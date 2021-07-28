@@ -11,9 +11,13 @@ export default abstract class BaseActivity extends BaseEnt {
   @Column({ type: 'enum', enum: ActivityType, update: false })
   readonly type!: ActivityType;
 
-  /** Description of this activity */
-  @Column()
-  description!: string;
+  /** Description of this activity (English) */
+  @Column({ type: 'text' })
+  descriptionEnglish!: string;
+
+  /** Description of this activity (Dutch) */
+  @Column({ type: 'text' })
+  descriptionDutch!: string;
 
   @Column({ type: 'integer', update: false })
   readonly createdById!: number;

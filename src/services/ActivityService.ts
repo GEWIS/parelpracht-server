@@ -19,15 +19,18 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 // eslint-disable-next-line import/no-cycle
 import { sendInvoiceEmails } from '../helpers/mailBuilder';
 import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
+import { Language } from '../entity/enums/Language';
 
 export interface ActivityParams {
   description: string;
 }
 
-export interface FullActivityParams extends ActivityParams {
+export interface FullActivityParams {
   entityId: number;
   type: ActivityType;
   subType?: any;
+  descriptionEnglish: string;
+  descriptionDutch: string;
 }
 
 export interface ContractStatusParams extends ActivityParams {
@@ -170,7 +173,8 @@ export default class ActivityService {
     if (canEndContract.cancelled) {
       await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
         entityId: contractId,
-        description: '',
+        descriptionDutch: '',
+        descriptionEnglish: '',
         type: ActivityType.STATUS,
         subType: ContractStatus.CANCELLED,
       } as FullActivityParams);
@@ -179,7 +183,8 @@ export default class ActivityService {
     if (canEndContract.finished) {
       await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
         entityId: contractId,
-        description: '',
+        descriptionDutch: '',
+        descriptionEnglish: '',
         type: ActivityType.STATUS,
         subType: ContractStatus.FINISHED,
       } as FullActivityParams);
@@ -261,7 +266,8 @@ export default class ActivityService {
     let activity = new this.EntityActivity();
     activity = {
       ...activity,
-      description: params.description,
+      descriptionDutch: params.descriptionDutch,
+      descriptionEnglish: params.descriptionEnglish,
       type: params.type,
       subType: params.subType,
       createdBy: this.actor,
@@ -362,12 +368,18 @@ export default class ActivityService {
     ) {
       // Update this activity with an updated description
       await this.updateActivity(contractId, previousActivity.id, {
-        description: appendProductActivityDescription([productName], previousActivity.description),
+        descriptionDutch: appendProductActivityDescription(
+          [productName], previousActivity.descriptionDutch, Language.DUTCH,
+        ),
+        descriptionEnglish: appendProductActivityDescription(
+          [productName], previousActivity.descriptionEnglish, Language.ENGLISH,
+        ),
       });
     } else {
       // Add a new Product activity
       await this.createActivity({
-        description: createAddProductActivityDescription([productName]),
+        descriptionDutch: createAddProductActivityDescription([productName], Language.DUTCH),
+        descriptionEnglish: createAddProductActivityDescription([productName], Language.ENGLISH),
         entityId: contractId,
         type: ActivityType.ADDPRODUCT,
       });
@@ -381,20 +393,29 @@ export default class ActivityService {
    * @param params Subset of update parameters
    */
   async updateActivity(
-    entityId: number, activityId: number, params: Partial<ActivityParams>,
+    entityId: number, activityId: number, params: Partial<FullActivityParams>,
   ): Promise<BaseActivity> {
     let activity = await this.repo.findOne(activityId);
     activity = this.validateActivity(activity, entityId);
     let p: object;
     switch (this.EntityActivity) {
       case ContractActivity:
-        p = { description: params.description };
+        p = {
+          descriptionDutch: params.descriptionDutch,
+          descriptionEnglish: params.descriptionEnglish,
+        };
         break;
       case InvoiceActivity:
-        p = { description: params.description };
+        p = {
+          descriptionDutch: params.descriptionDutch,
+          descriptionEnglish: params.descriptionEnglish,
+        };
         break;
       default:
-        p = { description: params.description };
+        p = {
+          descriptionDutch: params.descriptionDutch,
+          descriptionEnglish: params.descriptionEnglish,
+        };
     }
 
     await this.repo.update(activity!.id, p);
