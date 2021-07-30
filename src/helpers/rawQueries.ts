@@ -428,7 +428,7 @@ export default class RawQueries {
     ) as value
     FROM invoice i
     JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
-    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a1.type = 'STATUS' AND
+    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
     WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '21' day);
   `);
