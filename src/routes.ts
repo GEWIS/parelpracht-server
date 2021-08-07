@@ -770,8 +770,6 @@ const models: TsoaRoute.Models = {
             "details": {"dataType":"string"},
             "basePrice": {"dataType":"double","required":true},
             "discount": {"dataType":"double","required":true},
-            "createdAt": {"dataType":"datetime","required":true},
-            "updatedAt": {"dataType":"datetime","required":true},
             "subType": {"ref":"ProductInstanceStatus","required":true},
             "invoiceDate": {"dataType":"datetime"},
         },
@@ -783,6 +781,7 @@ const models: TsoaRoute.Models = {
         "properties": {
             "id": {"dataType":"double","required":true},
             "title": {"dataType":"string","required":true},
+            "subType": {"ref":"ContractStatus","required":true},
             "products": {"dataType":"array","array":{"ref":"ETProductInstance"},"required":true},
         },
         "additionalProperties": false,
