@@ -29,7 +29,7 @@ export interface ProductParams {
 
 export interface PricingParams {
   description: string;
-  data: string;
+  data: string[][];
 }
 
 export interface ProductSummary {
@@ -162,7 +162,7 @@ export default class ProductService {
     await this.pricingRepo.save({
       id,
       description: '',
-      data: JSON.stringify([['']]),
+      data: [['']],
     } as ProductPricing);
     return this.getPricing(id);
   }

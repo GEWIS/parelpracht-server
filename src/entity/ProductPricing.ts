@@ -19,8 +19,8 @@ export class ProductPricing {
   description!: string;
 
   /** Table parsed as a JSON object */
-  @Column({ type: 'json' })
-  data!: string;
+  @Column({ type: 'simple-json' })
+  data!: string[][];
 
   @OneToOne(() => Product, { onDelete: 'CASCADE', primary: true })
   @JoinColumn({ name: 'id' })

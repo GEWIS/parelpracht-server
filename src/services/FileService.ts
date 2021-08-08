@@ -23,7 +23,8 @@ import ContractService from './ContractService';
 import FileHelper, {
   uploadCompanyLogoDirLoc,
   uploadDirLoc,
-  uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc,
+  uploadUserAvatarDirLoc,
+  uploadUserBackgroundDirLoc,
 } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
 import ContactService from './ContactService';
@@ -215,6 +216,10 @@ export default class FileService {
       request.body.name = file.downloadName;
     }
 
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
+
     const randomFileName = `${uuidv4()}.${mime.getExtension(request.file.mimetype)}`;
     file.location = path.join(__dirname, '/../../', uploadDirLoc, randomFileName);
     fs.writeFileSync(file.location, request.file.buffer);
@@ -300,6 +305,10 @@ export default class FileService {
     const company = await new CompanyService().getCompany(companyId);
     await FileService.handleFile(request);
 
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
+
     const fileExtension = mime.getExtension(request.file.mimetype) || '';
     if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Company logo needs to be an image file');
@@ -321,6 +330,10 @@ export default class FileService {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
 
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
+
     const fileExtension = mime.getExtension(request.file.mimetype) || '';
     if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
       throw new ApiError(HTTPStatus.BadRequest, 'User avatar needs to be an image file');
@@ -341,6 +354,10 @@ export default class FileService {
   static async uploadUserBackground(request: express.Request, userId: number) {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
+
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
 
     const fileExtension = mime.getExtension(request.file.mimetype) || '';
     if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
