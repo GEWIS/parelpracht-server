@@ -259,7 +259,7 @@ export default class RawQueries {
         (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
         b2.type = 'STATUS')
       LEFT JOIN invoice ON invoice.id = p."invoiceId"
-      WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+      WHERE (a2.id is NULL and b2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
     `);
     return parseInt(result[0].count, 10);
   };
@@ -280,7 +280,7 @@ export default class RawQueries {
         (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
         b2.type = 'STATUS')
       LEFT JOIN invoice ON invoice.id = p."invoiceId"
-      WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+      WHERE (a2.id is NULL AND b2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
     `);
     return parseInt(result[0].count, 10);
   };
@@ -301,7 +301,7 @@ export default class RawQueries {
         (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
         b2.type = 'STATUS')
       LEFT JOIN invoice ON invoice.id = p."invoiceId"
-      WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+      WHERE (a2.id is NULL AND b2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
     `);
     return parseInt(result[0].sum, 10);
   };
