@@ -231,8 +231,8 @@ export default class RawQueries {
           // Filter on both "not invoiced" as well as one or more financial years
           } else if (i >= 0 && f.values.length > 1) {
             arrayNumberError(f.values, 'InvoiceID is not a number');
-            f.values.splice(i, 1);
-            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', f.values)})`;
+            const values = f.values.slice();
+            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', values.splice(i, 1))})`;
           }
         }
       });
@@ -541,7 +541,7 @@ export default class RawQueries {
       JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
       LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'CANCELLED', 'FINISHED') AND
+      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'FINISHED') AND
           (p."invoiceId" IS NULL OR (
             SELECT EXTRACT(YEAR FROM i."startDate" + interval '6' month)
             FROM invoice i

@@ -23,7 +23,7 @@ export async function allContractsAreCreated(connection: Connection) {
     const createdStatus = c.activities.find((a) => a.subType === ContractStatus.CREATED);
     if (createdStatus === undefined) {
       activityRepo.save({
-        createdAt: c.createdAt,
+        createdAt: new Date(c.createdAt.getDate() - 1),
         updatedAt: new Date(),
         createdById: c.createdById,
         contractId: c.id,

@@ -21,7 +21,7 @@ export async function allProductInstancesWereNotDelivered(connection: Connection
     );
     if (notDeliveredStatus === undefined) {
       activityRepo.save({
-        createdAt: p.createdAt,
+        createdAt: new Date(p.createdAt.getDate() - 1),
         updatedAt: new Date(),
         productInstanceId: p.id,
         createdById: p.contract.createdById,

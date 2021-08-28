@@ -19,7 +19,7 @@ export async function allInvoicesAreCreated(connection: Connection) {
     const createdStatus = i.activities.find((a) => a.subType === InvoiceStatus.CREATED);
     if (createdStatus === undefined) {
       activityRepo.save({
-        createdAt: i.createdAt,
+        createdAt: new Date(i.createdAt.getDate() - 1),
         updatedAt: new Date(),
         createdById: i.createdById,
         invoiceId: i.id,
