@@ -1,11 +1,7 @@
 import { User } from '../entity/User';
 import { Contact } from '../entity/Contact';
 import { Gender } from '../entity/enums/Gender';
-
-export enum Language {
-  DUTCH = 'DUTCH',
-  ENGLISH = 'ENGLISH',
-}
+import { Language } from '../entity/enums/Language';
 
 export enum ContractType {
   CONTRACT = 'CONTRACT',
@@ -26,6 +22,7 @@ export interface ContractGenSettings {
   signee1?: User,
   signee2?: User,
   sender: User,
+  recipient: Contact,
 }
 
 export interface InvoiceGenSettings {
@@ -41,9 +38,9 @@ interface CustomRecipient {
   name: string,
   gender: Gender,
   organizationName?: string,
-  street: string,
-  postalCode: string,
-  city: string,
+  street?: string,
+  postalCode?: string,
+  city?: string,
   country?: string,
 }
 

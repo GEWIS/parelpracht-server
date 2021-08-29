@@ -271,11 +271,12 @@ export class CompanyController extends Controller {
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
       entityId: id,
       type: ActivityType.COMMENT,
-    } as FullActivityParams;
+    };
     return new ActivityService(CompanyActivity, { actor: req.user as User })
       .createActivity(p);
   }
@@ -294,7 +295,11 @@ export class CompanyController extends Controller {
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
-    return new ActivityService(CompanyActivity).updateActivity(id, activityId, params);
+    const p: Partial<FullActivityParams> = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+    };
+    return new ActivityService(CompanyActivity).updateActivity(id, activityId, p);
   }
 
   /**

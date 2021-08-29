@@ -1,4 +1,7 @@
 {
+  "entities": ["dist/entity/**/*.js"],
+  "migrations": ["dist/migration/**/*.js"],
+  "subscribers": ["dist/subscriber/**/*.js"],
   "cli": {
     "entitiesDir": "src/entity",
     "migrationsDir": "src/migration",

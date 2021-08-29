@@ -22,7 +22,7 @@ export default async function directMail() {
     await new ProductService().updatePricing(
       parseInt(process.env.DIRECTMAIL_PRODUCT_ID!, 10),
       {
-        data: JSON.stringify(header.concat(parsedData)),
+        data: header.concat(parsedData),
       },
     );
   }).catch((error) => {

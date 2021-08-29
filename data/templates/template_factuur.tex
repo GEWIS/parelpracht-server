@@ -67,7 +67,8 @@
 \setSubject{%{subject}
 } % (highly recommended) Set the subject of the letter
 
-\setDate{\today}       % (highly recommended) Set the date the letter is to be sent/was sent
+\setDate{%{date}
+}       % (highly recommended) Set the date the letter is to be sent/was sent
 
 %% Usually you dont wan't the names of persons to be split to multiple lines, so you can define them here
 %% You can also define new commands to be able to reuse the names or other variables. Using tildes instead of space, allows you to prevent linebreaks within the command
@@ -76,8 +77,12 @@
 }
 \hyphenation{%{sender}
 }
+
 \newcommand{\COMPANYcontact}{%{contactperson}
 }
+\newcommand{\GEWISoccasion}{%{occasion}
+}
+
 %% Now it is time to start the letter
 \begin{document}
 \GEWISfirstpage                 % We want to print the address information of GEWIS on the first page
@@ -87,9 +92,7 @@
 
 Geachte %{ontvanger}
 ,\\[2\baselineskip]
-Naar aanleiding van %{factuuraanleiding}
- sturen we u hierbij deze factuur. Gelieve het verschuldigde bedrag binnen vijftien werkdagen over te maken naar IBAN NL22 ABNA 0528 1959 13 ten name van GEWIS te Eindhoven, onder vermelding van ``%{ourreference}
-''.\\[\baselineskip]
+Naar aanleiding van \GEWISoccasion\ sturen we u hierbij deze factuur. Gelieve het verschuldigde bedrag binnen vijftien werkdagen over te maken naar IBAN NL22 ABNA 0528 1959 13 ten name van GEWIS te Eindhoven, onder vermelding van ``\GEWISmyreference''.\\[\baselineskip]
 Hieronder volgt een specificatie:\\[\baselineskip]
 %{tabelproducten}
 \\[2\baselineskip]

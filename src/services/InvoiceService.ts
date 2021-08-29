@@ -17,6 +17,7 @@ import ServerSettingsService from './ServerSettingsService';
 import { ServerSetting } from '../entity/ServerSetting';
 import { InvoiceSummary } from '../entity/Summaries';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
+import getEntityChanges from '../helpers/entityChanges';
 
 export interface InvoiceParams {
   title: string;
@@ -42,7 +43,7 @@ export default class InvoiceService {
 
   actor?: User;
 
-  constructor(options?: {actor?: User}) {
+  constructor(options?: { actor?: User }) {
     this.repo = getRepository(Invoice);
     this.actor = options?.actor;
   }
@@ -149,19 +150,23 @@ export default class InvoiceService {
       entityId: invoice.id,
       type: ActivityType.STATUS,
       subType: InvoiceStatus.CREATED,
-      description: '',
+      descriptionDutch: '',
+      descriptionEnglish: '',
     } as FullActivityParams);
 
     return this.getInvoice(invoice.id);
   }
 
   async updateInvoice(id: number, params: Partial<InvoiceParams>): Promise<Invoice> {
-    // check if the invoice is not sent in the past
     const invoice = await this.getInvoice(id);
-    if (params.startDate !== undefined && params.startDate.setHours(0, 0, 0, 0)
-      < new Date().setHours(0, 0, 0, 0) && params.startDate.setHours(0, 0, 0, 0)
-      < invoice.startDate.setHours(0, 0, 0, 0)) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Invoice start date cannot be in the past or before the original start date.');
+
+    const changes = getEntityChanges(params, invoice);
+    if (Object.keys(changes).includes('startDate')) {
+      const oldDate = new Date(invoice.startDate.toDateString());
+      const newDate = new Date(params.startDate!.toDateString());
+      if (newDate.getTime() < oldDate.getTime()) {
+        throw new ApiError(HTTPStatus.BadRequest, 'Invoice start date cannot be in the past or before the original start date.');
+      }
     }
 
     if (!(await createActivitiesForEntityEdits<Invoice>(

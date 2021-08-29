@@ -76,7 +76,7 @@ export default class StatisticsService {
 
     // Because Typescript/Javascript is stupid and actually returns strings instead of integers,
     // we need to manually convert all values to integers. How fun
-    const result = {
+    return {
       suggested: {
         amount: parseInt(responses[0][0].amount.toString(), 10),
         nrOfProducts: parseInt(responses[0][0].nrOfProducts.toString(), 10),
@@ -104,8 +104,7 @@ export default class StatisticsService {
         nrOfProducts: parseInt(responses[5][0].nrOfProducts.toString(), 10),
       },
       financialYears: responses[6],
-    } as any as DashboardProductInstanceStats;
-    return result;
+    };
   }
 
   parseContractedProductsPerPeriod(

@@ -3,8 +3,8 @@ import { BaseEnt } from '../BaseEnt';
 import { User } from '../User';
 
 export default abstract class BaseFile extends BaseEnt {
-  /** Name of the file as shown in the front-end */
-  @Column()
+  /** Label of the file as shown in the front-end */
+  @Column({ default: '' })
   name!: string;
 
   /** Name of the file as shown when downloaded */

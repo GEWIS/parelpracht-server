@@ -47,8 +47,8 @@ export class Contract extends BaseEnt {
   @JoinColumn({ name: 'assignedToId' })
   assignedTo!: User;
 
-  @Column({ type: 'integer', update: false })
-  readonly contactId!: number;
+  @Column({ type: 'integer' })
+  contactId!: number;
 
   /** Comments regarding this contract, if there are any */
   @Column({ type: 'text', default: '' })

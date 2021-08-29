@@ -9,7 +9,6 @@ import {
   ContractType,
   CustomInvoiceGenSettings,
   InvoiceGenSettings,
-  Language,
   ReturnFileType,
 } from './GenSettings';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -20,7 +19,9 @@ import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
 import { Gender } from '../entity/enums/Gender';
+import { Language } from '../entity/enums/Language';
 import BaseFile from '../entity/file/BaseFile';
+import replaceAll from '../helpers/replaceAll';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -86,41 +87,13 @@ export default class PdfGenerator {
   }
 
   /**
-   * Replace all occurences of the "from" string with the "to" string in the "src" string
-   * @param src {string} Source
-   * @param from {string} String to replace
-   * @param to {string} To replace all with
-   */
-  private static fr(src: string, from: string, to: string) {
-    let src2 = src;
-    const fromAll = [from];
-
-    // If there is a newline symbol in the string (\n), replace them all with the Windows
-    // newline symbol (\r\n)
-    const newLines = (from.match(/\n/g) || []).length;
-    if (newLines > 0) {
-      fromAll.push(from.replace('\n', '\r\n'));
-    }
-    for (let i = 0; i < newLines - 1; i++) {
-      fromAll[1] = fromAll[1].replace('\n', '\r\n');
-    }
-
-    for (let i = 0; i < fromAll.length; i++) {
-      const count = (src.match(new RegExp(fromAll[i], 'g')) || []).length;
-      for (let j = 0; j < count; j++) {
-        src2 = src2.replace(fromAll[i], to);
-      }
-    }
-    return src2;
-  }
-
-  /**
    * Given the template string, replace the "basic" placeholder strings with actual information
    * @param template {string} The template tex file, parsed to a string
    * @param company {Company} Company the .pdf is addressed to
    * @param recipient {Contact} Contact the .pdf is addressed to
    * @param sender {User} Person who sent this letter
    * @param language {Language} Language of the letter
+   * @param date {Date} Date at which the letter is sent
    * @param useInvoiceAddress {boolean} Whether the invoice address should be used instead of
    * the "standard" address
    * @param subject {string} Subject of the letter
@@ -130,28 +103,37 @@ export default class PdfGenerator {
    */
   private generateBaseTexLetter(
     template: string, company: Company, recipient: Contact, sender: User, language: Language,
-    useInvoiceAddress: boolean, subject: string, ourReference: string = '', theirReference: string = '',
+    date: Date, useInvoiceAddress: boolean, subject: string, ourReference: string = '-',
+    theirReference: string = '-',
   ): string {
     let t = template;
 
-    t = PdfGenerator.fr(t, '%{contactperson}\n', recipient.fullName());
-    t = PdfGenerator.fr(t, '%{sender}\n', sender.fullName());
-    t = PdfGenerator.fr(t, '%{senderfunctie}\n', sender.function);
-    t = PdfGenerator.fr(t, '%{company}\n', company.name);
-    t = PdfGenerator.fr(t, '%{subject}\n', subject);
-    t = PdfGenerator.fr(t, '%{ourreference}', ourReference);
-    t = PdfGenerator.fr(t, '%{yourreference}', theirReference);
+    t = replaceAll(t, '%{contactperson}\n', recipient.fullName());
+    t = replaceAll(t, '%{sender}\n', sender.fullName());
+    t = replaceAll(t, '%{senderfunctie}\n', sender.function);
+    t = replaceAll(t, '%{company}\n', company.name);
+    t = replaceAll(t, '%{subject}\n', subject);
+    t = replaceAll(t, '%{ourreference}\n', ourReference);
+    t = replaceAll(t, '%{yourreference}\n', theirReference);
+
+    let locales;
+    switch (language) {
+      case Language.DUTCH: locales = 'nl-NL'; break;
+      case Language.ENGLISH: locales = 'en-US'; break;
+      default: throw new Error(`Unknown language: ${language}`);
+    }
+    t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(date));
 
     if (useInvoiceAddress) {
-      t = PdfGenerator.fr(t, '%{street}\n', company.invoiceAddressStreet!);
-      t = PdfGenerator.fr(t, '%{postalcode}\n', company.invoiceAddressPostalCode!);
-      t = PdfGenerator.fr(t, '%{city}\n', company.invoiceAddressCity!);
-      t = PdfGenerator.fr(t, '%{country}\n', company.invoiceAddressCountry!);
+      t = replaceAll(t, '%{street}\n', company.invoiceAddressStreet!);
+      t = replaceAll(t, '%{postalcode}\n', company.invoiceAddressPostalCode!);
+      t = replaceAll(t, '%{city}\n', company.invoiceAddressCity!);
+      t = replaceAll(t, '%{country}\n', company.invoiceAddressCountry!);
     } else {
-      t = PdfGenerator.fr(t, '%{street}\n', company.addressStreet);
-      t = PdfGenerator.fr(t, '%{postalcode}\n', company.addressPostalCode!);
-      t = PdfGenerator.fr(t, '%{city}\n', company.addressCity!);
-      t = PdfGenerator.fr(t, '%{country}\n', company.addressCountry!);
+      t = replaceAll(t, '%{street}\n', company.addressStreet);
+      t = replaceAll(t, '%{postalcode}\n', company.addressPostalCode!);
+      t = replaceAll(t, '%{city}\n', company.addressCity!);
+      t = replaceAll(t, '%{country}\n', company.addressCountry!);
     }
 
     let greeting = '';
@@ -168,7 +150,7 @@ export default class PdfGenerator {
         default: greeting = recipient.fullName();
       }
     }
-    t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+    t = replaceAll(t, '%{ontvanger}\n', greeting);
 
     let mail = '';
     if (sender.replyToEmail.length > 0) {
@@ -177,7 +159,7 @@ export default class PdfGenerator {
       mail = 'ceb@gewis.nl';
     }
 
-    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
+    t = replaceAll(t, '%{senderemail}\n', mail);
 
     return t;
   }
@@ -191,10 +173,10 @@ export default class PdfGenerator {
    */
   private createSignees(file: string, signee1: User, signee2: User) {
     let f = file;
-    f = PdfGenerator.fr(f, '%{contractant1}\n', signee1.fullName());
-    f = PdfGenerator.fr(f, '%{contractant1_functie}\n', signee1.function);
-    f = PdfGenerator.fr(f, '%{contractant2}\n', signee2.fullName());
-    f = PdfGenerator.fr(f, '%{contractant2_functie}\n', signee2.function);
+    f = replaceAll(f, '%{contractant1}\n', signee1.fullName());
+    f = replaceAll(f, '%{contractant1_functie}\n', signee1.function);
+    f = replaceAll(f, '%{contractant2}\n', signee2.fullName());
+    f = replaceAll(f, '%{contractant2_functie}\n', signee2.function);
     return f;
   }
 
@@ -230,13 +212,13 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationDutch}}\n`;
         }
 
-        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, true)} \\\\\n`;
+        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, language)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Korting ';
           if (showDiscountPercentages) {
             fT += `(${prodInst.discountPercentage()}\\%) `;
           }
-          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, true)} \\\\\n`;
+          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, language)} \\\\\n`;
         }
       } else if (language === Language.ENGLISH) {
         if (prodInst.product.contractTextEnglish !== '') {
@@ -249,15 +231,21 @@ export default class PdfGenerator {
           dT += `${prodInst.product.deliverySpecificationEnglish}}\n`;
         }
 
-        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, false)} \\\\\n`;
+        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, language)} \\\\\n`;
         if (prodInst.discount > 0) {
           fT += '- Discount ';
           if (showDiscountPercentages) {
             fT += `(${prodInst.discountPercentage()}\\%) `;
           }
-          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, false)} \\\\\n`;
+          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, language)} \\\\\n`;
         }
       }
+    }
+
+    if (mT !== '') {
+      mT = `\\begin{itemize}\n
+        ${mT}\n
+        \\end{itemize}`;
     }
 
     if (dT !== '') {
@@ -292,14 +280,10 @@ export default class PdfGenerator {
       }
     }
 
-    f = PdfGenerator.fr(f, '%{producten}', mT);
-    f = PdfGenerator.fr(f, '%{aanleverspecificatie}', dT);
-    f = PdfGenerator.fr(f, '%{tabelproducten}', fT);
-    if (language === Language.DUTCH) {
-      f = PdfGenerator.fr(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, true));
-    } else if (language === Language.ENGLISH) {
-      f = PdfGenerator.fr(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, false));
-    }
+    f = replaceAll(f, '%{producten}', mT);
+    f = replaceAll(f, '%{aanleverspecificatie}', dT);
+    f = replaceAll(f, '%{tabelproducten}', fT);
+    f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, language));
     return f;
   }
 
@@ -362,8 +346,8 @@ export default class PdfGenerator {
     }
 
     let file = fs.readFileSync(templateLocation).toString();
-    file = this.generateBaseTexLetter(file, contract.company, contract.contact, settings.sender,
-      settings.language, false, contract.title, `C${contract.id}`);
+    file = this.generateBaseTexLetter(file, contract.company, settings.recipient, settings.sender,
+      settings.language, new Date(), false, contract.title, `C${contract.id}`);
     file = this.createProductTables(file, contract.products, settings.language,
       settings.showDiscountPercentages);
     if (settings.contentType === ContractType.CONTRACT
@@ -399,14 +383,14 @@ export default class PdfGenerator {
     let file = fs.readFileSync(templateLocation).toString();
     // TODO: Give each invoice a title as well
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      settings.language, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber);
+      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber);
     file = this.createProductTables(file, invoice.products, settings.language,
       settings.showDiscountPercentages);
 
     if (settings.language === Language.DUTCH) {
-      file = PdfGenerator.fr(file, '%{factuuraanleiding}\n', 'de door ons verrichte activiteiten');
+      file = replaceAll(file, '%{occasion}\n', 'de door ons verrichte activiteiten');
     } else if (settings.language === Language.ENGLISH) {
-      file = PdfGenerator.fr(file, '%{factuuraanleiding}\n', 'the activities performed by us');
+      file = replaceAll(file, '%{occasion}\n', 'the activities performed by us');
     }
 
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
@@ -424,18 +408,18 @@ export default class PdfGenerator {
     }
 
     let t = fs.readFileSync(templateLocation).toString();
-    t = PdfGenerator.fr(t, '%{contactperson}\n', params.recipient.name);
-    t = PdfGenerator.fr(t, '%{sender}\n', fileObj.createdBy.fullName());
-    t = PdfGenerator.fr(t, '%{senderfunctie}\n', fileObj.createdBy.function);
-    t = PdfGenerator.fr(t, '%{company}\n', params.recipient.organizationName ?? '');
-    t = PdfGenerator.fr(t, '%{subject}\n', params.subject);
-    t = PdfGenerator.fr(t, '%{ourreference}\n', params.ourReference);
-    t = PdfGenerator.fr(t, '%{yourreference}\n', params.theirReference ?? '');
-    t = PdfGenerator.fr(t, '%{street}\n', params.recipient.street);
-    t = PdfGenerator.fr(t, '%{postalcode}\n', params.recipient.postalCode);
-    t = PdfGenerator.fr(t, '%{city}\n', params.recipient.city);
-    t = PdfGenerator.fr(t, '%{country}\n', params.recipient.country ?? '');
-    t = PdfGenerator.fr(t, '%{factuuraanleiding}\n', params.invoiceReason);
+    t = replaceAll(t, '%{contactperson}\n', params.recipient.name);
+    t = replaceAll(t, '%{sender}\n', fileObj.createdBy.fullName());
+    t = replaceAll(t, '%{senderfunctie}\n', fileObj.createdBy.function);
+    t = replaceAll(t, '%{company}\n', params.recipient.organizationName ?? '');
+    t = replaceAll(t, '%{subject}\n', params.subject);
+    t = replaceAll(t, '%{ourreference}\n', params.ourReference);
+    t = replaceAll(t, '%{yourreference}\n', params.theirReference ?? '');
+    t = replaceAll(t, '%{street}\n', params.recipient.street ?? '');
+    t = replaceAll(t, '%{postalcode}\n', params.recipient.postalCode ?? '');
+    t = replaceAll(t, '%{city}\n', params.recipient.city ?? '');
+    t = replaceAll(t, '%{country}\n', params.recipient.country ?? '');
+    t = replaceAll(t, '%{occasion}\n', params.invoiceReason);
 
     let greeting = '';
     if (params.language === Language.DUTCH) {
@@ -451,7 +435,7 @@ export default class PdfGenerator {
         default: greeting = params.recipient.name;
       }
     }
-    t = PdfGenerator.fr(t, '%{ontvanger}\n', greeting);
+    t = replaceAll(t, '%{ontvanger}\n', greeting);
 
     let mail = '';
     if (fileObj.createdBy.replyToEmail.length > 0) {
@@ -460,30 +444,30 @@ export default class PdfGenerator {
       mail = 'ceb@gewis.nl';
     }
 
-    t = PdfGenerator.fr(t, '%{senderemail}\n', mail);
+    t = replaceAll(t, '%{senderemail}\n', mail);
 
     let totalPrice = 0;
     let table = '';
     params.products.forEach((p) => {
       totalPrice += p.amount * p.pricePerOne;
-      table += `${p.name} & ${Currency.priceAttributeToEuro(p.pricePerOne, params.language === Language.DUTCH)} & ${p.amount} & ${Currency.priceAttributeToEuro(p.amount * p.pricePerOne, params.language === Language.DUTCH)}\\\\\n`;
+      table += `${p.name} & ${Currency.priceAttributeToEuro(p.pricePerOne, params.language)} & ${p.amount} & ${Currency.priceAttributeToEuro(p.amount * p.pricePerOne, params.language)}\\\\\n`;
     });
     if (params.language === Language.DUTCH) {
       table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
         Beschrijving & Bedrag (EUR) & Aantal & Subtotaal (EUR) \\\\\\midrule
         ${table}
-        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, true)}
+        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, Language.DUTCH)}
         }\\\\\\bottomrule
         \\end{tabularx}`;
     } else if (params.language === Language.ENGLISH) {
       table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
         Description & Price (EUR) & Amount & Subtotal (EUR) \\\\\\midrule
         ${table}
-        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, false)}
+        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, Language.ENGLISH)}
         }\\\\\\bottomrule
         \\end{tabularx}`;
     }
-    t = PdfGenerator.fr(t, '%{tabelproducten}', table);
+    t = replaceAll(t, '%{tabelproducten}', table);
 
     return this.finishFileGeneration(t, params.fileType, false);
   }

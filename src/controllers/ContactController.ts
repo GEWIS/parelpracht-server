@@ -18,7 +18,7 @@ export class ContactController extends Controller {
   private async validateContactParams(req: express.Request) {
     await validate([
       body('gender').isIn(Object.values(Gender)),
-      body('firstName').notEmpty().trim(),
+      body('firstName').trim(),
       body('lastNamePreposition').optional({ checkFalsy: true }).isString().trim(),
       body('lastName').notEmpty().trim(),
       body('email').isEmail().normalizeEmail(),

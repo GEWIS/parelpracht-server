@@ -7,6 +7,7 @@ import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { currentFinancialYear } from './timestamp';
 import { ApiError, HTTPStatus } from './error';
+import replaceAll from './replaceAll';
 
 export interface ETCompany {
   id: number,
@@ -17,6 +18,7 @@ export interface ETCompany {
 export interface ETContract {
   id: number
   title: string,
+  subType: ContractStatus,
   products: ETProductInstance[],
 }
 
@@ -26,8 +28,6 @@ export interface ETProductInstance {
   details?: string,
   basePrice: number,
   discount: number,
-  createdAt: Date,
-  updatedAt: Date,
   subType: ProductInstanceStatus,
   invoiceDate?: Date,
 }
@@ -78,6 +78,7 @@ interface MegaTableFilters {
   company: string,
   invoice: string,
   status: string,
+  status2: string,
   product: string,
 }
 
@@ -162,7 +163,11 @@ export default class RawQueries {
   }
 
   private postProcessing(query: string) {
-    const q = this.database === 'mysql' ? query.split('"').join('') : query;
+    let q = query;
+    if (this.database === 'mysql') {
+      q = q.split('"').join('');
+      q = replaceAll(q, 'current_date', 'current_date()');
+    }
     return getManager().query(q);
   }
 
@@ -193,7 +198,7 @@ export default class RawQueries {
   };
 
   private processFilters(lp: ListParams): MegaTableFilters {
-    let [company, product, status, invoice] = ['', '', '', ''];
+    let [company, product, status, status2, invoice] = ['', '', '', '', ''];
 
     if (lp.filters) {
       lp.filters?.forEach((f) => {
@@ -209,6 +214,10 @@ export default class RawQueries {
           arrayLetterError(f.values, 'Status is not letter-only');
           status = `AND a1."subType" IN ${arrayToQueryArray(f.values)}`;
         }
+        if (f.column === 'status2') {
+          arrayLetterError(f.values, 'Status2 is not letter-only');
+          status2 = `AND b1."subType" IN ${arrayToQueryArray(f.values)}`;
+        }
         if (f.column === 'invoiced') {
           // Get the index of the "-1" value (not invoiced), if it exists
           const i = f.values.findIndex((v) => v === -1);
@@ -222,15 +231,15 @@ export default class RawQueries {
           // Filter on both "not invoiced" as well as one or more financial years
           } else if (i >= 0 && f.values.length > 1) {
             arrayNumberError(f.values, 'InvoiceID is not a number');
-            f.values.splice(i, 1);
-            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', f.values)})`;
+            const values = f.values.slice();
+            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', values.splice(i, 1))})`;
           }
         }
       });
     }
 
     return {
-      company, product, status, invoice,
+      company, product, status, status2, invoice,
     };
   }
 
@@ -238,16 +247,20 @@ export default class RawQueries {
     const filters = this.processFilters(lp);
 
     const result = await this.postProcessing(`
-          SELECT COUNT(DISTINCT contract."companyId") as count
-          FROM product_instance p
-          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
-          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
-            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
-            a2.type = 'STATUS')
-          LEFT JOIN contract ON contract.id = p."contractId"
-          LEFT JOIN invoice ON invoice.id = p."invoiceId"
-          WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
-        `);
+      SELECT COUNT(DISTINCT contract."companyId") as count
+      FROM product_instance p
+      JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
+      LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+        (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+        a2.type = 'STATUS')
+      LEFT JOIN contract ON contract.id = p."contractId"
+      JOIN contract_activity b1 ON (contract.id = b1."contractId" AND b1.type = 'STATUS' ${filters.status2})
+      LEFT OUTER JOIN contract_activity b2 ON (contract.id = b2."contractId" AND
+        (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
+        b2.type = 'STATUS')
+      LEFT JOIN invoice ON invoice.id = p."invoiceId"
+      WHERE (a2.id is NULL and b2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+    `);
     return parseInt(result[0].count, 10);
   };
 
@@ -255,16 +268,20 @@ export default class RawQueries {
     const filters = this.processFilters(lp);
 
     const result = await this.postProcessing(`
-          SELECT COUNT(DISTINCT p.id) as count
-          FROM product_instance p
-          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
-          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
-            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
-            a2.type = 'STATUS')
-          LEFT JOIN contract ON contract.id = p."contractId"
-          LEFT JOIN invoice ON invoice.id = p."invoiceId"
-          WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
-        `);
+      SELECT COUNT(DISTINCT p.id) as count
+      FROM product_instance p
+      JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
+      LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+        (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+        a2.type = 'STATUS')
+      LEFT JOIN contract ON contract.id = p."contractId"
+      JOIN contract_activity b1 ON (contract.id = b1."contractId" AND b1.type = 'STATUS' ${filters.status2})
+      LEFT OUTER JOIN contract_activity b2 ON (contract.id = b2."contractId" AND
+        (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
+        b2.type = 'STATUS')
+      LEFT JOIN invoice ON invoice.id = p."invoiceId"
+      WHERE (a2.id is NULL AND b2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+    `);
     return parseInt(result[0].count, 10);
   };
 
@@ -272,16 +289,20 @@ export default class RawQueries {
     const filters = this.processFilters(lp);
 
     const result = await this.postProcessing(`
-          SELECT SUM(p."basePrice" - p."discount") as sum
-          FROM product_instance p
-          JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
-          LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
-            (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
-            a2.type = 'STATUS')
-          LEFT JOIN contract ON contract.id = p."contractId"
-          LEFT JOIN invoice ON invoice.id = p."invoiceId"
-          WHERE (a2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
-        `);
+      SELECT SUM(p."basePrice" - p."discount") as sum
+      FROM product_instance p
+      JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
+      LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
+        (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
+        a2.type = 'STATUS')
+      LEFT JOIN contract ON contract.id = p."contractId"
+      JOIN contract_activity b1 ON (contract.id = b1."contractId" AND b1.type = 'STATUS' ${filters.status2})
+      LEFT OUTER JOIN contract_activity b2 ON (contract.id = b2."contractId" AND
+        (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
+        b2.type = 'STATUS')
+      LEFT JOIN invoice ON invoice.id = p."invoiceId"
+      WHERE (a2.id is NULL AND b2.id is NULL ${filters.invoice} ${filters.product} ${filters.company})
+    `);
     return parseInt(result[0].sum, 10);
   };
 
@@ -296,18 +317,22 @@ export default class RawQueries {
     const sorting = lp.sorting !== undefined && lp.sorting.column === 'companyName' ? `company.name ${lp.sorting.direction}` : 'company.id';
 
     query += `
-        SELECT company.id as id, company.name as name,
+        SELECT company.id as id, company.name as name, b1."subType" as "contractStatus",
           contract.id as "contractId", contract.title as "contractTitle",
-          p.id as "productInstanceId", p."productId" as "productId", invoice."startDate" as "invoiceDate", a1."subType" as "subType", p."basePrice" as "basePrice", p.discount as discount, p.details as details
+          p.id as "productInstanceId", p."productId" as "productId", invoice."startDate" as "invoiceDate", a1."subType" as "productStatus", p."basePrice" as "basePrice", p.discount as discount, p.details as details
         FROM product_instance p
         JOIN product_instance_activity a1 ON (p.id = a1."productInstanceId" AND a1.type = 'STATUS' ${filters.status})
         LEFT OUTER JOIN product_instance_activity a2 ON (p.id = a2."productInstanceId" AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
           a2.type = 'STATUS')
         LEFT JOIN contract ON contract.id = p."contractId"
+        JOIN contract_activity b1 ON (contract.id = b1."contractId" AND b1.type = 'STATUS' ${filters.status2})
+        LEFT OUTER JOIN contract_activity b2 ON (contract.id = b2."contractId" AND
+          (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
+          b2.type = 'STATUS')
         LEFT JOIN company ON company.id = contract."companyId"
         LEFT JOIN invoice ON invoice.id = p."invoiceId"
-        WHERE (a2.id is NULL ${filters.company} ${filters.invoice} ${filters.product} AND company.id IN (
+        WHERE (a2.id is NULL AND b2.id is NULL ${filters.company} ${filters.invoice} ${filters.product} AND company.id IN (
           SELECT id
           FROM (
             SELECT ROW_NUMBER() OVER (ORDER BY company.id) as rownr, company.id as id
@@ -317,6 +342,10 @@ export default class RawQueries {
               (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)) AND
               a2.type = 'STATUS')
             LEFT JOIN contract ON contract.id = p."contractId"
+            JOIN contract_activity b1 ON (contract.id = b1."contractId" AND b1.type = 'STATUS' ${filters.status2})
+            LEFT OUTER JOIN contract_activity b2 ON (contract.id = b2."contractId" AND
+              (b1."createdAt" < b2."createdAt" OR (b1."createdAt" = b2."createdAt" AND b1.id < b2.id)) AND
+              b2.type = 'STATUS')
             LEFT JOIN company ON company.id = contract."companyId"
             LEFT JOIN invoice ON invoice.id = p."invoiceId"
             WHERE (a2.id is NULL ${filters.company} ${filters.invoice} ${filters.product})
@@ -333,7 +362,7 @@ export default class RawQueries {
     // and company information. This is a lot of duplicate information, so we need
     // to parse all these rows to a list of objects without duplicate information.
     const data: any[] = await this.postProcessing(query);
-    const r = [];
+    const r: ETCompany[] = [];
     let companyId = -1;
     let contractId = -1;
 
@@ -346,13 +375,14 @@ export default class RawQueries {
             invoiceDate: data[i].invoiceDate,
             basePrice: data[i].basePrice,
             discount: data[i].discount,
-            subType: data[i].subType,
+            subType: data[i].productStatus as ProductInstanceStatus,
             details: data[i].details,
           });
         } else {
           r[r.length - 1].contracts.push({
             id: data[i].contractId,
             title: data[i].contractTitle,
+            subType: data[i].contractStatus as ContractStatus,
             products: [
               {
                 id: data[i].productInstanceId,
@@ -360,7 +390,7 @@ export default class RawQueries {
                 invoiceDate: data[i].invoiceDate,
                 basePrice: data[i].basePrice,
                 discount: data[i].discount,
-                subType: data[i].subType,
+                subType: data[i].productStatus as ProductInstanceStatus,
                 details: data[i].details,
               },
             ],
@@ -375,6 +405,7 @@ export default class RawQueries {
             {
               id: data[i].contractId,
               title: data[i].contractTitle,
+              subType: data[i].contractStatus as ContractStatus,
               products: [
                 {
                   id: data[i].productInstanceId,
@@ -382,7 +413,7 @@ export default class RawQueries {
                   invoiceDate: data[i].invoiceDate,
                   basePrice: data[i].basePrice,
                   discount: data[i].discount,
-                  subType: data[i].subType,
+                  subType: data[i].productStatus as ProductInstanceStatus,
                   details: data[i].details,
                 },
               ],
@@ -394,7 +425,7 @@ export default class RawQueries {
       }
     }
 
-    return r as ETCompany[];
+    return r;
   };
 
   getRecentContractsWithStatus = (limit: number, userId?: number): Promise<RecentContract[]> => {
@@ -403,7 +434,7 @@ export default class RawQueries {
 
     return this.postProcessing(`
     SELECT c.id, c.title, c."companyId", c."assignedToId", c."contactId", a1."createdAt",
-        a1."updatedAt", a1."type", a1."description", a1."createdById", a1."subType"
+        a1."updatedAt", a1."type", a1."descriptionEnglish", a1."descriptionDutch", a1."createdById", a1."subType"
     FROM contract c
     JOIN contract_activity a1 ON (c.id = a1."contractId")
     LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND
@@ -423,9 +454,9 @@ export default class RawQueries {
     ) as value
     FROM invoice i
     JOIN invoice_activity a1 ON (i.id = a1."invoiceId" AND a1.type = 'STATUS')
-    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a1.type = 'STATUS' AND
+    LEFT OUTER JOIN invoice_activity a2 ON (i.id = a2."invoiceId" AND a2.type = 'STATUS' AND
         (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-    WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '1' day);
+    WHERE (a2.id IS NULL AND a1."subType" = 'SENT' AND date(i."startDate") < current_date - interval '21' day);
   `);
   };
 
@@ -506,11 +537,14 @@ export default class RawQueries {
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS')
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND
+          (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
       JOIN contract c ON (p."contractId" = c.id)
       JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
       LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'CANCELLED', 'FINISHED') AND
+      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'FINISHED') AND pa1."subType" IN ('DELIVERED', 'NOTDELIVERED') AND
           (p."invoiceId" IS NULL OR (
             SELECT EXTRACT(YEAR FROM i."startDate" + interval '6' month)
             FROM invoice i

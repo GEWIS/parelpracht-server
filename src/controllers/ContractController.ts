@@ -44,10 +44,11 @@ import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
 } from '../helpers/validation';
 import ContactService from '../services/ContactService';
-import { ContractType, Language, ReturnFileType } from '../pdfgenerator/GenSettings';
+import { ContractType, ReturnFileType } from '../pdfgenerator/GenSettings';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
+import { Language } from '../entity/enums/Language';
 import { RecentContract } from '../helpers/rawQueries';
 import { ContractSummary } from '../entity/Summaries';
 
@@ -240,11 +241,13 @@ export class ContractController extends Controller {
       body('subType').isIn(Object.values(ProductInstanceStatus)),
     ]);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+      subType: params.subType,
       entityId: prodId,
       type: ActivityType.STATUS,
-    } as FullActivityParams;
+    };
     return new ActivityService(ProductInstanceActivity, { actor: req.user as User })
       .createActivity(p);
   }
@@ -264,11 +267,12 @@ export class ContractController extends Controller {
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
       entityId: prodId,
       type: ActivityType.COMMENT,
-    } as FullActivityParams;
+    };
     return new ActivityService(ProductInstanceActivity, {
       actor: req.user as User,
     }).createActivity(p);
@@ -291,7 +295,11 @@ export class ContractController extends Controller {
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
-    return new ActivityService(ProductInstanceActivity).updateActivity(prodId, activityId, params);
+    const p: Partial<FullActivityParams> = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+    };
+    return new ActivityService(ProductInstanceActivity).updateActivity(prodId, activityId, p);
   }
 
   /**
@@ -324,7 +332,6 @@ export class ContractController extends Controller {
     id: number, @Body() params: GenerateContractParams, @Request() req: express.Request,
   ): Promise<any> {
     await validate([
-      body('name').notEmpty(),
       body('language').isIn(Object.values(Language)),
       body('contentType').isIn(Object.values(ContractType)),
       body('fileType').isIn(Object.values(ReturnFileType)),
@@ -332,6 +339,7 @@ export class ContractController extends Controller {
       body('saveToDisk').isBoolean(),
       body('signee1Id').isInt(),
       body('signee2Id').isInt(),
+      body('recipientId').isInt(),
     ], req);
     const file = await new FileService(ContractFile, { actor: req.user as User })
       .generateContractFile({
@@ -416,11 +424,13 @@ export class ContractController extends Controller {
     await validateActivityParams(req, [
       body('subType').isIn(Object.values(ContractStatus)),
     ]);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+      subType: params.subType,
       entityId: id,
       type: ActivityType.STATUS,
-    } as FullActivityParams;
+    };
     return new ActivityService(ContractActivity, { actor: req.user as User }).createActivity(p);
   }
 
@@ -437,11 +447,12 @@ export class ContractController extends Controller {
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
-    const p = {
-      ...params,
+    const p: FullActivityParams = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
       entityId: id,
       type: ActivityType.COMMENT,
-    } as FullActivityParams;
+    };
     return new ActivityService(ContractActivity, { actor: req.user as User }).createActivity(p);
   }
 
@@ -460,7 +471,11 @@ export class ContractController extends Controller {
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
-    return new ActivityService(ContractActivity).updateActivity(id, activityId, params);
+    const p: Partial<FullActivityParams> = {
+      descriptionDutch: params.description,
+      descriptionEnglish: params.description,
+    };
+    return new ActivityService(ContractActivity).updateActivity(id, activityId, p);
   }
 
   /**

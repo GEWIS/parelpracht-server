@@ -11,7 +11,7 @@ import { cartesian, cartesianArrays } from '../helpers/filters';
 // May not be correct yet
 export interface ContactParams {
   gender: Gender;
-  firstName: string;
+  firstName?: string;
   lastNamePreposition?: string;
   lastName: string;
   email: string;
@@ -27,6 +27,7 @@ export interface ContactSummary {
   lastNamePreposition: string;
   lastName: string;
   companyId: number;
+  function: ContactFunction;
 }
 
 export interface ContactListResponse {
@@ -121,7 +122,7 @@ export default class ContactService {
 
   async getContactSummaries(): Promise<ContactSummary[]> {
     return this.repo.find({
-      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'companyId'],
+      select: ['id', 'firstName', 'lastNamePreposition', 'lastName', 'companyId', 'function'],
     });
   }
 

@@ -15,7 +15,6 @@ import {
   ContractType,
   CustomInvoiceGenSettings,
   InvoiceGenSettings,
-  Language,
   ReturnFileType,
 } from '../pdfgenerator/GenSettings';
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
@@ -24,17 +23,19 @@ import ContractService from './ContractService';
 import FileHelper, {
   uploadCompanyLogoDirLoc,
   uploadDirLoc,
-  uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc,
+  uploadUserAvatarDirLoc,
+  uploadUserBackgroundDirLoc,
 } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
 import ContactService from './ContactService';
 import { User } from '../entity/User';
 import { validateFileParams } from '../helpers/validation';
 import { CompanyFile } from '../entity/file/CompanyFile';
+import { Language } from '../entity/enums/Language';
 import CompanyService from './CompanyService';
 
 export interface FileParams {
-  name: string;
+  name?: string;
 }
 
 export interface FullFileParams extends FileParams {
@@ -49,6 +50,7 @@ export interface GenerateContractParams extends FileParams {
   saveToDisk: boolean,
   signee1Id: number,
   signee2Id: number,
+  recipientId: number,
 }
 export interface FullGenerateContractParams extends FullFileParams, GenerateContractParams {}
 
@@ -109,6 +111,7 @@ export default class FileService {
 
   async generateContractFile(params: FullGenerateContractParams): Promise<ContractFile> {
     const file = await this.createFileObject(params);
+    const recipient = await new ContactService().getContact(params.recipientId);
     let signee1;
     let signee2;
     if (params.contentType === ContractType.CONTRACT) {
@@ -127,16 +130,14 @@ export default class FileService {
       ...params,
       signee1,
       signee2,
+      recipient,
       sender: this.actor,
-    } as any as ContractGenSettings;
+    } as ContractGenSettings;
 
     const contract = await new ContractService().getContract(params.entityId, ['products.product']);
-    if (contract.products.length === 0) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Contract does not have any products');
-    }
 
     file.location = await new PdfGenerator().generateContract(contract, p);
-    file.downloadName = `C${file.contractId} ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `C${file.contractId}-${contract.company.name} - ${contract.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {
@@ -159,12 +160,9 @@ export default class FileService {
     } as any as InvoiceGenSettings;
 
     const invoice = await new InvoiceService().getInvoice(params.entityId, ['products.product']);
-    if (invoice.products.length === 0) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Invoice does not have any products');
-    }
 
     file.location = await new PdfGenerator().generateInvoice(invoice, p);
-    file.downloadName = `F${file.invoiceId} ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
+    file.downloadName = `F${file.invoiceId}-${invoice.company.name} - ${invoice.title}.${FileHelper.fileLocationToExtension(file.location)}`;
 
     if (params.saveToDisk) {
       try {
@@ -183,7 +181,7 @@ export default class FileService {
   ): Promise<BaseFile> {
     const file = {
       name: params.subject,
-      downloadName: `${params.ourReference} - ${params.subject}`,
+      downloadName: `${params.ourReference} - ${params.subject}.${params.fileType.toLowerCase()}`,
       createdById: sender.id,
       createdBy: sender,
     } as any as BaseFile;
@@ -216,6 +214,10 @@ export default class FileService {
     let file = await this.createFileObject(params);
     if (request.body.name === '') {
       request.body.name = file.downloadName;
+    }
+
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
     }
 
     const randomFileName = `${uuidv4()}.${mime.getExtension(request.file.mimetype)}`;
@@ -303,6 +305,10 @@ export default class FileService {
     const company = await new CompanyService().getCompany(companyId);
     await FileService.handleFile(request);
 
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
+
     const fileExtension = mime.getExtension(request.file.mimetype) || '';
     if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Company logo needs to be an image file');
@@ -324,6 +330,10 @@ export default class FileService {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
 
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
+
     const fileExtension = mime.getExtension(request.file.mimetype) || '';
     if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {
       throw new ApiError(HTTPStatus.BadRequest, 'User avatar needs to be an image file');
@@ -344,6 +354,10 @@ export default class FileService {
   static async uploadUserBackground(request: express.Request, userId: number) {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
+
+    if (!request.file) {
+      throw new ApiError(HTTPStatus.BadRequest, 'No file is passed in the request');
+    }
 
     const fileExtension = mime.getExtension(request.file.mimetype) || '';
     if (!['jpg', 'jpeg', 'png', 'bmp', 'gif'].includes(fileExtension)) {

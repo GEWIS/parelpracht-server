@@ -29,7 +29,7 @@ export interface ProductParams {
 
 export interface PricingParams {
   description: string;
-  data: string;
+  data: string[][];
 }
 
 export interface ProductSummary {
@@ -37,6 +37,7 @@ export interface ProductSummary {
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
+  status: ProductStatus;
 }
 
 export interface ProductListResponse {
@@ -113,7 +114,7 @@ export default class ProductService {
   }
 
   async getProductSummaries(): Promise<ProductSummary[]> {
-    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice'] });
+    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice', 'status'] });
   }
 
   createProduct(params: ProductParams): Promise<Product> {
@@ -161,7 +162,7 @@ export default class ProductService {
     await this.pricingRepo.save({
       id,
       description: '',
-      data: JSON.stringify([['']]),
+      data: [['']],
     } as ProductPricing);
     return this.getPricing(id);
   }
