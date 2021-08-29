@@ -36,6 +36,7 @@ import CompanyService from './CompanyService';
 
 export interface FileParams {
   name?: string;
+  createdAt?: Date;
 }
 
 export interface FullFileParams extends FileParams {
@@ -211,6 +212,7 @@ export default class FileService {
       name: request.body.name,
       entityId,
     } as FullFileParams;
+    if (request.body.createdAt) params.createdAt = request.body.createdAt;
     let file = await this.createFileObject(params);
     if (request.body.name === '') {
       request.body.name = file.downloadName;

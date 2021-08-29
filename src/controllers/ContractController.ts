@@ -21,7 +21,7 @@ import ContractService, {
 import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
-import { WrappedApiError } from '../helpers/error';
+import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,
   ContractStatusParams,
@@ -51,6 +51,7 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { Language } from '../entity/enums/Language';
 import { RecentContract } from '../helpers/rawQueries';
 import { ContractSummary } from '../entity/Summaries';
+import { Roles } from '../entity/enums/Roles';
 
 @Route('contract')
 @Tags('Contract')
@@ -361,6 +362,11 @@ export class ContractController extends Controller {
   public async uploadContractFile(
     id: number, @Request() req: express.Request,
   ): Promise<ContractFile> {
+    const actor = req.user as User;
+    if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can set createdAt.');
+    }
+
     return new FileService(ContractFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
