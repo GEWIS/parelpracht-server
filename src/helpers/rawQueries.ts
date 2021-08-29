@@ -537,11 +537,14 @@ export default class RawQueries {
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS')
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND
+          (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
       JOIN contract c ON (p."contractId" = c.id)
       JOIN contract_activity a1 ON (c.id = a1."contractId" AND a1.type = 'STATUS' AND ${inOrBeforeYearFilter('a1."createdAt"', year)})
       LEFT OUTER JOIN contract_activity a2 ON (c.id = a2."contractId" AND a2.type = 'STATUS' AND ${inOrBeforeYearFilter('a2."createdAt"', year)} AND
           (a1."createdAt" < a2."createdAt" OR (a1."createdAt" = a2."createdAt" AND a1.id < a2.id)))
-      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'FINISHED') AND
+      WHERE (a2.id IS NULL AND a1."subType" IN ('CONFIRMED', 'FINISHED') AND pa1."subType" IN ('DELIVERED', 'NOTDELIVERED') AND
           (p."invoiceId" IS NULL OR (
             SELECT EXTRACT(YEAR FROM i."startDate" + interval '6' month)
             FROM invoice i
