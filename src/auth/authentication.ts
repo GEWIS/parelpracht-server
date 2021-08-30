@@ -5,7 +5,8 @@ import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 
 async function authWithApiKey(apiKey: string) {
-  const key = apiKey.split(' ')[1];
+  const split = apiKey.split(' ');
+  const key = split[split.length - 1];
 
   if (key === undefined) {
     throw new ApiError(HTTPStatus.Unauthorized, 'Unknown API Key');
