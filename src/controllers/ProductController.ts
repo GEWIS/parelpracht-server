@@ -15,7 +15,7 @@ import { ListParams, PaginationParams } from './ListParams';
 import {
   validate, validateActivityParams, validateCommentParams, validateFileParams,
 } from '../helpers/validation';
-import { WrappedApiError } from '../helpers/error';
+import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import ActivityService, {
   ActivityParams,
   FullActivityParams,
@@ -33,6 +33,7 @@ import StatisticsService, { DashboardProductInstanceStats } from '../services/St
 import ProductInstanceService, { ProductInstanceListResponse } from '../services/ProductInstanceService';
 import { AnalysisResultByYear } from '../helpers/rawQueries';
 import { ProductPricing } from '../entity/ProductPricing';
+import { Roles } from '../entity/enums/Roles';
 
 @Route('product')
 @Tags('Product')
@@ -225,6 +226,11 @@ export class ProductController extends Controller {
   public async uploadProductFile(
     id: number, @Request() req: express.Request,
   ): Promise<ProductFile> {
+    const actor = req.user as User;
+    if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can set createdAt.');
+    }
+
     return new FileService(ProductFile, { actor: req.user as User }).uploadFile(req, id);
   }
 

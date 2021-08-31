@@ -6,7 +6,7 @@ import { body } from 'express-validator';
 import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
-import { WrappedApiError } from '../helpers/error';
+import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import CompanyService, {
   CompanyListResponse,
   CompanyParams,
@@ -32,6 +32,7 @@ import FileHelper from '../helpers/fileHelper';
 import BaseFile from '../entity/file/BaseFile';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
+import { Roles } from '../entity/enums/Roles';
 
 @Route('company')
 @Tags('Company')
@@ -210,6 +211,11 @@ export class CompanyController extends Controller {
   public async uploadCompanyFile(
     id: number, @Request() req: express.Request,
   ): Promise<CompanyFile> {
+    const actor = req.user as User;
+    if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can set createdAt.');
+    }
+
     return new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
