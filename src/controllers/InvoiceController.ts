@@ -5,7 +5,7 @@ import {
 import express from 'express';
 import { body, ValidationChain } from 'express-validator';
 import { Invoice } from '../entity/Invoice';
-import { WrappedApiError } from '../helpers/error';
+import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import InvoiceService, {
   InvoiceCreateParams,
   InvoiceListResponse,
@@ -38,6 +38,7 @@ import { ActivityType } from '../entity/enums/ActivityType';
 import { Language } from '../entity/enums/Language';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { InvoiceSummary } from '../entity/Summaries';
+import { Roles } from '../entity/enums/Roles';
 
 @Route('invoice')
 @Tags('Invoice')
@@ -228,6 +229,11 @@ export class InvoiceController extends Controller {
   public async uploadInvoiceFile(
     id: number, @Request() req: express.Request,
   ): Promise<InvoiceFile> {
+    const actor = req.user as User;
+    if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
+      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can set createdAt.');
+    }
+
     return new FileService(InvoiceFile, { actor: req.user as User }).uploadFile(req, id);
   }
 
