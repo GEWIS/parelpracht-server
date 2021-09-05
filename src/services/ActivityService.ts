@@ -201,6 +201,7 @@ export default class ActivityService {
   private async validateNewStatus(act: BaseActivity, statusParam: object): Promise<void> {
     if (act.type !== ActivityType.STATUS) return;
     let activity;
+    let statuses;
 
     switch (this.EntityActivity) {
       case ContractActivity:
@@ -210,7 +211,7 @@ export default class ActivityService {
         // eslint-disable-next-line no-case-declarations
         const canEndContract = await this.canEndContract(contract);
         // eslint-disable-next-line no-case-declarations
-        const statuses = await this.getStatuses({ contractId: activity.contractId });
+        statuses = await this.getStatuses({ contractId: activity.contractId });
 
         if (!canEndContract.cancelled && activity.subType === ContractStatus.CANCELLED) {
           throw new ApiError(HTTPStatus.BadRequest, 'Cannot cancel contract, because not all products are cancelled');
@@ -240,6 +241,13 @@ export default class ActivityService {
         activity = <InvoiceActivity>act;
         if (activity.subType === InvoiceStatus.SENT) {
           sendInvoiceEmails(activity.invoiceId);
+        }
+
+        statuses = await this.getStatuses({ invoiceId: activity.invoiceId });
+        if (statuses.includes(InvoiceStatus.CANCELLED)
+          || statuses.includes(InvoiceStatus.PAID)
+          || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
+          throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice, because it is already paid, cancelled or irrecoverable');
         }
 
         break;
