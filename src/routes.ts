@@ -1080,6 +1080,7 @@ const models: TsoaRoute.Models = {
             "ourReference": {"dataType":"string","required":true},
             "theirReference": {"dataType":"string"},
             "products": {"dataType":"array","array":{"dataType":"refObject","ref":"CustomProduct"},"required":true},
+            "date": {"dataType":"datetime","required":true},
         },
         "additionalProperties": false,
     },

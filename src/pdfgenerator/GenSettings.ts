@@ -59,4 +59,5 @@ export interface CustomInvoiceGenSettings {
   ourReference: string,
   theirReference?: string,
   products: CustomProduct[],
+  date: Date,
 }
