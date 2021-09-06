@@ -76,7 +76,7 @@ export default class PdfGenerator {
         outputLoc = path.join(this.workDir, fileName);
       }
       const output = fs.createWriteStream(outputLoc);
-      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/'), passes: 3 });
+      const pdf = latex(input, { inputs: this.templateDir, passes: 3 });
       pdf.pipe(output);
       pdf.on('error', (err) => {
         FileHelper.removeFileAtLoc(outputLoc);

@@ -22,11 +22,11 @@ export async function replaceGEWISRecipient(connection: Connection) {
       count++;
     }
 
-    p.description = replaceAll(p.description, '{instelling}', '\\GEWISrecipient\\');
-    p.contractTextDutch = replaceAll(p.contractTextDutch, '{instelling}', '\\GEWISrecipient\\');
-    p.contractTextEnglish = replaceAll(p.contractTextEnglish, '{instelling}', '\\GEWISrecipient\\');
-    p.deliverySpecificationDutch = replaceAll(p.deliverySpecificationDutch!, '{instelling}', '\\GEWISrecipient\\');
-    p.deliverySpecificationEnglish = replaceAll(p.deliverySpecificationEnglish!, '{instelling}', '\\GEWISrecipient\\');
+    p.description = replaceAll(p.description, '{instelling}', '\\GEWISRecipient\\xspace');
+    p.contractTextDutch = replaceAll(p.contractTextDutch, '{instelling}', '\\GEWISRecipient\\xspace');
+    p.contractTextEnglish = replaceAll(p.contractTextEnglish, '{instelling}', '\\GEWISRecipient\\xspace');
+    p.deliverySpecificationDutch = replaceAll(p.deliverySpecificationDutch!, '{instelling}', '\\GEWISRecipient\\xspace');
+    p.deliverySpecificationEnglish = replaceAll(p.deliverySpecificationEnglish!, '{instelling}', '\\GEWISRecipient\\xspace');
 
     p.save();
   });
