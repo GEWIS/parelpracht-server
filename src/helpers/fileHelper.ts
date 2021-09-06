@@ -7,7 +7,7 @@ import BaseFile from '../entity/file/BaseFile';
 export const workDirLoc = 'tmp/';
 export const generateDirLoc = 'data/generated/';
 export const uploadDirLoc = 'data/uploads/';
-export const templateDirLoc = 'data/templates/';
+export const templateDirLoc = 'templates/';
 export const uploadCompanyLogoDirLoc = 'data/logos';
 export const uploadUserAvatarDirLoc = 'data/logos';
 export const uploadUserBackgroundDirLoc = 'data/backgrounds';

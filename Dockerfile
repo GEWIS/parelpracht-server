@@ -11,7 +11,7 @@ COPY tsconfig.json /usr/src/app
 COPY ormconfig.json /usr/src/app
 COPY tsoa.json /usr/src/app
 COPY src /usr/src/app/src
-COPY data/templates /usr/src/app/data/templates
+COPY templates /usr/src/app/templates
 
 RUN npm ci
 RUN npm install pm2 -g

@@ -76,7 +76,7 @@ export default class PdfGenerator {
         outputLoc = path.join(this.workDir, fileName);
       }
       const output = fs.createWriteStream(outputLoc);
-      const pdf = latex(input, { inputs: path.join(this.saveDir, '/../templates/'), passes: 3 });
+      const pdf = latex(input, { inputs: this.templateDir, passes: 3 });
       pdf.pipe(output);
       pdf.on('error', (err) => {
         FileHelper.removeFileAtLoc(outputLoc);
@@ -420,6 +420,14 @@ export default class PdfGenerator {
     t = replaceAll(t, '%{city}\n', params.recipient.city ?? '');
     t = replaceAll(t, '%{country}\n', params.recipient.country ?? '');
     t = replaceAll(t, '%{occasion}\n', params.invoiceReason);
+
+    let locales;
+    switch (params.language) {
+      case Language.DUTCH: locales = 'nl-NL'; break;
+      case Language.ENGLISH: locales = 'en-US'; break;
+      default: throw new Error(`Unknown language: ${params.language}`);
+    }
+    t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(params.date));
 
     let greeting = '';
     if (params.language === Language.DUTCH) {
