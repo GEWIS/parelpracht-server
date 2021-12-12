@@ -232,7 +232,8 @@ export default class RawQueries {
           } else if (i >= 0 && f.values.length > 1) {
             arrayNumberError(f.values, 'InvoiceID is not a number');
             const values = f.values.slice();
-            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', values.splice(i, 1))})`;
+            values.splice(i, 1);
+            invoice = `AND (p."invoiceId" IS NULL OR ${inYearsFilter('invoice."startDate"', values)})`;
           }
         }
       });
@@ -578,8 +579,8 @@ export default class RawQueries {
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
-      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS' AND ${inYearFilter('pa1."createdAt"', year)})
-      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND ${inYearFilter('pa2."createdAt"', year)} AND
+      JOIN product_instance_activity pa1 ON (p.id = pa1."productInstanceId" AND pa1.type = 'STATUS')
+      LEFT OUTER JOIN product_instance_activity pa2 ON (p.id = pa2."productInstanceId" AND pa2.type = 'STATUS' AND
           (pa1."createdAt" < pa2."createdAt" OR (pa1."createdAt" = pa2."createdAt" AND pa1.id < pa2.id)))
       JOIN invoice i ON (p."invoiceId" = i.id)
       JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId" AND ia1.type = 'STATUS')
