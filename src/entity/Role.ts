@@ -11,6 +11,10 @@ export class Role {
   @PrimaryColumn()
   readonly name!: string;
 
+  /** LDAP group used for this role */
+  @Column({ default: '' })
+  ldapGroup!: string;
+
   /** All users having this role */
   @ManyToMany(() => User, (user) => user.roles, { onDelete: 'CASCADE' })
   @JoinTable()

@@ -1,7 +1,11 @@
+/* eslint import/first: off */
 import 'reflect-metadata';
 import * as fs from 'fs';
 import express from 'express';
 import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env' });
+
 import errorhandler from 'strong-error-handler';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
@@ -27,6 +31,7 @@ import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
 import UserService from './services/UserService';
+import LDAPStrategy, { ldapLogin } from './auth/LDAPStrategy';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
@@ -98,10 +103,12 @@ createConnection({
   });
 
   passport.use(localStrategy);
+  passport.use(LDAPStrategy);
 
   RegisterRoutes(app);
 
   app.post('/api/login', localLogin);
+  app.post('/api/login/ldap', ldapLogin);
 
   app.use(methodOverride());
 

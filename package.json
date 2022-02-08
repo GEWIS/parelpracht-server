@@ -18,6 +18,8 @@
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
     "db:validate": "node dist/dbvalidator/validate.js",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "The 39th board of Study Association GEWIS",
@@ -41,6 +43,7 @@
     "node-latex": "^3.0.0",
     "nodemailer": "^6.6.3",
     "passport": "^0.4.1",
+    "passport-ldapauth": "^3.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.7.1",
     "reflect-metadata": "^0.1.13",

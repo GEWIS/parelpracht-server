@@ -99,6 +99,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "name": {"dataType":"string","required":true},
+            "ldapGroup": {"dataType":"string","required":true},
             "users": {"dataType":"array","array":{"dataType":"refObject","ref":"User"},"required":true},
         },
         "additionalProperties": false,
@@ -133,9 +134,9 @@ const models: TsoaRoute.Models = {
     "ApiError": {
         "dataType": "refObject",
         "properties": {
+            "code": {"dataType":"double","required":true},
             "name": {"dataType":"string","required":true},
             "message": {"dataType":"string","required":true},
-            "stack": {"dataType":"string"},
             "statusCode": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
