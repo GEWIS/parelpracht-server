@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import crypto from 'crypto';
 import passport from 'passport';
 import express from 'express';
-import validator from 'validator'
+import validator from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';

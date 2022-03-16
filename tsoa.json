@@ -57,7 +57,7 @@
         }
       },
       "paths": {
-        "/login": {
+        "/login/local": {
           "post": {
             "operationId": "Login",
             "responses": {

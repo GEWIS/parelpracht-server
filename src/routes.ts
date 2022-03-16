@@ -157,6 +157,27 @@ const models: TsoaRoute.Models = {
         "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GeneralPrivateInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "financialYears": {"dataType":"array","array":{"dataType":"double"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "LoginMethods": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["local"]},{"dataType":"enum","enums":["ldap"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "GeneralPublicInfo": {
+        "dataType": "refObject",
+        "properties": {
+            "loginMethod": {"ref":"LoginMethods","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ProductStatus": {
         "dataType": "refEnum",
         "enums": ["ACTIVE","INACTIVE"],
@@ -1428,10 +1449,10 @@ export function RegisterRoutes(app: express.Router) {
             promiseHandler(controller, promise, response, undefined, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.get('/api/generalInfo',
+        app.get('/api/getPrivateGeneralInfo',
             authenticateMiddleware([{"local":[]}]),
 
-            function RootController_getGeneralInfo(request: any, response: any, next: any) {
+            function RootController_getPrivateGeneralInfo(request: any, response: any, next: any) {
             const args = {
             };
 
@@ -1447,7 +1468,29 @@ export function RegisterRoutes(app: express.Router) {
             const controller = new RootController();
 
 
-            const promise = controller.getGeneralInfo.apply(controller, validatedArgs as any);
+            const promise = controller.getPrivateGeneralInfo.apply(controller, validatedArgs as any);
+            promiseHandler(controller, promise, response, undefined, next);
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/getPublicGeneralInfo',
+
+            function RootController_getPublicGeneralInfo(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+            } catch (err) {
+                return next(err);
+            }
+
+            const controller = new RootController();
+
+
+            const promise = controller.getPublicGeneralInfo.apply(controller, validatedArgs as any);
             promiseHandler(controller, promise, response, undefined, next);
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

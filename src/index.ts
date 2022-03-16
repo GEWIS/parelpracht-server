@@ -31,7 +31,7 @@ import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
 import UserService from './services/UserService';
-import LDAPStrategy, { ldapLogin } from './auth/LDAPStrategy';
+import { ldapLogin, LDAPStrategy } from './auth';
 
 // Import environment variables
 dotenv.config({ path: '.env' });
@@ -102,13 +102,13 @@ createConnection({
     return done(null, user);
   });
 
-  passport.use(localStrategy);
   passport.use(LDAPStrategy);
+  passport.use(localStrategy);
+
+  app.post('/api/login/ldap', ldapLogin);
+  app.post('/api/login/local', localLogin);
 
   RegisterRoutes(app);
-
-  app.post('/api/login', localLogin);
-  app.post('/api/login/ldap', ldapLogin);
 
   app.use(methodOverride());
 

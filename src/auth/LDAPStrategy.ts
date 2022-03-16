@@ -9,7 +9,15 @@ import { Role } from '../entity/Role';
 import UserService from '../services/UserService';
 import { Roles } from '../entity/enums/Roles';
 
-const LDAPStrategy = new Strategy({
+const isDefined = (i: string | undefined) => (i !== undefined && i !== '');
+
+export const ldapEnabled = () => (isDefined(process.env.LDAP_URL)
+  && isDefined(process.env.LDAP_BINDDN)
+  && isDefined(process.env.LDAP_BINDCREDENTIALS)
+  && isDefined(process.env.LDAP_SEARCHBASE)
+  && isDefined(process.env.LDAP_SEARCHFILTER));
+
+export const LDAPStrategy = new Strategy({
   server: {
     url: process.env.LDAP_URL || '',
     bindDN: process.env.LDAP_BINDDN || '',
@@ -18,8 +26,6 @@ const LDAPStrategy = new Strategy({
     searchFilter: process.env.LDAP_SEARCHFILTER || '',
   },
 });
-
-export default LDAPStrategy;
 
 export const ldapLogin = (
   req: express.Request,
