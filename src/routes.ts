@@ -49,6 +49,8 @@ const models: TsoaRoute.Models = {
             "receiveEmails": {"dataType":"boolean"},
             "sendEmailsToReplyToEmail": {"dataType":"boolean"},
             "comment": {"dataType":"string"},
+            "ldapUsername": {"dataType":"string"},
+            "ldapOverrideEmail": {"dataType":"boolean"},
             "roles": {"dataType":"array","array":{"dataType":"refEnum","ref":"Roles"}},
         },
         "additionalProperties": false,
@@ -91,6 +93,7 @@ const models: TsoaRoute.Models = {
             "receiveEmails": {"dataType":"boolean","required":true},
             "sendEmailsToReplyToEmail": {"dataType":"boolean","required":true},
             "roles": {"dataType":"array","array":{"dataType":"refObject","ref":"Role"},"required":true},
+            "identityLdap": {"ref":"IdentityLDAP"},
         },
         "additionalProperties": false,
     },
@@ -101,6 +104,22 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "ldapGroup": {"dataType":"string","required":true},
             "users": {"dataType":"array","array":{"dataType":"refObject","ref":"User"},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "IdentityLDAP": {
+        "dataType": "refObject",
+        "properties": {
+            "id": {"dataType":"double","required":true},
+            "username": {"dataType":"string","required":true},
+            "overrideEmail": {"dataType":"boolean","required":true},
+            "lastLogin": {"dataType":"datetime"},
+            "user": {"ref":"User","required":true},
+            "createdAt": {"dataType":"datetime","required":true},
+            "updatedAt": {"dataType":"datetime","required":true},
+            "deletedAt": {"dataType":"datetime"},
+            "version": {"dataType":"double","required":true},
         },
         "additionalProperties": false,
     },
@@ -126,6 +145,7 @@ const models: TsoaRoute.Models = {
             "receiveEmails": {"dataType":"boolean","required":true},
             "sendEmailsToReplyToEmail": {"dataType":"boolean","required":true},
             "roles": {"dataType":"array","array":{"dataType":"refObject","ref":"Role"},"required":true},
+            "identityLdap": {"ref":"IdentityLDAP"},
             "hasApiKey": {"dataType":"boolean"},
         },
         "additionalProperties": false,
@@ -1185,7 +1205,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"sendEmailsToReplyToEmail":{"dataType":"boolean"},"comment":{"dataType":"string"},"roles":{"dataType":"array","array":{"dataType":"refEnum","ref":"Roles"}}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"sendEmailsToReplyToEmail":{"dataType":"boolean"},"comment":{"dataType":"string"},"ldapUsername":{"dataType":"string"},"ldapOverrideEmail":{"dataType":"boolean"},"roles":{"dataType":"array","array":{"dataType":"refEnum","ref":"Roles"}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransferUserParams": {

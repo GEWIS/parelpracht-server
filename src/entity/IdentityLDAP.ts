@@ -19,6 +19,9 @@ export class IdentityLDAP {
   @Column({ unique: true })
   username!: string;
 
+  @Column({ default: false })
+  overrideEmail!: boolean;
+
   @Column({ nullable: true })
   lastLogin?: Date;
 

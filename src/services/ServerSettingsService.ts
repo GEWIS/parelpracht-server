@@ -1,12 +1,11 @@
 import {
-  getConnection, getRepository, Repository, Transaction, TransactionRepository,
+  getRepository, Repository,
 } from 'typeorm';
-import { IdentityLocal } from '../entity/IdentityLocal';
 import { ServerSetting } from '../entity/ServerSetting';
-import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AuthService from './AuthService';
 import UserService, { UserParams } from './UserService';
+import { ldapEnabled } from '../auth';
 
 export interface SetupParams {
   admin: UserParams,
@@ -38,7 +37,7 @@ export default class ServerSettingsService {
     const adminUser = await new UserService()
       .createAdminUser(admin);
 
-    new AuthService().createIdentityLocal(adminUser);
+    new AuthService().createIdentityLocal(adminUser, ldapEnabled());
 
     await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
   }

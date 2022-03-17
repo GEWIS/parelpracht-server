@@ -17,8 +17,10 @@ import ContractService from './ContractService';
 import InvoiceService from './InvoiceService';
 import FileHelper, {
   uploadUserAvatarDirLoc,
-  uploadUserBackgroundDirLoc
+  uploadUserBackgroundDirLoc,
 } from '../helpers/fileHelper';
+import { IdentityLDAP } from '../entity/IdentityLDAP';
+import { ldapEnabled } from '../auth';
 
 export interface UserParams {
   email: string;
@@ -32,7 +34,10 @@ export interface UserParams {
   sendEmailsToReplyToEmail?: boolean;
   comment?: string;
 
-  roles?: Roles[]
+  ldapUsername?: string;
+  ldapOverrideEmail?: boolean;
+
+  roles?: Roles[];
 }
 
 export interface TransferUserParams {
@@ -60,20 +65,24 @@ export default class UserService {
 
   roleRepo: Repository<Role>;
 
-  identityRepo: Repository<IdentityLocal>;
+  identityLocalRepo: Repository<IdentityLocal>;
+
+  identityLdapRepo: Repository<IdentityLDAP>;
 
   constructor(
     userRepo?: Repository<User>,
     roleRepo?: Repository<Role>,
-    identityRepo?: Repository<IdentityLocal>,
+    identityLocalRepo?: Repository<IdentityLocal>,
+    identityLdapRepo?: Repository<IdentityLDAP>,
   ) {
     this.repo = userRepo ?? getRepository(User);
     this.roleRepo = roleRepo ?? getRepository(Role);
-    this.identityRepo = identityRepo ?? getRepository(IdentityLocal);
+    this.identityLocalRepo = identityLocalRepo ?? getRepository(IdentityLocal);
+    this.identityLdapRepo = identityLdapRepo ?? getRepository(IdentityLDAP);
   }
 
   async getUser(id: number): Promise<User> {
-    const user = await this.repo.findOne(id, { relations: ['roles'] });
+    const user = await this.repo.findOne(id, { relations: ['roles', 'identityLdap'] });
     if (user === undefined) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
@@ -173,13 +182,19 @@ export default class UserService {
   }
 
   async createUser(params: UserParams): Promise<User> {
-    const { roles, ...userParams } = params;
+    const { roles, ldapUsername, ...userParams } = params;
     let user = this.repo.create(userParams);
     user = await this.repo.save(user);
     if (roles) {
       user = await this.assignRoles(user, roles);
     }
-    await new AuthService().createIdentityLocal(user);
+
+    const ldap = ldapEnabled();
+    await new AuthService().createIdentityLocal(user, ldap);
+    if (ldap) {
+      if (!ldapUsername) throw new Error('LdapUsername is not defined');
+      await new AuthService().createIdentityLdap(user, ldapUsername);
+    }
     return user;
   }
 
@@ -193,6 +208,11 @@ export default class UserService {
       comment: params.comment,
       function: params.function,
     });
+
+    if (ldapEnabled()) {
+      if (!params.ldapUsername) throw new Error('LdapUsername is not defined');
+      await new AuthService().createIdentityLdap(adminUser, params.ldapUsername);
+    }
 
     return this.assignRoles(adminUser,
       [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL, Roles.AUDIT]);
@@ -208,13 +228,22 @@ export default class UserService {
   }
 
   async updateUser(id: number, params: Partial<UserParams>, actor: User): Promise<User> {
-    const { roles, ...userParams } = params;
+    const {
+      roles, ldapUsername, ldapOverrideEmail, ...userParams
+    } = params;
     await this.repo.update(id, userParams);
     let user = (await this.repo.findOne(id))!;
     // Check if roles should be assigned. You can't update your own roles
     if (roles && id !== actor.id) {
       user = await this.assignRoles(user, roles);
     }
+    if (ldapUsername || ldapOverrideEmail || ldapEnabled()) {
+      await this.identityLdapRepo.update(id, {
+        username: ldapUsername,
+        overrideEmail: ldapOverrideEmail,
+      });
+    }
+    user = await this.getUser(user.id);
     return user!;
   }
 

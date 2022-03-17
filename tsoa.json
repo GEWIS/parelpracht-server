@@ -62,14 +62,7 @@
             "operationId": "Login",
             "responses": {
               "200": {
-                "description": "Ok",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/Product"
-                    }
-                  }
-                }
+                "description": "Ok"
               },
               "204": {
                 "description": "No content"
@@ -104,14 +97,7 @@
             "operationId": "LoginLDAP",
             "responses": {
               "200": {
-                "description": "Ok",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/User"
-                    }
-                  }
-                }
+                "description": "Ok"
               },
               "204": {
                 "description": "No content"

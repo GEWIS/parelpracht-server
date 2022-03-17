@@ -7,11 +7,12 @@ import { User } from '../entity/User';
 import { Mailer } from '../mailer/Mailer';
 import { resetPassword } from '../mailer/templates/resetPassword';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { generateSalt, hashPassword } from '../auth/LocalStrategy';
+import { generateSalt, hashPassword } from '../auth';
 import { newUser } from '../mailer/templates/newUser';
 import { IdentityApiKey } from '../entity/IdentityApiKey';
 import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
+import { IdentityLDAP } from '../entity/IdentityLDAP';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
@@ -23,19 +24,23 @@ export interface Profile extends User {
 }
 
 export default class AuthService {
-  identityRepo: Repository<IdentityLocal>;
+  identityLocalRepo: Repository<IdentityLocal>;
 
   identityApiKeyRepo: Repository<IdentityApiKey>;
+
+  identityLdapRepo: Repository<IdentityLDAP>;
 
   userRepo: Repository<User>;
 
   constructor(
-    identityRepo?: Repository<IdentityLocal>,
+    identityLocalRepo?: Repository<IdentityLocal>,
     userRepo?: Repository<User>,
     identityApiKeyRepo?: Repository<IdentityApiKey>,
+    identityLdapRepo?: Repository<IdentityLDAP>,
   ) {
-    this.identityRepo = identityRepo ?? getRepository(IdentityLocal);
+    this.identityLocalRepo = identityLocalRepo ?? getRepository(IdentityLocal);
     this.identityApiKeyRepo = identityApiKeyRepo ?? getRepository(IdentityApiKey);
+    this.identityLdapRepo = identityLdapRepo ?? getRepository(IdentityLDAP);
     this.userRepo = userRepo ?? getRepository(User);
   }
 
@@ -72,7 +77,7 @@ export default class AuthService {
       email = '';
     }
     const user = await this.userRepo.findOne({ email });
-    const identity = user !== undefined ? await this.identityRepo.findOne(user.id) : undefined;
+    const identity = user !== undefined ? await this.identityLocalRepo.findOne(user.id) : undefined;
 
     if (user === undefined || identity === undefined) {
       return;
@@ -85,21 +90,31 @@ export default class AuthService {
     ));
   }
 
-  async createIdentityLocal(user: User): Promise<void> {
-    let identity = this.identityRepo.create({
+  async createIdentityLocal(user: User, silent: boolean): Promise<void> {
+    let identity = this.identityLocalRepo.create({
       id: user.id,
       // email: user.email,
       verifiedEmail: false,
       salt: generateSalt(),
     });
-    await this.identityRepo.insert(identity);
-    identity = (await this.identityRepo.findOne(user.id))!;
+    await this.identityLocalRepo.insert(identity);
+    identity = (await this.identityLocalRepo.findOne(user.id))!;
 
-    Mailer.getInstance().send(newUser(
-      user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(
-        user, identity,
-      )}`,
-    ));
+    if (!silent) {
+      Mailer.getInstance().send(newUser(
+        user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(
+          user, identity,
+        )}`,
+      ));
+    }
+  }
+
+  async createIdentityLdap(user: User, username: string): Promise<void> {
+    const identity = this.identityLdapRepo.create({
+      id: user.id,
+      username,
+    });
+    await this.identityLdapRepo.insert(identity);
   }
 
   getResetPasswordToken(user: User, identity: IdentityLocal): string {
@@ -133,7 +148,7 @@ export default class AuthService {
     }
 
     const user = await this.userRepo.findOne({ id: token.user_id });
-    const identity = await this.identityRepo.findOne({ id: token.user_id });
+    const identity = await this.identityLocalRepo.findOne({ id: token.user_id });
     // Check if the user is defined
     if (user === undefined || identity === undefined) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
@@ -147,7 +162,7 @@ export default class AuthService {
           // Verify the token
           jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
           const salt = generateSalt();
-          await this.identityRepo.update(user.id, {
+          await this.identityLocalRepo.update(user.id, {
             id: user.id,
             // email: user.email,
             verifiedEmail: true,
@@ -165,7 +180,7 @@ export default class AuthService {
   }
 
   async deleteIdentities(id: number) {
-    await this.identityRepo.softDelete(id);
+    await this.identityLocalRepo.softDelete(id);
   }
 
   async getApiKey(req: express.Request) {
