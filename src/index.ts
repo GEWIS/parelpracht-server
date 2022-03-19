@@ -27,6 +27,7 @@ import './controllers/ContractController';
 import './controllers/InvoiceController';
 import './controllers/ContactController';
 import './controllers/UserController';
+import './controllers/RoleController';
 import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
