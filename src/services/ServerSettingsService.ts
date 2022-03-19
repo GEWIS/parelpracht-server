@@ -33,12 +33,14 @@ export default class ServerSettingsService {
       throw new ApiError(HTTPStatus.Forbidden, 'Server is already set up');
     }
 
-    const { admin } = params;
-    const adminUser = await new UserService()
-      .createAdminUser(admin);
+    if (!ldapEnabled()) {
+      const { admin } = params;
+      const adminUser = await new UserService()
+        .createAdminUser(admin);
 
-    new AuthService().createIdentityLocal(adminUser, ldapEnabled());
+      new AuthService().createIdentityLocal(adminUser!, ldapEnabled());
 
-    await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
+      await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
+    }
   }
 }

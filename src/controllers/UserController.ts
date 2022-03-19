@@ -17,6 +17,9 @@ import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { Roles } from '../entity/enums/Roles';
 import FileService from '../services/FileService';
+import { IdentityLocal } from '../entity/IdentityLocal';
+import AuthService, { LdapIdentityParams } from '../services/AuthService';
+import { IdentityLDAP } from '../entity/IdentityLDAP';
 
 @Route('user')
 @Tags('User')
@@ -218,5 +221,55 @@ export class UserController extends Controller {
     ], req);
 
     await new UserService().transferAssignments(id, params.toUserId);
+  }
+
+  @Post('{id}/auth/local')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async createLocalIdentity(
+    @Request() req: express.Request, id: number,
+  ): Promise<IdentityLocal> {
+    const user = await new UserService().getUser(id);
+    return new AuthService().createIdentityLocal(user, false);
+  }
+
+  @Delete('{id}/auth/local')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteLocalIdentity(
+    @Request() req: express.Request, id: number,
+  ): Promise<void> {
+    const user = await new UserService().getUser(id);
+    return new AuthService().removeIdentityLocal(user);
+  }
+
+  @Post('{id}/auth/ldap')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async createLdapIdentity(
+    @Request() req: express.Request, id: number, @Body() params: LdapIdentityParams,
+  ): Promise<IdentityLDAP> {
+    const user = await new UserService().getUser(id);
+    return new AuthService().createIdentityLdap(user, params);
+  }
+
+  @Put('{id}/auth/ldap')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async updateLdapIdentity(
+    @Request() req: express.Request, id: number, @Body() params: Partial<LdapIdentityParams>,
+  ): Promise<IdentityLDAP> {
+    const user = await new UserService().getUser(id);
+    return new AuthService().updateIdentityLdap(user, params);
+  }
+
+  @Delete('{id}/auth/ldap')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async deleteLdapIdentity(
+    @Request() req: express.Request, id: number,
+  ): Promise<void> {
+    const user = await new UserService().getUser(id);
+    return new AuthService().removeIdentityLdap(user);
   }
 }

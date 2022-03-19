@@ -9,6 +9,7 @@ import { Gender } from './enums/Gender';
 import { Role } from './Role';
 import { Roles } from './enums/Roles';
 import { IdentityLDAP } from './IdentityLDAP';
+import { IdentityLocal } from './IdentityLocal';
 // // eslint-disable-next-line import/no-cycle
 // import { CompanyActivity } from './activity/CompanyActivity';
 // // eslint-disable-next-line import/no-cycle
@@ -79,6 +80,10 @@ export class User extends BaseEnt {
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
   roles!: Role[];
+
+  /** Identity for local login */
+  @OneToOne(() => IdentityLocal, (local) => local.user)
+  identityLocal?: IdentityLocal;
 
   /** Identity for LDAP */
   @OneToOne(() => IdentityLDAP, (ldap) => ldap.user)

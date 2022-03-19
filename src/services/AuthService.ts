@@ -23,6 +23,10 @@ export interface Profile extends User {
   hasApiKey?: boolean;
 }
 
+export interface LdapIdentityParams {
+  username: string;
+}
+
 export default class AuthService {
   identityLocalRepo: Repository<IdentityLocal>;
 
@@ -90,8 +94,11 @@ export default class AuthService {
     ));
   }
 
-  async createIdentityLocal(user: User, silent: boolean): Promise<void> {
-    let identity = this.identityLocalRepo.create({
+  async createIdentityLocal(user: User, silent: boolean): Promise<IdentityLocal> {
+    let identity = await this.identityLocalRepo.findOne(user.id);
+    if (identity) throw new ApiError(HTTPStatus.BadRequest, 'Identity already exists.');
+
+    identity = this.identityLocalRepo.create({
       id: user.id,
       // email: user.email,
       verifiedEmail: false,
@@ -107,14 +114,38 @@ export default class AuthService {
         )}`,
       ));
     }
+
+    return identity!;
   }
 
-  async createIdentityLdap(user: User, username: string): Promise<void> {
-    const identity = this.identityLdapRepo.create({
+  async updateIdentityLdap(user: User, params: Partial<LdapIdentityParams>): Promise<IdentityLDAP> {
+    let identity = await this.identityLdapRepo.findOne(user.id);
+    if (!identity) throw new ApiError(HTTPStatus.NotFound, 'Identity not found.');
+
+    await this.identityLdapRepo.update(identity.id, params);
+    identity = await this.identityLdapRepo.findOne(identity.id);
+    return identity!;
+  }
+
+  async removeIdentityLocal(user: User): Promise<void> {
+    await this.identityLocalRepo.delete(user.id);
+  }
+
+  async createIdentityLdap(user: User, params: LdapIdentityParams): Promise<IdentityLDAP> {
+    let identity = await this.identityLdapRepo.findOne(user.id);
+    if (identity) throw new ApiError(HTTPStatus.BadRequest, 'Identity already exists.');
+
+    identity = this.identityLdapRepo.create({
       id: user.id,
-      username,
+      ...params,
     });
     await this.identityLdapRepo.insert(identity);
+    identity = await this.identityLdapRepo.findOne(user.id);
+    return identity!;
+  }
+
+  async removeIdentityLdap(user: User): Promise<void> {
+    await this.identityLdapRepo.delete(user.id);
   }
 
   getResetPasswordToken(user: User, identity: IdentityLocal): string {
