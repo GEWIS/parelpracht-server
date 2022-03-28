@@ -247,7 +247,11 @@ export default class ActivityService {
         if (statuses.includes(InvoiceStatus.CANCELLED)
           || statuses.includes(InvoiceStatus.PAID)
           || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
-          throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice, because it is already paid, cancelled or irrecoverable');
+          throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice, because it is already paid, cancelled or irrecoverable.');
+        }
+        if (activity.subType === InvoiceStatus.PROPOSED
+          && statuses.includes(InvoiceStatus.SENT)) {
+          throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice to "Proposed", because it is already sent.');
         }
 
         break;
