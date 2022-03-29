@@ -22,6 +22,7 @@ import { Gender } from '../entity/enums/Gender';
 import { Language } from '../entity/enums/Language';
 import BaseFile from '../entity/file/BaseFile';
 import replaceAll from '../helpers/replaceAll';
+import countries from '../helpers/countries.json';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -125,15 +126,21 @@ export default class PdfGenerator {
     t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(date));
 
     if (useInvoiceAddress) {
+      const companyCountry = countries.find((country) => country.Code
+        === company.invoiceAddressCountry!.toUpperCase());
       t = replaceAll(t, '%{street}\n', company.invoiceAddressStreet!);
       t = replaceAll(t, '%{postalcode}\n', company.invoiceAddressPostalCode!);
       t = replaceAll(t, '%{city}\n', company.invoiceAddressCity!);
-      t = replaceAll(t, '%{country}\n', company.invoiceAddressCountry!);
+      t = replaceAll(t, '%{country}\n', companyCountry !== undefined
+        ? companyCountry.Name : company.invoiceAddressCountry!);
     } else {
+      const companyCountry = countries.find((country) => country.Code
+        === company.addressCountry!.toUpperCase());
       t = replaceAll(t, '%{street}\n', company.addressStreet);
       t = replaceAll(t, '%{postalcode}\n', company.addressPostalCode!);
       t = replaceAll(t, '%{city}\n', company.addressCity!);
-      t = replaceAll(t, '%{country}\n', company.addressCountry!);
+      t = replaceAll(t, '%{country}\n', companyCountry !== undefined
+        ? companyCountry.Name : company.addressCountry!);
     }
 
     let greeting = '';
