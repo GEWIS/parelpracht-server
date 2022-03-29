@@ -21,6 +21,7 @@
 	},
 	"include": [
 	  "src/**/*.ts",
-	  "src/public/swagger.json"
+	  "src/public/swagger.json",
+    "src/helpers/countries.json"
 	]
 }
