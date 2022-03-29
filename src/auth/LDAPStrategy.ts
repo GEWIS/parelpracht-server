@@ -27,7 +27,7 @@ export const LDAPStrategy = new Strategy({
   },
 });
 
-export const updateUserInformation = async (user: User, ldapUser: any): Promise<User> => {
+const checkAllowedRoles = async (ldapUser: any): Promise<Roles[]> => {
   const roles = await getRepository(Role).find();
   const userRoles: Roles[] = [];
   roles.forEach((role) => {
@@ -35,6 +35,11 @@ export const updateUserInformation = async (user: User, ldapUser: any): Promise<
       userRoles.push(role.name as Roles);
     }
   });
+  return userRoles;
+};
+
+export const updateUserInformation = async (user: User, ldapUser: any): Promise<User> => {
+  const userRoles = await checkAllowedRoles(ldapUser);
   await (new UserService()).assignRoles(user, userRoles);
 
   const identity = user.identityLdap;
@@ -55,6 +60,9 @@ export const ldapLogin = (
   passport.authenticate('ldapauth', async (err, ldapUser, info) => {
     if (err) { return next(err); }
     if (!ldapUser) { return next(new ApiError(HTTPStatus.BadRequest, info.message)); }
+
+    const userRoles = await checkAllowedRoles(ldapUser);
+    if (userRoles.length === 0) return next(new ApiError(HTTPStatus.Forbidden, "You don't have the required LDAP groups to be allowed to login."));
 
     const userRepo = getRepository(User);
     const identityRepo = getRepository(IdentityLDAP);
