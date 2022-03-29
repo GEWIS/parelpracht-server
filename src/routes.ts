@@ -375,7 +375,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "InvoiceStatus": {
         "dataType": "refEnum",
-        "enums": ["CREATED","SENT","PAID","IRRECOVERABLE","CANCELLED"],
+        "enums": ["CREATED","PROPOSED","SENT","PAID","IRRECOVERABLE","CANCELLED"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ActivityType": {
