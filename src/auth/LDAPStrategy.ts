@@ -27,6 +27,26 @@ export const LDAPStrategy = new Strategy({
   },
 });
 
+export const updateUserInformation = async (user: User, ldapUser: any): Promise<User> => {
+  const roles = await getRepository(Role).find();
+  const userRoles: Roles[] = [];
+  roles.forEach((role) => {
+    if (ldapUser.memberOfFlattened.includes(role.ldapGroup)) {
+      userRoles.push(role.name as Roles);
+    }
+  });
+  await (new UserService()).assignRoles(user, userRoles);
+
+  const identity = user.identityLdap;
+  // eslint-disable-next-line no-param-reassign
+  if (identity && !identity.overrideEmail) user.email = ldapUser.mail;
+  // eslint-disable-next-line no-param-reassign
+  user.firstName = ldapUser.givenName;
+  // eslint-disable-next-line no-param-reassign
+  user.lastName = ldapUser.sn;
+  return user.save();
+};
+
 export const ldapLogin = (
   req: express.Request,
   res: express.Response,
@@ -69,15 +89,7 @@ export const ldapLogin = (
     identity.lastLogin = new Date();
     await identityRepo.save(identity);
 
-    const roles = await getRepository(Role).find();
-    const userRoles: Roles[] = [];
-    roles.forEach((role) => {
-      if (ldapUser.memberOfFlattened.includes(role.ldapGroup)) {
-        userRoles.push(role.name as Roles);
-      }
-    });
-
-    await (new UserService()).assignRoles(identity.user, userRoles);
+    await updateUserInformation(identity.user, ldapUser);
 
     return req.logIn(identity.user, (e: any) => {
       // When the user enabled "remember me", we give the session cookie an
