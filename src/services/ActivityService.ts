@@ -456,8 +456,6 @@ export default class ActivityService {
       // @ts-ignore
       || activity.subType === InvoiceStatus.CREATED
       // @ts-ignore
-      || activity.subType === InvoiceStatus.PROPOSED
-      // @ts-ignore
       || activity.subType === ProductInstanceStatus.NOTDELIVERED
     )) {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete the initial (created) status of an entity');
