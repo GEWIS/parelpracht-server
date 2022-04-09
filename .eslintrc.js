@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'import'],
   extends: ['airbnb-typescript/base'],
   rules: {
     'linebreak-style': ['error', 'windows'],
@@ -21,6 +21,6 @@ module.exports = {
     'import/no-cycle': 'off',
   },
   parserOptions: {
-    project: ['./tsconfig.json', './test/tsconfig.json'],
+    project: ['./tsconfig.json'],
   },
 };

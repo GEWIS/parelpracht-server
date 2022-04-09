@@ -143,7 +143,7 @@ export default class FileService {
     if (params.saveToDisk) {
       try {
         await this.saveFileObject(file);
-      } catch (err) {
+      } catch (err: any) {
         FileHelper.removeFile(file);
         throw new Error(err);
       }
@@ -168,7 +168,7 @@ export default class FileService {
     if (params.saveToDisk) {
       try {
         await this.saveFileObject(file);
-      } catch (err) {
+      } catch (err: any) {
         FileHelper.removeFile(file);
         throw new Error(err);
       }
@@ -229,7 +229,7 @@ export default class FileService {
 
     try {
       file = this.repo.save(file);
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFile(file);
       throw new Error(err);
     }
@@ -323,7 +323,7 @@ export default class FileService {
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await company.save();
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFileAtLoc(fileLocation);
       throw new Error(err);
     }
@@ -348,7 +348,7 @@ export default class FileService {
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await user.save();
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFileAtLoc(fileLocation);
       throw new Error(err);
     }
@@ -373,7 +373,7 @@ export default class FileService {
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await user.save();
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFileAtLoc(fileLocation);
       throw new Error(err);
     }
