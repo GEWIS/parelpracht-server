@@ -120,7 +120,7 @@ export default class ContractService {
     const contract = await this.getContract(id);
 
     if (!(await createActivitiesForEntityEdits<Contract>(
-      this.repo, contract, params, new ActivityService(new ContractActivity, { actor: this.actor }),
+      this.repo, contract, params, new ActivityService(new ContractActivity, { actor: this.actor }), ContractActivity,
     ))) return contract;
 
     return this.getContract(id);

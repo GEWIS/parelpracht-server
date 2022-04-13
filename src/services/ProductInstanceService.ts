@@ -168,7 +168,7 @@ export default class ProductInstanceService {
 
     if (!(await createActivitiesForEntityEdits<ProductInstance>(
       this.repo, productInstance, params,
-      new ActivityService(new ProductInstanceActivity, { actor: this.actor }),
+      new ActivityService(new ProductInstanceActivity, { actor: this.actor }), ProductInstanceActivity,
     ))) return productInstance;
 
     productInstance = await this.repo.findOneBy({ id: productInstanceId });

@@ -1,11 +1,9 @@
-import {
-  FindManyOptions, FindOptionsWhere, getRepository, ILike, In, IsNull, Not, Repository,
-} from 'typeorm';
+import { FindManyOptions, getRepository, Repository } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import FileHelper from '../helpers/fileHelper';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
@@ -78,32 +76,6 @@ export default class CompanyService {
       },
     };
 
-    let conditions: FindOptionsWhere<Company>[] = [];
-
-    if (params.filters !== undefined) {
-      const filters: FindOptionsWhere<Company> = {};
-      params.filters.forEach((f) => {
-        // @ts-ignore
-        filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
-      });
-      conditions.push(filters);
-    }
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      const rawSearches: FindOptionsWhere<Company>[][] = [];
-      params.search.trim().split(' ').forEach((searchTerm) => {
-        rawSearches.push([
-          { name: ILike(`%${searchTerm}%`) },
-        ]);
-      });
-      const searches = cartesianArrays(rawSearches);
-      if (conditions.length > 0) {
-        conditions = cartesian(conditions, searches);
-      } else {
-        conditions = searches;
-      }
-    }
-
     findOptions.where = addQueryWhereClause(params, ['name']);
 
     return {
@@ -132,7 +104,7 @@ export default class CompanyService {
     const company = await this.getCompany(id);
 
     if (!(await createActivitiesForEntityEdits<Company>(
-      this.repo, company, params, new ActivityService(new CompanyActivity, { actor: this.actor }),
+      this.repo, company, params, new ActivityService(new CompanyActivity, { actor: this.actor }), CompanyActivity,
     ))) return company;
 
     return this.getCompany(id);
@@ -175,13 +147,11 @@ export default class CompanyService {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
 
-    const contacts = await getRepository(Contact).find({
+    return getRepository(Contact).find({
       where: {
         companyId: id,
       },
     });
-
-    return contacts;
   }
 
   async getAllCompaniesExtensive(params: ListParams): Promise<ETCompanyListResponse> {

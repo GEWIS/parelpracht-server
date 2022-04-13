@@ -134,7 +134,7 @@ export default class InvoiceService {
     }
 
     if (!(await createActivitiesForEntityEdits<Invoice>(
-      this.repo, invoice, params, new ActivityService(new InvoiceActivity, { actor: this.actor }),
+      this.repo, invoice, params, new ActivityService(new InvoiceActivity, { actor: this.actor }), InvoiceActivity,
     ))) return invoice;
 
     return this.getInvoice(id);

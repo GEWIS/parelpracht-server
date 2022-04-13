@@ -47,7 +47,7 @@ export interface ProductInstanceStatusParams extends ActivityParams {
 }
 
 export default class ActivityService<T extends BaseActivity> {
-  repo: Repository<T>;
+  repo: Repository<BaseActivity>;
 
   /** Child class of BaseActivity */
   EntityActivity: T;

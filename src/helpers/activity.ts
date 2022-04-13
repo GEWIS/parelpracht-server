@@ -14,6 +14,7 @@ import { timeToYearDayTime } from './timestamp';
 import getEntityChanges from './entityChanges';
 import { Language } from '../entity/enums/Language';
 import { ApiError, HTTPStatus } from './error';
+import BaseActivity from '../entity/activity/BaseActivity';
 
 /**
  * Convert an array of strings to a single string, where all items are split by
@@ -262,11 +263,12 @@ export function createDelProductActivityDescription(
  * @param entity Entity that has been pulled from the database and will be changed
  * @param params The changes that should be applied
  * @param activityService Instance of the ActivityService, in which the activities will be created
+ * @param ActivityEntity Class entity of the activity that should be created
  * @returns Whether the entity has and should have been updated
  */
 
 export async function createActivitiesForEntityEdits<T extends BaseEnt>(
-  repo: Repository<T>, entity: T, params: Partial<T>, activityService: ActivityService<any>,
+  repo: Repository<T>, entity: T, params: Partial<T>, activityService: ActivityService<any>, ActivityEntity: typeof BaseActivity,
 ): Promise<boolean> {
   const changes = getEntityChanges<T>(params, entity);
 
@@ -281,7 +283,7 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
   // If the assigned user has changed, we create an activity for this.
   if (Object.keys(changes).includes('assignedToId')) {
     // @ts-ignore
-    await activityService.createActivity(T, {
+    await activityService.createActivity(ActivityEntity, {
       descriptionDutch: createReassignActivityDescription(
         // @ts-ignore As checked in the if-statement above, the "changes" variable does have
         // an assignedToId value
@@ -308,7 +310,7 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
   // If any other properties have changed, we create an "EDIT" activity for this.
   if (Object.keys(changes).length > 0) {
     // @ts-ignore
-    await activityService.createActivity(T, {
+    await activityService.createActivity(ActivityEntity, {
       descriptionDutch: await createEditActivityDescription(changes, entity, Language.DUTCH),
       descriptionEnglish: await createEditActivityDescription(changes, entity, Language.ENGLISH),
       entityId: entity.id,

@@ -102,7 +102,7 @@ export default class ProductService {
     const product = await this.getProduct(id);
 
     if (!(await createActivitiesForEntityEdits<Product>(
-      this.repo, product, params, new ActivityService(getRepository(ProductActivity), { actor: this.actor }),
+      this.repo, product, params, new ActivityService(new ProductActivity, { actor: this.actor }), ProductActivity,
     ))) return product;
 
     return this.getProduct(id);
