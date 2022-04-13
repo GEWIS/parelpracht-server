@@ -1,12 +1,12 @@
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
+  FindManyOptions, FindOptionsWhere, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contact } from '../entity/Contact';
 import { ContactFunction } from '../entity/enums/ContactFunction';
 import { Gender } from '../entity/enums/Gender';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
 
 // May not be correct yet
 export interface ContactParams {
@@ -43,8 +43,8 @@ export default class ContactService {
   }
 
   async getContact(id: number): Promise<Contact> {
-    const contact = await this.repo.findOne(id, { relations: ['company', 'contracts'] }); // May need more relations
-    if (contact === undefined) {
+    const contact = await this.repo.findOne({ where: { id }, relations: ['company', 'contracts'] }); // May need more relations
+    if (contact == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Contact not found');
     }
     return contact;
@@ -58,57 +58,7 @@ export default class ContactService {
       },
     };
 
-    // let conditions: FindConditions<Contact>[] = [];
-    //
-    // if (params.filters !== undefined) {
-    //   // For each filter value, an OR clause is created
-    //   const filters = params.filters.map((f) => f.values.map((v) => ({
-    //     [f.column]: v,
-    //   })));
-    //   // Add the clauses to the where object
-    //   conditions = conditions.concat(_.flatten(filters));
-    // }
-    //
-    // if (params.search !== undefined && params.search.trim() !== '') {
-    //   conditions = cartesian(conditions, [
-    //     { firstName: ILike(`%${params.search.trim()}%`) },
-    //     { lastNamePreposition: ILike(`%${params.search.trim()}%`) },
-    //     { lastName: ILike(`%${params.search.trim()}%`) },
-    //     { email: ILike(`%${params.search.trim()}%`) },
-    //   ]);
-    // }
-    // findOptions.where = conditions;
-
-    let conditions: FindConditions<Contact>[] = [];
-
-    if (params.filters !== undefined) {
-      const filters: FindConditions<Contact> = {};
-      params.filters.forEach((f) => {
-        // @ts-ignore
-        filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
-      });
-      conditions.push(filters);
-    }
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      const rawSearches: FindConditions<Contact>[][] = [];
-      params.search.trim().split(' ').forEach((searchTerm) => {
-        rawSearches.push([
-          { firstName: ILike(`%${searchTerm}%`) },
-          { lastNamePreposition: ILike(`%${searchTerm}%`) },
-          { lastName: ILike(`%${searchTerm}%`) },
-          { email: ILike(`%${searchTerm}%`) },
-        ]);
-      });
-      const searches = cartesianArrays(rawSearches);
-      if (conditions.length > 0) {
-        conditions = cartesian(conditions, searches);
-      } else {
-        conditions = searches;
-      }
-    }
-
-    findOptions.where = conditions;
+    findOptions.where = addQueryWhereClause<Contact>(params, ['firstName', 'lastNamePreposition', 'lastName', 'email']);
 
     return {
       list: await this.repo.find({
@@ -135,7 +85,7 @@ export default class ContactService {
 
   async updateContact(id: number, params: Partial<ContactParams>): Promise<Contact> {
     await this.repo.update(id, params);
-    const contact = await this.repo.findOne(id);
+    const contact = await this.repo.findOneBy({ id });
     return contact!;
   }
 

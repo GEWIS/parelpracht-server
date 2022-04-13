@@ -1,16 +1,16 @@
-import {
-  Column, Entity, JoinColumn, ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
 import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from '../Contract';
 import { ContractStatus } from '../enums/ContractStatus';
+import { BaseEnt } from '../BaseEnt';
+import { ApiError, HTTPStatus } from '../../helpers/error';
 
 @Entity()
 export class ContractActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-  readonly contractId!: number;
+  contractId!: number;
 
   /** Contract related to this activity */
   @ManyToOne(() => Contract, (contract) => contract.activities, {
@@ -26,5 +26,24 @@ export class ContractActivity extends BaseActivity {
     nullable: true,
     update: false,
   })
-  readonly subType?: ContractStatus;
+  subType?: ContractStatus;
+
+  getRelatedEntity(): BaseEnt {
+    return this.contract;
+  }
+
+  getRelatedEntityId(): number {
+    return this.contractId;
+  }
+
+  setRelatedEntityId(id: number): void {
+    this.contractId = id;
+  }
+
+  setSubType(subType: ContractStatus): void {
+    if (subType !== undefined && !Object.values(ContractStatus).includes(subType)) {
+      throw new ApiError(HTTPStatus.BadRequest, `${subType} is not a valid ContractStatus`);
+    }
+    this.subType = subType;
+  }
 }

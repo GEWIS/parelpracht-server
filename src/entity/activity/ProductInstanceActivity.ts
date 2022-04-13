@@ -6,11 +6,13 @@ import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { ProductInstance } from '../ProductInstance';
 import { ProductInstanceStatus } from '../enums/ProductActivityStatus';
+import { BaseEnt } from '../BaseEnt';
+import { ApiError, HTTPStatus } from '../../helpers/error';
 
 @Entity()
 export class ProductInstanceActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-  readonly productInstanceId!: number;
+  productInstanceId!: number;
 
   /** ProductInstance related to this activity */
   @ManyToOne(() => ProductInstance, (productInstance) => productInstance.activities, {
@@ -26,5 +28,24 @@ export class ProductInstanceActivity extends BaseActivity {
     nullable: true,
     update: false,
   })
-  readonly subType?: ProductInstanceStatus;
+  subType?: ProductInstanceStatus;
+
+  getRelatedEntity(): BaseEnt {
+    return this.productInstance;
+  }
+
+  getRelatedEntityId(): number {
+    return this.productInstanceId;
+  }
+
+  setRelatedEntityId(id: number): void {
+    this.productInstanceId = id;
+  }
+
+  setSubType(subType: ProductInstanceStatus): void {
+    if (subType !== undefined && !Object.values(ProductInstanceStatus).includes(subType)) {
+      throw new ApiError(HTTPStatus.BadRequest, `${subType} is not a valid ProductInstanceStatus`);
+    }
+    this.subType = subType;
+  }
 }

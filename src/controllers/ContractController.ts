@@ -249,8 +249,8 @@ export class ContractController extends Controller {
       entityId: prodId,
       type: ActivityType.STATUS,
     };
-    return new ActivityService(ProductInstanceActivity, { actor: req.user as User })
-      .createActivity(p);
+    return new ActivityService(new ProductInstanceActivity, { actor: req.user as User })
+      .createActivity(ProductInstanceActivity, p);
   }
 
   /**
@@ -274,9 +274,9 @@ export class ContractController extends Controller {
       entityId: prodId,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService(ProductInstanceActivity, {
+    return new ActivityService(new ProductInstanceActivity, {
       actor: req.user as User,
-    }).createActivity(p);
+    }).createActivity(ProductInstanceActivity, p);
   }
 
   /**
@@ -300,7 +300,7 @@ export class ContractController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(ProductInstanceActivity).updateActivity(prodId, activityId, p);
+    return new ActivityService(new ProductInstanceActivity).updateActivity(prodId, activityId, p);
   }
 
   /**
@@ -316,7 +316,7 @@ export class ContractController extends Controller {
     id: number, prodId: number, activityId: number,
   ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
-    return new ActivityService(ProductInstanceActivity).deleteActivity(prodId, activityId);
+    return new ActivityService(new ProductInstanceActivity).deleteActivity(prodId, activityId);
   }
 
   /**
@@ -437,7 +437,7 @@ export class ContractController extends Controller {
       entityId: id,
       type: ActivityType.STATUS,
     };
-    return new ActivityService(ContractActivity, { actor: req.user as User }).createActivity(p);
+    return new ActivityService(new ContractActivity, { actor: req.user as User }).createActivity(ContractActivity, p);
   }
 
   /**
@@ -459,7 +459,7 @@ export class ContractController extends Controller {
       entityId: id,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService(ContractActivity, { actor: req.user as User }).createActivity(p);
+    return new ActivityService(new ContractActivity, { actor: req.user as User }).createActivity(ContractActivity, p);
   }
 
   /**
@@ -481,7 +481,7 @@ export class ContractController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(ContractActivity).updateActivity(id, activityId, p);
+    return new ActivityService(new ContractActivity).updateActivity(id, activityId, p);
   }
 
   /**
@@ -493,6 +493,6 @@ export class ContractController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteContractActivity(id: number, activityId: number): Promise<void> {
-    return new ActivityService(ContractActivity).deleteActivity(id, activityId);
+    return new ActivityService(new ContractActivity).deleteActivity(id, activityId);
   }
 }

@@ -329,7 +329,7 @@ export class InvoiceController extends Controller {
       entityId: id,
       type: ActivityType.STATUS,
     };
-    return new ActivityService(InvoiceActivity, { actor: req.user as User }).createActivity(p);
+    return new ActivityService(new InvoiceActivity, { actor: req.user as User }).createActivity(InvoiceActivity, p);
   }
 
   /**
@@ -351,7 +351,7 @@ export class InvoiceController extends Controller {
       entityId: id,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService(InvoiceActivity, { actor: req.user as User }).createActivity(p);
+    return new ActivityService(new InvoiceActivity, { actor: req.user as User }).createActivity(InvoiceActivity, p);
   }
 
   /**
@@ -373,6 +373,6 @@ export class InvoiceController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(InvoiceActivity).updateActivity(id, activityId, p);
+    return new ActivityService(new InvoiceActivity).updateActivity(id, activityId, p);
   }
 }

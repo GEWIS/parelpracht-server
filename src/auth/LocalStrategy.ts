@@ -38,12 +38,13 @@ export default new LocalStrategy({
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
-  const user = await userRepo.findOne({ email: userEmail }, { relations: ['roles'] });
-  const identity = user !== undefined ? await identityRepo.findOne(user.id) : undefined;
+  const user = await userRepo.findOne({ where: { email: userEmail }, relations: ['roles'] });
+
+  const identity = user != null ? await identityRepo.findOneBy({ id: user.id }) : undefined;
 
   // Check if the identity is found
-  if (identity === undefined) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
-  if (identity.hash === undefined || identity.salt === undefined) {
+  if (identity == null) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
+  if (identity.hash == null || identity.salt == null) {
     return done(new ApiError(HTTPStatus.BadRequest, VERIFY_ACCOUNT));
   }
 
@@ -56,7 +57,7 @@ export default new LocalStrategy({
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
-  return done(null, await userRepo.findOne({ id: identity.id }));
+  return done(null, await userRepo.findOneBy({ id: identity.id }));
 });
 
 export const localLogin = (

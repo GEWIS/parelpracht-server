@@ -298,7 +298,7 @@ export class ProductController extends Controller {
       entityId: id,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService(ProductActivity, { actor: req.user as User }).createActivity(p);
+    return new ActivityService<ProductActivity>(new ProductActivity, { actor: req.user as User }).createActivity(ProductActivity, p);
   }
 
   /**
@@ -320,7 +320,7 @@ export class ProductController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(ProductActivity).updateActivity(id, activityId, p);
+    return new ActivityService(new ProductActivity).updateActivity(id, activityId, p);
   }
 
   /**
@@ -332,7 +332,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteProductActivity(id: number, activityId: number): Promise<void> {
-    return new ActivityService(ProductActivity).deleteActivity(id, activityId);
+    return new ActivityService(new ProductActivity).deleteActivity(id, activityId);
   }
 
   /**

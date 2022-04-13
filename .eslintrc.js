@@ -19,6 +19,18 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['warn'],
     'arrow-body-style': 'off',
     'import/no-cycle': 'off',
+    'indent': 'off',
+    '@typescript-eslint/indent': [
+      'error',
+      2,
+      {
+        'ignoredNodes': [
+          'FunctionExpression > .params[decorators.length > 0]',
+          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
+          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
+        ]
+      }
+    ]
   },
   parserOptions: {
     project: ['./tsconfig.json'],

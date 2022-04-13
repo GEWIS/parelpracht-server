@@ -88,7 +88,8 @@ export const ldapLogin = (
         username: ldapUser.sAMAccountName,
       } as any as IdentityLDAP;
       identity = await identityRepo.save(identity);
-      identity = await identityRepo.findOne(identity.id, {
+      identity = await identityRepo.findOne({
+        where: { id: identity.id },
         relations: ['user', 'user.roles'],
       });
       if (!identity) throw new Error('Identity is still undefined after saving it to database');

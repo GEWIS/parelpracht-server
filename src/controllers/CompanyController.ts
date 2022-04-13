@@ -283,8 +283,8 @@ export class CompanyController extends Controller {
       entityId: id,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService(CompanyActivity, { actor: req.user as User })
-      .createActivity(p);
+    return new ActivityService(new CompanyActivity, { actor: req.user as User })
+      .createActivity(CompanyActivity, p);
   }
 
   /**
@@ -305,7 +305,7 @@ export class CompanyController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(CompanyActivity).updateActivity(id, activityId, p);
+    return new ActivityService(new CompanyActivity).updateActivity(id, activityId, p);
   }
 
   /**
@@ -316,6 +316,6 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCompanyActivity(id: number, activityId: number): Promise<void> {
-    return new ActivityService(CompanyActivity).deleteActivity(id, activityId);
+    return new ActivityService(new CompanyActivity).deleteActivity(id, activityId);
   }
 }

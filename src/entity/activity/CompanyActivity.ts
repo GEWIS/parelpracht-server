@@ -5,11 +5,12 @@ import {
 import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Company } from '../Company';
+import { BaseEnt } from '../BaseEnt';
 
 @Entity()
 export class CompanyActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-  readonly companyId!: number;
+  companyId!: number;
 
   /** Company related to this activity */
   @ManyToOne(() => Company, (company) => company.activities, {
@@ -17,4 +18,19 @@ export class CompanyActivity extends BaseActivity {
   })
   @JoinColumn({ name: 'companyId' })
   company!: Company;
+
+  getRelatedEntity(): BaseEnt {
+    return this.company;
+  }
+
+  getRelatedEntityId(): number {
+    return this.companyId;
+  }
+
+  setRelatedEntityId(id: number): void {
+    this.companyId = id;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  setSubType(subType: string): void {}
 }

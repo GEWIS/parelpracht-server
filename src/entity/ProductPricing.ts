@@ -22,7 +22,7 @@ export class ProductPricing {
   @Column({ type: 'simple-json' })
   data!: string[][];
 
-  @OneToOne(() => Product, { onDelete: 'CASCADE', primary: true })
+  @OneToOne(() => Product, { onDelete: 'CASCADE' } )
   @JoinColumn({ name: 'id' })
   product!: Product;
 
