@@ -202,7 +202,7 @@ export default class ProductInstanceService {
   }
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {
-    const productInstance = await this.getProduct(productId, ['contract']);
+    const productInstance = await this.getProduct(productId, ['contract', 'activities']);
     const invoice = await new InvoiceService().getInvoice(invoiceId);
 
     // Verify that this productInstance doesn't already belong to an invoice
@@ -239,7 +239,8 @@ export default class ProductInstanceService {
     }
 
     const statuses = await new ActivityService(new InvoiceActivity).getStatuses({ invoiceId });
-    if (statuses.length > 1) {
+    if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
+      || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
     }
 
