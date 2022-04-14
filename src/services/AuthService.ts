@@ -58,12 +58,12 @@ export default class AuthService {
 
   async getProfile(req: express.Request): Promise<Profile> {
     const user = (await this.userRepo.findOne(
-      (req.user as User).id,
-      { relations: ['roles'] },
+      { where: { id: (req.user as User).id },
+        relations: ['roles'] },
     ))! as Profile;
 
-    const identity = (await this.identityApiKeyRepo.findOne(
-      user.id,
+    const identity = (await this.identityApiKeyRepo.findOneBy(
+      { id: user.id },
     ));
 
     user.hasApiKey = identity?.apiKey !== undefined;
@@ -80,10 +80,10 @@ export default class AuthService {
     if (email === false) {
       email = '';
     }
-    const user = await this.userRepo.findOne({ email });
-    const identity = user !== undefined ? await this.identityLocalRepo.findOne(user.id) : undefined;
+    const user = await this.userRepo.findOneBy({ email });
+    const identity = user !== undefined ? await this.identityLocalRepo.findOneBy({ id: user?.id }) : undefined;
 
-    if (user === undefined || identity === undefined) {
+    if (user == null || identity == null) {
       return;
     }
 
@@ -95,7 +95,7 @@ export default class AuthService {
   }
 
   async createIdentityLocal(user: User, silent: boolean): Promise<IdentityLocal> {
-    let identity = await this.identityLocalRepo.findOne(user.id);
+    let identity = await this.identityLocalRepo.findOneBy({ id: user.id });
     if (identity) throw new ApiError(HTTPStatus.BadRequest, 'Identity already exists.');
 
     identity = this.identityLocalRepo.create({
@@ -105,7 +105,7 @@ export default class AuthService {
       salt: generateSalt(),
     });
     await this.identityLocalRepo.insert(identity);
-    identity = (await this.identityLocalRepo.findOne(user.id))!;
+    identity = (await this.identityLocalRepo.findOneBy({ id: user.id }))!;
 
     if (!silent) {
       Mailer.getInstance().send(newUser(
@@ -119,11 +119,11 @@ export default class AuthService {
   }
 
   async updateIdentityLdap(user: User, params: Partial<LdapIdentityParams>): Promise<IdentityLDAP> {
-    let identity = await this.identityLdapRepo.findOne(user.id);
+    let identity = await this.identityLdapRepo.findOneBy({ id: user.id });
     if (!identity) throw new ApiError(HTTPStatus.NotFound, 'Identity not found.');
 
     await this.identityLdapRepo.update(identity.id, params);
-    identity = await this.identityLdapRepo.findOne(identity.id);
+    identity = await this.identityLdapRepo.findOneBy({ id: identity.id });
     return identity!;
   }
 
@@ -132,7 +132,7 @@ export default class AuthService {
   }
 
   async createIdentityLdap(user: User, params: LdapIdentityParams): Promise<IdentityLDAP> {
-    let identity = await this.identityLdapRepo.findOne(user.id);
+    let identity = await this.identityLdapRepo.findOneBy({ id: user.id });
     if (identity) throw new ApiError(HTTPStatus.BadRequest, 'Identity already exists.');
 
     identity = this.identityLdapRepo.create({
@@ -140,7 +140,7 @@ export default class AuthService {
       ...params,
     });
     await this.identityLdapRepo.insert(identity);
-    identity = await this.identityLdapRepo.findOne(user.id);
+    identity = await this.identityLdapRepo.findOneBy({ id: identity.id });
     return identity!;
   }
 
@@ -178,32 +178,32 @@ export default class AuthService {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
 
-    const user = await this.userRepo.findOne({ id: token.user_id });
-    const identity = await this.identityLocalRepo.findOne({ id: token.user_id });
+    const user = await this.userRepo.findOneBy({ id: token.user_id });
+    const identity = await this.identityLocalRepo.findOneBy({ id: token.user_id });
     // Check if the user is defined
-    if (user === undefined || identity === undefined) {
+    if (user == null || identity == null) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
 
     try {
       switch (token.type) {
-        case 'PASSWORD_RESET':
-        case 'PASSWORD_SET':
-        {
-          // Verify the token
-          jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
-          const salt = generateSalt();
-          await this.identityLocalRepo.update(user.id, {
-            id: user.id,
-            // email: user.email,
-            verifiedEmail: true,
-            hash: hashPassword(newPassword, salt),
-            salt,
-          });
-          return;
-        }
-        default:
-          throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
+      case 'PASSWORD_RESET':
+      case 'PASSWORD_SET':
+      {
+        // Verify the token
+        jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
+        const salt = generateSalt();
+        await this.identityLocalRepo.update(user.id, {
+          id: user.id,
+          // email: user.email,
+          verifiedEmail: true,
+          hash: hashPassword(newPassword, salt),
+          salt,
+        });
+        return;
+      }
+      default:
+        throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
       }
     } catch (e) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
@@ -215,13 +215,15 @@ export default class AuthService {
   }
 
   async getApiKey(req: express.Request) {
-    const user = (await this.userRepo.findOne(
-      (req.user as User).id,
+    const user = (await this.userRepo.findOneBy(
+      { id: (req.user as User).id },
     ))!;
 
-    const identity = await this.identityApiKeyRepo.findOne((req.user as User).id);
+    const identity = await this.identityApiKeyRepo.findOneBy(
+      { id: (req.user as User).id },
+    );
 
-    if (identity === undefined) {
+    if (identity == null) {
       throw new ApiError(HTTPStatus.BadRequest, 'You don\'t have an API key yet.');
     }
 
@@ -233,13 +235,15 @@ export default class AuthService {
   }
 
   async generateApiKey(req: express.Request) {
-    const user = (await this.userRepo.findOne(
-      (req.user as User).id,
+    const user = (await this.userRepo.findOneBy(
+      { id: (req.user as User).id },
     ))!;
 
-    let identity = await this.identityApiKeyRepo.findOne((req.user as User).id);
+    let identity = await this.identityApiKeyRepo.findOneBy(
+      { id: (req.user as User).id },
+    );
 
-    if (identity !== undefined) {
+    if (identity != null) {
       throw new ApiError(HTTPStatus.BadRequest, 'You already have an API key.');
     }
 

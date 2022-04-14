@@ -19,18 +19,18 @@ export default class RoleService {
     return this.repo.find();
   }
 
-  async getRole(id: string): Promise<Role> {
-    const role = await this.repo.findOne(id);
+  async getRole(name: string): Promise<Role> {
+    const role = await this.repo.findOneBy({ name });
     if (!role) throw new ApiError(HTTPStatus.NotFound, 'Role not found.');
     return role;
   }
 
-  async updateRole(id: string, params: Partial<RoleParams>): Promise<Role> {
-    let role = await this.repo.findOne(id);
+  async updateRole(name: string, params: Partial<RoleParams>): Promise<Role> {
+    let role = await this.repo.findOneBy({ name });
     if (!role) throw new ApiError(HTTPStatus.NotFound, 'Role not found.');
 
-    await this.repo.update(id, params);
-    role = await this.repo.findOne(id);
+    await this.repo.update(name, params);
+    role = await this.repo.findOneBy({ name });
     return role!;
   }
 }

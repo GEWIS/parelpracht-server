@@ -25,7 +25,7 @@ export class IdentityLDAP {
   @Column({ nullable: true })
   lastLogin?: Date;
 
-  @OneToOne(() => User, { onDelete: 'CASCADE', primary: true })
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id' })
   user!: User;
 

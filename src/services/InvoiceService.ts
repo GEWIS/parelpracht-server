@@ -1,12 +1,12 @@
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
+  FindOptionsWhere, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
 import ProductInstanceService from './ProductInstanceService';
 import ActivityService, { FullActivityParams } from './ActivityService';
 import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
@@ -49,8 +49,11 @@ export default class InvoiceService {
   }
 
   async getInvoice(id: number, relations: string[] = []): Promise<Invoice> {
-    const invoice = await this.repo.findOne(id, { relations: ['products', 'products.activities', 'activities', 'company', 'files', 'files.createdBy'].concat(relations) });
-    if (invoice === undefined) {
+    const invoice = await this.repo.findOne({
+      where: { id },
+      relations: ['products', 'products.activities', 'activities', 'company', 'files', 'files.createdBy'].concat(relations) },
+    );
+    if (invoice == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Invoice not found');
     }
     return invoice;
@@ -64,46 +67,7 @@ export default class InvoiceService {
       },
     };
 
-    let conditions: FindConditions<Invoice>[] = [];
-
-    if (params.filters !== undefined) {
-      const filters: FindConditions<Invoice> = {};
-      let statusFilterValues: any[] = [];
-
-      params.filters.forEach((f) => {
-        if (f.column === 'activityStatus') {
-          statusFilterValues = f.values;
-        } else {
-          // @ts-ignore
-          filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
-        }
-      });
-
-      if (statusFilterValues.length > 0) {
-        const ids = await new RawQueries().getInvoiceIdsByStatus(statusFilterValues);
-        // @ts-ignore
-        filters.id = In(ids.map((o) => o.id));
-      }
-
-      conditions.push(filters);
-    }
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      const rawSearches: FindConditions<Invoice>[][] = [];
-      params.search.trim().split(' ').forEach((searchTerm) => {
-        rawSearches.push([
-          { title: ILike(`%${searchTerm}%`) },
-        ]);
-      });
-      const searches = cartesianArrays(rawSearches);
-      if (conditions.length > 0) {
-        conditions = cartesian(conditions, searches);
-      } else {
-        conditions = searches;
-      }
-    }
-
-    findOptions.where = conditions;
+    findOptions.where = addQueryWhereClause(params, ['title']);
 
     return {
       list: await this.repo.find({
@@ -146,7 +110,7 @@ export default class InvoiceService {
 
     invoice = await this.repo.save(invoice);
 
-    await new ActivityService(InvoiceActivity, { actor: this.actor }).createActivity({
+    await new ActivityService(new InvoiceActivity, { actor: this.actor }).createActivity(InvoiceActivity, {
       entityId: invoice.id,
       type: ActivityType.STATUS,
       subType: InvoiceStatus.CREATED,
@@ -170,7 +134,7 @@ export default class InvoiceService {
     }
 
     if (!(await createActivitiesForEntityEdits<Invoice>(
-      this.repo, invoice, params, new ActivityService(InvoiceActivity, { actor: this.actor }),
+      this.repo, invoice, params, new ActivityService(new InvoiceActivity, { actor: this.actor }), InvoiceActivity,
     ))) return invoice;
 
     return this.getInvoice(id);

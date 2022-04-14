@@ -1,11 +1,11 @@
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
+  FindOptionsWhere, FindManyOptions, getRepository, ILike, In, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ProductStatus } from '../entity/enums/ProductStatus';
 import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
 import { User } from '../entity/User';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
@@ -60,8 +60,8 @@ export default class ProductService {
   }
 
   async getProduct(id: number, relations: string[] = []): Promise<Product> {
-    const product = await this.repo.findOne(id, { relations: ['files', 'activities', 'pricing'].concat(relations) });
-    if (product === undefined) {
+    const product = await this.repo.findOne({ where: { id }, relations: ['files', 'activities', 'pricing'].concat(relations) });
+    if (product == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
     }
     return product;
@@ -75,33 +75,7 @@ export default class ProductService {
       },
     };
 
-    let conditions: FindConditions<Product>[] = [];
-
-    if (params.filters !== undefined) {
-      const filters: FindConditions<Product> = {};
-      params.filters.forEach((f) => {
-        // @ts-ignore
-        filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
-      });
-      conditions.push(filters);
-    }
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      const rawSearches: FindConditions<Product>[][] = [];
-      params.search.trim().split(' ').forEach((searchTerm) => {
-        rawSearches.push([
-          { nameDutch: ILike(`%${searchTerm}%`) },
-          { nameEnglish: ILike(`%${searchTerm}%`) },
-        ]);
-      });
-      const searches = cartesianArrays(rawSearches);
-      if (conditions.length > 0) {
-        conditions = cartesian(conditions, searches);
-      } else {
-        conditions = searches;
-      }
-    }
-    findOptions.where = conditions;
+    findOptions.where = addQueryWhereClause(params, ['nameDutch', 'nameEnglish']);
 
     return {
       list: await this.repo.find({
@@ -128,7 +102,7 @@ export default class ProductService {
     const product = await this.getProduct(id);
 
     if (!(await createActivitiesForEntityEdits<Product>(
-      this.repo, product, params, new ActivityService(ProductActivity, { actor: this.actor }),
+      this.repo, product, params, new ActivityService(new ProductActivity, { actor: this.actor }), ProductActivity,
     ))) return product;
 
     return this.getProduct(id);
@@ -147,15 +121,15 @@ export default class ProductService {
   }
 
   private async getPricing(id: number): Promise<ProductPricing> {
-    const pricing = await this.pricingRepo.findOne(id);
-    if (pricing === undefined) throw new ApiError(HTTPStatus.NotFound);
+    const pricing = await this.pricingRepo.findOneBy({ id });
+    if (pricing == null) throw new ApiError(HTTPStatus.NotFound);
     return pricing;
   }
 
   async addPricing(id: number): Promise<ProductPricing> {
     await this.getProduct(id);
-    const pricing = await this.pricingRepo.findOne(id);
-    if (pricing !== undefined) {
+    const pricing = await this.pricingRepo.findOneBy({ id });
+    if (pricing != null) {
       throw new ApiError(HTTPStatus.BadRequest, 'This product already has a pricing attribute');
     }
 

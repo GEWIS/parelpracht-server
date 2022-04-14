@@ -9,15 +9,15 @@ import { ActivityType } from '../enums/ActivityType';
 export default abstract class BaseActivity extends BaseEnt {
   /** Type of the activity (status or comment) */
   @Column({ type: 'enum', enum: ActivityType, update: false })
-  readonly type!: ActivityType;
+  type!: ActivityType;
 
   /** Description of this activity (English) */
   @Column({ type: 'text' })
-  descriptionEnglish!: string;
+    descriptionEnglish!: string;
 
   /** Description of this activity (Dutch) */
   @Column({ type: 'text' })
-  descriptionDutch!: string;
+    descriptionDutch!: string;
 
   @Column({ type: 'integer', update: false })
   readonly createdById!: number;
@@ -25,5 +25,13 @@ export default abstract class BaseActivity extends BaseEnt {
   /** User who created this activity */
   @ManyToOne(() => User)
   @JoinColumn({ name: 'createdById' })
-  createdBy!: User;
+    createdBy!: User;
+
+  public abstract getRelatedEntity(): BaseEnt;
+
+  public abstract getRelatedEntityId(): number;
+
+  public abstract setRelatedEntityId(id: number): void;
+
+  public abstract setSubType(subType: string): void;
 }

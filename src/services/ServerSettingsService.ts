@@ -22,8 +22,8 @@ export default class ServerSettingsService {
     await this.repo.save(setting);
   }
 
-  async getSetting(name: string): Promise<ServerSetting | undefined> {
-    return this.repo.findOne(name);
+  async getSetting(name: string): Promise<ServerSetting | null> {
+    return this.repo.findOneBy({ name });
   }
 
   async initialSetup(
