@@ -239,7 +239,8 @@ export default class ProductInstanceService {
     }
 
     const statuses = await new ActivityService(InvoiceActivity).getStatuses({ invoiceId });
-    if (statuses.length > 1) {
+    if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
+      || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
     }
 
