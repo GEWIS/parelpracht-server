@@ -202,7 +202,7 @@ export default class ProductInstanceService {
   }
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {
-    const productInstance = await this.getProduct(productId, ['contract']);
+    const productInstance = await this.getProduct(productId, ['contract', 'activities']);
     const invoice = await new InvoiceService().getInvoice(invoiceId);
 
     // Verify that this productInstance doesn't already belong to an invoice
