@@ -84,8 +84,7 @@ export default class CompanyService {
         skip: params.skip,
         take: params.take,
       }),
-      // count: await this.repo.count(findOptions),
-      count: 100,
+      count: await this.repo.count(findOptions),
     };
   }
 
