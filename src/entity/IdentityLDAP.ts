@@ -2,29 +2,32 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity, JoinColumn, OneToOne,
+  Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryColumn,
-  UpdateDateColumn,
-  VersionColumn,
+  UpdateDateColumn, VersionColumn,
 } from 'typeorm';
-import { Product } from './Product';
+import { User } from './User';
 
 @Entity()
-export class ProductPricing {
+export class IdentityLDAP {
+  /** ID of the associated user */
   @PrimaryColumn('integer')
   readonly id!: number;
 
-  /** Piece of text to be placed above the table */
-  @Column()
-  description!: string;
+  @Column({ unique: true })
+  username!: string;
 
-  /** Table parsed as a JSON object */
-  @Column({ type: 'simple-json' })
-  data!: string[][];
+  @Column({ default: false })
+  overrideEmail!: boolean;
 
-  @OneToOne(() => Product, { onDelete: 'CASCADE' } )
+  @Column({ nullable: true })
+  lastLogin?: Date;
+
+  @OneToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id' })
-  product!: Product;
+  user!: User;
 
   /** Date at which this entity has been created */
   @CreateDateColumn({ update: false })

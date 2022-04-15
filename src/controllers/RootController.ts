@@ -4,17 +4,25 @@ import {
   Controller, Get, Post, Query, Request, Response, Route, Security,
 } from 'tsoa';
 import { body } from 'express-validator';
-import { User } from '../entity/User';
 import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
 import AuthService, { AuthStatus, Profile } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
 import StatisticsService from '../services/StatisticsService';
+import { ldapEnabled, LoginMethods } from '../auth';
 
 export interface ResetPasswordRequest {
   password: string;
   repeatPassword: string;
   token: string;
+}
+
+export interface GeneralPrivateInfo {
+  financialYears: number[];
+}
+
+export interface GeneralPublicInfo {
+  loginMethod: LoginMethods;
 }
 
 @Route('')
@@ -86,10 +94,27 @@ export class RootController extends Controller {
     await new AuthService().revokeApiKey(req);
   }
 
-  @Get('generalInfo')
+  @Get('getPrivateGeneralInfo')
   @Security('local')
   @Response<WrappedApiError>(400)
-  public async getGeneralInfo() {
-    return new StatisticsService().getFinancialYears();
+  public async getPrivateGeneralInfo(): Promise<GeneralPrivateInfo> {
+    return {
+      financialYears: await (new StatisticsService()).getFinancialYears(),
+    };
+  }
+
+  @Get('getPublicGeneralInfo')
+  @Response<WrappedApiError>(400)
+  public getPublicGeneralInfo(): GeneralPublicInfo {
+    let loginMethod: LoginMethods;
+    if (ldapEnabled()) {
+      loginMethod = 'ldap';
+    } else {
+      loginMethod = 'local';
+    }
+
+    return {
+      loginMethod,
+    };
   }
 }

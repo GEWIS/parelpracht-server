@@ -6,11 +6,13 @@ import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from '../Invoice';
 import { InvoiceStatus } from '../enums/InvoiceStatus';
+import { BaseEnt } from '../BaseEnt';
+import { ApiError, HTTPStatus } from '../../helpers/error';
 
 @Entity()
 export class InvoiceActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-  readonly invoiceId!: number;
+  invoiceId!: number;
 
   /** Invoice related to this activity */
   @ManyToOne(() => Invoice, (invoice) => invoice.activities, {
@@ -26,5 +28,24 @@ export class InvoiceActivity extends BaseActivity {
     nullable: true,
     update: false,
   })
-  readonly subType?: InvoiceStatus;
+  subType?: InvoiceStatus;
+
+  getRelatedEntity(): BaseEnt {
+    return this.invoice;
+  }
+
+  getRelatedEntityId(): number {
+    return this.invoiceId;
+  }
+
+  setRelatedEntityId(id: number): void {
+    this.invoiceId = id;
+  }
+
+  setSubType(subType: InvoiceStatus): void {
+    if (subType !== undefined && !Object.values(InvoiceStatus).includes(subType)) {
+      throw new ApiError(HTTPStatus.BadRequest, `${subType} is not a valid InvoiceStatus`);
+    }
+    this.subType = subType;
+  }
 }

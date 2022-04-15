@@ -1,6 +1,4 @@
-import {
-  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
-} from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import path from 'path';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
@@ -8,17 +6,17 @@ import { IdentityLocal } from '../entity/IdentityLocal';
 import { Role } from '../entity/Role';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import AuthService from './AuthService';
 import { Roles } from '../entity/enums/Roles';
 // eslint-disable-next-line import/no-cycle
 import ContractService from './ContractService';
 // eslint-disable-next-line import/no-cycle
 import InvoiceService from './InvoiceService';
-import FileHelper, {
-  uploadUserAvatarDirLoc,
-  uploadUserBackgroundDirLoc
-} from '../helpers/fileHelper';
+import FileHelper, { uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc } from '../helpers/fileHelper';
+import { IdentityLDAP } from '../entity/IdentityLDAP';
+import { ldapEnabled } from '../auth';
+import AppDataSource from '../database';
 
 export interface UserParams {
   email: string;
@@ -32,7 +30,9 @@ export interface UserParams {
   sendEmailsToReplyToEmail?: boolean;
   comment?: string;
 
-  roles?: Roles[]
+  ldapOverrideEmail?: boolean;
+
+  roles?: Roles[];
 }
 
 export interface TransferUserParams {
@@ -60,21 +60,25 @@ export default class UserService {
 
   roleRepo: Repository<Role>;
 
-  identityRepo: Repository<IdentityLocal>;
+  identityLocalRepo: Repository<IdentityLocal>;
+
+  identityLdapRepo: Repository<IdentityLDAP>;
 
   constructor(
     userRepo?: Repository<User>,
     roleRepo?: Repository<Role>,
-    identityRepo?: Repository<IdentityLocal>,
+    identityLocalRepo?: Repository<IdentityLocal>,
+    identityLdapRepo?: Repository<IdentityLDAP>,
   ) {
-    this.repo = userRepo ?? getRepository(User);
-    this.roleRepo = roleRepo ?? getRepository(Role);
-    this.identityRepo = identityRepo ?? getRepository(IdentityLocal);
+    this.repo = userRepo ?? AppDataSource.getRepository(User);
+    this.roleRepo = roleRepo ?? AppDataSource.getRepository(Role);
+    this.identityLocalRepo = identityLocalRepo ?? AppDataSource.getRepository(IdentityLocal);
+    this.identityLdapRepo = identityLdapRepo ?? AppDataSource.getRepository(IdentityLDAP);
   }
 
   async getUser(id: number): Promise<User> {
-    const user = await this.repo.findOne(id, { relations: ['roles'] });
-    if (user === undefined) {
+    const user = await this.repo.findOne({ where: { id }, relations: ['roles', 'identityLocal', 'identityLdap'] });
+    if (user == null) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
     return user;
@@ -89,36 +93,7 @@ export default class UserService {
       relations: ['roles'],
     };
 
-    let conditions: FindConditions<User>[] = [];
-
-    if (params.filters !== undefined) {
-      const filters: FindConditions<User> = {};
-      params.filters.forEach((f) => {
-        // @ts-ignore
-        filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
-      });
-      conditions.push(filters);
-    }
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      const rawSearches: FindConditions<User>[][] = [];
-      params.search.trim().split(' ').forEach((searchTerm) => {
-        rawSearches.push([
-          { firstName: ILike(`%${searchTerm}%`) },
-          { lastNamePreposition: ILike(`%${searchTerm}%`) },
-          { lastName: ILike(`%${searchTerm}%`) },
-          { email: ILike(`%${searchTerm}%`) },
-        ]);
-      });
-      const searches = cartesianArrays(rawSearches);
-      if (conditions.length > 0) {
-        conditions = cartesian(conditions, searches);
-      } else {
-        conditions = searches;
-      }
-    }
-
-    findOptions.where = conditions;
+    findOptions.where = addQueryWhereClause<User>(params, ['firstName', 'lastNamePreposition', 'lastName', 'email']);
 
     return {
       list: await this.repo.find({
@@ -162,8 +137,8 @@ export default class UserService {
     if (id === actor.id) {
       throw new ApiError(HTTPStatus.BadRequest, 'You cannot delete yourself');
     }
-    const user = await this.repo.findOne(id, { relations: ['roles'] });
-    if (user === undefined) {
+    const user = await this.repo.findOne({ where: { id }, relations: ['roles'] });
+    if (user == null) {
       throw new ApiError(HTTPStatus.NotFound, 'User not found');
     }
     await this.deleteUserAvatar(user.id);
@@ -173,17 +148,22 @@ export default class UserService {
   }
 
   async createUser(params: UserParams): Promise<User> {
-    const { roles, ...userParams } = params;
+    if (ldapEnabled()) throw new ApiError(HTTPStatus.BadRequest, 'Cannot create a local user, because LDAP authentication is enabled');
+
+    const { roles, ldapOverrideEmail, ...userParams } = params;
     let user = this.repo.create(userParams);
     user = await this.repo.save(user);
     if (roles) {
       user = await this.assignRoles(user, roles);
     }
-    await new AuthService().createIdentityLocal(user);
+
+    await new AuthService().createIdentityLocal(user, false);
     return user;
   }
 
-  async createAdminUser(params: UserParams): Promise<User> {
+  async createAdminUser(params: UserParams): Promise<User | undefined> {
+    if (ldapEnabled()) return Promise.resolve(undefined);
+
     const adminUser = await this.repo.save({
       email: params.email,
       gender: params.gender,
@@ -203,18 +183,30 @@ export default class UserService {
 
     newUser.roles = roles.map((r) => ({ name: r } as Role));
     await this.repo.save(newUser);
-    this.repo.findOne(newUser.id, { relations: ['roles'] });
     return newUser;
   }
 
   async updateUser(id: number, params: Partial<UserParams>, actor: User): Promise<User> {
-    const { roles, ...userParams } = params;
+    const { roles, ldapOverrideEmail, ...userParams } = params;
     await this.repo.update(id, userParams);
-    let user = (await this.repo.findOne(id))!;
+    let user = await this.repo.findOneBy({ id });
+
+    if (user == null) {
+      throw new ApiError(HTTPStatus.NotFound);
+    }
+
     // Check if roles should be assigned. You can't update your own roles
     if (roles && id !== actor.id) {
       user = await this.assignRoles(user, roles);
     }
+
+    // LDAP Identity update
+    if (ldapOverrideEmail || ldapEnabled()) {
+      await this.identityLdapRepo.update(id, {
+        overrideEmail: ldapOverrideEmail,
+      });
+    }
+    user = await this.getUser(user.id);
     return user!;
   }
 

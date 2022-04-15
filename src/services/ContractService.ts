@@ -1,5 +1,5 @@
 import {
-  FindConditions, FindManyOptions, getRepository, ILike, In, Repository,
+  FindManyOptions, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
@@ -15,12 +15,13 @@ import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
-import { cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
 import {
   createActivitiesForEntityEdits,
 } from '../helpers/activity';
+import AppDataSource from '../database';
 
 export interface ContractParams {
   title: string;
@@ -42,15 +43,16 @@ export default class ContractService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(Contract);
+    this.repo = AppDataSource.getRepository(Contract);
     this.actor = options?.actor;
   }
 
   async getContract(id: number, relations: string[] = []): Promise<Contract> {
-    const contract = await this.repo.findOne(id, {
+    const contract = await this.repo.findOne({
+      where: { id },
       relations: ['contact', 'company', 'products', 'activities', 'products.activities', 'products.invoice', 'files', 'files.createdBy'].concat(relations),
     });
-    if (contract === undefined) {
+    if (contract == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Contract not found');
     }
     return contract;
@@ -64,46 +66,7 @@ export default class ContractService {
       },
     };
 
-    let conditions: FindConditions<Contract>[] = [];
-
-    if (params.filters !== undefined) {
-      const filters: FindConditions<Contract> = {};
-      let statusFilterValues: any[] = [];
-
-      params.filters.forEach((f) => {
-        if (f.column === 'activityStatus') {
-          statusFilterValues = f.values;
-        } else {
-          // @ts-ignore
-          filters[f.column] = f.values.length !== 1 ? In(f.values) : f.values[0];
-        }
-      });
-
-      if (statusFilterValues.length > 0) {
-        const ids = await new RawQueries().getContractIdsByStatus(statusFilterValues);
-        // @ts-ignore
-        filters.id = In(ids.map((o) => o.id));
-      }
-
-      conditions.push(filters);
-    }
-
-    if (params.search !== undefined && params.search.trim() !== '') {
-      const rawSearches: FindConditions<Contract>[][] = [];
-      params.search.trim().split(' ').forEach((searchTerm) => {
-        rawSearches.push([
-          { title: ILike(`%${searchTerm}%`) },
-        ]);
-      });
-      const searches = cartesianArrays(rawSearches);
-      if (conditions.length > 0) {
-        conditions = cartesian(conditions, searches);
-      } else {
-        conditions = searches;
-      }
-    }
-
-    findOptions.where = conditions;
+    findOptions.where = addQueryWhereClause<Contract>(params, ['title', 'company.name', 'contact.firstName', 'contact.lastNamePreposition', 'contact.lastName']);
 
     return {
       list: await this.repo.find({
@@ -143,7 +106,7 @@ export default class ContractService {
 
     contract = await this.repo.save(contract);
 
-    await new ActivityService(ContractActivity, { actor: this.actor }).createActivity({
+    await new ActivityService(new ContractActivity, { actor: this.actor }).createActivity(ContractActivity, {
       entityId: contract.id,
       type: ActivityType.STATUS,
       subType: ContractStatus.CREATED,
@@ -158,7 +121,7 @@ export default class ContractService {
     const contract = await this.getContract(id);
 
     if (!(await createActivitiesForEntityEdits<Contract>(
-      this.repo, contract, params, new ActivityService(ContractActivity, { actor: this.actor }),
+      this.repo, contract, params, new ActivityService(new ContractActivity, { actor: this.actor }), ContractActivity,
     ))) return contract;
 
     return this.getContract(id);

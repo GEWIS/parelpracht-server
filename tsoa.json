@@ -38,23 +38,31 @@
               }
             },
             "additionalProperties": false
+          },
+          "LDAPLoginParams": {
+            "dataType": "refObject",
+            "properties": {
+              "username": {
+                "type": "string"
+              },
+              "password": {
+                "type": "string"
+              },
+              "rememberMe": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
           }
         }
       },
       "paths": {
-        "/login": {
+        "/login/local": {
           "post": {
             "operationId": "Login",
             "responses": {
               "200": {
-                "description": "Ok",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "$ref": "#/components/schemas/Product"
-                    }
-                  }
-                }
+                "description": "Ok"
               },
               "204": {
                 "description": "No content"
@@ -78,6 +86,41 @@
                 "application/json": {
                   "schema": {
                     "$ref": "#/components/schemas/LoginParams"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/login/ldap": {
+          "post": {
+            "operationId": "LoginLDAP",
+            "responses": {
+              "200": {
+                "description": "Ok"
+              },
+              "204": {
+                "description": "No content"
+              },
+              "400": {
+                "description": "Bad Request",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/components/schemas/WrappedApiError"
+                    }
+                  }
+                }
+              }
+            },
+            "security": [],
+            "parameters": [],
+            "requestBody": {
+              "required": true,
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LDAPLoginParams"
                   }
                 }
               }

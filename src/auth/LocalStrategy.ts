@@ -1,12 +1,12 @@
 import { Strategy as LocalStrategy } from 'passport-local';
-import { getRepository } from 'typeorm';
 import crypto from 'crypto';
 import passport from 'passport';
 import express from 'express';
-import validator from 'validator'
+import validator from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import AppDataSource from '../database';
 
 const INVALID_LOGIN = 'Invalid email or password.';
 const VERIFY_ACCOUNT = 'Please verify your account and set your password with the link received by email.';
@@ -31,19 +31,20 @@ export default new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
 }, async (email, password, done) => {
-  const userRepo = getRepository(User);
-  const identityRepo = getRepository(IdentityLocal);
+  const userRepo = AppDataSource.getRepository(User);
+  const identityRepo = AppDataSource.getRepository(IdentityLocal);
   const userEmail = validator.normalizeEmail(email);
   if (userEmail === false) {
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
-  const user = await userRepo.findOne({ email: userEmail }, { relations: ['roles'] });
-  const identity = user !== undefined ? await identityRepo.findOne(user.id) : undefined;
+  const user = await userRepo.findOne({ where: { email: userEmail }, relations: ['roles'] });
+
+  const identity = user != null ? await identityRepo.findOneBy({ id: user.id }) : undefined;
 
   // Check if the identity is found
-  if (identity === undefined) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
-  if (identity.hash === undefined || identity.salt === undefined) {
+  if (identity == null) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
+  if (identity.hash == null || identity.salt == null) {
     return done(new ApiError(HTTPStatus.BadRequest, VERIFY_ACCOUNT));
   }
 
@@ -56,7 +57,7 @@ export default new LocalStrategy({
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
-  return done(null, await userRepo.findOne({ id: identity.id }));
+  return done(null, await userRepo.findOneBy({ id: identity.id }));
 });
 
 export const localLogin = (

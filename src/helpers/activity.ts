@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { BaseEnt } from '../entity/BaseEnt';
 import ActivityService from '../services/ActivityService';
@@ -13,6 +13,8 @@ import Currency from './currency';
 import { timeToYearDayTime } from './timestamp';
 import getEntityChanges from './entityChanges';
 import { Language } from '../entity/enums/Language';
+import BaseActivity from '../entity/activity/BaseActivity';
+import AppDataSource from '../database';
 
 /**
  * Convert an array of strings to a single string, where all items are split by
@@ -32,9 +34,9 @@ function printStringArrayToString(items: string[], language: Language, preSuffix
 
   let conjunction: string;
   switch (language) {
-    case Language.DUTCH: conjunction = 'en'; break;
-    case Language.ENGLISH: conjunction = 'and'; break;
-    default: throw new TypeError(`Unknown language: ${language}`);
+  case Language.DUTCH: conjunction = 'en'; break;
+  case Language.ENGLISH: conjunction = 'and'; break;
+  default: throw new TypeError(`Unknown language: ${language}`);
   }
 
   return items.reduce((result, s, i) => {
@@ -82,63 +84,63 @@ async function parsePropertyChanges<T>(
   await Promise.all(keys.map(async (k) => {
     // Parse all possible relational attributes ID's to their respective names
     switch (k) {
-      case 'productId':
-        // @ts-ignore
-        newEnt = await getRepository(Product).findOne(newProperties.productId);
-        // @ts-ignore
-        oldEnt = await getRepository(Product).findOne(oldProperties.productId);
-        switch (language) {
-          case Language.DUTCH:
-            processedNew.product = newEnt !== undefined ? newEnt.nameDutch : '...';
-            processedOld.product = oldEnt !== undefined ? oldEnt.nameDutch : '...';
-            break;
-          case Language.ENGLISH:
-            processedNew.product = newEnt !== undefined ? newEnt.nameEnglish : '...';
-            processedOld.product = oldEnt !== undefined ? oldEnt.nameEnglish : '...';
-            break;
-          default: throw new TypeError(`Unknown language: ${language}`);
-        }
-        processedNew.product = newEnt !== undefined ? newEnt.nameEnglish : '...';
-        processedOld.product = oldEnt !== undefined ? oldEnt.nameEnglish : '...';
+    case 'productId':
+      // @ts-ignore
+      newEnt = await AppDataSource.getRepository(Product).findOne(newProperties.productId);
+      // @ts-ignore
+      oldEnt = await AppDataSource.getRepository(Product).findOne(oldProperties.productId);
+      switch (language) {
+      case Language.DUTCH:
+        processedNew.product = newEnt != null ? newEnt.nameDutch : '...';
+        processedOld.product = oldEnt != null ? oldEnt.nameDutch : '...';
         break;
-      case 'companyId':
-        // @ts-ignore
-        newEnt = await getRepository(Company).findOne(newProperties.companyId);
-        // @ts-ignore
-        oldEnt = await getRepository(Company).findOne(oldProperties.companyId);
-        processedNew.company = newEnt !== undefined ? newEnt.name : '...';
-        processedOld.company = oldEnt !== undefined ? oldEnt.name : '...';
+      case Language.ENGLISH:
+        processedNew.product = newEnt != null ? newEnt.nameEnglish : '...';
+        processedOld.product = oldEnt != null ? oldEnt.nameEnglish : '...';
         break;
-      case 'contactId':
-        // @ts-ignore
-        newEnt = await getRepository(Contact).findOne(newProperties.contactId);
-        // @ts-ignore
-        oldEnt = await getRepository(Contact).findOne(oldProperties.contactId);
-        processedNew.contact = newEnt !== undefined ? newEnt.fullName() : '...';
-        processedOld.contact = oldEnt !== undefined ? oldEnt.fullName() : '...';
-        break;
-      case 'assignedToId':
-        // @ts-ignore
-        newEnt = await getRepository(User).findOne(newProperties.assignedToId);
-        // @ts-ignore
-        oldEnt = await getRepository(User).findOne(oldProperties.assignedToId);
-        processedNew.assignment = newEnt !== undefined ? newEnt.fullName() : '...';
-        processedOld.assignment = oldEnt !== undefined ? oldEnt.fullName() : '...';
-        break;
-      case 'categoryId':
-        // @ts-ignore
-        newEnt = await getRepository(ProductCategory).findOne(newProperties.categoryId);
-        // @ts-ignore
-        oldEnt = await getRepository(ProductCategory).findOne(oldProperties.categoryId);
-        processedNew.category = newEnt !== undefined ? newEnt.name : '...';
-        processedOld.category = oldEnt !== undefined ? oldEnt.name : '...';
-        break;
+      default: throw new TypeError(`Unknown language: ${language}`);
+      }
+      processedNew.product = newEnt != null ? newEnt.nameEnglish : '...';
+      processedOld.product = oldEnt != null ? oldEnt.nameEnglish : '...';
+      break;
+    case 'companyId':
+      // @ts-ignore
+      newEnt = await AppDataSource.getRepository(Company).findOne(newProperties.companyId);
+      // @ts-ignore
+      oldEnt = await AppDataSource.getRepository(Company).findOne(oldProperties.companyId);
+      processedNew.company = newEnt != null ? newEnt.name : '...';
+      processedOld.company = oldEnt != null ? oldEnt.name : '...';
+      break;
+    case 'contactId':
+      // @ts-ignore
+      newEnt = await AppDataSource.getRepository(Contact).findOne(newProperties.contactId);
+      // @ts-ignore
+      oldEnt = await AppDataSource.getRepository(Contact).findOne(oldProperties.contactId);
+      processedNew.contact = newEnt != null ? newEnt.fullName() : '...';
+      processedOld.contact = oldEnt != null ? oldEnt.fullName() : '...';
+      break;
+    case 'assignedToId':
+      // @ts-ignore
+      newEnt = await AppDataSource.getRepository(User).findOne(newProperties.assignedToId);
+      // @ts-ignore
+      oldEnt = await AppDataSource.getRepository(User).findOne(oldProperties.assignedToId);
+      processedNew.assignment = newEnt != null ? newEnt.fullName() : '...';
+      processedOld.assignment = oldEnt != null ? oldEnt.fullName() : '...';
+      break;
+    case 'categoryId':
+      // @ts-ignore
+      newEnt = await AppDataSource.getRepository(ProductCategory).findOne(newProperties.categoryId);
+      // @ts-ignore
+      oldEnt = await AppDataSource.getRepository(ProductCategory).findOne(oldProperties.categoryId);
+      processedNew.category = newEnt != null ? newEnt.name : '...';
+      processedOld.category = oldEnt != null ? oldEnt.name : '...';
+      break;
       // If it is not a relational attribute, simply copy the value with the same key
-      default:
-        // @ts-ignore
-        processedNew[k] = newProperties[k];
-        // @ts-ignore
-        processedOld[k] = oldProperties[k];
+    default:
+      // @ts-ignore
+      processedNew[k] = newProperties[k];
+      // @ts-ignore
+      processedOld[k] = oldProperties[k];
     }
   }));
 
@@ -179,11 +181,11 @@ async function createEditActivityDescription<T>(
   newProperties: Partial<T>, oldProperties: T, language: Language,
 ): Promise<string> {
   switch (language) {
-    case Language.DUTCH:
-      return `${await parsePropertyChanges<T>(newProperties, oldProperties, language)} aangepast.`;
-    case Language.ENGLISH:
-      return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties, language)}.`;
-    default: throw new TypeError(`Unknown language: ${language}`);
+  case Language.DUTCH:
+    return `${await parsePropertyChanges<T>(newProperties, oldProperties, language)} aangepast.`;
+  case Language.ENGLISH:
+    return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties, language)}.`;
+  default: throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -197,11 +199,11 @@ function createReassignActivityDescription(
   newUser: User, oldUser: User, language: Language,
 ): string {
   switch (language) {
-    case Language.DUTCH:
-      return `Aangepast van ${oldUser.fullName()} naar ${newUser.fullName()}.`;
-    case Language.ENGLISH:
-      return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}.`;
-    default: throw new TypeError(`Unknown language: ${language}`);
+  case Language.DUTCH:
+    return `Aangepast van ${oldUser.fullName()} naar ${newUser.fullName()}.`;
+  case Language.ENGLISH:
+    return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}.`;
+  default: throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -214,12 +216,12 @@ export function createAddProductActivityDescription(
   products: string[], language: Language,
 ): string {
   switch (language) {
-    case Language.DUTCH:
-      return `${printStringArrayToString(products, language, '"')} toegevoegd.`;
-    case Language.ENGLISH:
-      return `Added ${printStringArrayToString(products, language, '"')}.`;
-    default:
-      throw new TypeError(`Unknown language: ${language}`);
+  case Language.DUTCH:
+    return `${printStringArrayToString(products, language, '"')} toegevoegd.`;
+  case Language.ENGLISH:
+    return `Added ${printStringArrayToString(products, language, '"')}.`;
+  default:
+    throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -246,12 +248,12 @@ export function createDelProductActivityDescription(
   products: string[], language: Language,
 ): string {
   switch (language) {
-    case Language.DUTCH:
-      return `${printStringArrayToString(products, language, '"')} verwijderd.`;
-    case Language.ENGLISH:
-      return `Removed ${printStringArrayToString(products, language, '"')}.`;
-    default:
-      throw new TypeError(`Unknown language: ${language}`);
+  case Language.DUTCH:
+    return `${printStringArrayToString(products, language, '"')} verwijderd.`;
+  case Language.ENGLISH:
+    return `Removed ${printStringArrayToString(products, language, '"')}.`;
+  default:
+    throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -261,11 +263,12 @@ export function createDelProductActivityDescription(
  * @param entity Entity that has been pulled from the database and will be changed
  * @param params The changes that should be applied
  * @param activityService Instance of the ActivityService, in which the activities will be created
+ * @param ActivityEntity Class entity of the activity that should be created
  * @returns Whether the entity has and should have been updated
  */
 
 export async function createActivitiesForEntityEdits<T extends BaseEnt>(
-  repo: Repository<T>, entity: T, params: Partial<T>, activityService: ActivityService,
+  repo: Repository<T>, entity: T, params: Partial<T>, activityService: ActivityService<any>, ActivityEntity: typeof BaseActivity,
 ): Promise<boolean> {
   const changes = getEntityChanges<T>(params, entity);
 
@@ -279,7 +282,8 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
 
   // If the assigned user has changed, we create an activity for this.
   if (Object.keys(changes).includes('assignedToId')) {
-    await activityService.createActivity({
+    // @ts-ignore
+    await activityService.createActivity(ActivityEntity, {
       descriptionDutch: createReassignActivityDescription(
         // @ts-ignore As checked in the if-statement above, the "changes" variable does have
         // an assignedToId value
@@ -305,7 +309,8 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
 
   // If any other properties have changed, we create an "EDIT" activity for this.
   if (Object.keys(changes).length > 0) {
-    await activityService.createActivity({
+    // @ts-ignore
+    await activityService.createActivity(ActivityEntity, {
       descriptionDutch: await createEditActivityDescription(changes, entity, Language.DUTCH),
       descriptionEnglish: await createEditActivityDescription(changes, entity, Language.ENGLISH),
       entityId: entity.id,

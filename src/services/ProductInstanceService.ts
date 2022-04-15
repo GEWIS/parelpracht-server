@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, IsNull, Not, Repository,
+  FindManyOptions, IsNull, Not, Repository,
 } from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -19,6 +19,7 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { createActivitiesForEntityEdits, createDelProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
+import AppDataSource from '../database';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -38,14 +39,14 @@ export default class ProductInstanceService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(ProductInstance);
+    this.repo = AppDataSource.getRepository(ProductInstance);
     this.actor = options?.actor;
   }
 
   validateProductInstanceContract(
-    productInstance: ProductInstance | undefined, contractId: number,
+    productInstance: ProductInstance | null, contractId: number,
   ): ProductInstance {
-    if (productInstance === undefined) {
+    if (productInstance == null) {
       throw new ApiError(HTTPStatus.NotFound, 'ProductInstance not found');
     }
     if (productInstance.contractId !== contractId) {
@@ -57,7 +58,7 @@ export default class ProductInstanceService {
   async validateProductInstanceContractB(
     contractId: number, productInstanceId: number,
   ): Promise<void> {
-    const productInstance = await this.repo.findOne(productInstanceId);
+    const productInstance = await this.repo.findOneBy({ id: productInstanceId });
     this.validateProductInstanceContract(productInstance, contractId);
   }
 
@@ -72,7 +73,7 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot add inactive products to contracts');
     }
 
-    const statuses = await new ActivityService(ContractActivity).getStatuses({ contractId });
+    const statuses = await new ActivityService(new ContractActivity).getStatuses({ contractId });
     if (statuses.includes(ContractStatus.CONFIRMED) || statuses.includes(ContractStatus.FINISHED)
       || statuses.includes(ContractStatus.CANCELLED)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot add product to this contract, because the contract is already confirmed, finished or delivered');
@@ -83,7 +84,7 @@ export default class ProductInstanceService {
     // Create two activities:
     await Promise.all([
       // An activity that states that this productInstance has been created
-      new ActivityService(ProductInstanceActivity, { actor: this.actor }).createActivity({
+      new ActivityService(new ProductInstanceActivity, { actor: this.actor }).createActivity(ProductInstanceActivity, {
         entityId: productInstance.id,
         type: ActivityType.STATUS,
         subType: ProductInstanceStatus.NOTDELIVERED,
@@ -91,19 +92,19 @@ export default class ProductInstanceService {
         descriptionEnglish: '',
       } as FullActivityParams),
       // An activity that states that this product has been added to the contract
-      new ActivityService(ContractActivity, { actor: this.actor })
+      new ActivityService(new ContractActivity, { actor: this.actor })
         .createProductActivity(product.nameEnglish, contractId),
     ]);
 
-    productInstance = (await this.repo.findOne(productInstance.id, { relations: ['activities'] }))!;
+    productInstance = (await this.repo.findOne({ where: { id: productInstance.id }, relations: ['activities'] }))!;
     return productInstance;
 
     // TODO: Fix that the contract is also passed on with the product
   }
 
   async getProduct(id: number, relations: string[] = []): Promise<ProductInstance> {
-    const product = await this.repo.findOne(id, { relations }); // Relations still have to be added
-    if (product === undefined) {
+    const product = await this.repo.findOne({ where: { id }, relations }); // Relations still have to be added
+    if (product == null) {
       throw new ApiError(HTTPStatus.NotFound, 'ProductInstance not found');
     }
     return product;
@@ -151,12 +152,12 @@ export default class ProductInstanceService {
   async updateProduct(
     contractId: number, productInstanceId: number, params: Partial<ProductInstance>,
   ): Promise<ProductInstance> {
-    let productInstance = await this.repo.findOne(productInstanceId);
+    let productInstance = await this.repo.findOneBy({ id: productInstanceId });
 
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
 
     const contractStatuses = await
-    new ActivityService(ContractActivity).getStatuses({
+    new ActivityService(new ContractActivity).getStatuses({
       contractId,
     });
 
@@ -168,10 +169,10 @@ export default class ProductInstanceService {
 
     if (!(await createActivitiesForEntityEdits<ProductInstance>(
       this.repo, productInstance, params,
-      new ActivityService(ProductInstanceActivity, { actor: this.actor }),
+      new ActivityService(new ProductInstanceActivity, { actor: this.actor }), ProductInstanceActivity,
     ))) return productInstance;
 
-    productInstance = await this.repo.findOne(productInstanceId)!;
+    productInstance = await this.repo.findOneBy({ id: productInstanceId });
     return productInstance!;
   }
 
@@ -188,8 +189,8 @@ export default class ProductInstanceService {
 
     await this.repo.delete(productInstance.id);
 
-    await new ActivityService(ContractActivity, { actor: this.actor })
-      .createActivity({
+    await new ActivityService(new ContractActivity, { actor: this.actor })
+      .createActivity(ContractActivity, {
         descriptionDutch: createDelProductActivityDescription(
           [productInstance.product.nameEnglish], Language.DUTCH,
         ),
@@ -202,7 +203,7 @@ export default class ProductInstanceService {
   }
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {
-    const productInstance = await this.getProduct(productId, ['contract']);
+    const productInstance = await this.getProduct(productId, ['contract', 'activities']);
     const invoice = await new InvoiceService().getInvoice(invoiceId);
 
     // Verify that this productInstance doesn't already belong to an invoice
@@ -222,7 +223,7 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
     }
 
-    const statuses = await new ActivityService(InvoiceActivity).getStatuses({ invoiceId });
+    const statuses = await new ActivityService(new InvoiceActivity).getStatuses({ invoiceId });
     if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
       || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot add product to this invoice, because the invoice is already sent or finished');
@@ -238,8 +239,9 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
-    const statuses = await new ActivityService(InvoiceActivity).getStatuses({ invoiceId });
-    if (statuses.length > 1) {
+    const statuses = await new ActivityService(new InvoiceActivity).getStatuses({ invoiceId });
+    if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
+      || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
     }
 
@@ -247,7 +249,7 @@ export default class ProductInstanceService {
   }
 
   async removeDeferredStatuses(): Promise<void> {
-    await getRepository(ProductInstanceActivity)
+    await AppDataSource.getRepository(ProductInstanceActivity)
       .delete({ subType: ProductInstanceStatus.DEFERRED });
   }
 }

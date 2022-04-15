@@ -1,18 +1,20 @@
+/* eslint import/first: off */
 import 'reflect-metadata';
 import * as fs from 'fs';
 import express from 'express';
 import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env' });
+
 import errorhandler from 'strong-error-handler';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
-import { ConnectionOptions, createConnection, getRepository } from 'typeorm';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
 import startEvents from './timedevents/cron';
-
 import swaggerDocument from './public/swagger.json';
 import { RegisterRoutes } from './routes';
 import './controllers/RootController';
@@ -23,41 +25,22 @@ import './controllers/ContractController';
 import './controllers/InvoiceController';
 import './controllers/ContactController';
 import './controllers/UserController';
+import './controllers/RoleController';
 import { Session } from './entity/Session';
 import localStrategy, { localLogin } from './auth/LocalStrategy';
 import { User } from './entity/User';
 import UserService from './services/UserService';
-
-// Import environment variables
-dotenv.config({ path: '.env' });
+import { ldapLogin, LDAPStrategy } from './auth';
+import AppDataSource from './database';
 
 const PORT = process.env.PORT || 3001;
 
-createConnection({
-  host: process.env.TYPEORM_HOST,
-  port: process.env.TYPEORM_PORT,
-  database: process.env.TYPEORM_DATABASE,
-  type: process.env.TYPEORM_CONNECTION as 'postgres' | 'mariadb' | 'mysql',
-  username: process.env.TYPEORM_USERNAME,
-  password: process.env.TYPEORM_PASSWORD,
-  synchronize: process.env.TYPEORM_SYNCHRONIZE,
-  logging: process.env.TYPEORM_LOGGING,
-  entities: [process.env.TYPEORM_ENTITIES],
-  subscribers: [process.env.TYPEORM_SUBSCRIBERS],
-  migrations: [process.env.TYPEORM_MIGRATIONS],
-  extra: {
-    authPlugins: {
-      mysql_clear_password: () => () => {
-        return Buffer.from(`${process.env.TYPEORM_PASSWORD}\0`);
-      },
-    },
-  },
-} as ConnectionOptions).then(async (connection) => {
+AppDataSource.initialize().then(async (dataSource) => {
   // Setup of database
   await new UserService().setupRoles();
 
   const app = express();
-  const sessionRepo = connection.getRepository(Session);
+  const sessionRepo = dataSource.getRepository(Session);
 
   app.use(express.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
@@ -89,19 +72,21 @@ createConnection({
   });
 
   passport.deserializeUser(async (id: number, done) => {
-    const userRepo = getRepository(User);
-    const user = await userRepo.findOne({ id }, { relations: ['roles'] });
+    const userRepo = dataSource.getRepository(User);
+    const user = await userRepo.findOne({ where: { id }, relations: ['roles'] });
     if (user === undefined) {
       return done(null, false);
     }
     return done(null, user);
   });
 
+  passport.use(LDAPStrategy);
   passport.use(localStrategy);
 
-  RegisterRoutes(app);
+  app.post('/api/login/ldap', ldapLogin);
+  app.post('/api/login/local', localLogin);
 
-  app.post('/api/login', localLogin);
+  RegisterRoutes(app);
 
   app.use(methodOverride());
 

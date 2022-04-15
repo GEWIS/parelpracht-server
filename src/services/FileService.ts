@@ -1,4 +1,4 @@
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import express from 'express';
 import multer from 'multer';
@@ -33,6 +33,7 @@ import { validateFileParams } from '../helpers/validation';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import { Language } from '../entity/enums/Language';
 import CompanyService from './CompanyService';
+import AppDataSource from '../database';
 
 export interface FileParams {
   name?: string;
@@ -75,7 +76,7 @@ export default class FileService {
 
   constructor(EntityFile: typeof BaseFile, options?: { actor?: User }) {
     this.EntityFile = EntityFile;
-    this.repo = getRepository(EntityFile);
+    this.repo = AppDataSource.getRepository(EntityFile);
     this.actor = options?.actor;
   }
 
@@ -84,20 +85,20 @@ export default class FileService {
       throw new ApiError(HTTPStatus.NotFound, 'File not found');
     }
     switch (this.EntityFile) {
-      case ContractFile:
-        if (file.contractId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this contract'); }
-        break;
-      case InvoiceFile:
-        if (file.invoiceId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this invoice'); }
-        break;
-      case ProductFile:
-        if (file.productId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product'); }
-        break;
-      case CompanyFile:
-        if (file.companyId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this company'); }
-        break;
-      default:
-        throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
+    case ContractFile:
+      if (file.contractId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this contract'); }
+      break;
+    case InvoiceFile:
+      if (file.invoiceId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this invoice'); }
+      break;
+    case ProductFile:
+      if (file.productId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product'); }
+      break;
+    case CompanyFile:
+      if (file.companyId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this company'); }
+      break;
+    default:
+      throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
 
     if (checkFileExistence && !fs.existsSync(file.location)) {
@@ -143,7 +144,7 @@ export default class FileService {
     if (params.saveToDisk) {
       try {
         await this.saveFileObject(file);
-      } catch (err) {
+      } catch (err: any) {
         FileHelper.removeFile(file);
         throw new Error(err);
       }
@@ -168,7 +169,7 @@ export default class FileService {
     if (params.saveToDisk) {
       try {
         await this.saveFileObject(file);
-      } catch (err) {
+      } catch (err: any) {
         FileHelper.removeFile(file);
         throw new Error(err);
       }
@@ -229,7 +230,7 @@ export default class FileService {
 
     try {
       file = this.repo.save(file);
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFile(file);
       throw new Error(err);
     }
@@ -253,27 +254,27 @@ export default class FileService {
     };
 
     switch (this.EntityFile) {
-      case ContractFile:
-        file.contractId = params.entityId;
-        break;
-      case InvoiceFile:
-        file.invoiceId = params.entityId;
-        break;
-      case ProductFile:
-        file.productId = params.entityId;
-        break;
-      case CompanyFile:
-        file.companyId = params.entityId;
-        break;
-      default:
-        throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
+    case ContractFile:
+      file.contractId = params.entityId;
+      break;
+    case InvoiceFile:
+      file.invoiceId = params.entityId;
+      break;
+    case ProductFile:
+      file.productId = params.entityId;
+      break;
+    case CompanyFile:
+      file.companyId = params.entityId;
+      break;
+    default:
+      throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
 
     return file;
   }
 
   async getFile(entityId: number, fileId: number) {
-    let file = await this.repo.findOne(fileId);
+    let file = await this.repo.findOneBy({ id: fileId });
     file = this.validateFileObject(file, entityId);
     return file!;
   }
@@ -281,16 +282,16 @@ export default class FileService {
   async updateFile(
     entityId: number, fileId: number, params: Partial<FileParams>,
   ): Promise<BaseFile> {
-    let file = await this.repo.findOne(fileId);
+    let file = await this.repo.findOneBy({ id: fileId });
     file = this.validateFileObject(file, entityId);
     await this.repo.update(file!.id, params);
 
-    file = await this.repo.findOne(fileId);
+    file = await this.repo.findOneBy({ id: fileId });
     return file!;
   }
 
   async deleteFile(entityId: number, fileId: number, disk: boolean): Promise<void> {
-    let file = await this.repo.findOne(fileId);
+    let file = await this.repo.findOneBy({ id: fileId });
     file = this.validateFileObject(file, entityId, false);
 
     if (disk) FileHelper.removeFile(file!);
@@ -323,7 +324,7 @@ export default class FileService {
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await company.save();
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFileAtLoc(fileLocation);
       throw new Error(err);
     }
@@ -348,7 +349,7 @@ export default class FileService {
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await user.save();
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFileAtLoc(fileLocation);
       throw new Error(err);
     }
@@ -373,7 +374,7 @@ export default class FileService {
     fs.writeFileSync(fileLocation, request.file.buffer);
     try {
       await user.save();
-    } catch (err) {
+    } catch (err: any) {
       FileHelper.removeFileAtLoc(fileLocation);
       throw new Error(err);
     }

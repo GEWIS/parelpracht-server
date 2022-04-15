@@ -1,12 +1,12 @@
 import {
-  getConnection, getRepository, Repository, Transaction, TransactionRepository,
+  Repository,
 } from 'typeorm';
-import { IdentityLocal } from '../entity/IdentityLocal';
 import { ServerSetting } from '../entity/ServerSetting';
-import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AuthService from './AuthService';
 import UserService, { UserParams } from './UserService';
+import { ldapEnabled } from '../auth';
+import AppDataSource from '../database';
 
 export interface SetupParams {
   admin: UserParams,
@@ -16,15 +16,15 @@ export default class ServerSettingsService {
   repo: Repository<ServerSetting>;
 
   constructor() {
-    this.repo = getRepository(ServerSetting);
+    this.repo = AppDataSource.getRepository(ServerSetting);
   }
 
   async setSetting(setting: ServerSetting): Promise<void> {
     await this.repo.save(setting);
   }
 
-  async getSetting(name: string): Promise<ServerSetting | undefined> {
-    return this.repo.findOne(name);
+  async getSetting(name: string): Promise<ServerSetting | null> {
+    return this.repo.findOneBy({ name });
   }
 
   async initialSetup(
@@ -34,12 +34,14 @@ export default class ServerSettingsService {
       throw new ApiError(HTTPStatus.Forbidden, 'Server is already set up');
     }
 
-    const { admin } = params;
-    const adminUser = await new UserService()
-      .createAdminUser(admin);
+    if (!ldapEnabled()) {
+      const { admin } = params;
+      const adminUser = await new UserService()
+        .createAdminUser(admin);
 
-    new AuthService().createIdentityLocal(adminUser);
+      new AuthService().createIdentityLocal(adminUser!, ldapEnabled());
 
-    await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
+      await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
+    }
   }
 }

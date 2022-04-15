@@ -1,12 +1,14 @@
 import {
   Column,
-  Entity, JoinTable, ManyToMany,
+  Entity, JoinTable, ManyToMany, OneToOne,
 } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 import { Gender } from './enums/Gender';
 // eslint-disable-next-line import/no-cycle
 import { Role } from './Role';
 import { Roles } from './enums/Roles';
+import { IdentityLDAP } from './IdentityLDAP';
+import { IdentityLocal } from './IdentityLocal';
 // // eslint-disable-next-line import/no-cycle
 // import { CompanyActivity } from './activity/CompanyActivity';
 // // eslint-disable-next-line import/no-cycle
@@ -77,6 +79,14 @@ export class User extends BaseEnt {
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
   roles!: Role[];
+
+  /** Identity for local login */
+  @OneToOne(() => IdentityLocal, (local) => local.user)
+  identityLocal?: IdentityLocal;
+
+  /** Identity for LDAP */
+  @OneToOne(() => IdentityLDAP, (ldap) => ldap.user)
+  identityLdap?: IdentityLDAP;
 
   // This code has been disabled because it somehow creates cyclical dependencies,
   // which is pretty weird

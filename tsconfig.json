@@ -4,8 +4,9 @@
 	  "rootDir": "src/",
 	  "module": "commonjs",
 	  "lib": [
-		"es6",
-		"es2020"
+      "es6",
+      "es2020",
+      "DOM",
 	  ],
 	  "strict": true,
 	  "target": "es2016",
@@ -21,6 +22,7 @@
 	},
 	"include": [
 	  "src/**/*.ts",
-	  "src/public/swagger.json"
+	  "src/public/swagger.json",
+    "src/helpers/countries.json"
 	]
 }
