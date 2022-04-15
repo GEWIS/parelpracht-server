@@ -1,10 +1,11 @@
 import {
-  FindOptionsWhere, FindManyOptions, getRepository, ILike, In, Repository,
+  FindManyOptions, Repository,
 } from 'typeorm';
 import { ProductCategory } from '../entity/ProductCategory';
 import { ListParams } from '../controllers/ListParams';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
+import AppDataSource from '../database';
 
 export interface CategoryParams {
   name: string;
@@ -24,7 +25,7 @@ export default class ProductCategoryService {
   repo: Repository<ProductCategory>;
 
   constructor() {
-    this.repo = getRepository(ProductCategory);
+    this.repo = AppDataSource.getRepository(ProductCategory);
   }
 
   async getCategory(id: number): Promise<ProductCategory> {

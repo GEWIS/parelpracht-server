@@ -1,16 +1,17 @@
 import {
-  FindOptionsWhere, FindManyOptions, getRepository, ILike, In, Repository,
+  FindManyOptions, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ProductStatus } from '../entity/enums/ProductStatus';
 import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import { User } from '../entity/User';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import ActivityService from './ActivityService';
 import { ProductPricing } from '../entity/ProductPricing';
+import AppDataSource from '../database';
 
 export interface ProductParams {
   nameDutch: string;
@@ -54,8 +55,8 @@ export default class ProductService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(Product);
-    this.pricingRepo = getRepository(ProductPricing);
+    this.repo = AppDataSource.getRepository(Product);
+    this.pricingRepo = AppDataSource.getRepository(ProductPricing);
     this.actor = options?.actor;
   }
 

@@ -1,5 +1,5 @@
 import {
-  FindOptionsWhere, FindManyOptions, getRepository, ILike, In, Repository,
+  FindManyOptions, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
@@ -15,12 +15,13 @@ import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
 import {
   createActivitiesForEntityEdits,
 } from '../helpers/activity';
+import AppDataSource from '../database';
 
 export interface ContractParams {
   title: string;
@@ -42,7 +43,7 @@ export default class ContractService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(Contract);
+    this.repo = AppDataSource.getRepository(Contract);
     this.actor = options?.actor;
   }
 
@@ -65,7 +66,7 @@ export default class ContractService {
       },
     };
 
-    findOptions.where = addQueryWhereClause<Contract>(params, ['title']);
+    findOptions.where = addQueryWhereClause<Contract>(params, ['title', 'company.name', 'contact.firstName', 'contact.lastNamePreposition', 'contact.lastName']);
 
     return {
       list: await this.repo.find({

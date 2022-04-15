@@ -1,4 +1,4 @@
-import { FindManyOptions, getRepository, Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
@@ -11,6 +11,7 @@ import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
 import ActivityService from './ActivityService';
 import RawQueries, { ETCompany } from '../helpers/rawQueries';
+import AppDataSource from '../database';
 
 // May not be correct yet
 export interface CompanyParams {
@@ -56,7 +57,7 @@ export default class CompanyService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(Company);
+    this.repo = AppDataSource.getRepository(Company);
     this.actor = options?.actor;
   }
 
@@ -146,7 +147,7 @@ export default class CompanyService {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
 
-    return getRepository(Contact).find({
+    return AppDataSource.getRepository(Contact).find({
       where: {
         companyId: id,
       },

@@ -1,22 +1,21 @@
-import { Connection } from 'typeorm';
 import { Contract } from '../entity/Contract';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+import AppDataSource from '../database';
 
 /**
  * Loop over all contracts. If a contract does not have a "CREATED" status, create it.
  * The createdAt will be set to the createdAt of the contract. The updatedAt will be the
  * current time.
- * @param connection TypeORM connection to the database
  */
-export async function allContractsAreCreated(connection: Connection) {
+export async function allContractsAreCreated() {
   let logResult = '';
   let count = 0;
-  const contractRepo = connection.getRepository(Contract);
-  const activityRepo = connection.getRepository(ContractActivity);
+  const contractRepo = AppDataSource.getRepository(Contract);
+  const activityRepo = AppDataSource.getRepository(ContractActivity);
   const contracts = await contractRepo.find({ relations: ['activities'] });
 
   contracts.forEach((c) => {
@@ -44,13 +43,12 @@ export async function allContractsAreCreated(connection: Connection) {
 /**
  * Loop over all contracts. If a contract is cancelled, loop over all products. All products should
  * have status "CANCELLED". If they don't, create this status.
- * @param connection TypeORM connection to the database
  */
-export async function allProductsAreCancelledIfContractIsCancelled(connection: Connection) {
+export async function allProductsAreCancelledIfContractIsCancelled() {
   let logResult = '';
   let count = 0;
-  const contractRepo = connection.getRepository(Contract);
-  const productInstanceActivityRepo = connection.getRepository(ProductInstanceActivity);
+  const contractRepo = AppDataSource.getRepository(Contract);
+  const productInstanceActivityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const contracts = await contractRepo.find({ relations: ['products', 'products.activities', 'activities'] });
 
   contracts
@@ -86,13 +84,12 @@ export async function allProductsAreCancelledIfContractIsCancelled(connection: C
 /**
  * Loop over all contracts. If a contract is finished, loop over all products. All products should
  * have status "DELIVERED" or "CANCELLED". If they don't, create a "DELIVERED" status.
- * @param connection TypeORM connection to the database
  */
-export async function allProductsAreDeliveredIfContractIsFinished(connection: Connection) {
+export async function allProductsAreDeliveredIfContractIsFinished() {
   let logResult = '';
   let count = 0;
-  const contractRepo = connection.getRepository(Contract);
-  const productInstanceActivityRepo = connection.getRepository(ProductInstanceActivity);
+  const contractRepo = AppDataSource.getRepository(Contract);
+  const productInstanceActivityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const contracts = await contractRepo.find({ relations: ['products', 'products.activities', 'activities'] });
 
   contracts

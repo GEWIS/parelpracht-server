@@ -1,4 +1,4 @@
-import { FindManyOptions, FindOptionsWhere, getRepository, ILike, In, Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import path from 'path';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
@@ -6,7 +6,7 @@ import { IdentityLocal } from '../entity/IdentityLocal';
 import { Role } from '../entity/Role';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import AuthService from './AuthService';
 import { Roles } from '../entity/enums/Roles';
 // eslint-disable-next-line import/no-cycle
@@ -16,6 +16,7 @@ import InvoiceService from './InvoiceService';
 import FileHelper, { uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc } from '../helpers/fileHelper';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import { ldapEnabled } from '../auth';
+import AppDataSource from '../database';
 
 export interface UserParams {
   email: string;
@@ -69,10 +70,10 @@ export default class UserService {
     identityLocalRepo?: Repository<IdentityLocal>,
     identityLdapRepo?: Repository<IdentityLDAP>,
   ) {
-    this.repo = userRepo ?? getRepository(User);
-    this.roleRepo = roleRepo ?? getRepository(Role);
-    this.identityLocalRepo = identityLocalRepo ?? getRepository(IdentityLocal);
-    this.identityLdapRepo = identityLdapRepo ?? getRepository(IdentityLDAP);
+    this.repo = userRepo ?? AppDataSource.getRepository(User);
+    this.roleRepo = roleRepo ?? AppDataSource.getRepository(Role);
+    this.identityLocalRepo = identityLocalRepo ?? AppDataSource.getRepository(IdentityLocal);
+    this.identityLdapRepo = identityLdapRepo ?? AppDataSource.getRepository(IdentityLDAP);
   }
 
   async getUser(id: number): Promise<User> {

@@ -1,9 +1,7 @@
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import BaseActivity from '../entity/activity/BaseActivity';
-import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
-import { ProductActivity } from '../entity/activity/ProductActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { User } from '../entity/User';
@@ -20,7 +18,7 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { sendInvoiceEmails } from '../helpers/mailBuilder';
 import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
-import { includes } from 'lodash';
+import AppDataSource from '../database';
 
 export interface ActivityParams {
   description: string;
@@ -57,7 +55,7 @@ export default class ActivityService<T extends BaseActivity> {
 
   constructor(EntityActivity: T, options?: { actor?: User }) {
     this.EntityActivity = EntityActivity;
-    this.repo = getRepository(EntityActivity.constructor.name);
+    this.repo = AppDataSource.getRepository(EntityActivity.constructor.name);
     this.actor = options?.actor;
   }
 

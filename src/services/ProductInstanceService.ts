@@ -1,5 +1,5 @@
 import {
-  FindManyOptions, getRepository, IsNull, Not, Repository,
+  FindManyOptions, IsNull, Not, Repository,
 } from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -19,6 +19,7 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { createActivitiesForEntityEdits, createDelProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
+import AppDataSource from '../database';
 
 export interface ProductInstanceParams {
   productId: number,
@@ -38,7 +39,7 @@ export default class ProductInstanceService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(ProductInstance);
+    this.repo = AppDataSource.getRepository(ProductInstance);
     this.actor = options?.actor;
   }
 
@@ -248,7 +249,7 @@ export default class ProductInstanceService {
   }
 
   async removeDeferredStatuses(): Promise<void> {
-    await getRepository(ProductInstanceActivity)
+    await AppDataSource.getRepository(ProductInstanceActivity)
       .delete({ subType: ProductInstanceStatus.DEFERRED });
   }
 }

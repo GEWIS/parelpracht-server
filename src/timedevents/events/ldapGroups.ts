@@ -2,12 +2,12 @@
 // a conflict in TSOA with passport-ldapauth @types
 // @ts-ignore
 import { createClient } from 'ldapjs';
-import { getRepository } from 'typeorm';
 import { IdentityLDAP } from '../../entity/IdentityLDAP';
 import { updateUserInformation } from '../../auth';
+import AppDataSource from '../../database';
 
 export default async function ldapGroups() {
-  const identities = await getRepository(IdentityLDAP).find({
+  const identities = await AppDataSource.getRepository(IdentityLDAP).find({
     relations: ['user', 'user.identityLdap'],
   });
 

@@ -1,5 +1,4 @@
 import Strategy from 'passport-ldapauth';
-import { getRepository } from 'typeorm';
 import express from 'express';
 import passport from 'passport';
 import { User } from '../entity/User';
@@ -8,6 +7,7 @@ import { IdentityLDAP } from '../entity/IdentityLDAP';
 import { Role } from '../entity/Role';
 import UserService from '../services/UserService';
 import { Roles } from '../entity/enums/Roles';
+import AppDataSource from '../database';
 
 const isDefined = (i: string | undefined) => (i !== undefined && i !== '');
 
@@ -28,7 +28,7 @@ export const LDAPStrategy = new Strategy({
 });
 
 const checkAllowedRoles = async (ldapUser: any): Promise<Roles[]> => {
-  const roles = await getRepository(Role).find();
+  const roles = await AppDataSource.getRepository(Role).find();
   const userRoles: Roles[] = [];
   roles.forEach((role) => {
     if (ldapUser.memberOfFlattened.includes(role.ldapGroup)) {
@@ -64,8 +64,8 @@ export const ldapLogin = (
     const userRoles = await checkAllowedRoles(ldapUser);
     if (userRoles.length === 0) return next(new ApiError(HTTPStatus.Forbidden, "You don't have the required LDAP groups to be allowed to login."));
 
-    const userRepo = getRepository(User);
-    const identityRepo = getRepository(IdentityLDAP);
+    const userRepo = AppDataSource.getRepository(User);
+    const identityRepo = AppDataSource.getRepository(IdentityLDAP);
 
     let identity = await identityRepo.findOne({
       where: {

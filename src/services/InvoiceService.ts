@@ -1,12 +1,12 @@
 import {
-  FindOptionsWhere, FindManyOptions, getRepository, ILike, In, Repository,
+  FindManyOptions, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
 import ProductInstanceService from './ProductInstanceService';
 import ActivityService, { FullActivityParams } from './ActivityService';
 import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
@@ -18,6 +18,7 @@ import { ServerSetting } from '../entity/ServerSetting';
 import { InvoiceSummary } from '../entity/Summaries';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import getEntityChanges from '../helpers/entityChanges';
+import AppDataSource from '../database';
 
 export interface InvoiceParams {
   title: string;
@@ -44,7 +45,7 @@ export default class InvoiceService {
   actor?: User;
 
   constructor(options?: { actor?: User }) {
-    this.repo = getRepository(Invoice);
+    this.repo = AppDataSource.getRepository(Invoice);
     this.actor = options?.actor;
   }
 
@@ -67,7 +68,7 @@ export default class InvoiceService {
       },
     };
 
-    findOptions.where = addQueryWhereClause(params, ['title']);
+    findOptions.where = addQueryWhereClause(params, ['title', 'company.name']);
 
     return {
       list: await this.repo.find({

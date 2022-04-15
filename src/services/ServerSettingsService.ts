@@ -1,11 +1,12 @@
 import {
-  getRepository, Repository,
+  Repository,
 } from 'typeorm';
 import { ServerSetting } from '../entity/ServerSetting';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AuthService from './AuthService';
 import UserService, { UserParams } from './UserService';
 import { ldapEnabled } from '../auth';
+import AppDataSource from '../database';
 
 export interface SetupParams {
   admin: UserParams,
@@ -15,7 +16,7 @@ export default class ServerSettingsService {
   repo: Repository<ServerSetting>;
 
   constructor() {
-    this.repo = getRepository(ServerSetting);
+    this.repo = AppDataSource.getRepository(ServerSetting);
   }
 
   async setSetting(setting: ServerSetting): Promise<void> {

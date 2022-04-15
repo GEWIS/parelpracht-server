@@ -1,8 +1,8 @@
 import express from 'express';
-import { getRepository } from 'typeorm';
 import { IdentityApiKey } from '../entity/IdentityApiKey';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import AppDataSource from '../database';
 
 async function authWithApiKey(apiKey: string) {
   const split = apiKey.split(' ');
@@ -12,14 +12,14 @@ async function authWithApiKey(apiKey: string) {
     throw new ApiError(HTTPStatus.Unauthorized, 'Unknown API Key');
   }
 
-  const identity = (await getRepository(IdentityApiKey)
+  const identity = (await AppDataSource.getRepository(IdentityApiKey)
     .findOneBy({ apiKey: key }))!;
 
   if (identity === undefined) {
     throw new ApiError(HTTPStatus.Unauthorized, 'Unknown API Key');
   }
 
-  return (await getRepository(User)
+  return (await AppDataSource.getRepository(User)
     .findOne({ where: { id: identity.id }, relations: ['roles'] }))!;
 }
 
@@ -41,7 +41,7 @@ export async function expressAuthentication(
 
     // If any roles are defined, check them
     if (scopes !== undefined && scopes.length > 0) {
-      const user = (await getRepository(User)
+      const user = (await AppDataSource.getRepository(User)
         .findOne({ where: { id: (request.user as User).id }, relations: ['roles'] }))!;
 
       // Compute if there is an intersection

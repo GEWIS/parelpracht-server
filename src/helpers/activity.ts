@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { BaseEnt } from '../entity/BaseEnt';
 import ActivityService from '../services/ActivityService';
@@ -13,8 +13,8 @@ import Currency from './currency';
 import { timeToYearDayTime } from './timestamp';
 import getEntityChanges from './entityChanges';
 import { Language } from '../entity/enums/Language';
-import { ApiError, HTTPStatus } from './error';
 import BaseActivity from '../entity/activity/BaseActivity';
+import AppDataSource from '../database';
 
 /**
  * Convert an array of strings to a single string, where all items are split by
@@ -86,9 +86,9 @@ async function parsePropertyChanges<T>(
     switch (k) {
     case 'productId':
       // @ts-ignore
-      newEnt = await getRepository(Product).findOne(newProperties.productId);
+      newEnt = await AppDataSource.getRepository(Product).findOne(newProperties.productId);
       // @ts-ignore
-      oldEnt = await getRepository(Product).findOne(oldProperties.productId);
+      oldEnt = await AppDataSource.getRepository(Product).findOne(oldProperties.productId);
       switch (language) {
       case Language.DUTCH:
         processedNew.product = newEnt != null ? newEnt.nameDutch : '...';
@@ -105,33 +105,33 @@ async function parsePropertyChanges<T>(
       break;
     case 'companyId':
       // @ts-ignore
-      newEnt = await getRepository(Company).findOne(newProperties.companyId);
+      newEnt = await AppDataSource.getRepository(Company).findOne(newProperties.companyId);
       // @ts-ignore
-      oldEnt = await getRepository(Company).findOne(oldProperties.companyId);
+      oldEnt = await AppDataSource.getRepository(Company).findOne(oldProperties.companyId);
       processedNew.company = newEnt != null ? newEnt.name : '...';
       processedOld.company = oldEnt != null ? oldEnt.name : '...';
       break;
     case 'contactId':
       // @ts-ignore
-      newEnt = await getRepository(Contact).findOne(newProperties.contactId);
+      newEnt = await AppDataSource.getRepository(Contact).findOne(newProperties.contactId);
       // @ts-ignore
-      oldEnt = await getRepository(Contact).findOne(oldProperties.contactId);
+      oldEnt = await AppDataSource.getRepository(Contact).findOne(oldProperties.contactId);
       processedNew.contact = newEnt != null ? newEnt.fullName() : '...';
       processedOld.contact = oldEnt != null ? oldEnt.fullName() : '...';
       break;
     case 'assignedToId':
       // @ts-ignore
-      newEnt = await getRepository(User).findOne(newProperties.assignedToId);
+      newEnt = await AppDataSource.getRepository(User).findOne(newProperties.assignedToId);
       // @ts-ignore
-      oldEnt = await getRepository(User).findOne(oldProperties.assignedToId);
+      oldEnt = await AppDataSource.getRepository(User).findOne(oldProperties.assignedToId);
       processedNew.assignment = newEnt != null ? newEnt.fullName() : '...';
       processedOld.assignment = oldEnt != null ? oldEnt.fullName() : '...';
       break;
     case 'categoryId':
       // @ts-ignore
-      newEnt = await getRepository(ProductCategory).findOne(newProperties.categoryId);
+      newEnt = await AppDataSource.getRepository(ProductCategory).findOne(newProperties.categoryId);
       // @ts-ignore
-      oldEnt = await getRepository(ProductCategory).findOne(oldProperties.categoryId);
+      oldEnt = await AppDataSource.getRepository(ProductCategory).findOne(oldProperties.categoryId);
       processedNew.category = newEnt != null ? newEnt.name : '...';
       processedOld.category = oldEnt != null ? oldEnt.name : '...';
       break;

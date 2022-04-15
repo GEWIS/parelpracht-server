@@ -1,5 +1,5 @@
 import express from 'express';
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -13,6 +13,7 @@ import { IdentityApiKey } from '../entity/IdentityApiKey';
 import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
+import AppDataSource from '../database';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
@@ -42,10 +43,10 @@ export default class AuthService {
     identityApiKeyRepo?: Repository<IdentityApiKey>,
     identityLdapRepo?: Repository<IdentityLDAP>,
   ) {
-    this.identityLocalRepo = identityLocalRepo ?? getRepository(IdentityLocal);
-    this.identityApiKeyRepo = identityApiKeyRepo ?? getRepository(IdentityApiKey);
-    this.identityLdapRepo = identityLdapRepo ?? getRepository(IdentityLDAP);
-    this.userRepo = userRepo ?? getRepository(User);
+    this.identityLocalRepo = identityLocalRepo ?? AppDataSource.getRepository(IdentityLocal);
+    this.identityApiKeyRepo = identityApiKeyRepo ?? AppDataSource.getRepository(IdentityApiKey);
+    this.identityLdapRepo = identityLdapRepo ?? AppDataSource.getRepository(IdentityLDAP);
+    this.userRepo = userRepo ?? AppDataSource.getRepository(User);
   }
 
   async getAuthStatus(req: express.Request): Promise<AuthStatus> {

@@ -1,4 +1,4 @@
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import express from 'express';
 import multer from 'multer';
@@ -33,6 +33,7 @@ import { validateFileParams } from '../helpers/validation';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import { Language } from '../entity/enums/Language';
 import CompanyService from './CompanyService';
+import AppDataSource from '../database';
 
 export interface FileParams {
   name?: string;
@@ -75,7 +76,7 @@ export default class FileService {
 
   constructor(EntityFile: typeof BaseFile, options?: { actor?: User }) {
     this.EntityFile = EntityFile;
-    this.repo = getRepository(EntityFile);
+    this.repo = AppDataSource.getRepository(EntityFile);
     this.actor = options?.actor;
   }
 

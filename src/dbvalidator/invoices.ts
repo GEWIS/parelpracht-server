@@ -1,18 +1,17 @@
-import { Connection } from 'typeorm';
 import { Invoice } from '../entity/Invoice';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
+import AppDataSource from '../database';
 
 /**
  * All invoices in the database should have a status "CREATED". If not, create it.
- * @param connection TypeORM connection to the database
  */
-export async function allInvoicesAreCreated(connection: Connection) {
+export async function allInvoicesAreCreated() {
   let logResult = '';
   let count = 0;
-  const invoiceRepo = connection.getRepository(Invoice);
-  const activityRepo = connection.getRepository(InvoiceActivity);
+  const invoiceRepo = AppDataSource.getRepository(Invoice);
+  const activityRepo = AppDataSource.getRepository(InvoiceActivity);
   const invoices = await invoiceRepo.find({ relations: ['activities'] });
 
   invoices.forEach((i) => {

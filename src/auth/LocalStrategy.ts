@@ -1,5 +1,4 @@
 import { Strategy as LocalStrategy } from 'passport-local';
-import { getRepository } from 'typeorm';
 import crypto from 'crypto';
 import passport from 'passport';
 import express from 'express';
@@ -7,6 +6,7 @@ import validator from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import AppDataSource from '../database';
 
 const INVALID_LOGIN = 'Invalid email or password.';
 const VERIFY_ACCOUNT = 'Please verify your account and set your password with the link received by email.';
@@ -31,8 +31,8 @@ export default new LocalStrategy({
   usernameField: 'email',
   passwordField: 'password',
 }, async (email, password, done) => {
-  const userRepo = getRepository(User);
-  const identityRepo = getRepository(IdentityLocal);
+  const userRepo = AppDataSource.getRepository(User);
+  const identityRepo = AppDataSource.getRepository(IdentityLocal);
   const userEmail = validator.normalizeEmail(email);
   if (userEmail === false) {
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));

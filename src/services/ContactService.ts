@@ -1,12 +1,13 @@
 import {
-  FindManyOptions, FindOptionsWhere, getRepository, ILike, In, Repository,
+  FindManyOptions, Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contact } from '../entity/Contact';
 import { ContactFunction } from '../entity/enums/ContactFunction';
 import { Gender } from '../entity/enums/Gender';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause, cartesian, cartesianArrays } from '../helpers/filters';
+import { addQueryWhereClause } from '../helpers/filters';
+import AppDataSource from '../database';
 
 // May not be correct yet
 export interface ContactParams {
@@ -39,7 +40,7 @@ export default class ContactService {
   repo: Repository<Contact>;
 
   constructor() {
-    this.repo = getRepository(Contact);
+    this.repo = AppDataSource.getRepository(Contact);
   }
 
   async getContact(id: number): Promise<Contact> {
@@ -58,7 +59,7 @@ export default class ContactService {
       },
     };
 
-    findOptions.where = addQueryWhereClause<Contact>(params, ['firstName', 'lastNamePreposition', 'lastName', 'email']);
+    findOptions.where = addQueryWhereClause<Contact>(params, ['firstName', 'lastNamePreposition', 'lastName', 'email', 'company.name']);
 
     return {
       list: await this.repo.find({

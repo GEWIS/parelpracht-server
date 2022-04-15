@@ -1,16 +1,15 @@
 /* eslint-disable no-param-reassign */
-import { Connection } from 'typeorm';
 import { Product } from '../entity/Product';
 import replaceAll from '../helpers/replaceAll';
+import AppDataSource from '../database';
 
 /**
  * All invoices in the database should have a status "CREATED". If not, create it.
- * @param connection TypeORM connection to the database
  */
-export async function replaceGEWISRecipient(connection: Connection) {
+export async function replaceGEWISRecipient() {
   let logResult = '';
   let count = 0;
-  const productRepo = connection.getRepository(Product);
+  const productRepo = AppDataSource.getRepository(Product);
   const products = await productRepo.find();
   products.forEach((p) => {
     if (p.description.includes('{instelling}')

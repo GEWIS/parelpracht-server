@@ -1,6 +1,7 @@
-import { getRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Role } from '../entity/Role';
 import { ApiError, HTTPStatus } from '../helpers/error';
+import AppDataSource from '../database';
 
 export interface RoleParams {
   ldapGroup?: string;
@@ -12,7 +13,7 @@ export default class RoleService {
   constructor(
     repo?: Repository<Role>,
   ) {
-    this.repo = repo ?? getRepository(Role);
+    this.repo = repo ?? AppDataSource.getRepository(Role);
   }
 
   async getAllRoles(): Promise<Role[]> {

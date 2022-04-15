@@ -1,10 +1,10 @@
-import { createQueryBuilder } from 'typeorm';
 import RawQueries, {
   AnalysisResult,
   AnalysisResultByYear,
   ProductsPerCategoryPerPeriod,
 } from '../helpers/rawQueries';
 import { dateToFinancialYear } from '../helpers/timestamp';
+import AppDataSource from '../database';
 
 export interface DashboardProductInstanceStats {
   suggested: AnalysisResult;
@@ -51,7 +51,7 @@ export default class StatisticsService {
   public async getFinancialYears(firstYear?: number): Promise<number[]> {
     if (firstYear) return rangeToArray(firstYear, dateToFinancialYear(new Date()), 1);
 
-    const startYear = await createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
+    const startYear = await AppDataSource.createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
     let start: Date;
     if (startYear) { // @ts-ignore
       start = startYear.createdAt;

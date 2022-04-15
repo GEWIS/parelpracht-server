@@ -39,8 +39,18 @@ export function addQuerySearch<T extends BaseEnt>(fieldNames: string[], search?:
     const rawSearches: FindOptionsWhere<T>[][] = [];
     search.trim().split(' ').forEach((searchTerm) => {
       rawSearches.push(fieldNames.map((fieldName) => {
-        const temp: any = {};
-        temp[fieldName] = ILike(`%${searchTerm}%`);
+        // We can also search on relational fields, so we split the fieldName in different parts
+        const intermediates = fieldName.split('.');
+        let temp: any = {};
+        // The last intermediate is the actual field
+        temp[intermediates[intermediates.length - 1]] = ILike(`%${searchTerm}%`);
+        // All other intermediates are entities, so we create a nested object over them
+        for (let i = intermediates.length - 2; i >= 0; i--) {
+          let temp2: any = {};
+          temp2[intermediates[i]] = temp;
+          temp = temp2;
+        }
+        console.log(temp);
         return temp;
       }));
     });

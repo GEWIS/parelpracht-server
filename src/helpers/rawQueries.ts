@@ -1,4 +1,3 @@
-import { getManager } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
@@ -8,6 +7,7 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import { currentFinancialYear } from './timestamp';
 import { ApiError, HTTPStatus } from './error';
 import replaceAll from './replaceAll';
+import AppDataSource from '../database';
 
 export interface ETCompany {
   id: number,
@@ -150,15 +150,15 @@ export default class RawQueries {
 
   constructor() {
     switch (process.env.TYPEORM_CONNECTION) {
-      case 'mariadb':
-      case 'mysql':
-        this.database = 'mysql';
-        break;
-      case 'postgres':
-        this.database = 'postgres';
-        break;
-      default:
-        throw new Error(`Database type ${process.env.TYPEORM_CONNECTION} is not supported by the raw queries of ParelPracht`);
+    case 'mariadb':
+    case 'mysql':
+      this.database = 'mysql';
+      break;
+    case 'postgres':
+      this.database = 'postgres';
+      break;
+    default:
+      throw new Error(`Database type ${process.env.TYPEORM_CONNECTION} is not supported by the raw queries of ParelPracht`);
     }
   }
 
@@ -168,7 +168,7 @@ export default class RawQueries {
       q = q.split('"').join('');
       q = replaceAll(q, 'current_date', 'current_date()');
     }
-    return getManager().query(q);
+    return AppDataSource.manager.query(q);
   }
 
   getContractSummaries = (): Promise<ContractSummary[]> => {
