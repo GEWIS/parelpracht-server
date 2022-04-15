@@ -19,17 +19,20 @@ This is the back-end of ParelPracht. [The front-end can be found here](https://g
 4. Run `npm run dev`. This runs the client in development mode. Node will bind to port `3001`. You can find the API
    documentation at [http://localhost:3001/api/swagger-ui/](http://localhost:3001/api/swagger-ui/).
 5. Make a POST-request to `/v1/setup` with your credentials. The required payload can be found in the Swagger
-   documentation. This request will create an administrator account with the given credentials. You will receive an
+   documentation. This request will create a local administrator account with the given credentials. You will receive an
    email (on the given address via the given mail server at step 3) to set your password.
 
 You can also build the application with `npm run build`. This puts a production build in the `./build` directory.
 
 ## Deployment
-*To be added later*
+1. Clone the repository in a folder called `parelpracht-client` and clone the backend repository in a folder called `parelpracht-server`. Make sure that both folders are in the same parent folder.
+2. Change the image locations to the correct locations in `docker-compose.yml` (for both the frontend and backend).
+3. Fill in the correct (environment) variables in `docker-compose.yml`.
+4. Run `docker-compose` in `./parelpracht-client`.
 
 ## Copyright
 
-Copyright © 2020 The 39th board of GEWIS - Some rights reserved. Created by Roy Kakkenberg, Koen de Nooij, Jealy van den
+Copyright © 2022 The 39th board of GEWIS - Some rights reserved. Created by Roy Kakkenberg, Koen de Nooij, Jealy van den
 Aker, Max Opperman, Wouter van der Heijden en Irne Verwijst. You can use our software freely within the limits of
 our license. However, we worked very hard on this project and invested a lot of time in it, so we ask you to leave our
 copyright mark in place when modifying our software. Of course, you are free to add your own.
