@@ -72,6 +72,10 @@ export default class AuthService {
     return user;
   }
 
+  async getAllLdapIdentities(): Promise<IdentityLDAP[]> {
+    return this.identityLdapRepo.find({ relations: ['user'] });
+  }
+
   async logout(req: express.Request) : Promise<void> {
     req.logout();
   }
