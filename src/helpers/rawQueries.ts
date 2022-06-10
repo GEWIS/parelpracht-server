@@ -586,7 +586,7 @@ export default class RawQueries {
       JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId" AND ia1.type = 'STATUS')
       LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND ia1.type = 'STATUS' AND
           (ia1."createdAt" < ia2."createdAt" OR (ia1."createdAt" = ia2."createdAt" AND ia1.id < ia2.id)))
-      WHERE (ia2.id IS NULL AND ia1."subType" IN ('CREATED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
+      WHERE (ia2.id IS NULL AND ia1."subType" IN ('PROPOSED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
           pa2.id is NULL AND pa1."subType" = 'NOTDELIVERED' AND
           ${inYearFilter('i."startDate"', year)} )
     `);
@@ -604,7 +604,7 @@ export default class RawQueries {
       JOIN invoice_activity ia1 ON (i.id = ia1."invoiceId" AND ia1.type = 'STATUS')
       LEFT OUTER JOIN invoice_activity ia2 ON (i.id = ia2."invoiceId" AND ia2.type = 'STATUS' AND
           (ia1."createdAt" < ia2."createdAt" OR (ia1."createdAt" = ia2."createdAt" AND ia1.id < ia2.id)))
-      WHERE (ia2.id IS NULL AND ia1."subType" IN ('CREATED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
+      WHERE (ia2.id IS NULL AND ia1."subType" IN ('PROPOSED', 'SENT', 'PAID', 'IRRECOVERABLE') AND
           pa2.id is NULL AND pa1."subType" = 'DELIVERED' AND
           ${inYearFilter('i."startDate"', year)} )
     `);
