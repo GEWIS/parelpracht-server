@@ -276,7 +276,7 @@ export default class PdfGenerator {
           ${fT}
           \\cmidrule{2-2} \\textbf{Totaal (excl BTW)} & {\\bfseries %{totaalprijs}
           }\\\\\\midrule
-          BTW (21\%) & %{totaalprijs}\\\\
+          BTW (21\%) & %{totaalprijsexBTW}\\\\
           \\cmidrule{2-2} \\textbf{Totaal (incl BTW)} & {\\bfseries %{totaalprijsBTW}
           }\\\\\\bottomrule
           \\end{tabularx}`;
@@ -286,7 +286,7 @@ export default class PdfGenerator {
           ${fT}
           \\cmidrule{2-2} \\textbf{Total (excl VAT)} & {\\bfseries %{totaalprijs}
           }\\\\\\midrule
-          VAT (21\%) & %{totaalprijs}\\\\
+          VAT (21\%) & %{totaalprijsexBTW}\\\\
           \\cmidrule{2-2} \\textbf{Totaal (incl VAT) & {\\bfseries %{totaalprijsBTW}
           }\\\\\\bottomrule
           \\end{tabularx}`;
@@ -297,7 +297,8 @@ export default class PdfGenerator {
     f = replaceAll(f, '%{aanleverspecificatie}', dT);
     f = replaceAll(f, '%{tabelproducten}', fT);
     f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, language));
-    f = replaceAll(f, '%{totaalprijsBTW}\n', Currency.priceAttributeToEuro(totalPrice, language)*1.21);
+    f = replaceAll(f, '%{totaalprijsBTW}\n', Math.round(Currency.priceAttributeToEuro(totalPrice, language)* 121) / 100);
+    f = replaceAll(f, '%{totaalprijsexBTW}\n', Math.round(Currency.priceAttributeToEuro(totalPrice, language)* 21) / 100);
     return f;
   }
 
