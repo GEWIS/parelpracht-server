@@ -34,6 +34,7 @@ import ProductInstanceService, { ProductInstanceListResponse } from '../services
 import { AnalysisResultByYear } from '../helpers/rawQueries';
 import { ProductPricing } from '../entity/ProductPricing';
 import { Roles } from '../entity/enums/Roles';
+import { ValueAddedTax } from '../entity/enums/ValueAddedTax';
 
 @Route('product')
 @Tags('Product')
@@ -43,6 +44,7 @@ export class ProductController extends Controller {
       body('nameDutch').notEmpty().trim(),
       body('nameEnglish').notEmpty().trim(),
       body('targetPrice').isInt().custom((value) => value > 0),
+      body('valueAddedTax').isIn(Object.values(ValueAddedTax)),
       body('status').isIn(Object.values(ProductStatus)),
       body('description').trim(),
       body('categoryId').isInt(),

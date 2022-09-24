@@ -140,7 +140,7 @@ export class CompanyController extends Controller {
    * @param req Express.js request object
    */
   @Delete('{id}')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCompany(
     id: number, @Request() req: express.Request,

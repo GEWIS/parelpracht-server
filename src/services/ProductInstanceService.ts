@@ -96,7 +96,7 @@ export default class ProductInstanceService {
         .createProductActivity(product.nameEnglish, contractId),
     ]);
 
-    productInstance = (await this.repo.findOne({ where: { id: productInstance.id }, relations: ['activities'] }))!;
+    productInstance = (await this.repo.findOne({ where: { id: productInstance.id }, relations: ['activities', 'product'] }))!;
     return productInstance;
 
     // TODO: Fix that the contract is also passed on with the product

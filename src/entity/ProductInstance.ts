@@ -44,11 +44,12 @@ export class ProductInstance extends BaseEnt {
   activities!: ProductInstanceActivity[];
 
   /** Actual price of the product, should be a copy from the product price upon creation,
-   * or a different price that is not a discount */
+   * or a different price that is not a discount
+   * price is excluding VAT */
   @Column({ type: 'integer' })
   basePrice!: number;
 
-  /** Optional discount amount */
+  /** Optional discount amount, discount is taken over excl. VAT price */
   @Column({ type: 'integer', default: 0 })
   discount!: number;
 

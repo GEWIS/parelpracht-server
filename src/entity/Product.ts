@@ -12,6 +12,7 @@ import { ProductFile } from './file/ProductFile';
 import { ProductCategory } from './ProductCategory';
 import { ProductStatus } from './enums/ProductStatus';
 import { ProductPricing } from './ProductPricing';
+import { ValueAddedTax } from './enums/ValueAddedTax';
 
 @Entity()
 export class Product extends BaseEnt {
@@ -26,6 +27,14 @@ export class Product extends BaseEnt {
   /** Price is stored * 100 and as integer */
   @Column({ type: 'integer' })
   targetPrice!: number;
+
+  /** VAT category is stored */
+  @Column({
+    type: 'enum',
+    enum: ValueAddedTax,
+    default: ValueAddedTax.HIGH,
+  })
+  valueAddedTax!: ValueAddedTax;
 
   /** Status of the collaboration with this company */
   @Column({

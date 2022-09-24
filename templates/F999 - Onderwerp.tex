@@ -1,0 +1,51 @@
+%% GEWIS Letterhead Template
+%% Stijl
+%% All documentation can be found on https://gewis.nl/~stijl/
+
+\documentclass[
+	printaddress,
+	invoice,
+	dutch
+]{GEWISLetter}
+
+%% This example letter requires major version 1.x for compatibility
+\letterMajorVersion{1}
+
+%% In case we want to use a different sender or contact details, we set it here
+%\setSenderName{Ouderdagcommissie}
+%\setSenderMail{odc@gewis.nl}
+%\setSenderPhone{+31 123 456789}
+%\setSenderWeb{odc.gewis.nl}
+
+%% Set the recipient (required parameters have to be set, but can be set as empty string if needed)
+\setType{}
+\setRecipient{GEWIS}
+\setAttn{Samuel}
+
+\setStreet{5 hurwenen}
+\setPostcode{5623KM}
+\setCity{EIndhoven}
+\setCountry{NELDNFK}
+
+%% Set letter properties
+\setYourreference{PO NUMMER}
+\setMyreference{F999}
+\setSubject{Onderwerp}
+
+\setDate{16}{9}{2022} %TODO DATA INVOEREN
+\setDueDate{16}{10}{2022}
+
+\begin{document}
+\begin{invoice}[1-5-2022]{31-5-2022}
+	41 & nummer2 & 14,35 & 21 & 588,35\\
+
+	\totalexcl{588,35
+	}
+	\totallow{test vatlow
+	}
+	\totalhigh{test vathigh
+	}
+	\totalincl{test inclvat
+	}	
+\end{invoice}
+\end{document}

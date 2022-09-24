@@ -3,6 +3,7 @@ import {
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ProductStatus } from '../entity/enums/ProductStatus';
+import { ValueAddedTax } from '../entity/enums/ValueAddedTax';
 import { Product } from '../entity/Product';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { addQueryWhereClause } from '../helpers/filters';
@@ -17,6 +18,7 @@ export interface ProductParams {
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
+  valueAddedTax: ValueAddedTax;
   minTarget?: number;
   maxTarget?: number;
   status: ProductStatus;
@@ -38,6 +40,7 @@ export interface ProductSummary {
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
+  valueAddedTax: ValueAddedTax;
   status: ProductStatus;
 }
 
@@ -89,7 +92,7 @@ export default class ProductService {
   }
 
   async getProductSummaries(): Promise<ProductSummary[]> {
-    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice', 'status'] });
+    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice', 'valueAddedTax', 'status'] });
   }
 
   createProduct(params: ProductParams): Promise<Product> {
