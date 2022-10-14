@@ -2,101 +2,39 @@
 %% Stijl
 %% All documentation can be found on https://gewis.nl/~stijl/
 
-%%      _____                _             __
-%%    |  _  |              | |           / _|_
-%%   | | | |_   _____ _ __| | ___  __ _| |_(_)
-%%  | | | \ \ / / _ \ '__| |/ _ \/ _` |  _|
-%% \ \_/ /\ V /  __/ |  | |  __/ (_| | |  _
-%% \___/  \_/ \___|_|  |_|\___|\__,_|_| (_)
-%%
-%%      _____ _ _      _
-%%    /  __ \ (_)    | |                                    _
-%%   | /  \/ |_  ___| | __  _ __ ___   ___ _ __  _   _   _| |_
-%%  | |   | | |/ __| |/ / | '_ ` _ \ / _ \ '_ \| | | | |_   _|
-%% | \__/\ | | (__|   <  | | | | | |  __/ | | | |_| |   |_|
-%% \____/_|_|\___|_|\_\ |_| |_| |_|\___|_| |_|\__,_|
-%%
-%%       _____                                     _           _
-%%     /  __ \                                   (_)         | |
-%%    | /  \/ ___  _ __  _   _   _ __  _ __ ___  _  ___  ___| |_
-%%   | |    / _ \| '_ \| | | | | '_ \| '__/ _ \| |/ _ \/ __| __|
-%%  | \__/\ (_) | |_) | |_| | | |_) | | | (_) | |  __/ (__| |_
-%%  \____/\___/| .__/ \__, | | .__/|_|  \___/| |\___|\___|\__|
-%%            | |     __/ | | |            _/ |
-%%           |_|    |___/  |_|           |__/
-%% Using overleaf? Click on menu and then on copy project
-
-
 \documentclass[
- digital,         % Use toggle digital to include letterhad in exported pdf
- %printletterhead,% Use toggle printbackground to print letterhead in exported pdf - implies digital
- %english         % Use toggle English for having the template printed in English. You might need to  all compiled files to prevent having errors after switching the language
+	printaddress,
+	invoice,
+	{{language}}
 ]{GEWISLetter}
 
-%% This example letter requires version 0.4 of the GEWISLetter package, which was released on November 27, 2019
-\makeatletter
-    \@ifclasslater{GEWISLetter}{2019/11/27}{}{
-        \ClassError{GEWISLetter}{Dit voorbeeld vereist GEWISLetter v0.4 of hoger}%
-    }
-\makeatother
-
-%% To compile LaTeX files with unicode in them, we use this package to compile them correctly without weird characters.
-\usepackage[utf8]{inputenc}
+%% This example letter requires major version 1.x for compatibility
+\letterMajorVersion{1}
 
 %% Set the recipient (required parameters have to be set, but can be set as empty string if needed)
-\setType{Factuur}           % (optional) Set the Type which is printed above the address - e.g. "Confidential"
-\setRecipient{%{company}
-} % (required) Set the recipient for this letter
-\setAttn{%{contactperson}
-}             % (optional) Set the "Attn."/"T.a.v." line in the address
-\setStreet{%{street}
-}        % (required) Set the address of the recipient (for Dutch addresses usually street + number)
-\setPostcode{%{postalcode}
-}           % (required) Set postal code
-\setCity{%{city}
-}           % (required) Set city of recipient
-%\setPostcodecity{2020}         % (optional) For countries that don't use postal code + city addressing, you may want to set the line differently
-\setCountry{%{country}
-}   % (optional) Set the country of the recipient
+\setType{}
+\setRecipient{{{company}}}
+\setAttn{{{contactperson}}}
+
+\setStreet{{{street}}}
+\setPostcode{{{postalcode}}}
+\setCity{{{city}}}
+\setCountry{{{country}}}
 
 %% Set letter properties
-\setYourreference{%{yourreference}
-}        % (optional) Set the reference ("Uw kenmerk") the recipient uses/used
-\setMyreference{%{ourreference}
-}          % (optional) Set your own reference ("Ons kenmerk")
-\setSubject{%{subject}
-} % (highly recommended) Set the subject of the letter
+\setYourreference{{{yourreference}}}
+\setMyreference{{{ourreference}}}
+\setSubject{{{subject}}}
 
-\setDate{%{date}
-}       % (highly recommended) Set the date the letter is to be sent/was sent
+\setDate{{{dateday}}}{{{datemonth}}}{{{dateyear}}}
+\setDueDate{{{dueday}}}{{{datemonth}}}{{{dueyear}}}
 
-%% Usually you dont wan't the names of persons to be split to multiple lines, so you can define them here
-%% You can also define new commands to be able to reuse the names or other variables. Using tildes instead of space, allows you to prevent linebreaks within the command
-\newcommand{\GEWIScontact}{%{sender}
-\\%{senderfunctie}
-}
-\hyphenation{%{sender}
-}
-
-\newcommand{\COMPANYcontact}{%{contactperson}
-}
-\newcommand{\GEWISoccasion}{%{occasion}
-}
-
-%% Now it is time to start the letter
 \begin{document}
-\GEWISfirstpage                 % We want to print the address information of GEWIS on the first page
-\printadresenkenmerk            % We want to print the information we just set on the first page
-
-%% We now can write the letter - Note that we can use the variables we set for the names
-
-Geachte %{ontvanger}
-,\\[2\baselineskip]
-Naar aanleiding van \GEWISoccasion\ sturen we u hierbij deze factuur. Gelieve het verschuldigde bedrag binnen vijftien werkdagen over te maken naar IBAN NL22 ABNA 0528 1959 13 ten name van GEWIS te Eindhoven, onder vermelding van ``\GEWISmyreference''.\\[\baselineskip]
-Hieronder volgt een specificatie:\\[\baselineskip]
-%{tabelproducten}
-\\[2\baselineskip]
-Met vriendelijke groeten,\\[2\baselineskip]
-\GEWIScontact
-
+\begin{invoice}[1-5-2022]{31-5-2022}
+{{invoicerows}}
+	\totalexcl{{{exclvat}}}
+	\totallow{{{vatlow}}}
+	\totalhigh{{{vathigh}}}
+	\totalincl{{{inclvat}}}
+\end{invoice}
 \end{document}

@@ -12,7 +12,7 @@ import { ProductFile } from './file/ProductFile';
 import { ProductCategory } from './ProductCategory';
 import { ProductStatus } from './enums/ProductStatus';
 import { ProductPricing } from './ProductPricing';
-import { ValueAddedTax } from './enums/ValueAddedTax';
+import { ValueAddedTax } from './ValueAddedTax';
 
 @Entity()
 export class Product extends BaseEnt {
@@ -27,14 +27,6 @@ export class Product extends BaseEnt {
   /** Price is stored * 100 and as integer */
   @Column({ type: 'integer' })
   targetPrice!: number;
-
-  /** VAT category is stored */
-  @Column({
-    type: 'enum',
-    enum: ValueAddedTax,
-    default: ValueAddedTax.HIGH,
-  })
-  valueAddedTax!: ValueAddedTax;
 
   /** Status of the collaboration with this company */
   @Column({
@@ -65,6 +57,9 @@ export class Product extends BaseEnt {
   deliverySpecificationEnglish?: string;
 
   @Column({ type: 'integer' })
+  vatId!: number;
+
+  @Column({ type: 'integer' })
   categoryId!: number;
 
   /** Target minimum amount contracted for this product */
@@ -74,6 +69,11 @@ export class Product extends BaseEnt {
   /** Target maximum amount contracted for this product */
   @Column({ default: 0 })
   maxTarget!: number;
+
+  /** VAT category this product is in */
+  @ManyToOne(() => ValueAddedTax, (vat) => vat.category)
+  @JoinColumn({ name: 'vatId' })
+  valueAddedTax!: Product;
 
   /** Category this product is in */
   @ManyToOne(() => ProductCategory, (category) => category.products)

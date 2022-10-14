@@ -23,6 +23,7 @@ import { Language } from '../entity/enums/Language';
 import BaseFile from '../entity/file/BaseFile';
 import replaceAll from '../helpers/replaceAll';
 import countries from '../helpers/countries.json';
+import { VAT } from '../entity/enums/ValueAddedTax';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -109,64 +110,65 @@ export default class PdfGenerator {
   ): string {
     let t = template;
 
-    t = replaceAll(t, '%{contactperson}\n', recipient.fullName());
-    t = replaceAll(t, '%{sender}\n', sender.fullName());
-    t = replaceAll(t, '%{senderfunctie}\n', sender.function);
-    t = replaceAll(t, '%{company}\n', company.name);
-    t = replaceAll(t, '%{subject}\n', subject);
-    t = replaceAll(t, '%{ourreference}\n', ourReference);
-    t = replaceAll(t, '%{yourreference}\n', theirReference);
+    if (language === Language.DUTCH)
+      t = replaceAll(t, '{{language}}', 'dutch');
 
-    let locales;
-    switch (language) {
-      case Language.DUTCH: locales = 'nl-NL'; break;
-      case Language.ENGLISH: locales = 'en-US'; break;
-      default: throw new Error(`Unknown language: ${language}`);
-    }
-    t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(date));
+    t = replaceAll(t, '{{contactperson}}', recipient.fullName());
+    t = replaceAll(t, '{{company}}', company.name);
+    t = replaceAll(t, '{{subject}}', subject);
+
+    //TODO NODIG VOOR CONTRACT
+    // t = replaceAll(t, '%{sender}\n', sender.fullName());
+    // t = replaceAll(t, '%{senderfunctie}\n', sender.function);
+
+    t = replaceAll(t, '{{dateday}}', date.getDay().toString());
+    t = replaceAll(t, '{{datemonth}}', date.getMonth().toString());
+    t = replaceAll(t, '{{dateyear}}', date.getFullYear().toString());
 
     if (useInvoiceAddress) {
       const companyCountry = countries.find((country) => country.Code
         === company.invoiceAddressCountry!.toUpperCase());
-      t = replaceAll(t, '%{street}\n', company.invoiceAddressStreet!);
-      t = replaceAll(t, '%{postalcode}\n', company.invoiceAddressPostalCode!);
-      t = replaceAll(t, '%{city}\n', company.invoiceAddressCity!);
-      t = replaceAll(t, '%{country}\n', companyCountry !== undefined
+      t = replaceAll(t, '{{street}}', company.invoiceAddressStreet!);
+      t = replaceAll(t, '{{postalcode}}', company.invoiceAddressPostalCode!);
+      t = replaceAll(t, '{{city}}', company.invoiceAddressCity!);
+      t = replaceAll(t, '{{country}}', companyCountry !== undefined
         ? companyCountry.Name : company.invoiceAddressCountry!);
     } else {
       const companyCountry = countries.find((country) => country.Code
         === company.addressCountry!.toUpperCase());
-      t = replaceAll(t, '%{street}\n', company.addressStreet);
-      t = replaceAll(t, '%{postalcode}\n', company.addressPostalCode!);
-      t = replaceAll(t, '%{city}\n', company.addressCity!);
-      t = replaceAll(t, '%{country}\n', companyCountry !== undefined
+      t = replaceAll(t, '{{street}}', company.addressStreet);
+      t = replaceAll(t, '{{postalcode}}', company.addressPostalCode!);
+      t = replaceAll(t, '{{city}}', company.addressCity!);
+      t = replaceAll(t, '{{country}}', companyCountry !== undefined
         ? companyCountry.Name : company.addressCountry!);
     }
 
-    let greeting = '';
-    if (language === Language.DUTCH) {
-      switch (recipient.gender) {
-        case Gender.MALE: greeting = `heer ${recipient.formalGreet()}`; break;
-        case Gender.FEMALE: greeting = `mevrouw ${recipient.formalGreet()}`; break;
-        default: greeting = recipient.fullName();
-      }
-    } else if (language === Language.ENGLISH) {
-      switch (recipient.gender) {
-        case Gender.MALE: greeting = `mr. ${recipient.formalGreet()}`; break;
-        case Gender.FEMALE: greeting = `ms. ${recipient.formalGreet()}`; break;
-        default: greeting = recipient.fullName();
-      }
-    }
-    t = replaceAll(t, '%{ontvanger}\n', greeting);
+    // TODO SET FOR CONTRACT
+    // let greeting = '';
+    // if (language === Language.DUTCH) {
+    //   switch (recipient.gender) {
+    //   case Gender.MALE: greeting = `heer ${recipient.formalGreet()}`; break;
+    //   case Gender.FEMALE: greeting = `mevrouw ${recipient.formalGreet()}`; break;
+    //   default: greeting = recipient.fullName();
+    //   }
+    // } else if (language === Language.ENGLISH) {
+    //   switch (recipient.gender) {
+    //   case Gender.MALE: greeting = `mr. ${recipient.formalGreet()}`; break;
+    //   case Gender.FEMALE: greeting = `ms. ${recipient.formalGreet()}`; break;
+    //   default: greeting = recipient.fullName();
+    //   }
+    // }
+    // t = replaceAll(t, '%{ontvanger}\n', greeting);
 
-    let mail = '';
-    if (sender.replyToEmail.length > 0) {
-      mail = sender.replyToEmail;
-    } else {
-      mail = 'ceb@gewis.nl';
-    }
-
-    t = replaceAll(t, '%{senderemail}\n', mail);
+    // TODO SET FOR CONTRACT
+    // let mail = '';
+    // if (sender.replyToEmail.length > 0) {
+    //   mail = sender.replyToEmail;
+    // } else {
+    //   mail = 'ceb@gewis.nl';
+    // }
+    //
+    // t = replaceAll(t, '%{senderemail}\n', mail);
 
     return t;
   }
@@ -187,6 +189,17 @@ export default class PdfGenerator {
     return f;
   }
 
+  enumToVatAmount = (valueAddedTax: VAT) => {
+    switch (valueAddedTax) {
+    case VAT.LOW:
+      return 1.09;
+    case VAT.HIGH:
+      return 1.21;
+    default:
+      return 1;
+    }
+  };
+
   /**
    * Replace the product placeholders in the .tex file with the actual products
    * @param file {string} The .tex file parsed as a string
@@ -199,52 +212,70 @@ export default class PdfGenerator {
     file: string, products: ProductInstance[], language: Language, showDiscountPercentages: boolean,
   ) {
     let f = file;
-    let totalPrice = 0;
+    let totalDiscountPriceNoVat = 0;
+    let totalPriceWithVat = 0;
+    let totalLowVatValue = 0;
+    let totalHighVatValue = 0;
+
     let mT = '';
     let dT = '';
-    let fT = '';
-    let prodInst: ProductInstance;
+    let invoice = '';
+    let p: ProductInstance;
     for (let i = 0; i < products.length; i++) {
-      prodInst = products[i];
-      totalPrice += prodInst.basePrice - prodInst.discount;
+      p = products[i];
 
+      totalDiscountPriceNoVat += p.basePrice - p.discount;
+      const currentPrice = p.basePrice - p.discount;
+      // const currentPriceVAT = currentPrice * this.enumToVatAmount(p.product.valueAddedTax);
+      // totalPriceWithVat += currentPriceVAT;
+      // if (p.product.valueAddedTax === VAT.LOW) {
+      //   totalLowVatValue += currentPriceVAT - currentPrice;
+      // }
+      // if (p.product.valueAddedTax === VAT.HIGH) {
+      //   totalHighVatValue += currentPriceVAT - currentPrice;
+      // }
+
+      // 1 stuk				& Lunchlezing		& \euro1149,50		& 21\%			& \euro 1149,50\\
       if (language === Language.DUTCH) {
-        if (prodInst.product.contractTextDutch !== '') {
-          mT += `\\item{\\textbf{${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''}}\\\\\n`;
-          mT += `${prodInst.product.contractTextDutch}}\n`;
+        if (p.product.contractTextDutch !== '') {
+          mT += `\\item{\\textbf{${p.product.nameDutch} ${p.details !== '' ? `(${p.details})` : ''}}\\\\\n`;
+          mT += `${p.product.contractTextDutch}}\n`;
         }
 
-        if (prodInst.product.deliverySpecificationDutch !== '') {
-          dT += `\\item{\\textbf{${prodInst.product.nameDutch}}\\\\\n`;
-          dT += `${prodInst.product.deliverySpecificationDutch}}\n`;
+        if (p.product.deliverySpecificationDutch !== '') {
+          dT += `\\item{\\textbf{${p.product.nameDutch}}\\\\\n`;
+          dT += `${p.product.deliverySpecificationDutch}}\n`;
         }
 
-        fT += `${prodInst.product.nameDutch} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, language)} \\\\\n`;
-        if (prodInst.discount > 0) {
-          fT += '- Korting ';
+        // TODO INVOICES PRODUCT
+
+        invoice += `\t1 & ${p.product.nameDutch} ${p.details !== '' ? `(${p.details})` : ''} & ${Currency.priceAttributeToEuro(p.basePrice, language)} & ${p.product.valueAddedTax} & ${Currency.priceAttributeToEuro(p.basePrice, language)}\\\\\n`;
+        if (p.discount > 0) {
+          invoice += '\t  & - Korting ';
           if (showDiscountPercentages) {
-            fT += `(${prodInst.discountPercentage()}\\%) `;
+            invoice += `(${p.discountPercentage()}\\%) `;
           }
-          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, language)} \\\\\n`;
+          invoice += `${Currency.priceAttributeToEuro(p.discount, language)} & ${p.product.valueAddedTax} & ${Currency.priceAttributeToEuro(p.discount, language)}\\\\\n`;
         }
       } else if (language === Language.ENGLISH) {
-        if (prodInst.product.contractTextEnglish !== '') {
-          mT += `\\item{\\textbf{${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''}}\\\\\n`;
-          mT += `${prodInst.product.contractTextEnglish}}\n`;
+        if (p.product.contractTextEnglish !== '') {
+          mT += `\\item{\\textbf{${p.product.nameEnglish} ${p.details !== '' ? `(${p.details})` : ''}}\\\\\n`;
+          mT += `${p.product.contractTextEnglish}}\n`;
         }
 
-        if (prodInst.product.deliverySpecificationEnglish !== '') {
-          dT += `\\item{\\textbf{${prodInst.product.nameEnglish}}\\\\\n`;
-          dT += `${prodInst.product.deliverySpecificationEnglish}}\n`;
+        if (p.product.deliverySpecificationEnglish !== '') {
+          dT += `\\item{\\textbf{${p.product.nameEnglish}}\\\\\n`;
+          dT += `${p.product.deliverySpecificationEnglish}}\n`;
         }
 
-        fT += `${prodInst.product.nameEnglish} ${prodInst.details !== '' ? `(${prodInst.details})` : ''} & ${Currency.priceAttributeToEuro(prodInst.basePrice, language)} \\\\\n`;
-        if (prodInst.discount > 0) {
-          fT += '- Discount ';
+        // TODO INVOCIES DISCOUNT
+        invoice += `\t1 & ${p.product.nameEnglish} ${p.details !== '' ? `(${p.details})` : ''} & ${Currency.priceAttributeToEuro(p.basePrice, language)} 7 ${p.product.valueAddedTax} & ${Currency.priceAttributeToEuro(p.basePrice, language)}\\\\\n`;
+        if (p.discount > 0) {
+          invoice += '\t  & - Discount ';
           if (showDiscountPercentages) {
-            fT += `(${prodInst.discountPercentage()}\\%) `;
+            invoice += `(${p.discountPercentage()}\\%) `;
           }
-          fT += `& -${Currency.priceAttributeToEuro(prodInst.discount, language)} \\\\\n`;
+          invoice += `${Currency.priceAttributeToEuro(p.discount, language)} & ${p.product.valueAddedTax} & ${Currency.priceAttributeToEuro(p.discount, language)}\\\\\n`;
         }
       }
     }
@@ -269,28 +300,25 @@ export default class PdfGenerator {
       }
     }
 
-    if (fT !== '') {
-      if (language === Language.DUTCH) {
-        fT = `\\begin{tabularx}{\\textwidth}{X r}\\toprule
-          Beschrijving & Bedrag (EUR)\\\\\\midrule
-          ${fT}
-          \\cmidrule{2-2} \\textbf{Totaal} & {\\bfseries %{totaalprijs}
-          }\\\\\\bottomrule
-          \\end{tabularx}`;
-      } else if (language === Language.ENGLISH) {
-        fT = `\\begin{tabularx}{\\textwidth}{X r}\\toprule
-          Description & Amount (EUR)\\\\\\midrule
-          ${fT}
-          \\cmidrule{2-2} \\textbf{Total} & {\\bfseries %{totaalprijs}
-          }\\\\\\bottomrule
-          \\end{tabularx}`;
-      }
-    }
 
+    // let totalPrice = 0;
+    // let priceSum = 0;
+    // let discountAmount = 0;
+    // let discountSum = 0;
+    // let priceSumVAT = 0;
+    // let lowVATsum = 0;
+    // let highVATsum = 0;
+
+    // TODO aanpassen voor contracten
     f = replaceAll(f, '%{producten}', mT);
     f = replaceAll(f, '%{aanleverspecificatie}', dT);
-    f = replaceAll(f, '%{tabelproducten}', fT);
-    f = replaceAll(f, '%{totaalprijs}\n', Currency.priceAttributeToEuro(totalPrice, language));
+
+    // For invoices
+    f = replaceAll(f, '{{invoicerows}}', invoice);
+    f = replaceAll(f, '{{exclvat}}', Currency.priceAttributeToEuro(totalDiscountPriceNoVat, language));
+    f = replaceAll(f, '{{vatlow}}', Currency.priceAttributeToEuro(totalLowVatValue, language));
+    f = replaceAll(f, '{{vathigh}}', Currency.priceAttributeToEuro(totalHighVatValue, language));
+    f = replaceAll(f, '{{inclvat}}', Currency.priceAttributeToEuro(totalPriceWithVat, language));
     return f;
   }
 
@@ -373,48 +401,44 @@ export default class PdfGenerator {
    * @returns {string} The absolute location of the generated file
    */
   public async generateInvoice(invoice: Invoice, settings: InvoiceGenSettings): Promise<string> {
-    let templateLocation;
-    if (settings.language === Language.DUTCH) {
-      templateLocation = path.join(this.templateDir, invoiceDutch);
-    } else if (settings.language === Language.ENGLISH) {
-      templateLocation = path.join(this.templateDir, invoiceEnglish);
-    }
-    if (templateLocation == null) {
+    if (settings.language !== Language.ENGLISH && settings.language !== Language.DUTCH)
       throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
-    }
 
     const useInvoiceAddress = invoice.company.invoiceAddressStreet !== ''
       && invoice.company.invoiceAddressPostalCode !== ''
       && invoice.company.invoiceAddressCity !== '';
 
-    let file = fs.readFileSync(templateLocation).toString();
-    // TODO: Give each invoice a title as well
+    let file = fs.readFileSync(path.join(this.templateDir, 'template_factuur.tex')).toString();
+
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
       settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber);
+
+    // Setting invoice specific information
+    let dueDate = new Date(invoice.startDate);
+    dueDate.setDate(invoice.startDate.getDate() + 30);
+    file = replaceAll(file, '{{dueday}}', dueDate.getDay().toString());
+    file = replaceAll(file, '{{duemonth}}', dueDate.getMonth().toString());
+    file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
+
+    file = replaceAll(file, '{{ourreference}}', `F${invoice.id}`);
+    file = replaceAll(file, '{{yourreference}}', invoice.poNumber ?? '-');
+    file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
+
+    // TODO CHANGE TO FIT NEW TEMPLATE
+    // TODO CHANGE AND IMPLEMENT BETALINGSTERMIJN
+    // TODO ADD DEBTOR NUMBER
+    // TODO ADD QUATERS AS "START CURRENT QUARTER --- MIN(END DATE, CURRENT DATE)"
+
     file = this.createProductTables(file, invoice.products, settings.language,
       settings.showDiscountPercentages);
-
-    if (settings.language === Language.DUTCH) {
-      file = replaceAll(file, '%{occasion}\n', 'de door ons verrichte activiteiten');
-    } else if (settings.language === Language.ENGLISH) {
-      file = replaceAll(file, '%{occasion}\n', 'the activities performed by us');
-    }
-
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }
 
   async generateCustomInvoice(params: CustomInvoiceGenSettings, fileObj: BaseFile) {
-    let templateLocation;
-    if (params.language === Language.DUTCH) {
-      templateLocation = path.join(this.templateDir, invoiceDutch);
-    } else if (params.language === Language.ENGLISH) {
-      templateLocation = path.join(this.templateDir, invoiceEnglish);
-    }
-    if (templateLocation == null) {
+    if (params.language !== Language.ENGLISH && params.language !== Language.DUTCH)
       throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
-    }
 
-    let t = fs.readFileSync(templateLocation).toString();
+    let t = fs.readFileSync(path.join(this.templateDir, 'template_factuur.tex')).toString();
     t = replaceAll(t, '%{contactperson}\n', params.recipient.name);
     t = replaceAll(t, '%{sender}\n', fileObj.createdBy.fullName());
     t = replaceAll(t, '%{senderfunctie}\n', fileObj.createdBy.function);
@@ -430,24 +454,24 @@ export default class PdfGenerator {
 
     let locales;
     switch (params.language) {
-      case Language.DUTCH: locales = 'nl-NL'; break;
-      case Language.ENGLISH: locales = 'en-US'; break;
-      default: throw new Error(`Unknown language: ${params.language}`);
+    case Language.DUTCH: locales = 'nl-NL'; break;
+    case Language.ENGLISH: locales = 'en-US'; break;
+    default: throw new Error(`Unknown language: ${params.language}`);
     }
     t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(params.date));
 
     let greeting = '';
     if (params.language === Language.DUTCH) {
       switch (params.recipient.gender) {
-        case Gender.MALE: greeting = `heer ${params.recipient.name}`; break;
-        case Gender.FEMALE: greeting = `mevrouw ${params.recipient.name}`; break;
-        default: greeting = params.recipient.name;
+      case Gender.MALE: greeting = `heer ${params.recipient.name}`; break;
+      case Gender.FEMALE: greeting = `mevrouw ${params.recipient.name}`; break;
+      default: greeting = params.recipient.name;
       }
     } else if (params.language === Language.ENGLISH) {
       switch (params.recipient.gender) {
-        case Gender.MALE: greeting = `mr. ${params.recipient.name}`; break;
-        case Gender.FEMALE: greeting = `ms. ${params.recipient.name}`; break;
-        default: greeting = params.recipient.name;
+      case Gender.MALE: greeting = `mr. ${params.recipient.name}`; break;
+      case Gender.FEMALE: greeting = `ms. ${params.recipient.name}`; break;
+      default: greeting = params.recipient.name;
       }
     }
     t = replaceAll(t, '%{ontvanger}\n', greeting);
