@@ -71,9 +71,9 @@ export class Product extends BaseEnt {
   maxTarget!: number;
 
   /** VAT category this product is in */
-  @ManyToOne(() => ValueAddedTax, (vat) => vat.category)
+  @ManyToOne(() => ValueAddedTax, (vat) => vat.products)
   @JoinColumn({ name: 'vatId' })
-  valueAddedTax!: Product;
+  valueAddedTax!: ValueAddedTax;
 
   /** Category this product is in */
   @ManyToOne(() => ProductCategory, (category) => category.products)

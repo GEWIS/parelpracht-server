@@ -1,6 +1,7 @@
 {
   "entryFile": "./src/index.ts",
-  "noImplicitAdditionalProperties": "silently-remove-extras",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/controllers/*.ts"],
   "ignore": [
     "**/node_modules/@types/lodash/**"
   ],

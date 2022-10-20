@@ -16,9 +16,9 @@ import { validate } from '../helpers/validation';
 @Route('VAT')
 @Tags('Value Added Tax')
 export class VATController extends Controller {
-  private async validateCategoryParams(req: express.Request) {
+  private async validateVATParams(req: express.Request) {
     await validate([
-      body('name').notEmpty().trim(),
+      body('category').notEmpty().trim(),
     ], req);
   }
 
@@ -69,7 +69,7 @@ export class VATController extends Controller {
   public async updateVAT(
     id: number, @Body() params: Partial<VATParams>, @Request() req: express.Request,
   ): Promise<ValueAddedTax> {
-    await this.validateCategoryParams(req);
+    await this.validateVATParams(req);
     return new VATService().updateVAT(id, params);
   }
 }
