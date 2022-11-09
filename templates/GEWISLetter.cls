@@ -43,6 +43,12 @@
 \DeclareOption{invoice}{
 	\toggletrue{invoice}
 }
+
+\newtoggle{quote}
+\togglefalse{quote}
+\DeclareOption{quote}{
+	\toggletrue{quote}
+}
 \ProcessOptions\relax
 
 %%
@@ -52,7 +58,9 @@
 \newcommand\@languageEindhovenUniversity{Eindhoven University of Technology}
 \newcommand\@languageAttention{Attn.}
 \newcommand\@languageYourReference{PO number}
-\newcommand\@languageMyReference{Invoice number}
+\newcommand\@languageMyReference{Our reference}
+\iftoggle{invoice}{\renewcommand\@languageMyReference{Invoice number}}\relax
+\iftoggle{quote}{\renewcommand\@languageMyReference{Quote number}}\relax
 \newcommand\@languageDate{Date}
 \newcommand\@languageDueDate{Due date}
 \newcommand\@languageCustomerNumber{Customer number}
@@ -60,7 +68,8 @@
 \newcommand\@languageNetherlands{The Netherlands}
 \newcommand\@languageVAT{VAT}
 \newcommand\@languageInvoice{Invoice}
-\newcommand\@languageBottomText{\small Please pay within 30 days (before \@invoiceDueDate) to account number \@senderIBAN\ in the name of \@senderName\ referring to the invoice number \@myReference.}
+\newcommand\@languageQuote{Quote}
+\newcommand\@languageBottomText{\small Please pay within 30 days (before \@featureDueDate) to account number \@senderIBAN\ in the name of \@senderName\ referring to the invoice number \@myReference.}
 \newcommand\@languageConcerning{Concerning}
 
 \iftoggle{dutch}{
@@ -68,7 +77,8 @@
 	\renewcommand\@languageEindhovenUniversity{Technische Universiteit Eindhoven}
 	\renewcommand\@languageAttention{T.a.v.}
 	\renewcommand\@languageYourReference{Ordernummer}
-	\renewcommand\@languageMyReference{Factuurnummer}
+	\iftoggle{invoice}{\renewcommand\@languageMyReference{Factuurnummer}}\relax
+	\iftoggle{quote}{\renewcommand\@languageMyReference{Offertenummer}}\relax
 	\renewcommand\@languageDate{Datum}
 	\renewcommand\@languageDueDate{Vervaldatum}
 	\renewcommand\@languageCustomerNumber{Debiteurnummer}
@@ -76,7 +86,8 @@
 	\renewcommand\@languageNetherlands{Nederland}
 	\renewcommand\@languageVAT{BTW}
 	\renewcommand\@languageInvoice{Factuur}
-	\renewcommand\@languageBottomText{\small Gelieven te betalen binnen 30 dagen (voor \@invoiceDueDate) op rekeningnummer \@senderIBAN\ ten name van \@senderName\ onder vermelding van factuurnummer \@myReference.}
+	\renewcommand\@languageQuote{Offerte}
+	\renewcommand\@languageBottomText{\small Gelieven te betalen binnen 30 dagen (voor \@featureDueDate) op rekeningnummer \@senderIBAN\ ten name van \@senderName\ onder vermelding van factuurnummer \@myReference.}
 	\renewcommand\@languageConcerning{Betreft}
 }
 
@@ -112,24 +123,21 @@
 \AtBeginDocument{%
 	\iftoggle{printaddress}{%
 		\begin{minipage}[c][30mm][t]{0.5\linewidth}%
-			\iftoggle{invoice}{\textbf{\@languageInvoice}}{\textbf{\@letterType}}\\%
+			\iftoggle{invoice}{%
+				\textbf{\@languageInvoice}%
+			}{%
+				\iftoggle{quote}{%
+					\textbf{\@languageQuote}%
+				}{%
+					\textbf{\@letterType}%
+				}%
+			}\\%
 			\@recipient\\%
 			\ifthenelse{\equal{\@attention}{}}{}{\@attention\\}
 			\@street\\%
 			\@postalCode\ \@city%
 			\ifthenelse{\equal{\@country}{}}{}{\\\@country}
 		\end{minipage}%
-%		\hfill%
-%		\begin{minipage}[c][30mm][t]{0.3\linewidth}%
-%			\textbf{\@languageYourReference}\\%
-%			\ifthenelse{\equal{\@yourReference}{}}{-}{\@yourReference}\\% \\[0.1\baselineskip]
-%			\textbf{\@languageMyReference}\\%
-%			\ifthenelse{\equal{\@myReference}{}}{-}{\@myReference}\\% \\[0.1\baselineskip]
-%			\textbf{\@languageSubject}\\%
-%			\ifthenelse{\equal{\@letterSubject}{}}{-}{\raggedright\@letterSubject}\\% \\[0.1\baselineskip]
-%			\textbf{\@languageDate}\\%
-%			\@letterDate%
-%		\end{minipage}%
 		\par%
 		\vspace{1cm}%
 	}\relax%
@@ -140,12 +148,21 @@
 		\printFeatures%
 		\vspace{0.5cm}%
 		
-	}{
-		\@senderName, \@letterDate.\\%
-		\@languageConcerning: \textit{\@letterSubject}%
-		\vspace{2em}%
-		
-	}
+	}{%
+		\iftoggle{quote}{%
+			{\huge\textbf{\@languageQuote}}\\%
+			\vspace{0.5cm}%
+			
+			\printFeatures%
+			\vspace{0.5cm}%
+			
+		}{%
+			\@senderName, \@letterDate.\\%
+			\@languageConcerning: \textit{\@letterSubject}%
+			\vspace{2em}%
+			
+		}%
+	}%
 }
 
 
@@ -162,7 +179,7 @@
 \newcommand{\printFeatures}{
 	\begin{tabular}{@{}p{3cm}@{}p{3cm}@{}p{2.5cm}@{}p{2.5cm}@{}p{\textwidth-11cm}@{}}
 		\textbf{\@languageMyReference} & \textbf{\@languageYourReference} & \textbf{\@languageDate} & \textbf{\@languageDueDate} & \textbf{\@languageCustomerNumber} \\
-		\@myReference & \@yourReference & \@invoiceDate & \@invoiceDueDate & C1000
+		\@myReference & \@yourReference & \@featureDate & \@featureDueDate & \@debtorNumber
 	\end{tabular}
 }
 
@@ -184,8 +201,9 @@
 \newcommand\@yourReference{-}
 \newcommand\@myReference{-}
 \newcommand\@letterDate{-}
-\newcommand\@invoiceDate{-}
-\newcommand\@invoiceDueDate{-}
+\newcommand\@featureDate{-}
+\newcommand\@featureDueDate{-}
+\newcommand\@debtorNumber{-}
 \newcommand\@letterSubject{-}
 \newcommand\@letterType{}
 
@@ -200,6 +218,7 @@
 %% 
 \newcommand\setYourreference[1]{\renewcommand\@yourReference{#1}}
 \newcommand\setMyreference[1]{\renewcommand\@myReference{#1}}
+\newcommand\setDebtorNumber[1]{\renewcommand\@debtorNumber{#1}}
 
 \newcounter{meetingDay}
 \newcounter{meetingMonth}
@@ -215,10 +234,10 @@
 	\setcounter{meetingMonth}{#2}%
 	\setcounter{meetingYear}{#3}%
 	\renewcommand\@letterDate{\DTMdisplaydate{\themeetingYear}{\themeetingMonth}{\themeetingDay}{-1}}%
-	\renewcommand\@invoiceDate{\themeetingDay-\themeetingMonth-\themeetingYear}
+	\renewcommand\@featureDate{\themeetingDay-\themeetingMonth-\themeetingYear}
 }%
 \newcommand\setDueDate[3]{%
-	\renewcommand\@invoiceDueDate{#1-#2-#3}
+	\renewcommand\@featureDueDate{#1-#2-#3}
 }%
 \newcommand\setSubject[1]{\renewcommand\@letterSubject{#1}}
 \newcommand\setType[1]{\renewcommand\@letterType{#1}}

@@ -1,0 +1,28 @@
+{
+  "base": [
+    {
+      "language": "dutch",
+      "contactperson": "recipient.fullName()",
+      "company": "company.name",
+      "subject": "subject",
+      "dateday": "date.getDay().toString()",
+      "datemonth": "date.getMonth().toString()",
+      "dateyear": "date.getFullYear().toString()",
+
+      "street": "company.invoiceAddressStreet!",
+      "postalcode": "company.invoiceAddressPostalCode!",
+      "city": "company.invoiceAddressCity!",
+      "country": "companyCountry !== undefined ? companyCountry.Name : company.invoiceAddressCountry!"
+    }
+  ],
+  "contract": [
+    {
+
+    }
+  ],
+  "invoice": [
+    {
+
+    }
+  ]
+}

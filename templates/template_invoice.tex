@@ -3,13 +3,19 @@
 %% All documentation can be found on https://gewis.nl/~stijl/
 
 \documentclass[
+	{{language}},
 	printaddress,
 	invoice,
-	{{language}}
 ]{GEWISLetter}
 
 %% This example letter requires major version 1.x for compatibility
 \letterMajorVersion{1}
+
+%% In case we want to use a different sender or contact details, we set it here
+%\setSenderName{Ouderdagcommissie}
+%\setSenderMail{odc@gewis.nl}
+%\setSenderPhone{+31 123 456789}
+%\setSenderWeb{odc.gewis.nl}
 
 %% Set the recipient (required parameters have to be set, but can be set as empty string if needed)
 \setType{}
@@ -25,13 +31,14 @@
 \setYourreference{{{yourreference}}}
 \setMyreference{{{ourreference}}}
 \setSubject{{{subject}}}
+\setDebtorNumber{{{debtornumber}}}
 
 \setDate{{{dateday}}}{{{datemonth}}}{{{dateyear}}}
-\setDueDate{{{dueday}}}{{{datemonth}}}{{{dueyear}}}
+\setDueDate{{{dueday}}}{{{duemonth}}}{{{dueyear}}}
 
 \begin{document}
-\begin{invoice}[1-5-2022]{31-5-2022}
-{{invoicerows}}
+\begin{invoice}[{{quarterstart}}]{{{quarterend}}}
+{{invoiceentries}}
 	\totalexcl{{{exclvat}}}
 	\totallow{{{vatlow}}}
 	\totalhigh{{{vathigh}}}
