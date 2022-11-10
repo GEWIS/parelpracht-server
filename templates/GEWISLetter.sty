@@ -55,10 +55,11 @@
 	\renewcommand{\arraystretch}{1.2}
 	\iftoggle{invoice}{%
 		\ifthenelse{\equal{#1}{nil}}{%
-			\textbf{Details}\\%
-			\@languagePeriod\ #2.%
-			\vspace{0.5em}%
-			
+			\ifthenelse{\not\equal{#2}{nil}}{%
+				\textbf{Details}\\%
+				\@languagePeriod\ #2.%
+				\vspace{0.5em}%
+			}\relax%
 		}{%
 			\textbf{Details}\\%
 			\@languagePeriods{#1}{#2}%

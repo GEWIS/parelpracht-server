@@ -18,12 +18,13 @@ import { User } from '../entity/User';
 import { ProductInstance } from '../entity/ProductInstance';
 import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
-import { Gender } from '../entity/enums/Gender';
 import { Language } from '../entity/enums/Language';
 import BaseFile from '../entity/file/BaseFile';
 import replaceAll from '../helpers/replaceAll';
 import countries from '../helpers/countries.json';
 import { VAT } from '../entity/enums/ValueAddedTax';
+import { ValueAddedTax } from '../entity/ValueAddedTax';
+import AppDataSource from '../database';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -172,26 +173,25 @@ export default class PdfGenerator {
     template = replaceAll(template, '{{dateyear}}', date.getFullYear().toString());
 
     if (useInvoiceAddress) {
-      const companyCountry = countries.find((country) => country.Code
-        === company.invoiceAddressCountry!.toUpperCase());
-      template = replaceAll(template, '{{street}}', company.invoiceAddressStreet!);
-      template = replaceAll(template, '{{postalcode}}', company.invoiceAddressPostalCode!);
-      template = replaceAll(template, '{{city}}', company.invoiceAddressCity!);
+      const companyCountry = company.invoiceAddressCountry ? countries.find((country) => country.Code
+        === company.invoiceAddressCountry!.toUpperCase()) : undefined;
+      template = replaceAll(template, '{{street}}', company.invoiceAddressStreet);
+      template = replaceAll(template, '{{postalcode}}', company.invoiceAddressPostalCode);
+      template = replaceAll(template, '{{city}}', company.invoiceAddressCity);
       template = replaceAll(template, '{{country}}', companyCountry !== undefined
-        ? companyCountry.Name : company.invoiceAddressCountry!);
+        ? companyCountry.Name : company.invoiceAddressCountry);
     } else {
       const companyCountry = countries.find((country) => country.Code
         === company.addressCountry!.toUpperCase());
       template = replaceAll(template, '{{street}}', company.addressStreet);
-      template = replaceAll(template, '{{postalcode}}', company.addressPostalCode!);
-      template = replaceAll(template, '{{city}}', company.addressCity!);
+      template = replaceAll(template, '{{postalcode}}', company.addressPostalCode);
+      template = replaceAll(template, '{{city}}', company.addressCity);
       template = replaceAll(template, '{{country}}', companyCountry !== undefined
-        ? companyCountry.Name : company.addressCountry!);
+        ? companyCountry.Name : company.addressCountry);
     }
 
     template = replaceAll(template, '{{ourreference}}', ourReference);
     template = this.replaceAllSafe(template, '{{yourreference}}', theirReference);
-    template = replaceAll(template, '{{debtornumber}}', recipient.id.toString());
 
     let dueDate = new Date(date);
     dueDate.setDate(date.getDate() + 30);
@@ -373,6 +373,8 @@ export default class PdfGenerator {
     file = this.createPricingTable(file, contract.products, settings.language, settings.showDiscountPercentages);
     file = this.createProductList(file, contract.products, settings.language);
 
+    file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
+
     if (settings.contentType === ContractType.CONTRACT) {
       file = this.createSpecificationList(file, contract.products, settings.language);
       if (settings.signee1 !== undefined && settings.signee2 !== undefined
@@ -401,7 +403,7 @@ export default class PdfGenerator {
     let file = fs.readFileSync(path.join(this.templateDir, invoicePath)).toString();
 
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber);
+      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber ?? '-');
 
     // Setting invoice specific information
     let dueDate = new Date(invoice.startDate);
@@ -410,7 +412,7 @@ export default class PdfGenerator {
     file = replaceAll(file, '{{duemonth}}', dueDate.getMonth().toString());
     file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
 
-    file = replaceAll(file, '{{debtornumber}}', `${settings.recipient.id}`);
+    file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
 
     let startDate = new Date(invoice.startDate);
     let quartiles = {
@@ -448,67 +450,73 @@ export default class PdfGenerator {
     if (params.language !== Language.ENGLISH && params.language !== Language.DUTCH)
       throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
 
-    let t = fs.readFileSync(path.join(this.templateDir, invoicePath)).toString();
-    t = this.replaceAllSafe(t, '%{contactperson}\n', params.recipient.name);
-    t = this.replaceAllSafe(t, '%{sender}\n', fileObj.createdBy.fullName());
-    t = this.replaceAllSafe(t, '%{senderfunctie}\n', fileObj.createdBy.function);
-    t = this.replaceAllSafe(t, '%{company}\n', params.recipient.organizationName ?? '');
-    t = this.replaceAllSafe(t, '%{subject}\n', params.subject);
-    t = replaceAll(t, '%{ourreference}\n', params.ourReference);
-    t = this.replaceAllSafe(t, '%{yourreference}\n', params.theirReference ?? '-');
-    t = replaceAll(t, '%{street}\n', params.recipient.street ?? '');
-    t = replaceAll(t, '%{postalcode}\n', params.recipient.postalCode ?? '');
-    t = replaceAll(t, '%{city}\n', params.recipient.city ?? '');
-    t = replaceAll(t, '%{country}\n', params.recipient.country ?? '');
-    t = this.replaceAllSafe(t, '%{occasion}\n', params.invoiceReason);
+    let file = fs.readFileSync(path.join(this.templateDir, invoicePath)).toString();
 
-    let locales;
-    switch (params.language) {
-    case Language.DUTCH: locales = 'nl-NL'; break;
-    case Language.ENGLISH: locales = 'en-US'; break;
-    default: throw new Error(`Unknown language: ${params.language}`);
-    }
-    t = replaceAll(t, '%{date}', new Intl.DateTimeFormat(locales, { dateStyle: 'long' }).format(params.date));
+    let customCompany = new Company();
+    customCompany.name = params.recipient.organizationName ? params.recipient.organizationName : params.recipient.name;
+    customCompany.invoiceAddressStreet = params.recipient.street ?? '';
+    customCompany.invoiceAddressPostalCode = params.recipient.postalCode ?? '';
+    customCompany.invoiceAddressCity = params.recipient.city ?? '';
+    customCompany.invoiceAddressCountry = params.recipient.country ?? '';
 
-    let greeting = '';
-    if (params.language === Language.DUTCH) {
-      switch (params.recipient.gender) {
-      case Gender.MALE: greeting = `heer ${params.recipient.name}`; break;
-      case Gender.FEMALE: greeting = `mevrouw ${params.recipient.name}`; break;
-      default: greeting = params.recipient.name;
+    let customRecipient = new Contact();
+    customRecipient.firstName = params.recipient.organizationName ? params.recipient.name : '';
+    customRecipient.lastNamePreposition = '';
+    customRecipient.lastName = '';
+
+    file = this.generateBaseTexLetter(file, customCompany, customRecipient, fileObj.createdBy,
+      params.language, params.date, true, params.subject, params.ourReference, params.theirReference ?? '-');
+
+    // Setting invoice specific information
+    let dueDate = new Date(params.date);
+    dueDate.setDate(params.date.getDate() + 30);
+    file = replaceAll(file, '{{dueday}}', dueDate.getDay().toString());
+    file = replaceAll(file, '{{duemonth}}', dueDate.getMonth().toString());
+    file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
+
+    file = replaceAll(file, '{{debtornumber}}', params.recipient.number);
+
+    let totalDiscountPriceNoVat = 0;
+    let totalPriceWithVat = 0;
+    let totalLowVatValue = 0;
+    let totalHighVatValue = 0;
+
+    const repo = AppDataSource.getRepository(ValueAddedTax);
+
+    let invoice = '';
+    let customProduct;
+    for (let i = 0; i < params.products.length; i++) {
+      customProduct = params.products[i];
+      let basePrice = customProduct.pricePerOne * customProduct.amount;
+
+      const valueAddedTax = await repo.findOne({
+        where : {
+          category: customProduct.valueAddedTax,
+        },
+      });
+
+      totalDiscountPriceNoVat += basePrice;
+      const currentPriceVAT = basePrice * (valueAddedTax!.amount / 100 + 1);
+      totalPriceWithVat += currentPriceVAT;
+
+      if (customProduct.valueAddedTax === VAT.LOW) {
+        totalLowVatValue += currentPriceVAT - basePrice;
       }
-    } else if (params.language === Language.ENGLISH) {
-      switch (params.recipient.gender) {
-      case Gender.MALE: greeting = `mr. ${params.recipient.name}`; break;
-      case Gender.FEMALE: greeting = `ms. ${params.recipient.name}`; break;
-      default: greeting = params.recipient.name;
+      if (customProduct.valueAddedTax === VAT.HIGH) {
+        totalHighVatValue += currentPriceVAT - basePrice;
       }
+      invoice += `\t1 & ${customProduct.name} & ${Currency.priceAttributeToEuro(basePrice, params.language)} & ${valueAddedTax!.amount}\\% & ${Currency.priceAttributeToEuro(basePrice, params.language)}\\\\\n`;
     }
-    t = this.replaceAllSafe(t, '{{ontvanger}}', greeting);
 
-    let totalPrice = 0;
-    let table = '';
-    params.products.forEach((p) => {
-      totalPrice += p.amount * p.pricePerOne;
-      table += `${p.name} & ${Currency.priceAttributeToEuro(p.pricePerOne, params.language)} & ${p.amount} & ${Currency.priceAttributeToEuro(p.amount * p.pricePerOne, params.language)}\\\\\n`;
-    });
-    if (params.language === Language.DUTCH) {
-      table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
-        Beschrijving & Bedrag (EUR) & Aantal & Subtotaal (EUR) \\\\\\midrule
-        ${table}
-        \\cmidrule{4-4} \\textbf{Totaal} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, Language.DUTCH)}
-        }\\\\\\bottomrule
-        \\end{tabularx}`;
-    } else if (params.language === Language.ENGLISH) {
-      table = `\\begin{tabularx}{\\textwidth}{X r r r}\\toprule
-        Description & Price (EUR) & Amount & Subtotal (EUR) \\\\\\midrule
-        ${table}
-        \\cmidrule{4-4} \\textbf{Total} & & & {\\bfseries ${Currency.priceAttributeToEuro(totalPrice, Language.ENGLISH)}
-        }\\\\\\bottomrule
-        \\end{tabularx}`;
-    }
-    t = replaceAll(t, '%{tabelproducten}', table);
+    file = replaceAll(file, '{{invoiceentries}}', invoice);
+    file = replaceAll(file, '{{exclvat}}', Currency.priceAttributeToEuro(totalDiscountPriceNoVat, params.language));
+    file = replaceAll(file, '{{vatlow}}', Currency.priceAttributeToEuro(totalLowVatValue, params.language));
+    file = replaceAll(file, '{{vathigh}}', Currency.priceAttributeToEuro(totalHighVatValue, params.language));
+    file = replaceAll(file, '{{inclvat}}', Currency.priceAttributeToEuro(totalPriceWithVat, params.language));
 
-    return this.finishFileGeneration(t, params.fileType, false);
+    file = replaceAll(file, '{{quarterstart}}', 'nil');
+    file = replaceAll(file, '{{quarterend}}', 'nil');
+
+    return this.finishFileGeneration(file, params.fileType, false);
   }
 }

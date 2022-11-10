@@ -969,8 +969,8 @@ const models: TsoaRoute.Models = {
     "CustomRecipient": {
         "dataType": "refObject",
         "properties": {
+            "number": {"dataType":"string","required":true},
             "name": {"dataType":"string","required":true},
-            "gender": {"ref":"Gender","required":true},
             "organizationName": {"dataType":"string"},
             "street": {"dataType":"string"},
             "postalCode": {"dataType":"string"},
@@ -986,6 +986,7 @@ const models: TsoaRoute.Models = {
             "name": {"dataType":"string","required":true},
             "amount": {"dataType":"double","required":true},
             "pricePerOne": {"dataType":"double","required":true},
+            "valueAddedTax": {"ref":"VAT","required":true},
         },
         "additionalProperties": false,
     },
@@ -997,7 +998,6 @@ const models: TsoaRoute.Models = {
             "fileType": {"ref":"ReturnFileType","required":true},
             "recipient": {"ref":"CustomRecipient","required":true},
             "subject": {"dataType":"string","required":true},
-            "invoiceReason": {"dataType":"string","required":true},
             "ourReference": {"dataType":"string","required":true},
             "theirReference": {"dataType":"string"},
             "products": {"dataType":"array","array":{"dataType":"refObject","ref":"CustomProduct"},"required":true},
