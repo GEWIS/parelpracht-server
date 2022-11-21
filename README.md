@@ -21,6 +21,7 @@ This is the back-end of ParelPracht. [The front-end can be found here](https://g
 5. Make a POST-request to `/v1/setup` with your credentials. The required payload can be found in the Swagger
    documentation. This request will create a local administrator account with the given credentials. You will receive an
    email (on the given address via the given mail server at step 3) to set your password.
+6. In the `VAT` table, add the desired VAT categories and percentages.
 
 You can also build the application with `npm run build`. This puts a production build in the `./build` directory.
 
