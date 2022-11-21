@@ -22,7 +22,6 @@
 	},
 	"include": [
 	  "src/**/*.ts",
-    "src/pdfgenerator/parameters.json",
 	  "src/public/swagger.json",
     "src/helpers/countries.json"
 	]
