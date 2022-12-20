@@ -45,6 +45,7 @@ export class ProductController extends Controller {
       body('targetPrice').isInt().custom((value) => value > 0),
       body('status').isIn(Object.values(ProductStatus)),
       body('description').trim(),
+      body('vatId').isInt(),
       body('categoryId').isInt(),
       body('contractTextDutch').notEmpty().trim(),
       body('contractTextEnglish').notEmpty().trim(),

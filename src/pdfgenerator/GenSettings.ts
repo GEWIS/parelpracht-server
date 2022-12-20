@@ -1,7 +1,7 @@
 import { User } from '../entity/User';
 import { Contact } from '../entity/Contact';
-import { Gender } from '../entity/enums/Gender';
 import { Language } from '../entity/enums/Language';
+import { VAT } from '../entity/enums/ValueAddedTax';
 
 export enum ContractType {
   CONTRACT = 'CONTRACT',
@@ -35,8 +35,8 @@ export interface InvoiceGenSettings {
 }
 
 interface CustomRecipient {
+  number: string,
   name: string,
-  gender: Gender,
   organizationName?: string,
   street?: string,
   postalCode?: string,
@@ -48,6 +48,7 @@ interface CustomProduct {
   name: string,
   amount: number,
   pricePerOne: number,
+  valueAddedTax: VAT,
 }
 
 export interface CustomInvoiceGenSettings {
@@ -55,7 +56,6 @@ export interface CustomInvoiceGenSettings {
   fileType: ReturnFileType,
   recipient: CustomRecipient,
   subject: string,
-  invoiceReason: string,
   ourReference: string,
   theirReference?: string,
   products: CustomProduct[],
