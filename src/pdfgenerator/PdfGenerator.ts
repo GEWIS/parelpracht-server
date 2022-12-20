@@ -410,7 +410,7 @@ export default class PdfGenerator {
     let file = fs.readFileSync(path.join(this.templateDir, invoicePath)).toString();
 
     file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, invoice.poNumber ?? '-');
+      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, !!invoice.poNumber ? invoice.poNumber : undefined );
 
     // Setting invoice specific information
     let dueDate = new Date(invoice.startDate);
@@ -472,7 +472,7 @@ export default class PdfGenerator {
     customRecipient.lastName = '';
 
     file = this.generateBaseTexLetter(file, customCompany, customRecipient, fileObj.createdBy,
-      params.language, params.date, true, params.subject, params.ourReference, params.theirReference ?? '-');
+      params.language, params.date, true, params.subject, params.ourReference, !!params.theirReference ? params.theirReference : undefined);
 
     // Setting invoice specific information
     let dueDate = new Date(params.date);
