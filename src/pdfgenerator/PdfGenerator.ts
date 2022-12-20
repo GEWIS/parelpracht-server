@@ -229,6 +229,13 @@ export default class PdfGenerator {
   ) {
     let contractSpecifications = '';
     let productInstance: ProductInstance;
+
+    if (language === Language.DUTCH && !products.some((p) => p.product.deliverySpecificationDutch !== '')) {
+      contractSpecifications += '\n\\item{\\textit{Er zijn geen productspecificaties voor de producten op dit document.}}\\\\';
+    } else if (language === Language.ENGLISH && !products.some((p) => p.product.deliverySpecificationEnglish !== '')) {
+      contractSpecifications += '\n\\item{\\textit{There are no product specifications for the products on this document.}}\\\\';
+    }
+
     for (let i = 0; i < products.length; i++) {
       productInstance = products[i];
       if (language === Language.DUTCH) {

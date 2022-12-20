@@ -25,6 +25,7 @@
 % Deprecated packages
 \usepackage{array} % Additional tabular column options
 \usepackage[useregional]{datetime2}
+\usepackage{xspace}
 
 % Font settings
 \usepackage[default]{lato} % Loading the actual T1 font
@@ -248,3 +249,5 @@
 \newcommand\setPostcode[1]{\renewcommand{\@postalCode}{#1}}
 \newcommand\setCity[1]{\renewcommand\@city{#1}}
 \newcommand\setCountry[1]{\renewcommand\@country{#1}}
+
+\newcommand\GEWISRecipient{\@recipient\xspace}
