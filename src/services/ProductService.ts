@@ -21,6 +21,7 @@ export interface ProductParams {
   maxTarget?: number;
   status: ProductStatus;
   description?: string;
+  vatId: number;
   categoryId: number;
   contractTextDutch: string;
   contractTextEnglish: string;
@@ -35,6 +36,7 @@ export interface PricingParams {
 
 export interface ProductSummary {
   id: number;
+  vatId: number;
   nameDutch: string;
   nameEnglish: string;
   targetPrice: number;
@@ -89,7 +91,7 @@ export default class ProductService {
   }
 
   async getProductSummaries(): Promise<ProductSummary[]> {
-    return this.repo.find({ select: ['id', 'nameDutch', 'nameEnglish', 'targetPrice', 'status'] });
+    return this.repo.find({ select: ['id', 'vatId', 'nameDutch', 'nameEnglish', 'targetPrice', 'status'] });
   }
 
   createProduct(params: ProductParams): Promise<Product> {

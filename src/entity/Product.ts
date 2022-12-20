@@ -12,6 +12,7 @@ import { ProductFile } from './file/ProductFile';
 import { ProductCategory } from './ProductCategory';
 import { ProductStatus } from './enums/ProductStatus';
 import { ProductPricing } from './ProductPricing';
+import { ValueAddedTax } from './ValueAddedTax';
 
 @Entity()
 export class Product extends BaseEnt {
@@ -56,6 +57,9 @@ export class Product extends BaseEnt {
   deliverySpecificationEnglish?: string;
 
   @Column({ type: 'integer' })
+  vatId!: number;
+
+  @Column({ type: 'integer' })
   categoryId!: number;
 
   /** Target minimum amount contracted for this product */
@@ -65,6 +69,11 @@ export class Product extends BaseEnt {
   /** Target maximum amount contracted for this product */
   @Column({ default: 0 })
   maxTarget!: number;
+
+  /** VAT category this product is in */
+  @ManyToOne(() => ValueAddedTax, (vat) => vat.products)
+  @JoinColumn({ name: 'vatId' })
+  valueAddedTax!: ValueAddedTax;
 
   /** Category this product is in */
   @ManyToOne(() => ProductCategory, (category) => category.products)

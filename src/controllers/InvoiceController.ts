@@ -298,7 +298,6 @@ export class InvoiceController extends Controller {
       body('language').isIn(Object.values(Language)),
       body('fileType').isIn(Object.values(ReturnFileType)),
       body('subject').isString().trim(),
-      body('invoiceReason').isString().trim(),
       body('ourReference').isString().trim(),
       body('theirReference').optional({ checkFalsy: true }).isString().trim(),
     ], req);

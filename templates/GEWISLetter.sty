@@ -1,7 +1,103 @@
-%% GEWIS Briefpapier TeX Style
-%% Stijl - Stephan van den Berkmortel, Gijs de Man, Rink Pieters
+%% GEWIS Letter Tex style v2.0
+%% Stijl - Gijs de Man
 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{GEWISLetter}[2020/05/09 GEWIS Letter] %May 9, 2020 v1.0
+\NeedsTeXFormat{LaTeX2e} 
+\ProvidesPackage{GEWISLetter}[2022/29/07 GEWIS Letter Package]
 
-\PackageError{GEWISLetter}{You are trying to load GEWISLetter as a package. As of version 1.0 this is no longer supported. Please use the documentclass command instead of usepackae and remove your existing document class}{The TeX standard recommends putting styles in classes instead of packages. The GEWIS Letter is obviously a style, so therefore it was updated to be a document class.}
+% Version control
+\def\@@majorVersion{2}
+\newcommand{\@letterStyMajorVersion}[1]{
+	\ifnum\numexpr#1\relax=\numexpr\@@majorVersion\relax\else
+	\PackageError{GEWISAgendaMinutes}{Major version mismatch. Check corporate identity for more information.}
+	\fi
+}
+
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{calc}
+\usepackage{enumitem}
+
+\newcommand\@languagePrice{Price}
+\newcommand\@languageTotal{Total}
+\newcommand\@languageLow{low}
+\newcommand\@languageHigh{high}
+\newcommand\@languagePeriod{Regarding the delivered services on}
+\newcommand\@languagePeriods[2]{Regarding the delivered services between #1 and #2.}
+
+\iftoggle{dutch}{
+	\renewcommand\@languagePrice{Prijs}
+	\renewcommand\@languageTotal{Totaal}
+	\renewcommand\@languageLow{laag}
+	\renewcommand\@languageHigh{hoog}
+	\renewcommand\@languagePeriod{Betreffende de geleverde diensten op}
+	\renewcommand\@languagePeriods[2]{Betreffende de geleverde diensten tussen #1 en #2.}
+}
+
+%% Additional settings
+\setlength\parindent{0pt}
+\setlength\parskip{0.75em}\relax
+
+\hyphenation{GEWIS}
+\setlist[itemize]{label=-}
+\renewcommand{\thesubsection}{\normalsize\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\normalfont\normalsize\arabic{subsection}.\arabic{subsubsection}}
+\titleformat{\subsection}{\bfseries\large}{}{0em}{}
+\titleformat{\subsubsection}{\normalfont}{\thesubsubsection}{1em}{}
+
+%% Commands to set the totals of an invocie
+\newcommand\totalexcl[1]{\midrule&&\multicolumn{2}{@{}l}{\textbf{\@languageTotal\ excl. \@languageVAT}} & \euro#1\\}
+\newcommand\totallow[1]{&&\multicolumn{2}{@{}l}{\textbf{\@languageVAT\ \@languageLow\ (9\%)}} & \euro#1\\}
+\newcommand\totalhigh[1]{&&\multicolumn{2}{@{}l}{\textbf{\@languageVAT\ \@languageHigh\ (21\%)}} & \euro#1\\\cmidrule{3-5}}
+\newcommand\totalincl[1]{&&\multicolumn{2}{@{}l}{\textbf{\@languageTotal\ incl. \@languageVAT}}	& \euro#1\\}
+
+%% Invoice environment for detailed invoices
+\newenvironment{invoice}[2][nil]{
+	\renewcommand{\arraystretch}{1.2}
+	\iftoggle{invoice}{%
+		\ifthenelse{\equal{#1}{nil}}{%
+			\ifthenelse{\not\equal{#2}{nil}}{%
+				\textbf{Details}\\%
+				\@languagePeriod\ #2.%
+				\vspace{0.5em}%
+			}\relax%
+		}{%
+			\textbf{Details}\\%
+			\@languagePeriods{#1}{#2}%
+			\vspace{0.5em}%
+	
+		}%
+	}%
+
+	\begin{tabular}{@{}p{2.5cm}@{}p{\textwidth-9cm}@{}p{2.5cm}@{}p{1.5cm}@{}p{2.5cm}@{}}%
+		\toprule%
+		\textbf{\#} 	& \textbf{Product}	& \textbf{\@languagePrice}	& \textbf{\@languageVAT}	& \textbf{\@languageTotal}\\\midrule%
+}{%
+	\end{tabular}%
+}%
+
+%Signature
+\newcommand\signature[1]{
+	\begin{minipage}{0.45\textwidth}
+		\rule{\textwidth}{0.4pt}\\
+		\@languageDate
+		\vspace{3em}
+		
+		\rule{\textwidth}{0.4pt}\\
+		#1
+		\vspace{5em}
+	\end{minipage}
+}
+
+% Specifications environment
+\newenvironment{specifications}{
+	\begin{itemize}
+	}{
+	\end{itemize}
+}
+
+%% Products environment
+\newenvironment{products}{
+	\begin{itemize}
+}{
+	\end{itemize}
+}
