@@ -22,5 +22,5 @@ jobs:
           context: .
           dockerfile: Dockerfile
           push: true
-          tags: parelpracht.docker-registry.gewis.nl/parelpracht-client:latest
+          tags: parelpracht.docker-registry.gewis.nl/parelpracht-server:latest
 
