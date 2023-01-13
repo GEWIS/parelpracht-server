@@ -1,0 +1,26 @@
+name: Build and push Docker image
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Login to container registry
+        uses: docker/login-action@v2
+        with:
+          registry: parelpracht.docker-registry.gewis.nl
+          username: ${{ secrets.SVC_GH_PARELPRACHT_USERNAME }}
+          password: ${{ secrets.SVC_GH_PARELPRACHT_PWD }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: parelpracht.docker-registry.gewis.nl/parelpracht-client:latest
+
