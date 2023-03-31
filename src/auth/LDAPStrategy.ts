@@ -57,7 +57,7 @@ export const ldapLogin = (
   res: express.Response,
   next: express.NextFunction,
 ) => {
-  passport.authenticate('ldapauth', async (err, ldapUser, info) => {
+  passport.authenticate('ldapauth', async (err: any, ldapUser: any, info: any) => {
     if (err) { return next(err); }
     if (!ldapUser) { return next(new ApiError(HTTPStatus.BadRequest, info.message)); }
 

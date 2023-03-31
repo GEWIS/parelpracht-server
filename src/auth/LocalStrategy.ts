@@ -57,7 +57,9 @@ export default new LocalStrategy({
     return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
   }
 
-  return done(null, await userRepo.findOneBy({ id: identity.id }));
+  const user2 = await userRepo.findOneBy({ id: identity.id }) || undefined;
+
+  return done(null, user2);
 });
 
 export const localLogin = (
@@ -65,7 +67,7 @@ export const localLogin = (
   res: express.Response,
   next: express.NextFunction,
 ) => {
-  passport.authenticate('local', (err, user, info) => {
+  passport.authenticate('local', (err: any, user: any) => {
     if (err) { return next(err); }
     if (!user) { return next(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
     return req.logIn(user, (e: any) => {

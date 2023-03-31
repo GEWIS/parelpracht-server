@@ -1,4 +1,29 @@
 import { DataSource } from 'typeorm';
+import { Company } from './entity/Company';
+import { Contact } from './entity/Contact';
+import { Contract } from './entity/Contract';
+import { IdentityApiKey } from './entity/IdentityApiKey';
+import { IdentityLDAP } from './entity/IdentityLDAP';
+import { IdentityLocal } from './entity/IdentityLocal';
+import { Invoice } from './entity/Invoice';
+import { Product } from './entity/Product';
+import { ProductCategory } from './entity/ProductCategory';
+import { ProductInstance } from './entity/ProductInstance';
+import { ProductPricing } from './entity/ProductPricing';
+import { Role } from './entity/Role';
+import { ServerSetting } from './entity/ServerSetting';
+import { Session } from './entity/Session';
+import { User } from './entity/User';
+import { ValueAddedTax } from './entity/ValueAddedTax';
+import { CompanyActivity } from './entity/activity/CompanyActivity';
+import { ContractActivity } from './entity/activity/ContractActivity';
+import { InvoiceActivity } from './entity/activity/InvoiceActivity';
+import { ProductActivity } from './entity/activity/ProductActivity';
+import { ProductInstanceActivity } from './entity/activity/ProductInstanceActivity';
+import { CompanyFile } from './entity/file/CompanyFile';
+import { ContractFile } from './entity/file/ContractFile';
+import { InvoiceFile } from './entity/file/InvoiceFile';
+import { ProductFile } from './entity/file/ProductFile';
 
 const AppDataSource = new DataSource({
   host: process.env.TYPEORM_HOST,
@@ -9,7 +34,10 @@ const AppDataSource = new DataSource({
   password: process.env.TYPEORM_PASSWORD,
   synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
   logging: process.env.TYPEORM_LOGGING === 'true',
-  entities: [process.env.TYPEORM_ENTITIES!],
+  entities: [Company, Contact, Contract, IdentityApiKey, IdentityLDAP, IdentityLocal, Invoice, Product,
+    ProductCategory, ProductInstance, ProductPricing, Role, ServerSetting, Session, User, ValueAddedTax,
+    CompanyActivity, ContractActivity, InvoiceActivity, ProductActivity, ProductInstanceActivity, CompanyFile,
+    ContractFile, InvoiceFile, ProductFile],
   subscribers: [process.env.TYPEORM_SUBSCRIBERS!],
   migrations: [process.env.TYPEORM_MIGRATIONS!],
   extra: {
