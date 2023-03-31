@@ -168,7 +168,7 @@ export class InvoiceController extends Controller {
   @Post('{id}/product')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProduct(
+  public async addProductToInvoice(
     id: number, @Body() params: { productId: number }, @Request() req: express.Request,
   ): Promise<ProductInstance> {
     await validate([
@@ -185,7 +185,7 @@ export class InvoiceController extends Controller {
   @Delete('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProduct(id: number, prodId: number): Promise<void> {
+  public async deleteProductFromInvoice(id: number, prodId: number): Promise<void> {
     return new ProductInstanceService().deleteInvoiceProduct(id, prodId);
   }
 

@@ -77,7 +77,12 @@ export default class AuthService {
   }
 
   async logout(req: express.Request) : Promise<void> {
-    req.logout();
+    return new Promise((resolve, reject) => {
+      req.logout((error) => {
+        if (error) reject(error);
+        resolve();
+      });
+    });
   }
 
   async forgotPassword(userEmail: string): Promise<void> {

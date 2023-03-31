@@ -183,7 +183,7 @@ export class ContractController extends Controller {
   @Post('{id}/product')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProductInstance(
+  public async addProductInstanceToContract(
     id: number, @Body() params: ProductInstanceParams, @Request() req: express.Request,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
@@ -200,7 +200,7 @@ export class ContractController extends Controller {
   @Put('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateProductInstance(
+  public async updateProductInstanceOnContract(
     id: number, prodId: number, @Body() params: Partial<ProductInstanceParams>,
     @Request() req: express.Request,
   ): Promise<ProductInstance> {
@@ -234,7 +234,7 @@ export class ContractController extends Controller {
   @Post('{id}/product/{prodId}/status')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProductInstanceStatus(
+  public async addProductInstanceStatusToContract(
     id: number, prodId: number, @Body() params: ProductInstanceStatusParams,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -263,7 +263,7 @@ export class ContractController extends Controller {
   @Post('{id}/product/{prodId}/comment')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addProductInstanceComment(
+  public async addProductInstanceCommentToContract(
     id: number, prodId: number, @Body() params: ActivityParams, @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
@@ -290,7 +290,7 @@ export class ContractController extends Controller {
   @Put('{id}/product/{prodId}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateProductInstanceActivity(
+  public async updateProductInstanceActivityOnContract(
     id: number, prodId: number, activityId: number, @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
@@ -312,7 +312,7 @@ export class ContractController extends Controller {
   @Delete('{id}/product/{prodId}/activity/{activityId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductInstanceActivity(
+  public async deleteProductInstanceActivityFromContract(
     id: number, prodId: number, activityId: number,
   ): Promise<void> {
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
