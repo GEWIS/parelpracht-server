@@ -11,6 +11,6 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: Run
         run: npm ci && npm run lint
