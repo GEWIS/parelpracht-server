@@ -2137,7 +2137,7 @@ export function RegisterRoutes(app: express.Router) {
         app.post('/api/contract/:id/product',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function ContractController_addProductInstance(request: any, response: any, next: any) {
+            function ContractController_addProductInstanceToContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"ref":"ProductInstanceParams"},
@@ -2153,7 +2153,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new ContractController();
 
 
-              const promise = controller.addProductInstance.apply(controller, validatedArgs as any);
+              const promise = controller.addProductInstanceToContract.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2163,7 +2163,7 @@ export function RegisterRoutes(app: express.Router) {
         app.put('/api/contract/:id/product/:prodId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function ContractController_updateProductInstance(request: any, response: any, next: any) {
+            function ContractController_updateProductInstanceOnContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2180,7 +2180,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new ContractController();
 
 
-              const promise = controller.updateProductInstance.apply(controller, validatedArgs as any);
+              const promise = controller.updateProductInstanceOnContract.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2216,7 +2216,7 @@ export function RegisterRoutes(app: express.Router) {
         app.post('/api/contract/:id/product/:prodId/status',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function ContractController_addProductInstanceStatus(request: any, response: any, next: any) {
+            function ContractController_addProductInstanceStatusToContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2233,7 +2233,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new ContractController();
 
 
-              const promise = controller.addProductInstanceStatus.apply(controller, validatedArgs as any);
+              const promise = controller.addProductInstanceStatusToContract.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2243,7 +2243,7 @@ export function RegisterRoutes(app: express.Router) {
         app.post('/api/contract/:id/product/:prodId/comment',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function ContractController_addProductInstanceComment(request: any, response: any, next: any) {
+            function ContractController_addProductInstanceCommentToContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2260,7 +2260,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new ContractController();
 
 
-              const promise = controller.addProductInstanceComment.apply(controller, validatedArgs as any);
+              const promise = controller.addProductInstanceCommentToContract.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2270,7 +2270,7 @@ export function RegisterRoutes(app: express.Router) {
         app.put('/api/contract/:id/product/:prodId/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function ContractController_updateProductInstanceActivity(request: any, response: any, next: any) {
+            function ContractController_updateProductInstanceActivityOnContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2288,7 +2288,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new ContractController();
 
 
-              const promise = controller.updateProductInstanceActivity.apply(controller, validatedArgs as any);
+              const promise = controller.updateProductInstanceActivityOnContract.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2298,7 +2298,7 @@ export function RegisterRoutes(app: express.Router) {
         app.delete('/api/contract/:id/product/:prodId/activity/:activityId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function ContractController_deleteProductInstanceActivity(request: any, response: any, next: any) {
+            function ContractController_deleteProductInstanceActivityFromContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2314,7 +2314,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new ContractController();
 
 
-              const promise = controller.deleteProductInstanceActivity.apply(controller, validatedArgs as any);
+              const promise = controller.deleteProductInstanceActivityFromContract.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2749,7 +2749,7 @@ export function RegisterRoutes(app: express.Router) {
         app.post('/api/invoice/:id/product',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function InvoiceController_addProduct(request: any, response: any, next: any) {
+            function InvoiceController_addProductToInvoice(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     params: {"in":"body","name":"params","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"productId":{"dataType":"double","required":true}}},
@@ -2765,7 +2765,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new InvoiceController();
 
 
-              const promise = controller.addProduct.apply(controller, validatedArgs as any);
+              const promise = controller.addProductToInvoice.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
@@ -2775,7 +2775,7 @@ export function RegisterRoutes(app: express.Router) {
         app.delete('/api/invoice/:id/product/:prodId',
             authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
 
-            function InvoiceController_deleteProduct(request: any, response: any, next: any) {
+            function InvoiceController_deleteProductFromInvoice(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
                     prodId: {"in":"path","name":"prodId","required":true,"dataType":"double"},
@@ -2790,7 +2790,7 @@ export function RegisterRoutes(app: express.Router) {
                 const controller = new InvoiceController();
 
 
-              const promise = controller.deleteProduct.apply(controller, validatedArgs as any);
+              const promise = controller.deleteProductFromInvoice.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
