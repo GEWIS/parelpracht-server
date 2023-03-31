@@ -1,7 +1,7 @@
 /* eslint import/first: off */
 import 'reflect-metadata';
 import * as fs from 'fs';
-import express from 'express';
+import express, { Express } from 'express';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '.env' });
@@ -32,19 +32,14 @@ import { User } from './entity/User';
 import UserService from './services/UserService';
 import { ldapLogin, LDAPStrategy } from './auth';
 import AppDataSource from './database';
+import { DataSource } from 'typeorm';
 
 const PORT = process.env.PORT || 3001;
 
-AppDataSource.initialize().then(async (dataSource) => {
-  // Setup of database
-  await new UserService().setupRoles();
-
-  const app = express();
+export function setupSessionSupport(dataSource: DataSource, app: Express) {
   const sessionRepo = dataSource.getRepository(Session);
 
-  app.use(express.json({ limit: '50mb' }));
-  app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
-
+  // Setup session config
   const sess = {
     store: new TypeormStore({
       cleanupLimit: 2,
@@ -53,7 +48,7 @@ AppDataSource.initialize().then(async (dataSource) => {
     }).connect(sessionRepo),
     secret: process.env.SESSION_SECRET!,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { },
   } as session.SessionOptions;
 
@@ -66,6 +61,23 @@ AppDataSource.initialize().then(async (dataSource) => {
 
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Initialize passport config.
+  // config();
+}
+
+AppDataSource.initialize().then(async (dataSource) => {
+  // Setup of database
+  await new UserService().setupRoles();
+
+  const app = express();
+
+  app.use(express.json({ limit: '50mb' }));
+  app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
+
+  app.set('trust proxy', 2);
+
+  setupSessionSupport(dataSource, app);
 
   passport.serializeUser((user: any, done) => {
     done(null, user.id);
