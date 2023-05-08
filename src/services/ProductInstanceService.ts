@@ -245,7 +245,7 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
     }
 
-    await this.repo.update(instance.id, { invoiceId: undefined });
+    await this.repo.update(instance.id, { invoiceId: null });
   }
 
   async removeDeferredStatuses(): Promise<void> {

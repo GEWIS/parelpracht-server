@@ -12,14 +12,14 @@ import { ApiError, HTTPStatus } from '../../helpers/error';
 @Entity()
 export class ProductInstanceActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-  productInstanceId!: number;
+    productInstanceId!: number;
 
   /** ProductInstance related to this activity */
   @ManyToOne(() => ProductInstance, (productInstance) => productInstance.activities, {
     onDelete: 'CASCADE',
-  })
+    })
   @JoinColumn({ name: 'productInstanceId' })
-  productInstance!: ProductInstance;
+    productInstance!: ProductInstance;
 
   /** Subtype of this activity, only used when the type = "STATUS" */
   @Column({
@@ -27,8 +27,8 @@ export class ProductInstanceActivity extends BaseActivity {
     enum: ProductInstanceStatus,
     nullable: true,
     update: false,
-  })
-  subType?: ProductInstanceStatus;
+    })
+    subType!: ProductInstanceStatus | null;
 
   getRelatedEntity(): BaseEnt {
     return this.productInstance;
