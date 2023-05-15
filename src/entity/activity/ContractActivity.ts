@@ -10,14 +10,14 @@ import { ApiError, HTTPStatus } from '../../helpers/error';
 @Entity()
 export class ContractActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-  contractId!: number;
+    contractId!: number;
 
   /** Contract related to this activity */
   @ManyToOne(() => Contract, (contract) => contract.activities, {
     onDelete: 'CASCADE',
-  })
+    })
   @JoinColumn({ name: 'contractId' })
-  contract!: Contract;
+    contract!: Contract;
 
   /** Subtype of this activity, only used when the type = "STATUS" */
   @Column({
@@ -25,8 +25,8 @@ export class ContractActivity extends BaseActivity {
     enum: ContractStatus,
     nullable: true,
     update: false,
-  })
-  subType?: ContractStatus;
+    })
+    subType!: ContractStatus | null;
 
   getRelatedEntity(): BaseEnt {
     return this.contract;

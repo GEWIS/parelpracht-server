@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build and push Docker image
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, docker]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,7 +20,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          dockerfile: Dockerfile
           push: true
           tags: parelpracht.docker-registry.gewis.nl/parelpracht-server:latest
 
