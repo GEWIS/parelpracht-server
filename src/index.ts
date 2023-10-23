@@ -107,7 +107,8 @@ AppDataSource.initialize().then(async (dataSource) => {
     fs.mkdirSync(path.join(__dirname, '/../tmp'));
   }
   if (!fs.existsSync(path.join(__dirname, '/../data/generated'))) {
-    fs.mkdirSync(path.join(__dirname, '/../data/generated'));
+    // Recursive so data is also created
+    fs.mkdirSync(path.join(__dirname, '/../data/generated'), { recursive: true });
   }
   if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
     fs.mkdirSync(path.join(__dirname, '/../data/uploads'));

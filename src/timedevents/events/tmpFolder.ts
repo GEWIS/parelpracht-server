@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import rimraf from 'rimraf';
+import { rimraf } from 'rimraf';
 import path from 'path';
 
 export default async function tmpFolder() {
