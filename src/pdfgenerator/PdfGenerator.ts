@@ -168,8 +168,8 @@ export default class PdfGenerator {
     template = this.replaceAllSafe(template, '{{sender}}', sender.fullName());
     template = this.replaceAllSafe(template, '{{senderfunction}}', sender.function);
 
-    template = replaceAll(template, '{{dateday}}', date.getDay().toString());
-    template = replaceAll(template, '{{datemonth}}', date.getMonth().toString());
+    template = replaceAll(template, '{{dateday}}', date.getDate().toString());
+    template = replaceAll(template, '{{datemonth}}', (date.getMonth()+1).toString());
     template = replaceAll(template, '{{dateyear}}', date.getFullYear().toString());
 
     if (useInvoiceAddress) {
@@ -195,8 +195,8 @@ export default class PdfGenerator {
 
     let dueDate = new Date(date);
     dueDate.setDate(date.getDate() + 30);
-    template = replaceAll(template, '{{dueday}}', dueDate.getDay().toString());
-    template = replaceAll(template, '{{duemonth}}', dueDate.getMonth().toString());
+    template = replaceAll(template, '{{dueday}}', dueDate.getDate().toString());
+    template = replaceAll(template, '{{duemonth}}', (dueDate.getMonth()+1).toString());
     template = replaceAll(template, '{{dueyear}}', dueDate.getFullYear().toString());
 
     return template;
@@ -415,8 +415,8 @@ export default class PdfGenerator {
     // Setting invoice specific information
     let dueDate = new Date(invoice.startDate);
     dueDate.setDate(invoice.startDate.getDate() + 30);
-    file = replaceAll(file, '{{dueday}}', dueDate.getDay().toString());
-    file = replaceAll(file, '{{duemonth}}', dueDate.getMonth().toString());
+    file = replaceAll(file, '{{dueday}}', dueDate.getDate().toString());
+    file = replaceAll(file, '{{duemonth}}', (dueDate.getMonth()+1).toString());
     file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
 
     file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
@@ -477,8 +477,8 @@ export default class PdfGenerator {
     // Setting invoice specific information
     let dueDate = new Date(params.date);
     dueDate.setDate(params.date.getDate() + 30);
-    file = replaceAll(file, '{{dueday}}', dueDate.getDay().toString());
-    file = replaceAll(file, '{{duemonth}}', dueDate.getMonth().toString());
+    file = replaceAll(file, '{{dueday}}', dueDate.getDate().toString());
+    file = replaceAll(file, '{{duemonth}}', (dueDate.getMonth()+1).toString());
     file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
 
     file = replaceAll(file, '{{debtornumber}}', params.recipient.number);
