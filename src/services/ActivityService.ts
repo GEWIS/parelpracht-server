@@ -19,6 +19,7 @@ import { sendInvoiceEmails } from '../helpers/mailBuilder';
 import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
 import AppDataSource from '../database';
+import { Roles } from '../entity/enums/Roles';
 
 export interface ActivityParams {
   description: string;
@@ -222,7 +223,7 @@ export default class ActivityService<T extends BaseActivity> {
     case 'InvoiceActivity':
       activity = <InvoiceActivity>act;
       if (activity.subType === InvoiceStatus.SENT) {
-        sendInvoiceEmails(activity.invoiceId);
+        sendInvoiceEmails(activity.invoiceId).then(() => {});
       }
 
       statuses = await this.getStatuses({ invoiceId: activity.invoiceId });
@@ -234,6 +235,9 @@ export default class ActivityService<T extends BaseActivity> {
       if (activity.subType === InvoiceStatus.PROPOSED
           && statuses.includes(InvoiceStatus.SENT)) {
         throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice to "Proposed", because it is already sent.');
+      }
+      if ((activity.subType === InvoiceStatus.PAID || activity.subType === InvoiceStatus.IRRECOVERABLE) && (!this.actor || !this.actor.hasRole(Roles.FINANCIAL))) {
+        throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only financials can mark an invoice paid or irrecoverable.');
       }
 
       break;
