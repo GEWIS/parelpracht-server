@@ -236,7 +236,7 @@ export default class ActivityService<T extends BaseActivity> {
           && statuses.includes(InvoiceStatus.SENT)) {
         throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice to "Proposed", because it is already sent.');
       }
-      if ((activity.subType === InvoiceStatus.PAID || activity.subType === InvoiceStatus.IRRECOVERABLE) && (!this.actor || !this.actor.hasRole(Roles.FINANCIAL))) {
+      if ((activity.subType === InvoiceStatus.PAID || activity.subType === InvoiceStatus.IRRECOVERABLE) && (!this.actor || !this.actor.hasRole([Roles.ADMIN, Roles.FINANCIAL]))) {
         throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only financials can mark an invoice paid or irrecoverable.');
       }
 
