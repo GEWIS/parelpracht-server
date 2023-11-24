@@ -20,6 +20,7 @@ import FileService from '../services/FileService';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import AuthService, { LdapIdentityParams } from '../services/AuthService';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
+import GDPRService from '../services/GDPRService';
 
 @Route('user')
 @Tags('User')
@@ -271,5 +272,15 @@ export class UserController extends Controller {
   ): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLdap(user);
+  }
+
+  /**
+   * Dump all the given user's personal information for GDPR requests
+   */
+  @Get('{id}/dump')
+  @Security('local', ['ADMIN'])
+  @Response<WrappedApiError>(401)
+  public async dumpPersonalInformation(id: number) {
+    return new GDPRService().getDump(id);
   }
 }

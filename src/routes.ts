@@ -1311,6 +1311,97 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"username":{"dataType":"string"}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Company.name_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_BaseActivity.type-or-descriptionDutch-or-descriptionEnglish_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"ref":"ActivityType","required":true},"descriptionDutch":{"dataType":"string","required":true},"descriptionEnglish":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ActivitiesGDPRResponse": {
+        "dataType": "refAlias",
+        "type": {"ref":"Pick_BaseActivity.type-or-descriptionDutch-or-descriptionEnglish_","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_BaseFile.name-or-downloadName-or-location-or-createdAt_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"createdAt":{"dataType":"datetime","required":true},"downloadName":{"dataType":"string","required":true},"location":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "FileGDPRResponse": {
+        "dataType": "refAlias",
+        "type": {"ref":"Pick_BaseFile.name-or-downloadName-or-location-or-createdAt_","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Contract.title_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_ContractActivity.subType_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"subType":{"dataType":"union","subSchemas":[{"ref":"ContractStatus"},{"dataType":"enum","enums":[null]}],"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Product.nameDutch-or-nameEnglish_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"nameDutch":{"dataType":"string","required":true},"nameEnglish":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductGDPRResponse": {
+        "dataType": "refAlias",
+        "type": {"ref":"Pick_Product.nameDutch-or-nameEnglish_","validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_ProductInstanceActivity.subType_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"subType":{"dataType":"union","subSchemas":[{"ref":"ProductInstanceStatus"},{"dataType":"enum","enums":[null]}],"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ProductInstanceGDPRResponse": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"ProductGDPRResponse"},{"dataType":"nestedObjectLiteral","nestedProperties":{"activities":{"dataType":"array","array":{"dataType":"intersection","subSchemas":[{"ref":"ActivitiesGDPRResponse"},{"ref":"Pick_ProductInstanceActivity.subType_"}]},"required":true}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ContractGDPRResponse": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"Pick_Contract.title_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"products":{"dataType":"array","array":{"dataType":"refAlias","ref":"ProductInstanceGDPRResponse"},"required":true},"files":{"dataType":"array","array":{"dataType":"refAlias","ref":"FileGDPRResponse"},"required":true},"activities":{"dataType":"array","array":{"dataType":"intersection","subSchemas":[{"ref":"ActivitiesGDPRResponse"},{"ref":"Pick_ContractActivity.subType_"}]},"required":true},"assignedToYou":{"dataType":"boolean","required":true},"createdByYou":{"dataType":"boolean","required":true}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_Invoice.title_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"title":{"dataType":"string","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "Pick_InvoiceActivity.subType_": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"subType":{"dataType":"union","subSchemas":[{"ref":"InvoiceStatus"},{"dataType":"enum","enums":[null]}],"required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "InvoiceGDPRResponse": {
+        "dataType": "refAlias",
+        "type": {"dataType":"intersection","subSchemas":[{"ref":"Pick_Invoice.title_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"products":{"dataType":"array","array":{"dataType":"refAlias","ref":"ProductInstanceGDPRResponse"},"required":true},"files":{"dataType":"array","array":{"dataType":"refAlias","ref":"FileGDPRResponse"},"required":true},"activities":{"dataType":"array","array":{"dataType":"intersection","subSchemas":[{"ref":"ActivitiesGDPRResponse"},{"ref":"Pick_InvoiceActivity.subType_"}]},"required":true},"assignedToYou":{"dataType":"boolean","required":true},"createdByYou":{"dataType":"boolean","required":true}}}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "UserGDPRDumpResponse": {
+        "dataType": "refObject",
+        "properties": {
+            "function": {"dataType":"string","required":true},
+            "gender": {"ref":"Gender","required":true},
+            "firstName": {"dataType":"string","required":true},
+            "lastNamePreposition": {"dataType":"string","required":true},
+            "lastName": {"dataType":"string","required":true},
+            "email": {"dataType":"string","required":true},
+            "replyToEmail": {"dataType":"string","required":true},
+            "companies": {"dataType":"array","array":{"dataType":"intersection","subSchemas":[{"ref":"Pick_Company.name_"},{"dataType":"nestedObjectLiteral","nestedProperties":{"invoices":{"dataType":"array","array":{"dataType":"refAlias","ref":"InvoiceGDPRResponse"},"required":true},"contracts":{"dataType":"array","array":{"dataType":"refAlias","ref":"ContractGDPRResponse"},"required":true},"files":{"dataType":"array","array":{"dataType":"refAlias","ref":"FileGDPRResponse"},"required":true},"activities":{"dataType":"array","array":{"dataType":"refAlias","ref":"ActivitiesGDPRResponse"},"required":true}}}]},"required":true},
+            "products": {"dataType":"array","array":{"dataType":"intersection","subSchemas":[{"ref":"ProductGDPRResponse"},{"dataType":"nestedObjectLiteral","nestedProperties":{"files":{"dataType":"array","array":{"dataType":"refAlias","ref":"FileGDPRResponse"},"required":true},"activities":{"dataType":"array","array":{"dataType":"refAlias","ref":"ActivitiesGDPRResponse"},"required":true}}}]},"required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "VATListResponse": {
         "dataType": "refObject",
         "properties": {
@@ -4673,6 +4764,32 @@ export function RegisterRoutes(app: Router) {
 
 
               const promise = controller.deleteLdapIdentity.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/user/:id/dump',
+            authenticateMiddleware([{"local":["ADMIN"]}]),
+            ...(fetchMiddlewares<RequestHandler>(UserController)),
+            ...(fetchMiddlewares<RequestHandler>(UserController.prototype.dumpPersonalInformation)),
+
+            function UserController_dumpPersonalInformation(request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new UserController();
+
+
+              const promise = controller.dumpPersonalInformation.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);
