@@ -130,9 +130,10 @@ export class User extends BaseEnt {
    * Return whether this user has the specified role.
    * @param role Roles enum type
    */
-  public hasRole(role: Roles): boolean {
+  public hasRole(role: Roles | Roles[]): boolean {
+    const roles: string[] = Array.isArray(role) ? role : [role];
     return this.roles.some((r) => {
-      return r.name === role;
+      return roles.includes(r.name);
     });
   }
 }
