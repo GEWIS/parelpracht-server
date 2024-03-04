@@ -40,7 +40,7 @@ export class VATController extends Controller {
    * Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT', 'SIGNEE', 'FINANCIAL'])
   @Response<WrappedApiError>(401)
   public async getVATSummaries(): Promise<VATSummary[]> {
     return new VATService().getVATSummaries();

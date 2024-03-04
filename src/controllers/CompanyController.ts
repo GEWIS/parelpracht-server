@@ -60,7 +60,7 @@ export class CompanyController extends Controller {
    * @param lp List parameters to sort and filter the list
    */
   @Post('table')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getAllCompanies(
     @Body() lp: ListParams,
@@ -97,7 +97,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve
    */
   @Get('{id}')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getCompany(id: number): Promise<Company> {
     return new CompanyService().getCompany(id);
@@ -176,7 +176,7 @@ export class CompanyController extends Controller {
    * @param id ID of company to retrieve unresolved invoices for
    */
   @Get('{id}/invoices')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async getUnresolvedInvoices(id: number): Promise<Invoice[]> {
     return new InvoiceService().getOpenInvoicesByCompany(id);

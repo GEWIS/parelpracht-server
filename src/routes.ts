@@ -1316,24 +1316,24 @@ const models: TsoaRoute.Models = {
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_BaseActivity.type-or-descriptionDutch-or-descriptionEnglish_": {
+    "Pick_BaseActivity.createdAt-or-updatedAt-or-deletedAt-or-type-or-descriptionDutch-or-descriptionEnglish_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"type":{"ref":"ActivityType","required":true},"descriptionDutch":{"dataType":"string","required":true},"descriptionEnglish":{"dataType":"string","required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"createdAt":{"dataType":"datetime","required":true},"updatedAt":{"dataType":"datetime","required":true},"deletedAt":{"dataType":"datetime"},"type":{"ref":"ActivityType","required":true},"descriptionDutch":{"dataType":"string","required":true},"descriptionEnglish":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ActivitiesGDPRResponse": {
         "dataType": "refAlias",
-        "type": {"ref":"Pick_BaseActivity.type-or-descriptionDutch-or-descriptionEnglish_","validators":{}},
+        "type": {"ref":"Pick_BaseActivity.createdAt-or-updatedAt-or-deletedAt-or-type-or-descriptionDutch-or-descriptionEnglish_","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "Pick_BaseFile.name-or-downloadName-or-location-or-createdAt_": {
+    "Pick_BaseFile.createdAt-or-updatedAt-or-deletedAt-or-name-or-downloadName-or-location_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"createdAt":{"dataType":"datetime","required":true},"downloadName":{"dataType":"string","required":true},"location":{"dataType":"string","required":true}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"name":{"dataType":"string","required":true},"createdAt":{"dataType":"datetime","required":true},"updatedAt":{"dataType":"datetime","required":true},"deletedAt":{"dataType":"datetime"},"downloadName":{"dataType":"string","required":true},"location":{"dataType":"string","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "FileGDPRResponse": {
         "dataType": "refAlias",
-        "type": {"ref":"Pick_BaseFile.name-or-downloadName-or-location-or-createdAt_","validators":{}},
+        "type": {"ref":"Pick_BaseFile.createdAt-or-updatedAt-or-deletedAt-or-name-or-downloadName-or-location_","validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Pick_Contract.title_": {
@@ -1436,7 +1436,7 @@ export function RegisterRoutes(app: Router) {
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
         app.post('/api/company/table',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             ...(fetchMiddlewares<RequestHandler>(CompanyController)),
             ...(fetchMiddlewares<RequestHandler>(CompanyController.prototype.getAllCompanies)),
 
@@ -1513,7 +1513,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             ...(fetchMiddlewares<RequestHandler>(CompanyController)),
             ...(fetchMiddlewares<RequestHandler>(CompanyController.prototype.getCompany)),
 
@@ -1674,7 +1674,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/company/:id/invoices',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["FINANCIAL","GENERAL","ADMIN","AUDIT"]}]),
             ...(fetchMiddlewares<RequestHandler>(CompanyController)),
             ...(fetchMiddlewares<RequestHandler>(CompanyController.prototype.getUnresolvedInvoices)),
 
@@ -3198,7 +3198,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.post('/api/invoice/:id/comment',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","FINANCIAL"]}]),
             ...(fetchMiddlewares<RequestHandler>(InvoiceController)),
             ...(fetchMiddlewares<RequestHandler>(InvoiceController.prototype.addInvoiceComment)),
 
@@ -3281,7 +3281,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/category/compact',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT","SIGNEE","FINANCIAL"]}]),
             ...(fetchMiddlewares<RequestHandler>(ProductCategoryController)),
             ...(fetchMiddlewares<RequestHandler>(ProductCategoryController.prototype.getCategorySummaries)),
 
@@ -4823,7 +4823,7 @@ export function RegisterRoutes(app: Router) {
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/VAT/compact',
-            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT"]}]),
+            authenticateMiddleware([{"local":["GENERAL","ADMIN","AUDIT","SIGNEE","FINANCIAL"]}]),
             ...(fetchMiddlewares<RequestHandler>(VATController)),
             ...(fetchMiddlewares<RequestHandler>(VATController.prototype.getVATSummaries)),
 
