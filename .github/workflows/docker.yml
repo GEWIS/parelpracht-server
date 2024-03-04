@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build and push Docker image
-    runs-on: [self-hosted, linux, docker]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
