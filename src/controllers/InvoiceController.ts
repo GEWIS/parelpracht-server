@@ -338,7 +338,7 @@ export class InvoiceController extends Controller {
    * @param req Express.js request object
    */
   @Post('{id}/comment')
-  @Security('local', ['GENERAL', 'ADMIN'])
+  @Security('local', ['GENERAL', 'ADMIN', 'FINANCIAL'])
   @Response<WrappedApiError>(401)
   public async addInvoiceComment(
     id: number, @Body() params: ActivityParams, @Request() req: express.Request,

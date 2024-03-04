@@ -41,7 +41,7 @@ export class ProductCategoryController extends Controller {
    * Used for display of references and options
    */
   @Get('compact')
-  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
+  @Security('local', ['GENERAL', 'ADMIN', 'AUDIT', 'SIGNEE', 'FINANCIAL'])
   @Response<WrappedApiError>(401)
   public async getCategorySummaries(): Promise<CategorySummary[]> {
     return new ProductCategoryService().getCategorySummaries();
