@@ -29,7 +29,7 @@ You can also build the application with `npm run build`. This puts a production 
 1. Clone the repository in a folder called `parelpracht-client` and clone the backend repository in a folder called `parelpracht-server`. Make sure that both folders are in the same parent folder.
 2. Change the image locations to the correct locations in `docker-compose.yml` (for both the frontend and backend).
 3. Fill in the correct (environment) variables in `docker-compose.yml`.
-4. Run `docker-compose` in `./parelpracht-client`.
+4. Run `docker-compose` in `./parelpracht-client`..
 
 ## Copyright
 
