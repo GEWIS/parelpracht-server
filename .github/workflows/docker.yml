@@ -13,7 +13,7 @@ jobs:
       - name: Login to container registry
         uses: docker/login-action@v2
         with:
-          registry: parelpracht.docker-registry.gewis.nl
+          registry: abc.docker-registry.gewis.nl
           username: ${{ secrets.SVC_GH_PARELPRACHT_USERNAME }}
           password: ${{ secrets.SVC_GH_PARELPRACHT_PWD }}
       - name: Build and push
@@ -21,5 +21,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: parelpracht.docker-registry.gewis.nl/parelpracht-server:latest
+          tags: abc.docker-registry.gewis.nl/crm/parelpracht/server:latest
 
