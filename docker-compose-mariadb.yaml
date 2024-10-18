@@ -1,0 +1,10 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: parelpracht
+      MARIADB_DATABASE: parelpracht
+    ports:
+      - "3306:3306"
+
