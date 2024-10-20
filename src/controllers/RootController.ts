@@ -1,8 +1,5 @@
 import express from 'express';
-import {
-  Body,
-  Controller, Get, Post, Query, Request, Response, Route, Security,
-} from 'tsoa';
+import { Body, Controller, Get, Post, Query, Request, Response, Route, Security } from 'tsoa';
 import { body } from 'express-validator';
 import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
@@ -23,12 +20,14 @@ export interface GeneralPrivateInfo {
 
 export interface GeneralPublicInfo {
   loginMethod: LoginMethods;
+  setupDone: boolean,
 }
 
 @Route('')
 export class RootController extends Controller {
   @Post('setup')
-  public async postSetup(@Body() params: SetupParams): Promise<void> {
+  @Response<WrappedApiError>(400)
+  public async postSetup(@Body() params: SetupParams): Promise<string> {
     return new ServerSettingsService().initialSetup(params);
   }
 
@@ -105,7 +104,7 @@ export class RootController extends Controller {
 
   @Get('getPublicGeneralInfo')
   @Response<WrappedApiError>(400)
-  public getPublicGeneralInfo(): GeneralPublicInfo {
+  public async getPublicGeneralInfo(): Promise<GeneralPublicInfo> {
     let loginMethod: LoginMethods;
     if (ldapEnabled()) {
       loginMethod = 'ldap';
@@ -113,8 +112,10 @@ export class RootController extends Controller {
       loginMethod = 'local';
     }
 
+    const setupDone: boolean = (await new ServerSettingsService().getSetting('SETUP_DONE'))?.value === 'true';
     return {
       loginMethod,
+      setupDone,
     };
   }
 }

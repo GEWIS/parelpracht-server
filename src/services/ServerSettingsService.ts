@@ -29,7 +29,7 @@ export default class ServerSettingsService {
 
   async initialSetup(
     params: SetupParams,
-  ): Promise<void> {
+  ): Promise<string> {
     if ((await this.getSetting('SETUP_DONE'))?.value === 'true') {
       throw new ApiError(HTTPStatus.Forbidden, 'Server is already set up');
     }
@@ -39,9 +39,13 @@ export default class ServerSettingsService {
       const adminUser = await new UserService()
         .createAdminUser(admin);
 
-      new AuthService().createIdentityLocal(adminUser!, ldapEnabled());
+      const authService: AuthService = new AuthService();
+
+      const $identity = await authService.createIdentityLocal(adminUser!, ldapEnabled());
 
       await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
+      return authService.getSetPasswordToken(adminUser!, $identity);
     }
+    return '';
   }
 }
