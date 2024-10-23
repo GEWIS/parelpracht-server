@@ -1257,6 +1257,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "loginMethod": {"ref":"LoginMethods","required":true},
+            "setupDone": {"dataType":"boolean","required":true},
         },
         "additionalProperties": false,
     },
