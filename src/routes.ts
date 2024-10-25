@@ -1176,6 +1176,8 @@ const models: TsoaRoute.Models = {
             "lastName": {"dataType":"string","required":true},
             "function": {"dataType":"string","required":true},
             "gender": {"ref":"Gender","required":true},
+            "password": {"dataType":"string","required":true},
+            "rememberMe": {"dataType":"boolean","required":true},
             "replyToEmail": {"dataType":"string"},
             "receiveEmails": {"dataType":"boolean"},
             "sendEmailsToReplyToEmail": {"dataType":"boolean"},
@@ -1288,7 +1290,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Partial_UserParams_": {
         "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"sendEmailsToReplyToEmail":{"dataType":"boolean"},"comment":{"dataType":"string"},"ldapOverrideEmail":{"dataType":"boolean"},"roles":{"dataType":"array","array":{"dataType":"refEnum","ref":"Roles"}}},"validators":{}},
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string"},"firstName":{"dataType":"string"},"lastNamePreposition":{"dataType":"string"},"lastName":{"dataType":"string"},"function":{"dataType":"string"},"gender":{"ref":"Gender"},"password":{"dataType":"string"},"rememberMe":{"dataType":"boolean"},"replyToEmail":{"dataType":"string"},"receiveEmails":{"dataType":"boolean"},"sendEmailsToReplyToEmail":{"dataType":"boolean"},"comment":{"dataType":"string"},"ldapOverrideEmail":{"dataType":"boolean"},"roles":{"dataType":"array","array":{"dataType":"refEnum","ref":"Roles"}}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "TransferUserParams": {
@@ -4066,6 +4068,7 @@ export function RegisterRoutes(app: Router) {
             function RootController_postSetup(request: any, response: any, next: any) {
             const args = {
                     params: {"in":"body","name":"params","required":true,"ref":"SetupParams"},
+                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

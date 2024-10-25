@@ -1,12 +1,13 @@
 import express from 'express';
+// eslint-disable-next-line @typescript-eslint/no-redeclare
 import { Body, Controller, Get, Post, Query, Request, Response, Route, Security } from 'tsoa';
 import { body } from 'express-validator';
-import { WrappedApiError } from '../helpers/error';
+import {ApiError, WrappedApiError} from '../helpers/error';
 import { validate } from '../helpers/validation';
 import AuthService, { AuthStatus, Profile } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
 import StatisticsService from '../services/StatisticsService';
-import { ldapEnabled, LoginMethods } from '../auth';
+import { ldapEnabled, localLogin, LoginMethods } from '../auth';
 
 export interface ResetPasswordRequest {
   password: string;
@@ -26,9 +27,14 @@ export interface GeneralPublicInfo {
 @Route('')
 export class RootController extends Controller {
   @Post('setup')
-  @Response<WrappedApiError>(400)
-  public async postSetup(@Body() params: SetupParams): Promise<string> {
-    return new ServerSettingsService().initialSetup(params);
+  public async postSetup(@Body() params: SetupParams, @Request() req: express.Request): Promise<void> {
+    const user = await new ServerSettingsService().initialSetup(params);
+    // await new AuthService().login(req);
+    if (user === undefined) {
+      return;
+    }
+    await new AuthService().login(user, req);
+    console.log(req.session);
   }
 
   @Get('authStatus')

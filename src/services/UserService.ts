@@ -25,6 +25,8 @@ export interface UserParams {
   lastName: string;
   function: string;
   gender: Gender;
+  password: string;
+  rememberMe: boolean;
   replyToEmail?: string;
   receiveEmails?: boolean;
   sendEmailsToReplyToEmail?: boolean;

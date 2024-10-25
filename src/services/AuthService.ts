@@ -14,6 +14,7 @@ import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import AppDataSource from '../database';
+import passport from 'passport';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
@@ -81,6 +82,17 @@ export default class AuthService {
       req.logout((error) => {
         if (error) reject(error);
         resolve();
+      });
+    });
+  }
+
+  login(user: User, req: express.Request) {
+    return new Promise<void>((resolve, reject) => {
+      req.logIn(user, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
       });
     });
   }
