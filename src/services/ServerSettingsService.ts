@@ -44,7 +44,6 @@ export default class ServerSettingsService {
 
       const identity = await authService.createIdentityLocal(adminUser!, true);
       await authService.resetPassword(params.admin.password, authService.getSetPasswordToken(adminUser!, identity));
-      // TODO login the user
 
       await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
       return adminUser!;
