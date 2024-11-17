@@ -1,12 +1,11 @@
 import {
-  FindManyOptions, Repository,
+  Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { ContractActivity } from '../entity/activity/ContractActivity';
-// eslint-disable-next-line import/no-cycle
 import ActivityService, { FullActivityParams } from './ActivityService';
 import ContactService from './ContactService';
 import CompanyService from './CompanyService';
@@ -15,7 +14,7 @@ import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
 import RawQueries, { RecentContract } from '../helpers/rawQueries';
 import { ContractStatus } from '../entity/enums/ContractStatus';
-import { addQueryWhereClause } from '../helpers/filters';
+import { addQueryBuilderFilters, addQueryBuilderSearch } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
 import {
@@ -59,22 +58,27 @@ export default class ContractService {
   }
 
   async getAllContracts(params: ListParams): Promise<ContractListResponse> {
-    const findOptions: FindManyOptions<Contract> = {
-      order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
-      },
-    };
+    const queryBuilder = this.repo.createQueryBuilder('contract');
 
-    findOptions.where = addQueryWhereClause<Contract>(params, ['title', 'company.name', 'contact.firstName', 'contact.lastNamePreposition', 'contact.lastName']);
+    queryBuilder
+      .skip(params.skip)
+      .take(params.take)
+      .orderBy(`${queryBuilder.alias}.${params.sorting?.column ?? 'id'}`, params.sorting?.direction ?? 'ASC')
+      // initial where to allow chaining andWhere() function calls
+      .where('1 = 1')
+    ;
+
+    if (params.search) {
+      addQueryBuilderSearch(queryBuilder, params.search, ['title', 'company.name', 'contact.firstName', 'contact.lastNamePreposition', 'contact.lastName']);
+    }
+
+    if (params.filters && params.filters.length > 0) {
+      addQueryBuilderFilters(queryBuilder, params.filters);
+    }
 
     return {
-      list: await this.repo.find({
-        ...findOptions,
-        skip: params.skip,
-        take: params.take,
-      }),
-      count: await this.repo.count(findOptions),
+      list: await queryBuilder.getMany(),
+      count: await queryBuilder.clone().getCount(),
     };
   }
 

@@ -1,4 +1,4 @@
-import { FindOptionsWhere, ILike, In } from 'typeorm';
+import { Brackets, FindOptionsWhere, ILike, In, SelectQueryBuilder } from 'typeorm';
 import { BaseEnt } from '../entity/BaseEnt';
 import { ListOrFilter, ListParams } from '../controllers/ListParams';
 
@@ -75,4 +75,63 @@ export function addQueryWhereClause<T extends BaseEnt>(params: ListParams, searc
   }
 
   return conditions.length > 0 ? conditions : undefined;
+}
+
+export function addQueryBuilderFilters(queryBuilder: SelectQueryBuilder<any>, filters: ListOrFilter[]) {
+  filters.forEach(({ column, values }: ListOrFilter, index: number) => {
+    // only allows for one level deep relations
+    if (column.includes('.')) {
+      const alias = column.split('.')[0];
+
+      // only join if alias is not yet joined
+      const aliasExists = queryBuilder.expressionMap.aliases.some((a) => a.name === alias);
+      if (!aliasExists) {
+        if (alias === 'activities') {
+          // subquery to join only the latest related activity
+          queryBuilder.innerJoin(
+            `${queryBuilder.alias}.${alias}`,
+            alias,
+            `${alias}.createdAt = (
+              SELECT MAX(subQuery.updatedAt)
+              FROM ${queryBuilder.alias}_activity subQuery
+              WHERE subQuery.${queryBuilder.alias}Id = ${queryBuilder.alias}.id AND subQuery.subType IS NOT NULL
+            )`);
+        } else {
+          queryBuilder.innerJoin(`${queryBuilder.alias}.${alias}`, alias);
+        }
+      }
+    }
+    const paramName = `param_${index}`;
+    // avoid ambiguity in the where clause
+    if (!column.includes('.')) {
+      column = `${queryBuilder.alias}.${column}`;
+    }
+    queryBuilder.andWhere(`${column} IN (:...${paramName})`, { [paramName]: values });
+  });
+}
+
+export function addQueryBuilderSearch(queryBuilder: SelectQueryBuilder<any>, searchString: string, searchFields: string[]) {
+  searchFields.forEach((field) => {
+    // only allows for one level deep relations
+    if (field.includes('.')) {
+      const alias = field.split('.')[0];
+
+      // only join if alias is not yet joined
+      const aliasExists = queryBuilder.expressionMap.aliases.some((a) => a.name === alias);
+      if (!aliasExists) {
+        queryBuilder.innerJoin(`${queryBuilder.alias}.${alias}`, alias);
+      }
+    }
+  });
+  queryBuilder.andWhere(
+    new Brackets((qb) => {
+      searchFields.forEach(field => {
+        // avoid ambiguity in the where clause
+        if (!field.includes('.')) {
+          field = `${queryBuilder.alias}.${field}`;
+        }
+        qb.orWhere(`LOWER(${field}) LIKE LOWER(:value)`, { value: `%${searchString}%` });
+      });
+    }),
+  );
 }
