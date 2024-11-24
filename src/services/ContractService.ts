@@ -61,8 +61,6 @@ export default class ContractService {
     const queryBuilder = this.repo.createQueryBuilder('contract');
 
     queryBuilder
-      .skip(params.skip)
-      .take(params.take)
       .orderBy(`${queryBuilder.alias}.${params.sorting?.column ?? 'id'}`, params.sorting?.direction ?? 'ASC')
       // initial where to allow chaining andWhere() function calls
       .where('1 = 1')
@@ -77,8 +75,8 @@ export default class ContractService {
     }
 
     return {
-      list: await queryBuilder.getMany(),
-      count: await queryBuilder.clone().getCount(),
+      list: await queryBuilder.skip(params.skip).take(params.take).getMany(),
+      count: await queryBuilder.getCount(),
     };
   }
 
