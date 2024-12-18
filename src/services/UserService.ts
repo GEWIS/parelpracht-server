@@ -17,6 +17,7 @@ import FileHelper, { uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc } from '
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import { ldapEnabled } from '../auth';
 import AppDataSource from '../database';
+import validator from 'validator';
 
 export interface UserParams {
   email: string;
@@ -166,6 +167,10 @@ export default class UserService {
   async createAdminUser(params: UserParams): Promise<User | undefined> {
     if (ldapEnabled()) return Promise.resolve(undefined);
 
+    if (!this.validateUserParams(params)) {
+      throw new ApiError(HTTPStatus.BadRequest, 'The supplied parameters are not valid');
+    }
+
     const adminUser = await this.repo.save({
       email: params.email,
       gender: params.gender,
@@ -210,6 +215,15 @@ export default class UserService {
     }
     user = await this.getUser(user.id);
     return user!;
+  }
+
+  private validateUserParams(params: UserParams): boolean {
+    return validator.isStrongPassword(params.password) &&
+    validator.isEmail(params.email) &&
+    !validator.isEmpty(params.firstName) &&
+    !validator.isEmpty(params.lastName) &&
+    !validator.isEmpty(params.email) &&
+    !validator.isEmpty(params.gender);
   }
 
   async setupRoles() {

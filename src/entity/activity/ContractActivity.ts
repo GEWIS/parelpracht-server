@@ -15,7 +15,7 @@ export class ContractActivity extends BaseActivity {
   /** Contract related to this activity */
   @ManyToOne(() => Contract, (contract) => contract.activities, {
     onDelete: 'CASCADE',
-    })
+  })
   @JoinColumn({ name: 'contractId' })
     contract!: Contract;
 
@@ -25,7 +25,7 @@ export class ContractActivity extends BaseActivity {
     enum: ContractStatus,
     nullable: true,
     update: false,
-    })
+  })
     subType!: ContractStatus | null;
 
   getRelatedEntity(): BaseEnt {

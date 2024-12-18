@@ -1604,7 +1604,6 @@ export function RegisterRoutes(app: Router) {
             function CompanyController_deleteCompany(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2088,7 +2087,6 @@ export function RegisterRoutes(app: Router) {
             function ContactController_deleteContact(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2273,7 +2271,6 @@ export function RegisterRoutes(app: Router) {
             function ContractController_deleteContract(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -2933,7 +2930,6 @@ export function RegisterRoutes(app: Router) {
             function InvoiceController_deleteInvoice(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -3397,7 +3393,6 @@ export function RegisterRoutes(app: Router) {
             function ProductCategoryController_deleteCategory(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -3582,7 +3577,6 @@ export function RegisterRoutes(app: Router) {
             function ProductController_deleteProduct(request: any, response: any, next: any) {
             const args = {
                     id: {"in":"path","name":"id","required":true,"dataType":"double"},
-                    req: {"in":"request","name":"req","required":true,"dataType":"object"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa

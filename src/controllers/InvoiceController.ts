@@ -154,7 +154,7 @@ export class InvoiceController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteInvoice(
-    id: number, @Request() req: express.Request,
+    id: number,
   ): Promise<void> {
     return new InvoiceService().deleteInvoice(id);
   }

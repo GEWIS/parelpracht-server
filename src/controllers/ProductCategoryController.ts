@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Delete, Get, Post, Put, Query, Request, Response, Route, Security, Tags,
+  Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
@@ -98,7 +98,7 @@ export class ProductCategoryController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCategory(
-    id: number, @Request() req: express.Request,
+    id: number,
   ): Promise<void> {
     return new ProductCategoryService().deleteCategory(id);
   }

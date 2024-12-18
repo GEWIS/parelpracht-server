@@ -143,7 +143,7 @@ export class CompanyController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCompany(
-    id: number, @Request() req: express.Request,
+    id: number,
   ): Promise<void> {
     return new CompanyService().deleteCompany(id);
   }

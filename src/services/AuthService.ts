@@ -14,7 +14,6 @@ import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import AppDataSource from '../database';
-import passport from 'passport';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
