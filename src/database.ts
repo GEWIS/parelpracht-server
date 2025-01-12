@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import fs from 'fs';
 import { Company } from './entity/Company';
 import { Contact } from './entity/Contact';
 import { Contract } from './entity/Contract';
@@ -32,6 +33,13 @@ const AppDataSource = new DataSource({
   type: process.env.TYPEORM_CONNECTION as 'postgres' | 'mariadb' | 'mysql',
   username: process.env.TYPEORM_USERNAME,
   password: process.env.TYPEORM_PASSWORD,
+  ...(process.env.TYPEORM_SSL_ENABLED === 'true' && process.env.TYPEORM_SSL_CACERTS
+    ? {
+        ssl: {
+          ca: fs.readFileSync(process.env.TYPEORM_SSL_CACERTS),
+        },
+      }
+    : {}),
   synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
   logging: process.env.TYPEORM_LOGGING === 'true',
   entities: [Company, Contact, Contract, IdentityApiKey, IdentityLDAP, IdentityLocal, Invoice, Product,
