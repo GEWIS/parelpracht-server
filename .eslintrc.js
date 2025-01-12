@@ -4,7 +4,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'import'],
   extends: ['airbnb-typescript/base'],
   rules: {
-    'linebreak-style': ['error', 'windows'],
+    'linebreak-style': ['error', 'unix'],
     'lines-between-class-members': [
       'error',
       'always',
@@ -20,6 +20,7 @@ module.exports = {
     'arrow-body-style': 'off',
     'import/no-cycle': 'off',
     'indent': 'off',
+    '@typescript-eslint/no-redeclare': 'off',
     '@typescript-eslint/indent': [
       'error',
       2,

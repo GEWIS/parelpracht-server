@@ -85,6 +85,17 @@ export default class AuthService {
     });
   }
 
+  login(user: User, req: express.Request) {
+    return new Promise<void>((resolve, reject) => {
+      req.logIn(user, (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      });
+    });
+  }
+
   async forgotPassword(userEmail: string): Promise<void> {
     let email = validator.normalizeEmail(userEmail);
     if (email === false) {
