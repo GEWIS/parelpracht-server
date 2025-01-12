@@ -17,7 +17,7 @@ export class InvoiceActivity extends BaseActivity {
   /** Invoice related to this activity */
   @ManyToOne(() => Invoice, (invoice) => invoice.activities, {
     onDelete: 'CASCADE',
-    })
+  })
   @JoinColumn({ name: 'invoiceId' })
     invoice!: Invoice;
 
@@ -27,7 +27,7 @@ export class InvoiceActivity extends BaseActivity {
     enum: InvoiceStatus,
     nullable: true,
     update: false,
-    })
+  })
     subType!: InvoiceStatus | null;
 
   getRelatedEntity(): BaseEnt {

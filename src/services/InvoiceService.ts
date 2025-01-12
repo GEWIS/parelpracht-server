@@ -1,12 +1,12 @@
 import {
-  FindManyOptions, Repository,
+  Repository,
 } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import { addQueryWhereClause } from '../helpers/filters';
+import { addQueryBuilderFilters, addQueryBuilderSearch } from '../helpers/filters';
 import ProductInstanceService from './ProductInstanceService';
 import ActivityService, { FullActivityParams } from './ActivityService';
 import RawQueries, { ExpiredInvoice } from '../helpers/rawQueries';
@@ -61,23 +61,25 @@ export default class InvoiceService {
   }
 
   async getAllInvoices(params: ListParams): Promise<InvoiceListResponse> {
-    const findOptions: FindManyOptions<Invoice> = {
-      order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
-      },
-    };
+    const queryBuilder = this.repo.createQueryBuilder('invoice');
 
-    findOptions.where = addQueryWhereClause(params, ['title', 'company.name']);
+    queryBuilder
+      .orderBy(`${queryBuilder.alias}.${params.sorting?.column ?? 'id'}`, params.sorting?.direction ?? 'ASC')
+      // initial where() to allow chaining andWhere() function calls
+      .where('1 = 1')
+    ;
+
+    if (params.search) {
+      addQueryBuilderSearch(queryBuilder, params.search, ['title', 'company.name']);
+    }
+
+    if (params.filters && params.filters.length > 0) {
+      addQueryBuilderFilters(queryBuilder, params.filters);
+    }
 
     return {
-      list: await this.repo.find({
-        ...findOptions,
-        skip: params.skip,
-        take: params.take,
-      }),
-      count: await this.repo.count(findOptions),
-      lastSeen: await this.getTreasurerLastSeen(),
+      list: await queryBuilder.skip(params.skip).take(params.take).getMany(),
+      count: await queryBuilder.getCount(),
     };
   }
 

@@ -17,7 +17,7 @@ export class ProductInstanceActivity extends BaseActivity {
   /** ProductInstance related to this activity */
   @ManyToOne(() => ProductInstance, (productInstance) => productInstance.activities, {
     onDelete: 'CASCADE',
-    })
+  })
   @JoinColumn({ name: 'productInstanceId' })
     productInstance!: ProductInstance;
 
@@ -27,7 +27,7 @@ export class ProductInstanceActivity extends BaseActivity {
     enum: ProductInstanceStatus,
     nullable: true,
     update: false,
-    })
+  })
     subType!: ProductInstanceStatus | null;
 
   getRelatedEntity(): BaseEnt {
