@@ -169,7 +169,7 @@ export class ContractController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteContract(
-    id: number, @Request() req: express.Request,
+    id: number,
   ): Promise<void> {
     return new ContractService().deleteContract(id);
   }

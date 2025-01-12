@@ -40,13 +40,6 @@ function rangeToArray(start: number, end: number, step: number): number[] {
   return result;
 }
 
-function appendZeroesToStart(array: number[], newLength: number) {
-  while (array.length < newLength) {
-    array.splice(0, 0, 0);
-  }
-  return array;
-}
-
 export default class StatisticsService {
   public async getFinancialYears(firstYear?: number): Promise<number[]> {
     if (firstYear) return rangeToArray(firstYear, dateToFinancialYear(new Date()), 1);

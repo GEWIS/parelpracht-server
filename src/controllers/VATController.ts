@@ -1,5 +1,5 @@
 import {
-  Body, Controller, Get, Post, Put, Query, Request, Response, Route, Security, Tags,
+  Body, Controller, Get, Post, Put, Request, Response, Route, Security, Tags,
 } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';

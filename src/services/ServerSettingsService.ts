@@ -7,6 +7,7 @@ import AuthService from './AuthService';
 import UserService, { UserParams } from './UserService';
 import { ldapEnabled } from '../auth';
 import AppDataSource from '../database';
+import { User } from '../entity/User';
 
 export interface SetupParams {
   admin: UserParams,
@@ -29,7 +30,7 @@ export default class ServerSettingsService {
 
   async initialSetup(
     params: SetupParams,
-  ): Promise<void> {
+  ): Promise<User | undefined> {
     if ((await this.getSetting('SETUP_DONE'))?.value === 'true') {
       throw new ApiError(HTTPStatus.Forbidden, 'Server is already set up');
     }
@@ -39,9 +40,14 @@ export default class ServerSettingsService {
       const adminUser = await new UserService()
         .createAdminUser(admin);
 
-      new AuthService().createIdentityLocal(adminUser!, ldapEnabled());
+      const authService = new AuthService();
+
+      const identity = await authService.createIdentityLocal(adminUser!, true);
+      await authService.resetPassword(params.admin.password, authService.getSetPasswordToken(adminUser!, identity));
 
       await this.setSetting({ name: 'SETUP_DONE', value: 'true' });
+      return adminUser!;
     }
+    return undefined;
   }
 }

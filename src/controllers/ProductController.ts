@@ -133,7 +133,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteProduct(
-    id: number, @Request() req: express.Request,
+    id: number,
   ): Promise<void> {
     return new ProductService().deleteProduct(id);
   }

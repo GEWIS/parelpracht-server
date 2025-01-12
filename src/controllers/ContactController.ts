@@ -104,7 +104,7 @@ export class ContactController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteContact(
-    id: number, @Request() req: express.Request,
+    id: number,
   ): Promise<void> {
     return new ContactService().deleteContact(id);
   }
