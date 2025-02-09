@@ -411,7 +411,7 @@ const models: TsoaRoute.Models = {
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "ContactFunction": {
         "dataType": "refEnum",
-        "enums": ["NORMAL","PRIMARY","FINANCIAL","OLD"],
+        "enums": ["NORMAL","PRIMARY","FINANCIAL","OLD","SIGNATORY_AUTHORIZED","ASSISTING"],
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "Contact": {
@@ -760,7 +760,7 @@ const models: TsoaRoute.Models = {
             "firstName": {"dataType":"string"},
             "lastNamePreposition": {"dataType":"string"},
             "lastName": {"dataType":"string","required":true},
-            "email": {"dataType":"string","required":true},
+            "email": {"dataType":"string"},
             "telephone": {"dataType":"string"},
             "comments": {"dataType":"string"},
             "companyId": {"dataType":"double","required":true},

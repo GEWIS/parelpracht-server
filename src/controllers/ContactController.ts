@@ -16,16 +16,21 @@ import { ContactFunction } from '../entity/enums/ContactFunction';
 @Tags('Contact')
 export class ContactController extends Controller {
   private async validateContactParams(req: express.Request) {
+    const emailOptionalFunctions = [
+      ContactFunction.SIGNATORY_AUTHORIZED,
+      ContactFunction.ASSISTING,
+    ];
     await validate([
       body('gender').isIn(Object.values(Gender)),
       body('firstName').trim(),
-      body('lastNamePreposition').optional({ checkFalsy: true }).isString().trim(),
+      body('lastNamePreposition').optional({ values: 'falsy' }).isString().trim(),
       body('lastName').notEmpty().trim(),
-      body('email').isEmail().normalizeEmail(),
-      body('telephone').optional({ checkFalsy: true }).isMobilePhone('any'),
-      body('comments').optional({ checkFalsy: true }).isString().trim(),
+      body('telephone').optional({ values: 'falsy' }).isMobilePhone('any'),
+      body('comments').optional({ values: 'falsy' }).isString().trim(),
       body('companyId').isInt(),
       body('function').isIn(Object.values(ContactFunction)),
+      body('email').if(body('function').not().isIn(emailOptionalFunctions)).notEmpty().isEmail().normalizeEmail(),
+      body('email').if(body('function').isIn(emailOptionalFunctions)).optional({ values: 'falsy' }).isEmail().normalizeEmail(),
     ], req);
   }
 
