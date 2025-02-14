@@ -19,10 +19,11 @@ export class ContactController extends Controller {
     const emailOptionalFunctions = [
       ContactFunction.SIGNATORY_AUTHORIZED,
       ContactFunction.ASSISTING,
+      ContactFunction.OLD,
     ];
     await validate([
       body('gender').isIn(Object.values(Gender)),
-      body('firstName').trim(),
+      body('firstName').optional({ values: 'falsy' }).isString().trim(),
       body('lastNamePreposition').optional({ values: 'falsy' }).isString().trim(),
       body('lastName').notEmpty().trim(),
       body('telephone').optional({ values: 'falsy' }).isMobilePhone('any'),
