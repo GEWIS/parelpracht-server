@@ -15,7 +15,7 @@ export interface ContactParams {
   firstName?: string;
   lastNamePreposition?: string;
   lastName: string;
-  email: string;
+  email?: string;
   telephone?: string;
   comments?: string;
   companyId: number;
