@@ -4,22 +4,15 @@
   "private": true,
   "license": "AGPL-3.0-or-later",
   "scripts": {
+    "dev": "concurrently \"nodemon\" \"nodemon -x npx tsoa spec-and-routes\"",
+    "build": "yarn tsoa && tsc --noEmit",
     "start": "node dist/index.js",
-    "debug": "npm run clean && npm run tsoa && tsc && concurrently \"npm:build:dev\" \"npm:start:debug\" \"npm:tsoa:dev\"",
-    "dev": "npm run clean && npm run tsoa && tsc && concurrently \"npm:build:dev\" \"npm:start:dev\" \"npm:tsoa:dev\"",
-    "start:dev": "nodemon dist/index.js",
-    "start:debug": "nodemon --inspect dist/index.js",
-    "build:dev": "tsc --watch --preserveWatchOutput",
-    "tsoa:dev": "chokidar \"src/controllers/**/*.ts\" \"src/models/**/*.ts\" -c \"tsoa routes && tsoa spec\"",
-    "tsoa": "tsoa routes && tsoa spec",
-    "build": "npm run clean && tsc --noEmit",
-    "clean": "rimraf \"dist/\" \"tsconfig.tsbuildinfo\"",
+    "tsoa": "tsoa spec-and-routes",
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
-    "db:validate": "node dist/dbvalidator/validate.js",
+    "db:validate": "ts-node src/dbvalidator/validate.ts",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "prepublishOnly": "yarn install --frozen-lockfile && yarn build"
+    "lint:fix": "eslint src --fix"
   },
   "author": "The 39th board of Study Association GEWIS",
   "dependencies": {
@@ -74,12 +67,12 @@
     "@types/validator": "^13.12.2",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
-    "chokidar-cli": "^3.0.0",
     "concurrently": "^9.1.2",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
     "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.2"
   },
   "engines": {

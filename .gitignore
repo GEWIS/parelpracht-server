@@ -114,8 +114,6 @@ dist
 .yarn/build-state.yml
 .pnp.*
 
-src/public/swagger.json
-
 # Jetbrains pls
 .idea/**.*
 .idea/
@@ -135,5 +133,4 @@ tmp/
 # Yarn files
 .yarn
 
-# Merge errors are annoying
-src/routes.ts
+build
