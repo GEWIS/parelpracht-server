@@ -35,10 +35,10 @@ const AppDataSource = new DataSource({
   password: process.env.TYPEORM_PASSWORD,
   ...(process.env.TYPEORM_SSL_ENABLED === 'true' && process.env.TYPEORM_SSL_CACERTS
     ? {
-        ssl: {
-          ca: fs.readFileSync(process.env.TYPEORM_SSL_CACERTS),
-        },
-      }
+      ssl: {
+        ca: fs.readFileSync(process.env.TYPEORM_SSL_CACERTS),
+      },
+    }
     : {}),
   synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
   logging: process.env.TYPEORM_LOGGING === 'true',
