@@ -1,0 +1,25 @@
+name: Semantic release
+
+on:
+  push:
+    branches:
+    - main-todo
+
+jobs:
+  versioning:
+    uses: GEWIS/actions/.github/workflows/versioning.yml@v1
+
+  release:
+    uses: GEWIS/actions/.github/workflows/docker-release.yml@v1
+    needs: versioning
+    if: ${{ needs.versioning.outputs.next-version != '' }}
+    with:
+      projects: "['.']"
+      version: ${{ needs.versioning.outputs.next-version }}
+      docker-registry: "abc.docker-registry.gewis.nl"
+      docker-paths: "['crm/parelpracht/server']"
+      github-registry: "false"
+    secrets:
+      REGISTRY_USERNAME: ${{ secrets.SVC_GH_PARELPRACHT_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.SVC_GH_PARELPRACHT_PWD }}
+
