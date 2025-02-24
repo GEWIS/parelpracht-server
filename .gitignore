@@ -132,5 +132,8 @@ data/backgrounds/
 data/backgrounds/*
 tmp/
 
+# Yarn files
+.yarn
+
 # Merge errors are annoying
 src/routes.ts
