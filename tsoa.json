@@ -6,7 +6,7 @@
     "**/node_modules/@types/lodash/**"
   ],
   "spec": {
-    "outputDirectory": "./src/public",
+    "outputDirectory": "build",
     "host": "localhost:3001",
     "schemes": [
       "http",
@@ -202,7 +202,7 @@
   },
   "routes": {
     "basePath": "/api",
-    "routesDir": "./src",
+    "routesDir": "build",
     "middleware": "express",
     "authenticationModule": "./src/auth/authentication.ts"
   }
