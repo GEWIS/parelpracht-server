@@ -21,8 +21,9 @@
 	  "resolveJsonModule": true
 	},
 	"include": [
-	  "src/**/*.ts",
-	  "src/public/swagger.json",
     "src/helpers/countries.json"
-	]
+	],
+  "ts-node": {
+    "files": true,
+  }
 }
