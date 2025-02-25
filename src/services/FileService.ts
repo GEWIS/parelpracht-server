@@ -45,23 +45,23 @@ export interface FullFileParams extends FileParams {
 }
 
 export interface GenerateContractParams extends FileParams {
-  language: Language,
-  contentType: ContractType,
-  fileType: ReturnFileType,
-  showDiscountPercentages: boolean,
-  saveToDisk: boolean,
-  signee1Id: number,
-  signee2Id: number,
-  recipientId: number,
+  language: Language;
+  contentType: ContractType;
+  fileType: ReturnFileType;
+  showDiscountPercentages: boolean;
+  saveToDisk: boolean;
+  signee1Id: number;
+  signee2Id: number;
+  recipientId: number;
 }
 export interface FullGenerateContractParams extends FullFileParams, GenerateContractParams {}
 
 export interface GenerateInvoiceParams extends FileParams {
-  language: Language,
-  fileType: ReturnFileType,
-  showDiscountPercentages: boolean,
-  saveToDisk: boolean,
-  recipientId: number,
+  language: Language;
+  fileType: ReturnFileType;
+  showDiscountPercentages: boolean;
+  saveToDisk: boolean;
+  recipientId: number;
 }
 export interface FullGenerateInvoiceParams extends FullFileParams, GenerateInvoiceParams {}
 
@@ -85,20 +85,28 @@ export default class FileService {
       throw new ApiError(HTTPStatus.NotFound, 'File not found');
     }
     switch (this.EntityFile) {
-    case ContractFile:
-      if (file.contractId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this contract'); }
-      break;
-    case InvoiceFile:
-      if (file.invoiceId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this invoice'); }
-      break;
-    case ProductFile:
-      if (file.productId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product'); }
-      break;
-    case CompanyFile:
-      if (file.companyId !== entityId) { throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this company'); }
-      break;
-    default:
-      throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
+      case ContractFile:
+        if (file.contractId !== entityId) {
+          throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this contract');
+        }
+        break;
+      case InvoiceFile:
+        if (file.invoiceId !== entityId) {
+          throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this invoice');
+        }
+        break;
+      case ProductFile:
+        if (file.productId !== entityId) {
+          throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this product');
+        }
+        break;
+      case CompanyFile:
+        if (file.companyId !== entityId) {
+          throw new ApiError(HTTPStatus.BadRequest, 'File does not belong to this company');
+        }
+        break;
+      default:
+        throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
 
     if (checkFileExistence && !fs.existsSync(file.location)) {
@@ -120,10 +128,10 @@ export default class FileService {
       signee1 = await new UserService().getUser(params.signee1Id);
       signee2 = await new UserService().getUser(params.signee2Id);
 
-      if (!(signee1.roles.map((r) => r.name)).includes('SIGNEE')) {
+      if (!signee1.roles.map((r) => r.name).includes('SIGNEE')) {
         throw new ApiError(HTTPStatus.BadRequest, 'Signee 1 is not authorized to sign');
       }
-      if (!(signee2.roles.map((r) => r.name)).includes('SIGNEE')) {
+      if (!signee2.roles.map((r) => r.name).includes('SIGNEE')) {
         throw new ApiError(HTTPStatus.BadRequest, 'Signee 2 is not authorized to sign');
       }
     }
@@ -178,9 +186,7 @@ export default class FileService {
     return file;
   }
 
-  static async generateCustomInvoice(
-    params: CustomInvoiceGenSettings, sender: User,
-  ): Promise<BaseFile> {
+  static async generateCustomInvoice(params: CustomInvoiceGenSettings, sender: User): Promise<BaseFile> {
     const file = {
       name: params.subject,
       downloadName: `${params.ourReference} - ${params.subject}.${params.fileType.toLowerCase()}`,
@@ -254,20 +260,20 @@ export default class FileService {
     };
 
     switch (this.EntityFile) {
-    case ContractFile:
-      file.contractId = params.entityId;
-      break;
-    case InvoiceFile:
-      file.invoiceId = params.entityId;
-      break;
-    case ProductFile:
-      file.productId = params.entityId;
-      break;
-    case CompanyFile:
-      file.companyId = params.entityId;
-      break;
-    default:
-      throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
+      case ContractFile:
+        file.contractId = params.entityId;
+        break;
+      case InvoiceFile:
+        file.invoiceId = params.entityId;
+        break;
+      case ProductFile:
+        file.productId = params.entityId;
+        break;
+      case CompanyFile:
+        file.companyId = params.entityId;
+        break;
+      default:
+        throw new TypeError(`Type ${this.EntityFile.constructor.name} is not a valid entity file`);
     }
 
     return file;
@@ -279,9 +285,7 @@ export default class FileService {
     return file!;
   }
 
-  async updateFile(
-    entityId: number, fileId: number, params: Partial<FileParams>,
-  ): Promise<BaseFile> {
+  async updateFile(entityId: number, fileId: number, params: Partial<FileParams>): Promise<BaseFile> {
     let file = await this.repo.findOneBy({ id: fileId });
     file = this.validateFileObject(file, entityId);
     await this.repo.update(file!.id, params);

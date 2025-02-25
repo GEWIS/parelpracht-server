@@ -22,5 +22,5 @@ AppDataSource.initialize().then(async () => {
     allProductsAreDeliveredIfContractIsFinished(),
     replaceGEWISRecipient(),
   ]);
-  console.log(`Database validated in ${(new Date().getTime() - t1.getTime())}ms`);
+  console.log(`Database validated in ${new Date().getTime() - t1.getTime()}ms`);
 });

@@ -10,57 +10,57 @@ import replaceAll from './replaceAll';
 import AppDataSource from '../database';
 
 export interface ETCompany {
-  id: number,
-  name: string,
-  contracts: ETContract[],
+  id: number;
+  name: string;
+  contracts: ETContract[];
 }
 
 export interface ETContract {
-  id: number
-  title: string,
-  subType: ContractStatus,
-  products: ETProductInstance[],
+  id: number;
+  title: string;
+  subType: ContractStatus;
+  products: ETProductInstance[];
 }
 
 export interface ETProductInstance {
-  id: number
-  productId: number,
-  details?: string,
-  basePrice: number,
-  discount: number,
-  subType: ProductInstanceStatus,
-  invoiceDate?: Date,
+  id: number;
+  productId: number;
+  details?: string;
+  basePrice: number;
+  discount: number;
+  subType: ProductInstanceStatus;
+  invoiceDate?: Date;
 }
 
 export interface RecentContract {
-  id: number,
-  title: string,
-  companyId: number,
-  assignedToId: number,
-  contactId: number,
-  createdAt: Date,
-  updatedAt: Date,
-  type: ActivityType
-  description: string,
-  createdById: number,
+  id: number;
+  title: string;
+  companyId: number;
+  assignedToId: number;
+  contactId: number;
+  createdAt: Date;
+  updatedAt: Date;
+  type: ActivityType;
+  description: string;
+  createdById: number;
   subType: ContractStatus;
 }
 
 export interface ExpiredInvoice {
-  id: number,
-  version: number,
-  startDate: Date,
-  companyId: number,
-  assignedToId: number,
-  createdAt: Date,
-  updatedAt: Date,
-  createdById: number,
-  value: number,
+  id: number;
+  version: number;
+  startDate: Date;
+  companyId: number;
+  assignedToId: number;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: number;
+  value: number;
 }
 
 export interface AnalysisResult {
-  amount: number,
-  nrOfProducts: number,
+  amount: number;
+  nrOfProducts: number;
 }
 
 export interface AnalysisResultByYear extends AnalysisResult {
@@ -68,18 +68,18 @@ export interface AnalysisResultByYear extends AnalysisResult {
 }
 
 export interface ProductsPerCategoryPerPeriod {
-  categoryId: number,
-  period: number,
-  amount: number,
-  nrOfProducts: number,
+  categoryId: number;
+  period: number;
+  amount: number;
+  nrOfProducts: number;
 }
 
 interface MegaTableFilters {
-  company: string,
-  invoice: string,
-  status: string,
-  status2: string,
-  product: string,
+  company: string;
+  invoice: string;
+  status: string;
+  status2: string;
+  product: string;
 }
 
 /**
@@ -99,17 +99,25 @@ function arrayToQueryArray(arr: string[] | number[]) {
 }
 
 /*
-*   Type and string-checking
-*/
+ *   Type and string-checking
+ */
 
 function arrayNumberError(array: number[], msg: string) {
-  if (array.some((x) => { return Number.isNaN(x); })) {
+  if (
+    array.some((x) => {
+      return Number.isNaN(x);
+    })
+  ) {
     throw new ApiError(HTTPStatus.BadRequest, msg);
   }
 }
 
 function arrayLetterError(array: string[], msg: string) {
-  if (!array.every((x) => { return /^[a-zA-Z]+$/.test(x); })) {
+  if (
+    !array.every((x) => {
+      return /^[a-zA-Z]+$/.test(x);
+    })
+  ) {
     throw new ApiError(HTTPStatus.BadRequest, msg);
   }
 }
@@ -127,8 +135,8 @@ function letterError(x: string, msg: string) {
 }
 
 /*
-*   Year helper functions
-*/
+ *   Year helper functions
+ */
 
 function inOrBeforeYearFilter(column: string, year: number): string {
   numberError(year, 'Year is not a number');
@@ -150,15 +158,17 @@ export default class RawQueries {
 
   constructor() {
     switch (process.env.TYPEORM_CONNECTION) {
-    case 'mariadb':
-    case 'mysql':
-      this.database = 'mysql';
-      break;
-    case 'postgres':
-      this.database = 'postgres';
-      break;
-    default:
-      throw new Error(`Database type ${process.env.TYPEORM_CONNECTION} is not supported by the raw queries of ParelPracht`);
+      case 'mariadb':
+      case 'mysql':
+        this.database = 'mysql';
+        break;
+      case 'postgres':
+        this.database = 'postgres';
+        break;
+      default:
+        throw new Error(
+          `Database type ${process.env.TYPEORM_CONNECTION} is not supported by the raw queries of ParelPracht`,
+        );
     }
   }
 
@@ -224,11 +234,11 @@ export default class RawQueries {
           // Only filter on "not invoiced"
           if (i >= 0 && f.values.length === 1) {
             invoice = 'AND p."invoiceId" IS NULL';
-          // Only filter on a financial year
+            // Only filter on a financial year
           } else if (i < 0 && f.values.length > 0) {
             arrayNumberError(f.values, 'InvoiceID is not a number');
             invoice = `AND ${inYearsFilter('invoice."startDate"', f.values)}`;
-          // Filter on both "not invoiced" as well as one or more financial years
+            // Filter on both "not invoiced" as well as one or more financial years
           } else if (i >= 0 && f.values.length > 1) {
             arrayNumberError(f.values, 'InvoiceID is not a number');
             const values = f.values.slice();
@@ -240,7 +250,11 @@ export default class RawQueries {
     }
 
     return {
-      company, product, status, status2, invoice,
+      company,
+      product,
+      status,
+      status2,
+      invoice,
     };
   }
 
@@ -315,7 +329,10 @@ export default class RawQueries {
     letterError(lp.sorting!.direction, 'Sort direction is not letter-only');
     numberError(lp.skip!, 'Skip-number is not a number');
 
-    const sorting = lp.sorting !== undefined && lp.sorting.column === 'companyName' ? `company.name ${lp.sorting.direction}` : 'company.id';
+    const sorting =
+      lp.sorting !== undefined && lp.sorting.column === 'companyName'
+        ? `company.name ${lp.sorting.direction}`
+        : 'company.id';
 
     query += `
         SELECT company.id as id, company.name as name, b1."subType" as "contractStatus",
@@ -506,8 +523,7 @@ export default class RawQueries {
    *   Statistical queries
    *
    ************************ */
-  getProductsContractedPerMonthByFinancialYear = (year: number):
-  Promise<ProductsPerCategoryPerPeriod[]> => {
+  getProductsContractedPerMonthByFinancialYear = (year: number): Promise<ProductsPerCategoryPerPeriod[]> => {
     return this.postProcessing(`
       SELECT p."categoryId", EXTRACT(MONTH FROM a1."createdAt" + interval '6' month) as period, sum(pi."basePrice" - pi.discount) as amount, COUNT(pi.id) as "nrOfProducts"
       FROM product_instance pi
@@ -574,8 +590,7 @@ export default class RawQueries {
     `);
   };
 
-  getTotalNonDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
-  Promise<AnalysisResult[]> => {
+  getTotalNonDeliveredProductsInvoicedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
@@ -592,8 +607,7 @@ export default class RawQueries {
     `);
   };
 
-  getTotalDeliveredProductsInvoicedAmountByFinancialYear = (year: number):
-  Promise<AnalysisResult[]> => {
+  getTotalDeliveredProductsInvoicedAmountByFinancialYear = (year: number): Promise<AnalysisResult[]> => {
     return this.postProcessing(`
       SELECT COALESCE(sum(p."basePrice" - p.discount), 0) as amount, count(p.id) as "nrOfProducts"
       FROM product_instance p
@@ -656,8 +670,7 @@ export default class RawQueries {
     `);
   };
 
-  getProductsContractedPerFinancialYearByCompany = (id: number):
-  Promise<ProductsPerCategoryPerPeriod[]> => {
+  getProductsContractedPerFinancialYearByCompany = (id: number): Promise<ProductsPerCategoryPerPeriod[]> => {
     numberError(id, 'ID is not a number');
 
     return this.postProcessing(`

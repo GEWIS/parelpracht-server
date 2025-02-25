@@ -6,7 +6,8 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryColumn,
-  UpdateDateColumn, VersionColumn,
+  UpdateDateColumn,
+  VersionColumn,
 } from 'typeorm';
 import { User } from './User';
 

@@ -1,4 +1,3 @@
-/* eslint import/first: off */
 import 'reflect-metadata';
 import * as fs from 'fs';
 import express, { Express } from 'express';
@@ -15,8 +14,8 @@ import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
 import startEvents from './timedevents/cron';
-import swaggerDocument from './public/swagger.json';
-import { RegisterRoutes } from './routes';
+import swaggerDocument from '../build/swagger.json';
+import { RegisterRoutes } from '../build/routes';
 import './controllers/RootController';
 import './controllers/ProductCategoryController';
 import './controllers/ProductController';
@@ -49,7 +48,7 @@ export function setupSessionSupport(dataSource: DataSource, app: Express) {
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: true,
-    cookie: { },
+    cookie: {},
   } as session.SessionOptions;
 
   if (process.env.NODE_ENV === 'production' && process.env.USE_HTTPS === 'true') {
@@ -121,10 +120,12 @@ AppDataSource.initialize().then(async (dataSource) => {
   }
 
   // Give additional error information when in development mode.
-  app.use(errorhandler({
-    debug: process.env.NODE_ENV === 'development',
-    safeFields: ['message'],
-  }));
+  app.use(
+    errorhandler({
+      debug: process.env.NODE_ENV === 'development',
+      safeFields: ['message'],
+    }),
+  );
 
   // If env file specifies development, use swagger UI
   if (process.env.NODE_ENV === 'development') {

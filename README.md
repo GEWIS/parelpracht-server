@@ -14,6 +14,7 @@ automating the generation of contracts, proposals and invoices.
 This is the back-end of ParelPracht. The front-end can be found [here](https://github.com/GEWIS/parelpracht-client).
 
 ## Development
+
 1. Clone the repository with `git clone git@github.com:GEWIS/parelpracht-server`
 2. Install the dependencies with `npm install`.
 3. Copy `.env.example` to `.env` and add the remaining environment variables.
@@ -25,6 +26,7 @@ docker-compose-mariadb.yaml up -d`. The environment variables in the
 `.env.example` are adjusted to use this container configuration.
 
 ## Setup
+
 When running the application, you will first need to create a superuser. This is
 done with the `/setup` endpoint.
 
@@ -37,6 +39,7 @@ production, an actual mail will be send with the confirmation link to the
 indicated email address.
 
 ## Copyright
+
 Copyright © 2022 The 39th board of GEWIS - Some rights reserved. Created by Roy
 Kakkenberg, Koen de Nooij, Jealy van den Aker, Max Opperman, Wouter van der
 Heijden en Irne Verwijst. You can use our software freely within the limits of
@@ -45,4 +48,5 @@ time in it, so we ask you to leave our copyright mark in place when modifying
 our software. Of course, you are free to add your own.
 
 ## License
+
 [GNU AGPLv3](./LICENSE)

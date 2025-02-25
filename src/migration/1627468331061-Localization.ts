@@ -23,22 +23,43 @@ export class Localization1627468331061 implements MigrationInterface {
     await this.query(queryRunner, 'ALTER TABLE `product_instance_activity` ADD `descriptionEnglish` text');
     await this.query(queryRunner, 'ALTER TABLE `company_activity` ADD `descriptionEnglish` text');
 
-    await this.query(queryRunner, 'UPDATE `contract_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`');
-    await this.query(queryRunner, 'UPDATE `invoice_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`');
-    await this.query(queryRunner, 'UPDATE `product_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`');
-    await this.query(queryRunner, 'UPDATE `product_instance_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`');
-    await this.query(queryRunner, 'UPDATE `company_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`');
+    await this.query(
+      queryRunner,
+      'UPDATE `contract_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`',
+    );
+    await this.query(
+      queryRunner,
+      'UPDATE `invoice_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`',
+    );
+    await this.query(
+      queryRunner,
+      'UPDATE `product_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`',
+    );
+    await this.query(
+      queryRunner,
+      'UPDATE `product_instance_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`',
+    );
+    await this.query(
+      queryRunner,
+      'UPDATE `company_activity` SET `descriptionDutch` = `description`, `descriptionEnglish` = `description`',
+    );
 
     if (process.env.TYPEORM_CONNECTION === 'postgres') {
       await this.query(queryRunner, 'ALTER TABLE `contract_activity` ALTER COLUMN `descriptionDutch` SET NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `invoice_activity` ALTER COLUMN `descriptionDutch` SET NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `product_activity` ALTER COLUMN `descriptionDutch` SET NOT NULL');
-      await this.query(queryRunner, 'ALTER TABLE `product_instance_activity` ALTER COLUMN `descriptionDutch` SET NOT NULL');
+      await this.query(
+        queryRunner,
+        'ALTER TABLE `product_instance_activity` ALTER COLUMN `descriptionDutch` SET NOT NULL',
+      );
       await this.query(queryRunner, 'ALTER TABLE `company_activity` ALTER COLUMN `descriptionDutch` SET NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `contract_activity` ALTER COLUMN `descriptionEnglish` SET NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `invoice_activity` ALTER COLUMN `descriptionEnglish` SET NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `product_activity` ALTER COLUMN `descriptionEnglish` SET NOT NULL');
-      await this.query(queryRunner, 'ALTER TABLE `product_instance_activity` ALTER COLUMN `descriptionEnglish` SET NOT NULL');
+      await this.query(
+        queryRunner,
+        'ALTER TABLE `product_instance_activity` ALTER COLUMN `descriptionEnglish` SET NOT NULL',
+      );
       await this.query(queryRunner, 'ALTER TABLE `company_activity` ALTER COLUMN `descriptionEnglish` SET NOT NULL');
     } else {
       await this.query(queryRunner, 'ALTER TABLE `contract_activity` MODIFY `descriptionDutch` text NOT NULL');
@@ -49,7 +70,10 @@ export class Localization1627468331061 implements MigrationInterface {
       await this.query(queryRunner, 'ALTER TABLE `contract_activity` MODIFY `descriptionEnglish` text NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `invoice_activity` MODIFY `descriptionEnglish` text NOT NULL');
       await this.query(queryRunner, 'ALTER TABLE `product_activity` MODIFY `descriptionEnglish` text NOT NULL');
-      await this.query(queryRunner, 'ALTER TABLE `product_instance_activity` MODIFY `descriptionEnglish` text NOT NULL');
+      await this.query(
+        queryRunner,
+        'ALTER TABLE `product_instance_activity` MODIFY `descriptionEnglish` text NOT NULL',
+      );
       await this.query(queryRunner, 'ALTER TABLE `company_activity` MODIFY `descriptionEnglish` text NOT NULL');
     }
 

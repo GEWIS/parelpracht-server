@@ -1,7 +1,4 @@
-import {
-  Body,
-  Controller, Post, Route, Put, Tags, Get, Security, Response, Request, Delete,
-} from 'tsoa';
+import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Request, Delete } from 'tsoa';
 import { body } from 'express-validator';
 import express from 'express';
 import { Contact } from '../entity/Contact';
@@ -21,18 +18,25 @@ export class ContactController extends Controller {
       ContactFunction.ASSISTING,
       ContactFunction.OLD,
     ];
-    await validate([
-      body('gender').isIn(Object.values(Gender)),
-      body('firstName').optional({ values: 'falsy' }).isString().trim(),
-      body('lastNamePreposition').optional({ values: 'falsy' }).isString().trim(),
-      body('lastName').notEmpty().trim(),
-      body('telephone').optional({ values: 'falsy' }).isMobilePhone('any'),
-      body('comments').optional({ values: 'falsy' }).isString().trim(),
-      body('companyId').isInt(),
-      body('function').isIn(Object.values(ContactFunction)),
-      body('email').if(body('function').not().isIn(emailOptionalFunctions)).notEmpty().isEmail().normalizeEmail(),
-      body('email').if(body('function').isIn(emailOptionalFunctions)).optional({ values: 'falsy' }).isEmail().normalizeEmail(),
-    ], req);
+    await validate(
+      [
+        body('gender').isIn(Object.values(Gender)),
+        body('firstName').optional({ values: 'falsy' }).isString().trim(),
+        body('lastNamePreposition').optional({ values: 'falsy' }).isString().trim(),
+        body('lastName').notEmpty().trim(),
+        body('telephone').optional({ values: 'falsy' }).isMobilePhone('any'),
+        body('comments').optional({ values: 'falsy' }).isString().trim(),
+        body('companyId').isInt(),
+        body('function').isIn(Object.values(ContactFunction)),
+        body('email').if(body('function').not().isIn(emailOptionalFunctions)).notEmpty().isEmail().normalizeEmail(),
+        body('email')
+          .if(body('function').isIn(emailOptionalFunctions))
+          .optional({ values: 'falsy' })
+          .isEmail()
+          .normalizeEmail(),
+      ],
+      req,
+    );
   }
 
   /**
@@ -42,9 +46,7 @@ export class ContactController extends Controller {
   @Post('table')
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getAllContacts(
-    @Body() lp: ListParams,
-  ): Promise<ContactListResponse> {
+  public async getAllContacts(@Body() lp: ListParams): Promise<ContactListResponse> {
     return new ContactService().getAllContacts(lp);
   }
 
@@ -78,9 +80,7 @@ export class ContactController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createContact(
-    @Body() params: ContactParams, @Request() req: express.Request,
-  ): Promise<Contact> {
+  public async createContact(@Body() params: ContactParams, @Request() req: express.Request): Promise<Contact> {
     await this.validateContactParams(req);
     return new ContactService().createContact(params);
   }
@@ -95,7 +95,9 @@ export class ContactController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateContact(
-    id: number, @Body() params: Partial<ContactParams>, @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<ContactParams>,
+    @Request() req: express.Request,
   ): Promise<Contact> {
     await this.validateContactParams(req);
     return new ContactService().updateContact(id, params);
@@ -109,9 +111,7 @@ export class ContactController extends Controller {
   @Delete('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteContact(
-    id: number,
-  ): Promise<void> {
+  public async deleteContact(id: number): Promise<void> {
     return new ContactService().deleteContact(id);
   }
 }

@@ -1,6 +1,4 @@
-import {
-  Column, Entity, JoinTable, ManyToMany, PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, PrimaryColumn } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
 import { User } from './User';
 

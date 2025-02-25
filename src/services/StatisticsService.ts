@@ -1,8 +1,4 @@
-import RawQueries, {
-  AnalysisResult,
-  AnalysisResultByYear,
-  ProductsPerCategoryPerPeriod,
-} from '../helpers/rawQueries';
+import RawQueries, { AnalysisResult, AnalysisResultByYear, ProductsPerCategoryPerPeriod } from '../helpers/rawQueries';
 import { dateToFinancialYear } from '../helpers/timestamp';
 import AppDataSource from '../database';
 
@@ -44,9 +40,13 @@ export default class StatisticsService {
   public async getFinancialYears(firstYear?: number): Promise<number[]> {
     if (firstYear) return rangeToArray(firstYear, dateToFinancialYear(new Date()), 1);
 
-    const startYear = await AppDataSource.createQueryBuilder('contract', 'c').select('c.createdAt').orderBy('c.createdAt', 'ASC').getOne();
+    const startYear = await AppDataSource.createQueryBuilder('contract', 'c')
+      .select('c.createdAt')
+      .orderBy('c.createdAt', 'ASC')
+      .getOne();
     let start: Date;
-    if (startYear) { // @ts-ignore
+    if (startYear) {
+      // @ts-ignore
       start = startYear.createdAt;
     } else {
       start = new Date();
@@ -54,8 +54,7 @@ export default class StatisticsService {
     return rangeToArray(dateToFinancialYear(start), dateToFinancialYear(new Date()), 1);
   }
 
-  async getDashboardProductInstanceStatistics(year: number):
-  Promise<DashboardProductInstanceStats> {
+  async getDashboardProductInstanceStatistics(year: number): Promise<DashboardProductInstanceStats> {
     const rawQueries = new RawQueries();
     const responses = await Promise.all([
       rawQueries.getTotalSuggestedAmountByFinancialYear(year),
@@ -101,7 +100,10 @@ export default class StatisticsService {
   }
 
   parseContractedProductsPerPeriod(
-    q: ProductsPerCategoryPerPeriod[], cumulative: boolean, length: number, lowestNumber: number,
+    q: ProductsPerCategoryPerPeriod[],
+    cumulative: boolean,
+    length: number,
+    lowestNumber: number,
   ): ProductsPerCategory[] {
     const result: ProductsPerCategory[] = [];
     let tempRes: ProductsPerCategory = {
@@ -167,20 +169,18 @@ export default class StatisticsService {
 
   async getCompanyStatistics(id: number): Promise<ContractedProductsAnalysis> {
     const q = await new RawQueries().getProductsContractedPerFinancialYearByCompany(id);
-    const parsedQ = this.parseContractedProductsPerPeriod(
-      q, false, 10, dateToFinancialYear(new Date()) - 10,
-    );
+    const parsedQ = this.parseContractedProductsPerPeriod(q, false, 10, dateToFinancialYear(new Date()) - 10);
 
     return {
       categories: parsedQ,
-      labels: (await this.getFinancialYears(dateToFinancialYear(new Date()) - 10))
-        .map((i) => i.toString()),
+      labels: (await this.getFinancialYears(dateToFinancialYear(new Date()) - 10)).map((i) => i.toString()),
     };
   }
 
   async getProductsInvoicedByFinancialYear(id: number): Promise<AnalysisResultByYear[]> {
-    const result = (await new RawQueries().getProductInstancesByFinancialYear(id))
-      .concat(await new RawQueries().getDeferredProductInstances(id));
+    const result = (await new RawQueries().getProductInstancesByFinancialYear(id)).concat(
+      await new RawQueries().getDeferredProductInstances(id),
+    );
     if (result.length === 0) return result;
 
     for (let i = 1; i < result.length; i++) {

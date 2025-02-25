@@ -1,6 +1,4 @@
-import {
-  Repository,
-} from 'typeorm';
+import { Repository } from 'typeorm';
 import { ServerSetting } from '../entity/ServerSetting';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AuthService from './AuthService';
@@ -10,7 +8,7 @@ import AppDataSource from '../database';
 import { User } from '../entity/User';
 
 export interface SetupParams {
-  admin: UserParams,
+  admin: UserParams;
 }
 
 export default class ServerSettingsService {
@@ -28,17 +26,14 @@ export default class ServerSettingsService {
     return this.repo.findOneBy({ name });
   }
 
-  async initialSetup(
-    params: SetupParams,
-  ): Promise<User | undefined> {
+  async initialSetup(params: SetupParams): Promise<User | undefined> {
     if ((await this.getSetting('SETUP_DONE'))?.value === 'true') {
       throw new ApiError(HTTPStatus.Forbidden, 'Server is already set up');
     }
 
     if (!ldapEnabled()) {
       const { admin } = params;
-      const adminUser = await new UserService()
-        .createAdminUser(admin);
+      const adminUser = await new UserService().createAdminUser(admin);
 
       const authService = new AuthService();
 

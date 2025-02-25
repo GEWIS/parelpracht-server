@@ -1,6 +1,4 @@
-import {
-  Column, Entity, OneToMany,
-} from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 import { VAT } from './enums/ValueAddedTax';
 import { Product } from './Product';

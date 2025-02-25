@@ -1,6 +1,4 @@
-import {
-  FindManyOptions, Repository,
-} from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { ProductStatus } from '../entity/enums/ProductStatus';
 import { Product } from '../entity/Product';
@@ -63,7 +61,10 @@ export default class ProductService {
   }
 
   async getProduct(id: number, relations: string[] = []): Promise<Product> {
-    const product = await this.repo.findOne({ where: { id }, relations: ['files', 'activities', 'pricing'].concat(relations) });
+    const product = await this.repo.findOne({
+      where: { id },
+      relations: ['files', 'activities', 'pricing'].concat(relations),
+    });
     if (product == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Product not found');
     }
@@ -73,8 +74,7 @@ export default class ProductService {
   async getAllProducts(params: ListParams): Promise<ProductListResponse> {
     const findOptions: FindManyOptions<Product> = {
       order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
+        [params.sorting?.column ?? 'id']: params.sorting?.direction ?? 'ASC',
       },
     };
 
@@ -104,9 +104,16 @@ export default class ProductService {
   async updateProduct(id: number, params: Partial<ProductParams>): Promise<Product> {
     const product = await this.getProduct(id);
 
-    if (!(await createActivitiesForEntityEdits<Product>(
-      this.repo, product, params, new ActivityService(new ProductActivity, { actor: this.actor }), ProductActivity,
-    ))) return product;
+    if (
+      !(await createActivitiesForEntityEdits<Product>(
+        this.repo,
+        product,
+        params,
+        new ActivityService(new ProductActivity(), { actor: this.actor }),
+        ProductActivity,
+      ))
+    )
+      return product;
 
     return this.getProduct(id);
   }
@@ -144,9 +151,7 @@ export default class ProductService {
     return this.getPricing(id);
   }
 
-  async updatePricing(
-    id: number, params: Partial<PricingParams>,
-  ): Promise<ProductPricing> {
+  async updatePricing(id: number, params: Partial<PricingParams>): Promise<ProductPricing> {
     const pricing = await this.getPricing(id);
     await this.pricingRepo.update(pricing.id, params);
     return this.getPricing(pricing.id);

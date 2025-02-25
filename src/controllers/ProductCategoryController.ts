@@ -1,6 +1,4 @@
-import {
-  Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags,
-} from 'tsoa';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import ProductCategoryService, {
@@ -18,9 +16,7 @@ import StatisticsService, { ContractedProductsAnalysis } from '../services/Stati
 @Tags('Product Category')
 export class ProductCategoryController extends Controller {
   private async validateCategoryParams(req: express.Request) {
-    await validate([
-      body('name').notEmpty().trim(),
-    ], req);
+    await validate([body('name').notEmpty().trim()], req);
   }
 
   /**
@@ -30,9 +26,7 @@ export class ProductCategoryController extends Controller {
   @Post('table')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getAllCategories(
-    @Body() lp: ListParams,
-  ): Promise<CategoryListResponse> {
+  public async getAllCategories(@Body() lp: ListParams): Promise<CategoryListResponse> {
     return new ProductCategoryService().getAllCategories(lp);
   }
 
@@ -56,7 +50,8 @@ export class ProductCategoryController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async createCategory(
-    @Body() params: CategoryParams, @Request() req: express.Request,
+    @Body() params: CategoryParams,
+    @Request() req: express.Request,
   ): Promise<ProductCategory> {
     await this.validateCategoryParams(req);
     return new ProductCategoryService().createCategory(params);
@@ -83,7 +78,9 @@ export class ProductCategoryController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateCategory(
-    id: number, @Body() params: Partial<CategoryParams>, @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<CategoryParams>,
+    @Request() req: express.Request,
   ): Promise<ProductCategory> {
     await this.validateCategoryParams(req);
     return new ProductCategoryService().updateCategory(id, params);
@@ -97,9 +94,7 @@ export class ProductCategoryController extends Controller {
   @Delete('{id}')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteCategory(
-    id: number,
-  ): Promise<void> {
+  public async deleteCategory(id: number): Promise<void> {
     return new ProductCategoryService().deleteCategory(id);
   }
 
@@ -110,8 +105,7 @@ export class ProductCategoryController extends Controller {
   @Get('stats/contracted/{year}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getContractedProductsStatistics(year: number):
-  Promise<ContractedProductsAnalysis> {
+  public async getContractedProductsStatistics(year: number): Promise<ContractedProductsAnalysis> {
     return new StatisticsService().getProductContractedPerMonth(year);
   }
 }
