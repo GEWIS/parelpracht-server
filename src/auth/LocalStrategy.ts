@@ -27,59 +27,66 @@ function validPassword(password: string, userSalt: string, userHash: string): bo
   return hashPassword(password, userSalt) === userHash;
 }
 
-export default new LocalStrategy({
-  usernameField: 'email',
-  passwordField: 'password',
-}, async (email, password, done) => {
-  const userRepo = AppDataSource.getRepository(User);
-  const identityRepo = AppDataSource.getRepository(IdentityLocal);
-  const userEmail = validator.normalizeEmail(email);
-  if (userEmail === false) {
-    return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
-  }
+export default new LocalStrategy(
+  {
+    usernameField: 'email',
+    passwordField: 'password',
+  },
+  async (email, password, done) => {
+    const userRepo = AppDataSource.getRepository(User);
+    const identityRepo = AppDataSource.getRepository(IdentityLocal);
+    const userEmail = validator.normalizeEmail(email);
+    if (userEmail === false) {
+      return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
+    }
 
-  const user = await userRepo.findOne({ where: { email: userEmail }, relations: ['roles'] });
+    const user = await userRepo.findOne({ where: { email: userEmail }, relations: ['roles'] });
 
-  const identity = user != null ? await identityRepo.findOneBy({ id: user.id }) : undefined;
+    const identity = user != null ? await identityRepo.findOneBy({ id: user.id }) : undefined;
 
-  // Check if the identity is found
-  if (identity == null) { return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
-  if (identity.hash == null || identity.salt == null) {
-    return done(new ApiError(HTTPStatus.BadRequest, VERIFY_ACCOUNT));
-  }
+    // Check if the identity is found
+    if (identity == null) {
+      return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
+    }
+    if (identity.hash == null || identity.salt == null) {
+      return done(new ApiError(HTTPStatus.BadRequest, VERIFY_ACCOUNT));
+    }
 
-  // Check whether the user account is active
-  if (user?.roles.length === 0) {
-    return done(new ApiError(HTTPStatus.BadRequest, ACCOUNT_INACTIVE));
-  }
+    // Check whether the user account is active
+    if (user?.roles.length === 0) {
+      return done(new ApiError(HTTPStatus.BadRequest, ACCOUNT_INACTIVE));
+    }
 
-  if (!validPassword(password, identity.salt, identity.hash)) {
-    return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
-  }
+    if (!validPassword(password, identity.salt, identity.hash)) {
+      return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
+    }
 
-  const user2 = await userRepo.findOneBy({ id: identity.id }) || undefined;
+    const user2 = (await userRepo.findOneBy({ id: identity.id })) || undefined;
 
-  return done(null, user2);
-});
+    return done(null, user2);
+  },
+);
 
-export const localLogin = (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction,
-) => {
+export const localLogin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('local', (err: any, user: any) => {
-    if (err) { return next(err); }
-    if (!user) { return next(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN)); }
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return next(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
+    }
     return req.logIn(user, (e: any) => {
       // When the user enabled "remember me", we give the session cookie an
       // expiration date of 30 days
       if (req.body.rememberMe === true) {
         req.session.cookie.maxAge = 2592000000; // 30 * 24 * 60 * 60 * 1000 (30 days)
-      // Otherwise, just create it as a temporary session cookie
+        // Otherwise, just create it as a temporary session cookie
       } else {
         req.session.cookie.maxAge = undefined;
       }
-      if (e) { return next(e); }
+      if (e) {
+        return next(e);
+      }
       return res.send();
     });
   })(req, res, next);

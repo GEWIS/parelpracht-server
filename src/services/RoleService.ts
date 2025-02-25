@@ -10,9 +10,7 @@ export interface RoleParams {
 export default class RoleService {
   repo: Repository<Role>;
 
-  constructor(
-    repo?: Repository<Role>,
-  ) {
+  constructor(repo?: Repository<Role>) {
     this.repo = repo ?? AppDataSource.getRepository(Role);
   }
 

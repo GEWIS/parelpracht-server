@@ -8,10 +8,7 @@ import ContactService from '../services/ContactService';
  * @param validations Array of validations to execute on the request
  * @param req Express.js request object
  */
-export const validate = async (
-  validations: ValidationChain[],
-  req: express.Request,
-) => {
+export const validate = async (validations: ValidationChain[], req: express.Request) => {
   await Promise.all(validations.map((validation) => validation.run(req)));
 
   const errors = validationResult(req);
@@ -26,10 +23,7 @@ export const validate = async (
  * @param validations Array of validations to execute on the request
  * @param req Express.js request object
  */
-export const validateSeq = async (
-  validations: ValidationChain[],
-  req: express.Request,
-) => {
+export const validateSeq = async (validations: ValidationChain[], req: express.Request) => {
   for (let i = 0; i < validations.length; i++) {
     // eslint-disable-next-line no-await-in-loop
     const result = await validations[i].run(req);
@@ -61,12 +55,8 @@ export const contactInCompany = async (contactId: number, req: express.Request) 
  * @param req Express.js request object
  * @param validations Optional additional validations to execute
  */
-export const validateActivityParams = async (
-  req: express.Request, validations: ValidationChain[] = [],
-) => {
-  await validate([
-    body('description').isString().trim(),
-  ].concat(validations), req);
+export const validateActivityParams = async (req: express.Request, validations: ValidationChain[] = []) => {
+  await validate([body('description').isString().trim()].concat(validations), req);
 };
 
 /**
@@ -74,12 +64,8 @@ export const validateActivityParams = async (
  * @param req Express.js request object
  * @param validations Optional additional validations to execute
  */
-export const validateCommentParams = async (
-  req: express.Request, validations: ValidationChain[] = [],
-) => {
-  await validate([
-    body('description').isString().notEmpty().trim(),
-  ].concat(validations), req);
+export const validateCommentParams = async (req: express.Request, validations: ValidationChain[] = []) => {
+  await validate([body('description').isString().notEmpty().trim()].concat(validations), req);
 };
 
 /**
@@ -87,10 +73,6 @@ export const validateCommentParams = async (
  * @param req Express.js request object
  * @param validations Optional additional validations to execute
  */
-export const validateFileParams = async (
-  req: express.Request, validations: ValidationChain[] = [],
-) => {
-  await validate([
-    body('name').trim(),
-  ].concat(validations), req);
+export const validateFileParams = async (req: express.Request, validations: ValidationChain[] = []) => {
+  await validate([body('name').trim()].concat(validations), req);
 };

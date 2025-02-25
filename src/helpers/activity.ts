@@ -34,9 +34,14 @@ function printStringArrayToString(items: string[], language: Language, preSuffix
 
   let conjunction: string;
   switch (language) {
-  case Language.DUTCH: conjunction = 'en'; break;
-  case Language.ENGLISH: conjunction = 'and'; break;
-  default: throw new TypeError(`Unknown language: ${language}`);
+    case Language.DUTCH:
+      conjunction = 'en';
+      break;
+    case Language.ENGLISH:
+      conjunction = 'and';
+      break;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
   }
 
   return items.reduce((result, s, i) => {
@@ -71,7 +76,9 @@ function splitStringToStringArray(list: string): string[] {
  * @param language Language to print the string in
  */
 async function parsePropertyChanges<T>(
-  newProperties: Partial<T>, oldProperties: T, language: Language,
+  newProperties: Partial<T>,
+  oldProperties: T,
+  language: Language,
 ): Promise<string> {
   const keys = Object.getOwnPropertyNames(newProperties);
   if (keys.length === 0) return '';
@@ -81,68 +88,71 @@ async function parsePropertyChanges<T>(
   const processedOld: any = {};
   let newEnt;
   let oldEnt;
-  await Promise.all(keys.map(async (k) => {
-    // Parse all possible relational attributes ID's to their respective names
-    switch (k) {
-    case 'productId':
-      // @ts-ignore
-      newEnt = await AppDataSource.getRepository(Product).findOne(newProperties.productId);
-      // @ts-ignore
-      oldEnt = await AppDataSource.getRepository(Product).findOne(oldProperties.productId);
-      switch (language) {
-      case Language.DUTCH:
-        processedNew.product = newEnt != null ? newEnt.nameDutch : '...';
-        processedOld.product = oldEnt != null ? oldEnt.nameDutch : '...';
-        break;
-      case Language.ENGLISH:
-        processedNew.product = newEnt != null ? newEnt.nameEnglish : '...';
-        processedOld.product = oldEnt != null ? oldEnt.nameEnglish : '...';
-        break;
-      default: throw new TypeError(`Unknown language: ${language}`);
+  await Promise.all(
+    keys.map(async (k) => {
+      // Parse all possible relational attributes ID's to their respective names
+      switch (k) {
+        case 'productId':
+          // @ts-ignore
+          newEnt = await AppDataSource.getRepository(Product).findOne(newProperties.productId);
+          // @ts-ignore
+          oldEnt = await AppDataSource.getRepository(Product).findOne(oldProperties.productId);
+          switch (language) {
+            case Language.DUTCH:
+              processedNew.product = newEnt != null ? newEnt.nameDutch : '...';
+              processedOld.product = oldEnt != null ? oldEnt.nameDutch : '...';
+              break;
+            case Language.ENGLISH:
+              processedNew.product = newEnt != null ? newEnt.nameEnglish : '...';
+              processedOld.product = oldEnt != null ? oldEnt.nameEnglish : '...';
+              break;
+            default:
+              throw new TypeError(`Unknown language: ${language}`);
+          }
+          processedNew.product = newEnt != null ? newEnt.nameEnglish : '...';
+          processedOld.product = oldEnt != null ? oldEnt.nameEnglish : '...';
+          break;
+        case 'companyId':
+          // @ts-ignore
+          newEnt = await AppDataSource.getRepository(Company).findOne(newProperties.companyId);
+          // @ts-ignore
+          oldEnt = await AppDataSource.getRepository(Company).findOne(oldProperties.companyId);
+          processedNew.company = newEnt != null ? newEnt.name : '...';
+          processedOld.company = oldEnt != null ? oldEnt.name : '...';
+          break;
+        case 'contactId':
+          // @ts-ignore
+          newEnt = await AppDataSource.getRepository(Contact).findOne(newProperties.contactId);
+          // @ts-ignore
+          oldEnt = await AppDataSource.getRepository(Contact).findOne(oldProperties.contactId);
+          processedNew.contact = newEnt != null ? newEnt.fullName() : '...';
+          processedOld.contact = oldEnt != null ? oldEnt.fullName() : '...';
+          break;
+        case 'assignedToId':
+          // @ts-ignore
+          newEnt = await AppDataSource.getRepository(User).findOne(newProperties.assignedToId);
+          // @ts-ignore
+          oldEnt = await AppDataSource.getRepository(User).findOne(oldProperties.assignedToId);
+          processedNew.assignment = newEnt != null ? newEnt.fullName() : '...';
+          processedOld.assignment = oldEnt != null ? oldEnt.fullName() : '...';
+          break;
+        case 'categoryId':
+          // @ts-ignore
+          newEnt = await AppDataSource.getRepository(ProductCategory).findOne(newProperties.categoryId);
+          // @ts-ignore
+          oldEnt = await AppDataSource.getRepository(ProductCategory).findOne(oldProperties.categoryId);
+          processedNew.category = newEnt != null ? newEnt.name : '...';
+          processedOld.category = oldEnt != null ? oldEnt.name : '...';
+          break;
+        // If it is not a relational attribute, simply copy the value with the same key
+        default:
+          // @ts-ignore
+          processedNew[k] = newProperties[k];
+          // @ts-ignore
+          processedOld[k] = oldProperties[k];
       }
-      processedNew.product = newEnt != null ? newEnt.nameEnglish : '...';
-      processedOld.product = oldEnt != null ? oldEnt.nameEnglish : '...';
-      break;
-    case 'companyId':
-      // @ts-ignore
-      newEnt = await AppDataSource.getRepository(Company).findOne(newProperties.companyId);
-      // @ts-ignore
-      oldEnt = await AppDataSource.getRepository(Company).findOne(oldProperties.companyId);
-      processedNew.company = newEnt != null ? newEnt.name : '...';
-      processedOld.company = oldEnt != null ? oldEnt.name : '...';
-      break;
-    case 'contactId':
-      // @ts-ignore
-      newEnt = await AppDataSource.getRepository(Contact).findOne(newProperties.contactId);
-      // @ts-ignore
-      oldEnt = await AppDataSource.getRepository(Contact).findOne(oldProperties.contactId);
-      processedNew.contact = newEnt != null ? newEnt.fullName() : '...';
-      processedOld.contact = oldEnt != null ? oldEnt.fullName() : '...';
-      break;
-    case 'assignedToId':
-      // @ts-ignore
-      newEnt = await AppDataSource.getRepository(User).findOne(newProperties.assignedToId);
-      // @ts-ignore
-      oldEnt = await AppDataSource.getRepository(User).findOne(oldProperties.assignedToId);
-      processedNew.assignment = newEnt != null ? newEnt.fullName() : '...';
-      processedOld.assignment = oldEnt != null ? oldEnt.fullName() : '...';
-      break;
-    case 'categoryId':
-      // @ts-ignore
-      newEnt = await AppDataSource.getRepository(ProductCategory).findOne(newProperties.categoryId);
-      // @ts-ignore
-      oldEnt = await AppDataSource.getRepository(ProductCategory).findOne(oldProperties.categoryId);
-      processedNew.category = newEnt != null ? newEnt.name : '...';
-      processedOld.category = oldEnt != null ? oldEnt.name : '...';
-      break;
-      // If it is not a relational attribute, simply copy the value with the same key
-    default:
-      // @ts-ignore
-      processedNew[k] = newProperties[k];
-      // @ts-ignore
-      processedOld[k] = oldProperties[k];
-    }
-  }));
+    }),
+  );
 
   // Create a typed-out change with the from and to values
   const parsedChanges = Object.getOwnPropertyNames(processedNew).map((k: string) => {
@@ -178,14 +188,17 @@ async function parsePropertyChanges<T>(
  * @param language Language to print the string in
  */
 async function createEditActivityDescription<T>(
-  newProperties: Partial<T>, oldProperties: T, language: Language,
+  newProperties: Partial<T>,
+  oldProperties: T,
+  language: Language,
 ): Promise<string> {
   switch (language) {
-  case Language.DUTCH:
-    return `${await parsePropertyChanges<T>(newProperties, oldProperties, language)} aangepast.`;
-  case Language.ENGLISH:
-    return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties, language)}.`;
-  default: throw new TypeError(`Unknown language: ${language}`);
+    case Language.DUTCH:
+      return `${await parsePropertyChanges<T>(newProperties, oldProperties, language)} aangepast.`;
+    case Language.ENGLISH:
+      return `Changed ${await parsePropertyChanges<T>(newProperties, oldProperties, language)}.`;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -195,15 +208,14 @@ async function createEditActivityDescription<T>(
  * @param oldUser User who "lost" the assignment
  * @param language Language to print the string in
  */
-function createReassignActivityDescription(
-  newUser: User, oldUser: User, language: Language,
-): string {
+function createReassignActivityDescription(newUser: User, oldUser: User, language: Language): string {
   switch (language) {
-  case Language.DUTCH:
-    return `Aangepast van ${oldUser.fullName()} naar ${newUser.fullName()}.`;
-  case Language.ENGLISH:
-    return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}.`;
-  default: throw new TypeError(`Unknown language: ${language}`);
+    case Language.DUTCH:
+      return `Aangepast van ${oldUser.fullName()} naar ${newUser.fullName()}.`;
+    case Language.ENGLISH:
+      return `Changed from ${oldUser.fullName()} to ${newUser.fullName()}.`;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -212,16 +224,14 @@ function createReassignActivityDescription(
  * @param products Array of product names
  * @param language Language to print the string in
  */
-export function createAddProductActivityDescription(
-  products: string[], language: Language,
-): string {
+export function createAddProductActivityDescription(products: string[], language: Language): string {
   switch (language) {
-  case Language.DUTCH:
-    return `${printStringArrayToString(products, language, '"')} toegevoegd.`;
-  case Language.ENGLISH:
-    return `Added ${printStringArrayToString(products, language, '"')}.`;
-  default:
-    throw new TypeError(`Unknown language: ${language}`);
+    case Language.DUTCH:
+      return `${printStringArrayToString(products, language, '"')} toegevoegd.`;
+    case Language.ENGLISH:
+      return `Added ${printStringArrayToString(products, language, '"')}.`;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -232,7 +242,9 @@ export function createAddProductActivityDescription(
  * @param language Language to print the string in
  */
 export function appendProductActivityDescription(
-  products: string[], currentDescription: string, language: Language,
+  products: string[],
+  currentDescription: string,
+  language: Language,
 ): string {
   const printedProductList = currentDescription.substring(6, currentDescription.length - 1);
   const currentProducts = splitStringToStringArray(printedProductList);
@@ -244,16 +256,14 @@ export function appendProductActivityDescription(
  * @param products Array of product names, which have been removed
  * @param language Language to print the string in
  */
-export function createDelProductActivityDescription(
-  products: string[], language: Language,
-): string {
+export function createDelProductActivityDescription(products: string[], language: Language): string {
   switch (language) {
-  case Language.DUTCH:
-    return `${printStringArrayToString(products, language, '"')} verwijderd.`;
-  case Language.ENGLISH:
-    return `Removed ${printStringArrayToString(products, language, '"')}.`;
-  default:
-    throw new TypeError(`Unknown language: ${language}`);
+    case Language.DUTCH:
+      return `${printStringArrayToString(products, language, '"')} verwijderd.`;
+    case Language.ENGLISH:
+      return `Removed ${printStringArrayToString(products, language, '"')}.`;
+    default:
+      throw new TypeError(`Unknown language: ${language}`);
   }
 }
 
@@ -268,7 +278,11 @@ export function createDelProductActivityDescription(
  */
 
 export async function createActivitiesForEntityEdits<T extends BaseEnt>(
-  repo: Repository<T>, entity: T, params: Partial<T>, activityService: ActivityService<any>, ActivityEntity: typeof BaseActivity,
+  repo: Repository<T>,
+  entity: T,
+  params: Partial<T>,
+  activityService: ActivityService<any>,
+  ActivityEntity: typeof BaseActivity,
 ): Promise<boolean> {
   const changes = getEntityChanges<T>(params, entity);
 

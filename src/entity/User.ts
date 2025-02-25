@@ -1,7 +1,4 @@
-import {
-  Column,
-  Entity, JoinTable, ManyToMany, OneToOne,
-} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToOne } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 import { Gender } from './enums/Gender';
 // eslint-disable-next-line import/no-cycle

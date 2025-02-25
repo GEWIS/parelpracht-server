@@ -14,7 +14,7 @@ jobs:
   build-and-lint:
     uses: GEWIS/actions/.github/workflows/lint-and-build-yarn.yml@v1
     with:
-      node-version: "20.x"
+      node-version: '20.x'
       lint: true
       format: false
       build: true

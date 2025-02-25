@@ -11,8 +11,10 @@
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
     "db:validate": "ts-node src/dbvalidator/validate.ts",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "eslint src",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --ignore-path .gitignore --check .",
+    "format:fix": "prettier --ignore-path .gitignore --write ."
   },
   "author": "The 39th board of Study Association GEWIS",
   "dependencies": {
@@ -24,6 +26,7 @@
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "express-validator": "^7.2.1",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "ldapjs": "^3.0.7",
     "lodash": "^4.17.21",
@@ -38,16 +41,18 @@
     "passport-ldapauth": "^3.0.1",
     "passport-local": "^1.0.0",
     "pg": "^8.13.3",
+    "prettier": "^3.5.2",
     "reflect-metadata": "^0.2.2",
     "rimraf": "^6.0.1",
     "strong-error-handler": "^5.0.16",
     "swagger-ui-express": "^5.0.1",
-    "tsoa": "^5.1.1",
+    "tsoa": "^6.6.0",
     "typeorm": "^0.3.20",
     "uuid": "^11.1.0",
     "validator": "^13.12.0"
   },
   "devDependencies": {
+    "@gewis/prettier-config": "^2.2.2",
     "@types/axios": "^0.14.4",
     "@types/express": "5.0.0",
     "@types/express-session": "^1.18.1",
@@ -65,15 +70,14 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
     "@types/validator": "^13.12.2",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
     "concurrently": "^9.1.2",
     "eslint": "^8.57.1",
-    "eslint-config-airbnb-typescript": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.2.2"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=22.0.0"

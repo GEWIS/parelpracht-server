@@ -1,6 +1,4 @@
-import {
-  Column, Entity, JoinTable, JoinColumn, OneToMany, ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinTable, JoinColumn, OneToMany, ManyToOne } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';

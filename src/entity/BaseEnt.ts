@@ -1,6 +1,10 @@
 import {
-  BaseEntity, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn,
-  UpdateDateColumn, VersionColumn,
+  BaseEntity,
+  CreateDateColumn,
+  DeleteDateColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  VersionColumn,
 } from 'typeorm';
 
 /**

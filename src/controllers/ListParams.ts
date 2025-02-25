@@ -4,7 +4,7 @@ export interface PaginationParams {
 }
 
 export interface ListParams extends PaginationParams {
-  sorting?: ListSorting
+  sorting?: ListSorting;
   search?: string;
   filters?: ListOrFilter[];
 }

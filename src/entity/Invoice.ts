@@ -1,6 +1,4 @@
-import {
-  Column, Entity, ManyToOne, JoinColumn, OneToMany,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
@@ -16,19 +14,19 @@ import { User } from './User';
 export class Invoice extends BaseEnt {
   /** All products that have been invoiced */
   @OneToMany(() => ProductInstance, (productInstance) => productInstance.invoice)
-    products!: ProductInstance[];
+  products!: ProductInstance[];
 
   /** Name of the invoice (by default the same as the first contract) */
   @Column({ default: '' })
-    title!: string;
+  title!: string;
 
   /** PO number on the invoice, if needed */
   @Column({ default: '' })
-    poNumber?: string;
+  poNumber?: string;
 
   /** Date at which this invoice will be sent */
   @Column({ default: () => 'now()' })
-    startDate!: Date;
+  startDate!: Date;
 
   @Column({ type: 'integer', update: false })
   readonly companyId!: number;
@@ -38,29 +36,29 @@ export class Invoice extends BaseEnt {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'createdById' })
-    createdBy!: User;
+  createdBy!: User;
 
   @Column({ type: 'integer', nullable: true })
-    assignedToId?: number;
+  assignedToId?: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'assignedToId' })
-    assignedTo?: User;
+  assignedTo?: User;
 
   /** Any comments regarding this invoice */
   @Column({ type: 'text', default: '' })
-    comments?: string;
+  comments?: string;
 
   /** Company this invoice is directed to */
   @ManyToOne(() => Company, (company) => company.invoices)
   @JoinColumn({ name: 'companyId' })
-    company!: Company;
+  company!: Company;
 
   /** All activities regarding this invoice */
   @OneToMany(() => InvoiceActivity, (invoiceActivity) => invoiceActivity.invoice)
-    activities!: InvoiceActivity[];
+  activities!: InvoiceActivity[];
 
   /** All files regarding this contract */
   @OneToMany(() => InvoiceFile, (file) => file.invoice)
-    files!: InvoiceFile[];
+  files!: InvoiceFile[];
 }

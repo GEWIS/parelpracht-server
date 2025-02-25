@@ -2,16 +2,11 @@
   "entryFile": "./src/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": ["src/controllers/*.ts"],
-  "ignore": [
-    "**/node_modules/@types/lodash/**"
-  ],
+  "ignore": ["**/node_modules/@types/lodash/**"],
   "spec": {
     "outputDirectory": "build",
     "host": "localhost:3001",
-    "schemes": [
-      "http",
-      "https"
-    ],
+    "schemes": ["http", "https"],
     "basePath": "/api",
     "securityDefinitions": {
       "local": {
@@ -130,9 +125,7 @@
         },
         "/contract/{id}/file/upload": {
           "post": {
-            "consumes": [
-              "multipart/form-data"
-            ],
+            "consumes": ["multipart/form-data"],
             "parameters": [
               {
                 "in": "formData",
@@ -153,9 +146,7 @@
         },
         "/invoice/{id}/file/upload": {
           "post": {
-            "consumes": [
-              "multipart/form-data"
-            ],
+            "consumes": ["multipart/form-data"],
             "parameters": [
               {
                 "in": "formData",
@@ -176,9 +167,7 @@
         },
         "/product/{id}/file/upload": {
           "post": {
-            "consumes": [
-              "multipart/form-data"
-            ],
+            "consumes": ["multipart/form-data"],
             "parameters": [
               {
                 "in": "formData",

@@ -1,6 +1,4 @@
-import {
-  Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request,
-} from 'tsoa';
+import { Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Company } from '../entity/Company';
@@ -14,16 +12,11 @@ import CompanyService, {
   ETCompanyListResponse,
 } from '../services/CompanyService';
 import { ListParams } from './ListParams';
-import ActivityService, {
-  ActivityParams,
-  FullActivityParams,
-} from '../services/ActivityService';
+import ActivityService, { ActivityParams, FullActivityParams } from '../services/ActivityService';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
-import {
-  validate, validateActivityParams, validateCommentParams, validateFileParams,
-} from '../helpers/validation';
+import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import InvoiceService from '../services/InvoiceService';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
@@ -38,21 +31,24 @@ import { Roles } from '../entity/enums/Roles';
 @Tags('Company')
 export class CompanyController extends Controller {
   private async validateCompanyParams(req: express.Request): Promise<void> {
-    await validate([
-      body('name').notEmpty().trim(),
-      body('comments').trim(),
-      body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone('any').trim(),
-      body('addressStreet').notEmpty().trim(),
-      body('addressPostalCode').notEmpty().trim(),
-      body('addressCity').notEmpty().trim(),
-      body('addressCountry').trim(),
-      body('invoiceAddressStreet').trim(),
-      body('invoiceAddressPostalCode').trim(),
-      body('invoiceAddressCity').trim(),
-      body('invoiceAddressCountry').trim(),
-      body('status').optional().isIn(Object.values(CompanyStatus)),
-      body('endDate').optional({ checkFalsy: true }).isDate(),
-    ], req);
+    await validate(
+      [
+        body('name').notEmpty().trim(),
+        body('comments').trim(),
+        body('phoneNumber').optional({ checkFalsy: true }).isMobilePhone('any').trim(),
+        body('addressStreet').notEmpty().trim(),
+        body('addressPostalCode').notEmpty().trim(),
+        body('addressCity').notEmpty().trim(),
+        body('addressCountry').trim(),
+        body('invoiceAddressStreet').trim(),
+        body('invoiceAddressPostalCode').trim(),
+        body('invoiceAddressCity').trim(),
+        body('invoiceAddressCountry').trim(),
+        body('status').optional().isIn(Object.values(CompanyStatus)),
+        body('endDate').optional({ checkFalsy: true }).isDate(),
+      ],
+      req,
+    );
   }
 
   /**
@@ -62,9 +58,7 @@ export class CompanyController extends Controller {
   @Post('table')
   @Security('local', ['FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getAllCompanies(
-    @Body() lp: ListParams,
-  ): Promise<CompanyListResponse> {
+  public async getAllCompanies(@Body() lp: ListParams): Promise<CompanyListResponse> {
     return new CompanyService().getAllCompanies(lp);
   }
 
@@ -86,9 +80,7 @@ export class CompanyController extends Controller {
   @Post('extensive')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getAllContractsExtensive(
-    @Body() lp: ListParams,
-  ): Promise<ETCompanyListResponse> {
+  public async getAllContractsExtensive(@Body() lp: ListParams): Promise<ETCompanyListResponse> {
     return new CompanyService().getAllCompaniesExtensive(lp);
   }
 
@@ -111,9 +103,7 @@ export class CompanyController extends Controller {
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createCompany(
-    @Body() params: CompanyParams, @Request() req: express.Request,
-  ): Promise<Company> {
+  public async createCompany(@Body() params: CompanyParams, @Request() req: express.Request): Promise<Company> {
     await this.validateCompanyParams(req);
     return new CompanyService().createCompany(params);
   }
@@ -128,7 +118,9 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateCompany(
-    id: number, @Body() params: Partial<CompanyParams>, @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<CompanyParams>,
+    @Request() req: express.Request,
   ): Promise<Company> {
     await this.validateCompanyParams(req);
     return new CompanyService({ actor: req.user as User }).updateCompany(id, params);
@@ -142,9 +134,7 @@ export class CompanyController extends Controller {
   @Delete('{id}')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteCompany(
-    id: number,
-  ): Promise<void> {
+  public async deleteCompany(id: number): Promise<void> {
     return new CompanyService().deleteCompany(id);
   }
 
@@ -208,12 +198,13 @@ export class CompanyController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadCompanyFile(
-    id: number, @Request() req: express.Request,
-  ): Promise<CompanyFile> {
+  public async uploadCompanyFile(id: number, @Request() req: express.Request): Promise<CompanyFile> {
     const actor = req.user as User;
     if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can set createdAt.');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can set createdAt.",
+      );
     }
 
     return new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id);
@@ -229,7 +220,7 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getCompanyFile(id: number, fileId: number): Promise<any> {
-    const file = <CompanyFile>(await new FileService(CompanyFile).getFile(id, fileId));
+    const file = <CompanyFile>await new FileService(CompanyFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);
   }
@@ -245,7 +236,9 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateCompanyFile(
-    id: number, fileId: number, @Body() params: Partial<FileParams>,
+    id: number,
+    fileId: number,
+    @Body() params: Partial<FileParams>,
     @Request() req: express.Request,
   ): Promise<BaseFile> {
     await validateFileParams(req);
@@ -274,7 +267,9 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addCompanyComment(
-    id: number, @Body() params: ActivityParams, @Request() req: express.Request,
+    id: number,
+    @Body() params: ActivityParams,
+    @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     const p: FullActivityParams = {
@@ -283,8 +278,7 @@ export class CompanyController extends Controller {
       entityId: id,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService(new CompanyActivity, { actor: req.user as User })
-      .createActivity(CompanyActivity, p);
+    return new ActivityService(new CompanyActivity(), { actor: req.user as User }).createActivity(CompanyActivity, p);
   }
 
   /**
@@ -297,7 +291,9 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateCompanyActivity(
-    id: number, activityId: number, @Body() params: Partial<ActivityParams>,
+    id: number,
+    activityId: number,
+    @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
@@ -305,7 +301,7 @@ export class CompanyController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(new CompanyActivity).updateActivity(id, activityId, p);
+    return new ActivityService(new CompanyActivity()).updateActivity(id, activityId, p);
   }
 
   /**
@@ -316,6 +312,6 @@ export class CompanyController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteCompanyActivity(id: number, activityId: number): Promise<void> {
-    return new ActivityService(new CompanyActivity).deleteActivity(id, activityId);
+    return new ActivityService(new CompanyActivity()).deleteActivity(id, activityId);
   }
 }
