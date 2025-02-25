@@ -1,29 +1,61 @@
 {
 	"compilerOptions": {
-	  "outDir": "dist/",
-	  "rootDir": "src/",
+    /* Basic Options */
+	  "target": "es2016",
 	  "module": "commonjs",
+	  "outDir": "dist",
+    "types": [ "node" ],
 	  "lib": [
       "es6",
       "es2020",
       "DOM",
 	  ],
-	  "strict": true,
-	  "target": "es2016",
-	  "declaration": true,
-	  "noImplicitAny": true,
-	  "emitDecoratorMetadata": true,
-	  "experimentalDecorators": true,
-	  "sourceMap": true,
+    "incremental": true,
 	  "composite": true,
-	  "esModuleInterop": true,
-	  "forceConsistentCasingInFileNames": true,
+	  "declaration": true,
+	  "sourceMap": true,
+
+    /* Strict Type-Checking Options */
+	  "strict": true,
+	  "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    /* Additional Checks */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution Options */
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+
+    /* Experimental Options */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    /* Advanced Options */
+    "forceConsistentCasingInFileNames": true,
 	  "resolveJsonModule": true
 	},
-	"include": [
-    "src/helpers/countries.json"
-	],
   "ts-node": {
     "files": true,
-  }
+  },
+	"include": [
+    "src",
+    "src/**/*.json",
+    "build",
+    "build/**/*.json"
+	],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
