@@ -1,4 +1,3 @@
-/* eslint import/first: off */
 import 'reflect-metadata';
 import * as fs from 'fs';
 import express, { Express } from 'express';
