@@ -1,4 +1,3 @@
-import { Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Company } from '../entity/Company';
@@ -11,7 +10,6 @@ import CompanyService, {
   CompanySummary,
   ETCompanyListResponse,
 } from '../services/CompanyService';
-import { ListParams } from './ListParams';
 import ActivityService, { ActivityParams, FullActivityParams } from '../services/ActivityService';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
@@ -26,6 +24,8 @@ import BaseFile from '../entity/file/BaseFile';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
 import { Roles } from '../entity/enums/Roles';
+import { ListParams } from './ListParams';
+import { Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request } from 'tsoa';
 
 @Route('company')
 @Tags('Company')

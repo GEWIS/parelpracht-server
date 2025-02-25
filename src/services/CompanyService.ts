@@ -9,9 +9,9 @@ import FileHelper from '../helpers/fileHelper';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import { CompanyActivity } from '../entity/activity/CompanyActivity';
 import { User } from '../entity/User';
-import ActivityService from './ActivityService';
 import RawQueries, { ETCompany } from '../helpers/rawQueries';
 import AppDataSource from '../database';
+import ActivityService from './ActivityService';
 
 // May not be correct yet
 export interface CompanyParams {

@@ -7,9 +7,9 @@ import { addQueryWhereClause } from '../helpers/filters';
 import { User } from '../entity/User';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
-import ActivityService from './ActivityService';
 import { ProductPricing } from '../entity/ProductPricing';
 import AppDataSource from '../database';
+import ActivityService from './ActivityService';
 
 export interface ProductParams {
   nameDutch: string;

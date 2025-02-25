@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Put, Response, Route, Security, Tags } from 'tsoa';
 import { WrappedApiError } from '../helpers/error';
 import { Role } from '../entity/Role';
 import RoleService, { RoleParams } from '../services/RoleService';
+import { Body, Controller, Get, Put, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('role')
 @Tags('Role')

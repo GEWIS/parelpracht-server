@@ -4,10 +4,10 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ContractSummary, InvoiceSummary } from '../entity/Summaries';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
+import AppDataSource from '../database';
 import { currentFinancialYear } from './timestamp';
 import { ApiError, HTTPStatus } from './error';
 import replaceAll from './replaceAll';
-import AppDataSource from '../database';
 
 export interface ETCompany {
   id: number;
