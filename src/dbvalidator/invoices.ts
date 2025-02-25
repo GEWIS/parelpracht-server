@@ -33,5 +33,7 @@ export async function allInvoicesAreCreated() {
     }
   });
 
-  console.log(`The following invoices did not have a 'CREATED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`);
+  console.log(
+    `The following invoices did not have a 'CREATED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  );
 }

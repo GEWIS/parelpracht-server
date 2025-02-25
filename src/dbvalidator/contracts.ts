@@ -37,7 +37,9 @@ export async function allContractsAreCreated() {
     }
   });
 
-  console.log(`The following contracts did not have a 'CREATED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`);
+  console.log(
+    `The following contracts did not have a 'CREATED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  );
 }
 
 /**
@@ -51,34 +53,35 @@ export async function allProductsAreCancelledIfContractIsCancelled() {
   const productInstanceActivityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const contracts = await contractRepo.find({ relations: ['products', 'products.activities', 'activities'] });
 
-  contracts
-    .forEach((c) => {
-      const cancelledActivity = c.activities.find((a) => a.subType === ContractStatus.CANCELLED);
+  contracts.forEach((c) => {
+    const cancelledActivity = c.activities.find((a) => a.subType === ContractStatus.CANCELLED);
 
-      if (cancelledActivity) {
-        c.products.forEach((p) => {
-          const index = p.activities.find((a) => a.subType === ProductInstanceStatus.CANCELLED);
+    if (cancelledActivity) {
+      c.products.forEach((p) => {
+        const index = p.activities.find((a) => a.subType === ProductInstanceStatus.CANCELLED);
 
-          if (index === undefined) {
-            productInstanceActivityRepo.save({
-              createdAt: cancelledActivity.createdAt,
-              updatedAt: new Date(),
-              productInstanceId: p.id,
-              createdById: c.createdById,
-              type: ActivityType.STATUS,
-              subType: ProductInstanceStatus.CANCELLED,
-              descriptionEnglish: '',
-              descriptionDutch: '',
-            } as ProductInstanceActivity);
+        if (index === undefined) {
+          productInstanceActivityRepo.save({
+            createdAt: cancelledActivity.createdAt,
+            updatedAt: new Date(),
+            productInstanceId: p.id,
+            createdById: c.createdById,
+            type: ActivityType.STATUS,
+            subType: ProductInstanceStatus.CANCELLED,
+            descriptionEnglish: '',
+            descriptionDutch: '',
+          } as ProductInstanceActivity);
 
-            logResult += `C${c.id} (P${p.id}), `;
-            count++;
-          }
-        });
-      }
-    });
+          logResult += `C${c.id} (P${p.id}), `;
+          count++;
+        }
+      });
+    }
+  });
 
-  console.log(`The following cancelled contracts had non-cancelled products (${count}): ${logResult.substr(0, logResult.length - 2)}`);
+  console.log(
+    `The following cancelled contracts had non-cancelled products (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  );
 }
 
 /**
@@ -92,33 +95,35 @@ export async function allProductsAreDeliveredIfContractIsFinished() {
   const productInstanceActivityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const contracts = await contractRepo.find({ relations: ['products', 'products.activities', 'activities'] });
 
-  contracts
-    .forEach((c) => {
-      const finishedActivity = c.activities.find((a) => a.subType === ContractStatus.FINISHED);
+  contracts.forEach((c) => {
+    const finishedActivity = c.activities.find((a) => a.subType === ContractStatus.FINISHED);
 
-      if (finishedActivity) {
-        c.products.forEach((p) => {
-          const index = p.activities.find((a) => a.subType === ProductInstanceStatus.CANCELLED
-            || a.subType === ProductInstanceStatus.DELIVERED);
+    if (finishedActivity) {
+      c.products.forEach((p) => {
+        const index = p.activities.find(
+          (a) => a.subType === ProductInstanceStatus.CANCELLED || a.subType === ProductInstanceStatus.DELIVERED,
+        );
 
-          if (index === undefined) {
-            productInstanceActivityRepo.save({
-              createdAt: finishedActivity.createdAt,
-              updatedAt: new Date(),
-              productInstanceId: p.id,
-              createdById: c.createdById,
-              type: ActivityType.STATUS,
-              subType: ProductInstanceStatus.DELIVERED,
-              descriptionEnglish: '',
-              descriptionDutch: '',
-            } as ProductInstanceActivity);
+        if (index === undefined) {
+          productInstanceActivityRepo.save({
+            createdAt: finishedActivity.createdAt,
+            updatedAt: new Date(),
+            productInstanceId: p.id,
+            createdById: c.createdById,
+            type: ActivityType.STATUS,
+            subType: ProductInstanceStatus.DELIVERED,
+            descriptionEnglish: '',
+            descriptionDutch: '',
+          } as ProductInstanceActivity);
 
-            logResult += `C${c.id} (P${p.id}), `;
-            count++;
-          }
-        });
-      }
-    });
+          logResult += `C${c.id} (P${p.id}), `;
+          count++;
+        }
+      });
+    }
+  });
 
-  console.log(`The following contracts were finished, but did not have delivered/cancelled products (${count}): ${logResult.substr(0, logResult.length - 2)}`);
+  console.log(
+    `The following contracts were finished, but did not have delivered/cancelled products (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  );
 }

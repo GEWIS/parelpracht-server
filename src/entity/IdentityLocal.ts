@@ -1,6 +1,13 @@
 import {
-  Column, CreateDateColumn, DeleteDateColumn, Entity,
-  JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn, VersionColumn,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+  VersionColumn,
 } from 'typeorm';
 import { User } from './User';
 

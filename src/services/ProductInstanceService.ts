@@ -1,6 +1,4 @@
-import {
-  FindManyOptions, IsNull, Not, Repository,
-} from 'typeorm';
+import { FindManyOptions, IsNull, Not, Repository } from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
@@ -22,15 +20,15 @@ import { Language } from '../entity/enums/Language';
 import AppDataSource from '../database';
 
 export interface ProductInstanceParams {
-  productId: number,
-  basePrice: number,
-  discount?: number,
+  productId: number;
+  basePrice: number;
+  discount?: number;
   details?: string;
 }
 
 export interface ProductInstanceListResponse {
-  list: ProductInstance[],
-  count: number,
+  list: ProductInstance[];
+  count: number;
 }
 
 export default class ProductInstanceService {
@@ -43,9 +41,7 @@ export default class ProductInstanceService {
     this.actor = options?.actor;
   }
 
-  validateProductInstanceContract(
-    productInstance: ProductInstance | null, contractId: number,
-  ): ProductInstance {
+  validateProductInstanceContract(productInstance: ProductInstance | null, contractId: number): ProductInstance {
     if (productInstance == null) {
       throw new ApiError(HTTPStatus.NotFound, 'ProductInstance not found');
     }
@@ -55,9 +51,7 @@ export default class ProductInstanceService {
     return productInstance;
   }
 
-  async validateProductInstanceContractB(
-    contractId: number, productInstanceId: number,
-  ): Promise<void> {
+  async validateProductInstanceContractB(contractId: number, productInstanceId: number): Promise<void> {
     const productInstance = await this.repo.findOneBy({ id: productInstanceId });
     this.validateProductInstanceContract(productInstance, contractId);
   }
@@ -73,10 +67,16 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot add inactive products to contracts');
     }
 
-    const statuses = await new ActivityService(new ContractActivity).getStatuses({ contractId });
-    if (statuses.includes(ContractStatus.CONFIRMED) || statuses.includes(ContractStatus.FINISHED)
-      || statuses.includes(ContractStatus.CANCELLED)) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Cannot add product to this contract, because the contract is already confirmed, finished or delivered');
+    const statuses = await new ActivityService(new ContractActivity()).getStatuses({ contractId });
+    if (
+      statuses.includes(ContractStatus.CONFIRMED) ||
+      statuses.includes(ContractStatus.FINISHED) ||
+      statuses.includes(ContractStatus.CANCELLED)
+    ) {
+      throw new ApiError(
+        HTTPStatus.BadRequest,
+        'Cannot add product to this contract, because the contract is already confirmed, finished or delivered',
+      );
     }
 
     productInstance = await this.repo.save(productInstance);
@@ -84,16 +84,21 @@ export default class ProductInstanceService {
     // Create two activities:
     await Promise.all([
       // An activity that states that this productInstance has been created
-      new ActivityService(new ProductInstanceActivity, { actor: this.actor }).createActivity(ProductInstanceActivity, {
-        entityId: productInstance.id,
-        type: ActivityType.STATUS,
-        subType: ProductInstanceStatus.NOTDELIVERED,
-        descriptionDutch: '',
-        descriptionEnglish: '',
-      } as FullActivityParams),
+      new ActivityService(new ProductInstanceActivity(), { actor: this.actor }).createActivity(
+        ProductInstanceActivity,
+        {
+          entityId: productInstance.id,
+          type: ActivityType.STATUS,
+          subType: ProductInstanceStatus.NOTDELIVERED,
+          descriptionDutch: '',
+          descriptionEnglish: '',
+        } as FullActivityParams,
+      ),
       // An activity that states that this product has been added to the contract
-      new ActivityService(new ContractActivity, { actor: this.actor })
-        .createProductActivity(product.nameEnglish, contractId),
+      new ActivityService(new ContractActivity(), { actor: this.actor }).createProductActivity(
+        product.nameEnglish,
+        contractId,
+      ),
     ]);
 
     productInstance = (await this.repo.findOne({ where: { id: productInstance.id }, relations: ['activities'] }))!;
@@ -110,8 +115,7 @@ export default class ProductInstanceService {
     return product;
   }
 
-  async getProductContracts(id: number, skip?: number, take?: number):
-  Promise<ProductInstanceListResponse> {
+  async getProductContracts(id: number, skip?: number, take?: number): Promise<ProductInstanceListResponse> {
     const findOptions: FindManyOptions<ProductInstance> = {
       relations: ['contract'],
       where: {
@@ -129,8 +133,7 @@ export default class ProductInstanceService {
     };
   }
 
-  async getProductInvoices(id: number, skip?: number, take?: number):
-  Promise<ProductInstanceListResponse> {
+  async getProductInvoices(id: number, skip?: number, take?: number): Promise<ProductInstanceListResponse> {
     const findOptions: FindManyOptions<ProductInstance> = {
       relations: ['invoice'],
       where: {
@@ -150,14 +153,15 @@ export default class ProductInstanceService {
   }
 
   async updateProduct(
-    contractId: number, productInstanceId: number, params: Partial<ProductInstance>,
+    contractId: number,
+    productInstanceId: number,
+    params: Partial<ProductInstance>,
   ): Promise<ProductInstance> {
     let productInstance = await this.repo.findOneBy({ id: productInstanceId });
 
     productInstance = this.validateProductInstanceContract(productInstance, contractId);
 
-    const contractStatuses = await
-    new ActivityService(new ContractActivity).getStatuses({
+    const contractStatuses = await new ActivityService(new ContractActivity()).getStatuses({
       contractId,
     });
 
@@ -165,12 +169,20 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'The contract status is confirmed.');
     }
 
-    if (productInstance.invoiceId != null) { throw new ApiError(HTTPStatus.BadRequest, 'Product is already in an invoice.'); }
+    if (productInstance.invoiceId != null) {
+      throw new ApiError(HTTPStatus.BadRequest, 'Product is already in an invoice.');
+    }
 
-    if (!(await createActivitiesForEntityEdits<ProductInstance>(
-      this.repo, productInstance, params,
-      new ActivityService(new ProductInstanceActivity, { actor: this.actor }), ProductInstanceActivity,
-    ))) return productInstance;
+    if (
+      !(await createActivitiesForEntityEdits<ProductInstance>(
+        this.repo,
+        productInstance,
+        params,
+        new ActivityService(new ProductInstanceActivity(), { actor: this.actor }),
+        ProductInstanceActivity,
+      ))
+    )
+      return productInstance;
 
     productInstance = await this.repo.findOneBy({ id: productInstanceId });
     return productInstance!;
@@ -189,17 +201,12 @@ export default class ProductInstanceService {
 
     await this.repo.delete(productInstance.id);
 
-    await new ActivityService(new ContractActivity, { actor: this.actor })
-      .createActivity(ContractActivity, {
-        descriptionDutch: createDelProductActivityDescription(
-          [productInstance.product.nameEnglish], Language.DUTCH,
-        ),
-        descriptionEnglish: createDelProductActivityDescription(
-          [productInstance.product.nameEnglish], Language.ENGLISH,
-        ),
-        entityId: productInstance.contractId,
-        type: ActivityType.DELPRODUCT,
-      });
+    await new ActivityService(new ContractActivity(), { actor: this.actor }).createActivity(ContractActivity, {
+      descriptionDutch: createDelProductActivityDescription([productInstance.product.nameEnglish], Language.DUTCH),
+      descriptionEnglish: createDelProductActivityDescription([productInstance.product.nameEnglish], Language.ENGLISH),
+      entityId: productInstance.contractId,
+      type: ActivityType.DELPRODUCT,
+    });
   }
 
   async addInvoiceProduct(invoiceId: number, productId: number): Promise<ProductInstance> {
@@ -212,9 +219,7 @@ export default class ProductInstanceService {
     }
 
     // Verify that this productInstance is not cancelled
-    if (productInstance.activities.findIndex(
-      (a) => a.subType === ProductInstanceStatus.CANCELLED,
-    ) >= 0) {
+    if (productInstance.activities.findIndex((a) => a.subType === ProductInstanceStatus.CANCELLED) >= 0) {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance is cancelled');
     }
 
@@ -223,10 +228,17 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
     }
 
-    const statuses = await new ActivityService(new InvoiceActivity).getStatuses({ invoiceId });
-    if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
-      || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
-      throw new ApiError(HTTPStatus.BadRequest, 'Cannot add product to this invoice, because the invoice is already sent or finished');
+    const statuses = await new ActivityService(new InvoiceActivity()).getStatuses({ invoiceId });
+    if (
+      statuses.includes(InvoiceStatus.CANCELLED) ||
+      statuses.includes(InvoiceStatus.PAID) ||
+      statuses.includes(InvoiceStatus.SENT) ||
+      statuses.includes(InvoiceStatus.IRRECOVERABLE)
+    ) {
+      throw new ApiError(
+        HTTPStatus.BadRequest,
+        'Cannot add product to this invoice, because the invoice is already sent or finished',
+      );
     }
 
     productInstance.invoiceId = invoiceId;
@@ -239,9 +251,13 @@ export default class ProductInstanceService {
       throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to this invoice');
     }
 
-    const statuses = await new ActivityService(new InvoiceActivity).getStatuses({ invoiceId });
-    if (statuses.includes(InvoiceStatus.CANCELLED) || statuses.includes(InvoiceStatus.PAID)
-      || statuses.includes(InvoiceStatus.SENT) || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
+    const statuses = await new ActivityService(new InvoiceActivity()).getStatuses({ invoiceId });
+    if (
+      statuses.includes(InvoiceStatus.CANCELLED) ||
+      statuses.includes(InvoiceStatus.PAID) ||
+      statuses.includes(InvoiceStatus.SENT) ||
+      statuses.includes(InvoiceStatus.IRRECOVERABLE)
+    ) {
       throw new ApiError(HTTPStatus.BadRequest, 'Invoice is already sent or finished');
     }
 
@@ -249,7 +265,6 @@ export default class ProductInstanceService {
   }
 
   async removeDeferredStatuses(): Promise<void> {
-    await AppDataSource.getRepository(ProductInstanceActivity)
-      .delete({ subType: ProductInstanceStatus.DEFERRED });
+    await AppDataSource.getRepository(ProductInstanceActivity).delete({ subType: ProductInstanceStatus.DEFERRED });
   }
 }

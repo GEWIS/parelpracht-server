@@ -1,13 +1,7 @@
-import {
-  Body, Controller, Get, Post, Put, Request, Response, Route, Security, Tags,
-} from 'tsoa';
+import { Body, Controller, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
-import VATService, {
-  VATListResponse,
-  VATParams,
-  VATSummary,
-} from '../services/VATService';
+import VATService, { VATListResponse, VATParams, VATSummary } from '../services/VATService';
 import { ListParams } from './ListParams';
 import { WrappedApiError } from '../helpers/error';
 import { ValueAddedTax } from '../entity/ValueAddedTax';
@@ -17,9 +11,7 @@ import { validate } from '../helpers/validation';
 @Tags('Value Added Tax')
 export class VATController extends Controller {
   private async validateVATParams(req: express.Request) {
-    await validate([
-      body('category').notEmpty().trim(),
-    ], req);
+    await validate([body('category').notEmpty().trim()], req);
   }
 
   /**
@@ -29,9 +21,7 @@ export class VATController extends Controller {
   @Post('table')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getAllVAT(
-    @Body() lp: ListParams,
-  ): Promise<VATListResponse> {
+  public async getAllVAT(@Body() lp: ListParams): Promise<VATListResponse> {
     return new VATService().getAllVAT(lp);
   }
 
@@ -67,7 +57,9 @@ export class VATController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateVAT(
-    id: number, @Body() params: Partial<VATParams>, @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<VATParams>,
+    @Request() req: express.Request,
   ): Promise<ValueAddedTax> {
     await this.validateVATParams(req);
     return new VATService().updateVAT(id, params);

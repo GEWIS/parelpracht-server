@@ -2,7 +2,9 @@ import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
-  Entity, JoinColumn, OneToOne,
+  Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryColumn,
   UpdateDateColumn,
   VersionColumn,
@@ -22,7 +24,7 @@ export class ProductPricing {
   @Column({ type: 'simple-json' })
   data!: string[][];
 
-  @OneToOne(() => Product, { onDelete: 'CASCADE' } )
+  @OneToOne(() => Product, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'id' })
   product!: Product;
 

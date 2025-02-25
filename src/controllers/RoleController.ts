@@ -1,7 +1,4 @@
-import {
-  Body,
-  Controller, Get, Put, Response, Route, Security, Tags,
-} from 'tsoa';
+import { Body, Controller, Get, Put, Response, Route, Security, Tags } from 'tsoa';
 import { WrappedApiError } from '../helpers/error';
 import { Role } from '../entity/Role';
 import RoleService, { RoleParams } from '../services/RoleService';
@@ -26,9 +23,7 @@ export class RoleController extends Controller {
   @Put('{id}')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async updateRole(
-    id: string, @Body() params: Partial<RoleParams>,
-  ): Promise<Role> {
+  public async updateRole(id: string, @Body() params: Partial<RoleParams>): Promise<Role> {
     return new RoleService().updateRole(id, params);
   }
 }

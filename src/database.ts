@@ -35,17 +35,40 @@ const AppDataSource = new DataSource({
   password: process.env.TYPEORM_PASSWORD,
   ...(process.env.TYPEORM_SSL_ENABLED === 'true' && process.env.TYPEORM_SSL_CACERTS
     ? {
-      ssl: {
-        ca: fs.readFileSync(process.env.TYPEORM_SSL_CACERTS),
-      },
-    }
+        ssl: {
+          ca: fs.readFileSync(process.env.TYPEORM_SSL_CACERTS),
+        },
+      }
     : {}),
   synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
   logging: process.env.TYPEORM_LOGGING === 'true',
-  entities: [Company, Contact, Contract, IdentityApiKey, IdentityLDAP, IdentityLocal, Invoice, Product,
-    ProductCategory, ProductInstance, ProductPricing, Role, ServerSetting, Session, User, ValueAddedTax,
-    CompanyActivity, ContractActivity, InvoiceActivity, ProductActivity, ProductInstanceActivity, CompanyFile,
-    ContractFile, InvoiceFile, ProductFile],
+  entities: [
+    Company,
+    Contact,
+    Contract,
+    IdentityApiKey,
+    IdentityLDAP,
+    IdentityLocal,
+    Invoice,
+    Product,
+    ProductCategory,
+    ProductInstance,
+    ProductPricing,
+    Role,
+    ServerSetting,
+    Session,
+    User,
+    ValueAddedTax,
+    CompanyActivity,
+    ContractActivity,
+    InvoiceActivity,
+    ProductActivity,
+    ProductInstanceActivity,
+    CompanyFile,
+    ContractFile,
+    InvoiceFile,
+    ProductFile,
+  ],
   subscribers: [process.env.TYPEORM_SUBSCRIBERS!],
   migrations: [process.env.TYPEORM_MIGRATIONS!],
   extra: {

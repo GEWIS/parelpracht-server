@@ -48,7 +48,7 @@ export function setupSessionSupport(dataSource: DataSource, app: Express) {
     secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: true,
-    cookie: { },
+    cookie: {},
   } as session.SessionOptions;
 
   if (process.env.NODE_ENV === 'production' && process.env.USE_HTTPS === 'true') {
@@ -120,10 +120,12 @@ AppDataSource.initialize().then(async (dataSource) => {
   }
 
   // Give additional error information when in development mode.
-  app.use(errorhandler({
-    debug: process.env.NODE_ENV === 'development',
-    safeFields: ['message'],
-  }));
+  app.use(
+    errorhandler({
+      debug: process.env.NODE_ENV === 'development',
+      safeFields: ['message'],
+    }),
+  );
 
   // If env file specifies development, use swagger UI
   if (process.env.NODE_ENV === 'development') {

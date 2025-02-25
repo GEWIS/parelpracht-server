@@ -1,6 +1,4 @@
-import {
-  FindManyOptions, Repository,
-} from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { ValueAddedTax } from '../entity/ValueAddedTax';
 import { ListParams } from '../controllers/ListParams';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -41,8 +39,7 @@ export default class VATService {
   async getAllVAT(params: ListParams): Promise<VATListResponse> {
     const findOptions: FindManyOptions<ValueAddedTax> = {
       order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
+        [params.sorting?.column ?? 'id']: params.sorting?.direction ?? 'ASC',
       },
     };
 
@@ -62,9 +59,7 @@ export default class VATService {
     return this.repo.find({ select: ['id', 'amount'] });
   }
 
-  async updateVAT(
-    id: number, params: Partial<VATParams>,
-  ): Promise<ValueAddedTax> {
+  async updateVAT(id: number, params: Partial<VATParams>): Promise<ValueAddedTax> {
     await this.repo.update(id, params);
     const valueAddedTax = await this.repo.findOneBy({ id });
     return valueAddedTax!;

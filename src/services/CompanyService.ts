@@ -47,7 +47,7 @@ export interface ETCompanyListResponse {
   extra: {
     sumProducts: number;
     nrOfProducts: number;
-  }
+  };
 }
 
 export default class CompanyService {
@@ -62,7 +62,10 @@ export default class CompanyService {
   }
 
   async getCompany(id: number): Promise<Company> {
-    const company = await this.repo.findOne({ where: { id }, relations: ['contracts', 'contacts', 'activities', 'invoices', 'files'] }); // May need more relations
+    const company = await this.repo.findOne({
+      where: { id },
+      relations: ['contracts', 'contacts', 'activities', 'invoices', 'files'],
+    }); // May need more relations
     if (company == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Company not found');
     }
@@ -72,8 +75,7 @@ export default class CompanyService {
   async getAllCompanies(params: ListParams): Promise<CompanyListResponse> {
     const findOptions: FindManyOptions<Company> = {
       order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
+        [params.sorting?.column ?? 'id']: params.sorting?.direction ?? 'ASC',
       },
     };
 
@@ -103,9 +105,16 @@ export default class CompanyService {
   async updateCompany(id: number, params: Partial<CompanyParams>): Promise<Company> {
     const company = await this.getCompany(id);
 
-    if (!(await createActivitiesForEntityEdits<Company>(
-      this.repo, company, params, new ActivityService(new CompanyActivity, { actor: this.actor }), CompanyActivity,
-    ))) return company;
+    if (
+      !(await createActivitiesForEntityEdits<Company>(
+        this.repo,
+        company,
+        params,
+        new ActivityService(new CompanyActivity(), { actor: this.actor }),
+        CompanyActivity,
+      ))
+    )
+      return company;
 
     return this.getCompany(id);
   }
@@ -156,15 +165,11 @@ export default class CompanyService {
 
   async getAllCompaniesExtensive(params: ListParams): Promise<ETCompanyListResponse> {
     return {
-      list: await new RawQueries()
-        .getContractWithProductsAndTheirStatuses(params),
-      count: await new RawQueries()
-        .getContractWithProductsAndTheirStatusesCount(params),
+      list: await new RawQueries().getContractWithProductsAndTheirStatuses(params),
+      count: await new RawQueries().getContractWithProductsAndTheirStatusesCount(params),
       extra: {
-        nrOfProducts: await new RawQueries()
-          .getContractWithProductsAndTheirStatusesCountProd(params),
-        sumProducts: await new RawQueries()
-          .getContractWithProductsAndTheirStatusesSumProducts(params),
+        nrOfProducts: await new RawQueries().getContractWithProductsAndTheirStatusesCountProd(params),
+        sumProducts: await new RawQueries().getContractWithProductsAndTheirStatusesSumProducts(params),
       },
     };
   }

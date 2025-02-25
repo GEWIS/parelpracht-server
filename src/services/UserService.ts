@@ -90,8 +90,7 @@ export default class UserService {
   async getAllUsers(params: ListParams): Promise<UserListResponse> {
     const findOptions: FindManyOptions<User> = {
       order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
+        [params.sorting?.column ?? 'id']: params.sorting?.direction ?? 'ASC',
       },
       relations: ['roles'],
     };
@@ -151,7 +150,8 @@ export default class UserService {
   }
 
   async createUser(params: UserParams): Promise<User> {
-    if (ldapEnabled()) throw new ApiError(HTTPStatus.BadRequest, 'Cannot create a local user, because LDAP authentication is enabled');
+    if (ldapEnabled())
+      throw new ApiError(HTTPStatus.BadRequest, 'Cannot create a local user, because LDAP authentication is enabled');
 
     const { roles, ldapOverrideEmail, ...userParams } = params;
     let user = this.repo.create(userParams);
@@ -181,14 +181,13 @@ export default class UserService {
       function: params.function,
     });
 
-    return this.assignRoles(adminUser,
-      [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL, Roles.AUDIT]);
+    return this.assignRoles(adminUser, [Roles.ADMIN, Roles.FINANCIAL, Roles.SIGNEE, Roles.GENERAL, Roles.AUDIT]);
   }
 
   async assignRoles(user: User, roles: Roles[]): Promise<User> {
     const newUser = user;
 
-    newUser.roles = roles.map((r) => ({ name: r } as Role));
+    newUser.roles = roles.map((r) => ({ name: r }) as Role);
     await this.repo.save(newUser);
     return newUser;
   }
@@ -218,12 +217,14 @@ export default class UserService {
   }
 
   private validateUserParams(params: UserParams): boolean {
-    return validator.isStrongPassword(params.password) &&
-    validator.isEmail(params.email) &&
-    !validator.isEmpty(params.firstName) &&
-    !validator.isEmpty(params.lastName) &&
-    !validator.isEmpty(params.email) &&
-    !validator.isEmpty(params.gender);
+    return (
+      validator.isStrongPassword(params.password) &&
+      validator.isEmail(params.email) &&
+      !validator.isEmpty(params.firstName) &&
+      !validator.isEmpty(params.lastName) &&
+      !validator.isEmpty(params.email) &&
+      !validator.isEmpty(params.gender)
+    );
   }
 
   async setupRoles() {
@@ -243,10 +244,7 @@ export default class UserService {
     if (user.avatarFilename === '') return user;
 
     try {
-      FileHelper.removeFileAtLoc(path.join(__dirname,
-        '/../../',
-        uploadUserAvatarDirLoc,
-        user.avatarFilename));
+      FileHelper.removeFileAtLoc(path.join(__dirname, '/../../', uploadUserAvatarDirLoc, user.avatarFilename));
     } finally {
       await this.repo.update(user.id, { avatarFilename: '' });
     }
@@ -258,10 +256,7 @@ export default class UserService {
     const user = await this.getUser(id);
     if (user.backgroundFilename === '') return user;
     try {
-      FileHelper.removeFileAtLoc(path.join(__dirname,
-        '/../../',
-        uploadUserBackgroundDirLoc,
-        user.backgroundFilename));
+      FileHelper.removeFileAtLoc(path.join(__dirname, '/../../', uploadUserBackgroundDirLoc, user.backgroundFilename));
     } finally {
       await this.repo.update(user.id, { backgroundFilename: '' });
     }

@@ -1,6 +1,4 @@
-import {
-  Column, Entity, JoinColumn, ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
 import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
@@ -12,14 +10,14 @@ import { ApiError, HTTPStatus } from '../../helpers/error';
 @Entity()
 export class ProductInstanceActivity extends BaseActivity {
   @Column({ type: 'integer', update: false })
-    productInstanceId!: number;
+  productInstanceId!: number;
 
   /** ProductInstance related to this activity */
   @ManyToOne(() => ProductInstance, (productInstance) => productInstance.activities, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'productInstanceId' })
-    productInstance!: ProductInstance;
+  productInstance!: ProductInstance;
 
   /** Subtype of this activity, only used when the type = "STATUS" */
   @Column({
@@ -28,7 +26,7 @@ export class ProductInstanceActivity extends BaseActivity {
     nullable: true,
     update: false,
   })
-    subType!: ProductInstanceStatus | null;
+  subType!: ProductInstanceStatus | null;
 
   getRelatedEntity(): BaseEnt {
     return this.productInstance;

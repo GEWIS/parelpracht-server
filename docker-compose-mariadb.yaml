@@ -6,5 +6,4 @@ services:
       MARIADB_ROOT_PASSWORD: parelpracht
       MARIADB_DATABASE: parelpracht
     ports:
-      - "3306:3306"
-
+      - '3306:3306'

@@ -1,17 +1,9 @@
-import {
-  Body, Controller, Delete, Get, Post, Put,
-  Request, Response, Route, Security, Tags,
-} from 'tsoa';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
-import UserService, {
-  TransferUserParams,
-  UserListResponse,
-  UserParams,
-  UserSummary,
-} from '../services/UserService';
+import UserService, { TransferUserParams, UserListResponse, UserParams, UserSummary } from '../services/UserService';
 import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
@@ -26,16 +18,19 @@ import GDPRService from '../services/GDPRService';
 @Tags('User')
 export class UserController extends Controller {
   private async validateUserParams(req: express.Request) {
-    await validate([
-      body('email').isEmail().normalizeEmail(),
-      body('firstName').notEmpty().trim(),
-      body('lastNamePreposition').trim(),
-      body('lastName').notEmpty().trim(),
-      body('function').notEmpty().trim(),
-      body('gender').isIn(Object.values(Gender)),
-      body('comment').trim(),
-      body('roles').isArray(),
-    ], req);
+    await validate(
+      [
+        body('email').isEmail().normalizeEmail(),
+        body('firstName').notEmpty().trim(),
+        body('lastNamePreposition').trim(),
+        body('lastName').notEmpty().trim(),
+        body('function').notEmpty().trim(),
+        body('gender').isIn(Object.values(Gender)),
+        body('comment').trim(),
+        body('roles').isArray(),
+      ],
+      req,
+    );
   }
 
   /**
@@ -45,9 +40,7 @@ export class UserController extends Controller {
   @Post('table')
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getAllUsers(
-    @Body() lp: ListParams,
-  ): Promise<UserListResponse> {
+  public async getAllUsers(@Body() lp: ListParams): Promise<UserListResponse> {
     return new UserService().getAllUsers(lp);
   }
 
@@ -73,7 +66,10 @@ export class UserController extends Controller {
   public async getUser(id: number, @Request() req: express.Request): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can view and change other users');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can view and change other users",
+      );
     }
 
     return new UserService().getUser(id);
@@ -100,9 +96,7 @@ export class UserController extends Controller {
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createUser(
-    @Body() params: UserParams, @Request() req: express.Request,
-  ): Promise<User> {
+  public async createUser(@Body() params: UserParams, @Request() req: express.Request): Promise<User> {
     await this.validateUserParams(req);
     return new UserService().createUser(params);
   }
@@ -117,11 +111,16 @@ export class UserController extends Controller {
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async updateUser(
-    @Request() req: express.Request, id: number, @Body() params: Partial<UserParams>,
+    @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<UserParams>,
   ): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can change other users",
+      );
     }
 
     await this.validateUserParams(req);
@@ -139,7 +138,10 @@ export class UserController extends Controller {
   public async uploadUserAvatar(@Request() req: express.Request, id: number) {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can change other users",
+      );
     }
     // delete the old avatar
     await this.deleteUserAvatar(req, id);
@@ -155,10 +157,13 @@ export class UserController extends Controller {
   @Delete('{id}/logo')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async deleteUserAvatar(@Request() req: express.Request, id:number): Promise<User> {
+  public async deleteUserAvatar(@Request() req: express.Request, id: number): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can change other users",
+      );
     }
 
     return new UserService().deleteUserAvatar(id);
@@ -175,7 +180,10 @@ export class UserController extends Controller {
   public async uploadUserBackground(@Request() req: express.Request, id: number) {
     const actor = req.user as User;
     if (actor.id !== id) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. You can only upload your own background.');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. You can only upload your own background.",
+      );
     }
     // delete the old background
     await this.deleteUserBackground(req, id);
@@ -191,10 +199,13 @@ export class UserController extends Controller {
   @Delete('{id}/background')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async deleteUserBackground(@Request() req: express.Request, id:number): Promise<User> {
+  public async deleteUserBackground(@Request() req: express.Request, id: number): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can delete other user backgrounds.');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can delete other user backgrounds.",
+      );
     }
 
     return new UserService().deleteUserBackground(id);
@@ -210,16 +221,19 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN', 'GENERAL'])
   @Response<WrappedApiError>(401)
   public async transferAssignments(
-    @Request() req: express.Request, id: number, @Body() params: TransferUserParams,
+    @Request() req: express.Request,
+    id: number,
+    @Body() params: TransferUserParams,
   ): Promise<void> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can change other users');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can change other users",
+      );
     }
 
-    await validate([
-      body('toUserId').isInt(),
-    ], req);
+    await validate([body('toUserId').isInt()], req);
 
     await new UserService().transferAssignments(id, params.toUserId);
   }
@@ -227,9 +241,7 @@ export class UserController extends Controller {
   @Post('{id}/auth/local')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createLocalIdentity(
-    @Request() req: express.Request, id: number,
-  ): Promise<IdentityLocal> {
+  public async createLocalIdentity(@Request() req: express.Request, id: number): Promise<IdentityLocal> {
     const user = await new UserService().getUser(id);
     return new AuthService().createIdentityLocal(user, false);
   }
@@ -237,9 +249,7 @@ export class UserController extends Controller {
   @Delete('{id}/auth/local')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteLocalIdentity(
-    @Request() req: express.Request, id: number,
-  ): Promise<void> {
+  public async deleteLocalIdentity(@Request() req: express.Request, id: number): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLocal(user);
   }
@@ -248,7 +258,9 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async createLdapIdentity(
-    @Request() req: express.Request, id: number, @Body() params: LdapIdentityParams,
+    @Request() req: express.Request,
+    id: number,
+    @Body() params: LdapIdentityParams,
   ): Promise<IdentityLDAP> {
     const user = await new UserService().getUser(id);
     return new AuthService().createIdentityLdap(user, params);
@@ -258,7 +270,9 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateLdapIdentity(
-    @Request() req: express.Request, id: number, @Body() params: Partial<LdapIdentityParams>,
+    @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<LdapIdentityParams>,
   ): Promise<IdentityLDAP> {
     const user = await new UserService().getUser(id);
     return new AuthService().updateIdentityLdap(user, params);
@@ -267,9 +281,7 @@ export class UserController extends Controller {
   @Delete('{id}/auth/ldap')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteLdapIdentity(
-    @Request() req: express.Request, id: number,
-  ): Promise<void> {
+  public async deleteLdapIdentity(@Request() req: express.Request, id: number): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLdap(user);
   }

@@ -1,6 +1,4 @@
-import {
-  Repository,
-} from 'typeorm';
+import { Repository } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Invoice } from '../entity/Invoice';
 import { ProductInstance } from '../entity/ProductInstance';
@@ -52,8 +50,17 @@ export default class InvoiceService {
   async getInvoice(id: number, relations: string[] = []): Promise<Invoice> {
     const invoice = await this.repo.findOne({
       where: { id },
-      relations: ['products', 'products.activities', 'products.product', 'products.product.valueAddedTax', 'activities', 'company', 'files', 'files.createdBy'].concat(relations) },
-    );
+      relations: [
+        'products',
+        'products.activities',
+        'products.product',
+        'products.product.valueAddedTax',
+        'activities',
+        'company',
+        'files',
+        'files.createdBy',
+      ].concat(relations),
+    });
     if (invoice == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Invoice not found');
     }
@@ -66,8 +73,7 @@ export default class InvoiceService {
     queryBuilder
       .orderBy(`${queryBuilder.alias}.${params.sorting?.column ?? 'id'}`, params.sorting?.direction ?? 'ASC')
       // initial where() to allow chaining andWhere() function calls
-      .where('1 = 1')
-    ;
+      .where('1 = 1');
 
     if (params.search) {
       addQueryBuilderSearch(queryBuilder, params.search, ['title', 'company.name']);
@@ -94,14 +100,19 @@ export default class InvoiceService {
   async createInvoice(params: InvoiceCreateParams): Promise<Invoice> {
     const products: ProductInstance[] = [];
     // Convert productInstanceIds to an array of objects
-    await Promise.all(params.productInstanceIds.map(async (id) => {
-      const p = await new ProductInstanceService().getProduct(id, ['contract']);
-      // Verify that the productInstance and invoice share the same company
-      if (p.contract.companyId !== params.companyId) {
-        throw new ApiError(HTTPStatus.BadRequest, 'ProductInstance does not belong to the same company as the invoice');
-      }
-      products.push(p);
-    }));
+    await Promise.all(
+      params.productInstanceIds.map(async (id) => {
+        const p = await new ProductInstanceService().getProduct(id, ['contract']);
+        // Verify that the productInstance and invoice share the same company
+        if (p.contract.companyId !== params.companyId) {
+          throw new ApiError(
+            HTTPStatus.BadRequest,
+            'ProductInstance does not belong to the same company as the invoice',
+          );
+        }
+        products.push(p);
+      }),
+    );
 
     const assignedToId = params.assignedToId ? params.assignedToId : this.actor?.id;
     let invoice = this.repo.create({
@@ -113,7 +124,7 @@ export default class InvoiceService {
 
     invoice = await this.repo.save(invoice);
 
-    await new ActivityService(new InvoiceActivity, { actor: this.actor }).createActivity(InvoiceActivity, {
+    await new ActivityService(new InvoiceActivity(), { actor: this.actor }).createActivity(InvoiceActivity, {
       entityId: invoice.id,
       type: ActivityType.STATUS,
       subType: InvoiceStatus.CREATED,
@@ -132,13 +143,23 @@ export default class InvoiceService {
       const oldDate = new Date(invoice.startDate.toDateString());
       const newDate = new Date(params.startDate!.toDateString());
       if (newDate.getTime() < oldDate.getTime()) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Invoice start date cannot be in the past or before the original start date.');
+        throw new ApiError(
+          HTTPStatus.BadRequest,
+          'Invoice start date cannot be in the past or before the original start date.',
+        );
       }
     }
 
-    if (!(await createActivitiesForEntityEdits<Invoice>(
-      this.repo, invoice, params, new ActivityService(new InvoiceActivity, { actor: this.actor }), InvoiceActivity,
-    ))) return invoice;
+    if (
+      !(await createActivitiesForEntityEdits<Invoice>(
+        this.repo,
+        invoice,
+        params,
+        new ActivityService(new InvoiceActivity(), { actor: this.actor }),
+        InvoiceActivity,
+      ))
+    )
+      return invoice;
 
     return this.getInvoice(id);
   }
@@ -157,8 +178,7 @@ export default class InvoiceService {
 
   async getOpenInvoicesByCompany(companyId: number): Promise<Array<Invoice>> {
     const invoices = await this.repo.find({
-      where:
-        { companyId },
+      where: { companyId },
       relations: ['activities'],
     });
 
@@ -187,7 +207,8 @@ export default class InvoiceService {
   }
 
   async transferAssignments(fromUser: User, toUser: User): Promise<void> {
-    await this.repo.createQueryBuilder()
+    await this.repo
+      .createQueryBuilder()
       .update()
       .set({ assignedToId: toUser.id })
       .where('assignedToId = :id', { id: fromUser.id })
