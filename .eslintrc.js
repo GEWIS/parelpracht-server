@@ -30,10 +30,20 @@ module.exports = {
           'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
           'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
         ]
+      },
+    ],
+    "import/extensions": [
+      "error",
+      "always",
+      {
+        "ts": "never",
+        "tsx": "never",
+        "js": "never",
+        "jsx": "never"
       }
-    ]
+    ],
   },
   parserOptions: {
-    project: ['./tsconfig.json'],
+    project: ['./tsconfig.eslint.json'],
   },
 };
