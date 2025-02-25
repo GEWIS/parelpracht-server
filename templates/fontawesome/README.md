@@ -14,7 +14,6 @@ command, which takes as argument the name of the desired icon, or through direct
 commands specific to each icon. The full list of icon designs, names and direct
 commands is showcased in the manual.
 
-
 Font Awesome font<br/>
 Author: Dave Gandy<br/>
 Licence: SIL Open Font License, version 1.1<br/>

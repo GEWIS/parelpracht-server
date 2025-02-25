@@ -1,6 +1,4 @@
-import {
-  Column, Entity, JoinColumn, ManyToOne,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import BaseFile from './BaseFile';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from '../Invoice';

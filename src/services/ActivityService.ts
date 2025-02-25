@@ -34,15 +34,15 @@ export interface FullActivityParams {
 }
 
 export interface ContractStatusParams extends ActivityParams {
-  subType: ContractStatus,
+  subType: ContractStatus;
 }
 
 export interface InvoiceStatusParams extends ActivityParams {
-  subType: InvoiceStatus,
+  subType: InvoiceStatus;
 }
 
 export interface ProductInstanceStatusParams extends ActivityParams {
-  subType: ProductInstanceStatus,
+  subType: ProductInstanceStatus;
 }
 
 export default class ActivityService<T extends BaseActivity> {
@@ -70,7 +70,8 @@ export default class ActivityService<T extends BaseActivity> {
       throw new ApiError(HTTPStatus.NotFound, 'Activity not found');
     }
 
-    if (activity?.getRelatedEntityId() !== entityId) throw new ApiError(HTTPStatus.BadRequest, 'Activity does not belong to the related entity');
+    if (activity?.getRelatedEntityId() !== entityId)
+      throw new ApiError(HTTPStatus.BadRequest, 'Activity does not belong to the related entity');
 
     return activity!;
   }
@@ -118,27 +119,26 @@ export default class ActivityService<T extends BaseActivity> {
     return activities.map((activity) => activity.subType);
   }
 
-  private async canEndContract(contract: Contract):
-  Promise<{ cancelled: boolean, finished: boolean, }> {
+  private async canEndContract(contract: Contract): Promise<{ cancelled: boolean; finished: boolean }> {
     let cancelled = true;
     let finished = true;
 
-    await Promise.all(contract.products.map(async (p) => {
-      // Get all statuses of this product instance
-      const status = <ProductInstanceStatus>
-        (await new ActivityService(new ProductInstanceActivity)
-          .getCurrentStatus({ productInstanceId: p.id }));
-      // If the statuses include delivered, the contract cannot be cancelled anymore
-      if (status === ProductInstanceStatus.DELIVERED) {
-        cancelled = false;
-        // If the statuses include not delivered or deferred, the contract cannot be finished
-      } else if (status === ProductInstanceStatus.NOTDELIVERED
-        || status === ProductInstanceStatus.DEFERRED
-      ) {
-        cancelled = false;
-        finished = false;
-      }
-    }));
+    await Promise.all(
+      contract.products.map(async (p) => {
+        // Get all statuses of this product instance
+        const status = <ProductInstanceStatus>(
+          await new ActivityService(new ProductInstanceActivity()).getCurrentStatus({ productInstanceId: p.id })
+        );
+        // If the statuses include delivered, the contract cannot be cancelled anymore
+        if (status === ProductInstanceStatus.DELIVERED) {
+          cancelled = false;
+          // If the statuses include not delivered or deferred, the contract cannot be finished
+        } else if (status === ProductInstanceStatus.NOTDELIVERED || status === ProductInstanceStatus.DEFERRED) {
+          cancelled = false;
+          finished = false;
+        }
+      }),
+    );
 
     return { cancelled, finished };
   }
@@ -154,7 +154,7 @@ export default class ActivityService<T extends BaseActivity> {
     const canEndContract = await this.canEndContract(contract);
 
     if (canEndContract.cancelled) {
-      await new ActivityService(new ContractActivity, { actor: this.actor }).createActivity(ContractActivity, {
+      await new ActivityService(new ContractActivity(), { actor: this.actor }).createActivity(ContractActivity, {
         entityId: contractId,
         descriptionDutch: '',
         descriptionEnglish: '',
@@ -164,7 +164,7 @@ export default class ActivityService<T extends BaseActivity> {
       return true;
     }
     if (canEndContract.finished) {
-      await new ActivityService(new ContractActivity, { actor: this.actor }).createActivity(ContractActivity, {
+      await new ActivityService(new ContractActivity(), { actor: this.actor }).createActivity(ContractActivity, {
         entityId: contractId,
         descriptionDutch: '',
         descriptionEnglish: '',
@@ -187,66 +187,88 @@ export default class ActivityService<T extends BaseActivity> {
     let statuses;
 
     switch (act.constructor.name) {
-    case 'ContractActivity':
-      activity = <ContractActivity>act;
-      // eslint-disable-next-line no-case-declarations
-      const contract = await new ContractService().getContract(activity.contractId);
-      // eslint-disable-next-line no-case-declarations
-      const canEndContract = await this.canEndContract(contract);
-      // eslint-disable-next-line no-case-declarations
-      statuses = await this.getStatuses({ contractId: activity.contractId });
+      case 'ContractActivity':
+        activity = <ContractActivity>act;
+        // eslint-disable-next-line no-case-declarations
+        const contract = await new ContractService().getContract(activity.contractId);
+        // eslint-disable-next-line no-case-declarations
+        const canEndContract = await this.canEndContract(contract);
+        // eslint-disable-next-line no-case-declarations
+        statuses = await this.getStatuses({ contractId: activity.contractId });
 
-      if (!canEndContract.cancelled && activity.subType === ContractStatus.CANCELLED) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Cannot cancel contract, because not all products are cancelled');
-      }
-      if (canEndContract.cancelled && activity.subType === ContractStatus.FINISHED) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Cannot finish contract, because all products are cancelled. Cancel the contract instead');
-      }
-      if (!canEndContract.finished && activity.subType === ContractStatus.FINISHED) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Cannot finish contract, because not all products are either finished or cancelled');
-      }
-      if (statuses.includes(ContractStatus.FINISHED)
-          || statuses.includes(ContractStatus.CANCELLED)) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this contract, because the contract is already finished or cancelled');
-      }
-      if (statuses.includes(ContractStatus.CONFIRMED)
-          && activity.subType !== ContractStatus.FINISHED
-          && activity.subType !== ContractStatus.CANCELLED) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Contract is already confirmed by both parties');
-      }
-      if (statuses.includes(ContractStatus.SENT)
-          && activity.subType === ContractStatus.PROPOSED) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Contract is already sent');
-      }
+        if (!canEndContract.cancelled && activity.subType === ContractStatus.CANCELLED) {
+          throw new ApiError(HTTPStatus.BadRequest, 'Cannot cancel contract, because not all products are cancelled');
+        }
+        if (canEndContract.cancelled && activity.subType === ContractStatus.FINISHED) {
+          throw new ApiError(
+            HTTPStatus.BadRequest,
+            'Cannot finish contract, because all products are cancelled. Cancel the contract instead',
+          );
+        }
+        if (!canEndContract.finished && activity.subType === ContractStatus.FINISHED) {
+          throw new ApiError(
+            HTTPStatus.BadRequest,
+            'Cannot finish contract, because not all products are either finished or cancelled',
+          );
+        }
+        if (statuses.includes(ContractStatus.FINISHED) || statuses.includes(ContractStatus.CANCELLED)) {
+          throw new ApiError(
+            HTTPStatus.BadRequest,
+            'Cannot change the status of this contract, because the contract is already finished or cancelled',
+          );
+        }
+        if (
+          statuses.includes(ContractStatus.CONFIRMED) &&
+          activity.subType !== ContractStatus.FINISHED &&
+          activity.subType !== ContractStatus.CANCELLED
+        ) {
+          throw new ApiError(HTTPStatus.BadRequest, 'Contract is already confirmed by both parties');
+        }
+        if (statuses.includes(ContractStatus.SENT) && activity.subType === ContractStatus.PROPOSED) {
+          throw new ApiError(HTTPStatus.BadRequest, 'Contract is already sent');
+        }
 
-      break;
-    case 'InvoiceActivity':
-      activity = <InvoiceActivity>act;
-      if (activity.subType === InvoiceStatus.SENT) {
-        sendInvoiceEmails(activity.invoiceId).then(() => {});
-      }
+        break;
+      case 'InvoiceActivity':
+        activity = <InvoiceActivity>act;
+        if (activity.subType === InvoiceStatus.SENT) {
+          sendInvoiceEmails(activity.invoiceId).then(() => {});
+        }
 
-      statuses = await this.getStatuses({ invoiceId: activity.invoiceId });
-      if (statuses.includes(InvoiceStatus.CANCELLED)
-          || statuses.includes(InvoiceStatus.PAID)
-          || statuses.includes(InvoiceStatus.IRRECOVERABLE)) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice, because it is already paid, cancelled or irrecoverable.');
-      }
-      if (activity.subType === InvoiceStatus.PROPOSED
-          && statuses.includes(InvoiceStatus.SENT)) {
-        throw new ApiError(HTTPStatus.BadRequest, 'Cannot change the status of this invoice to "Proposed", because it is already sent.');
-      }
-      if ((activity.subType === InvoiceStatus.PAID || activity.subType === InvoiceStatus.IRRECOVERABLE) && (!this.actor || !this.actor.hasRole([Roles.ADMIN, Roles.FINANCIAL]))) {
-        throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only financials can mark an invoice paid or irrecoverable.');
-      }
+        statuses = await this.getStatuses({ invoiceId: activity.invoiceId });
+        if (
+          statuses.includes(InvoiceStatus.CANCELLED) ||
+          statuses.includes(InvoiceStatus.PAID) ||
+          statuses.includes(InvoiceStatus.IRRECOVERABLE)
+        ) {
+          throw new ApiError(
+            HTTPStatus.BadRequest,
+            'Cannot change the status of this invoice, because it is already paid, cancelled or irrecoverable.',
+          );
+        }
+        if (activity.subType === InvoiceStatus.PROPOSED && statuses.includes(InvoiceStatus.SENT)) {
+          throw new ApiError(
+            HTTPStatus.BadRequest,
+            'Cannot change the status of this invoice to "Proposed", because it is already sent.',
+          );
+        }
+        if (
+          (activity.subType === InvoiceStatus.PAID || activity.subType === InvoiceStatus.IRRECOVERABLE) &&
+          (!this.actor || !this.actor.hasRole([Roles.ADMIN, Roles.FINANCIAL]))
+        ) {
+          throw new ApiError(
+            HTTPStatus.Unauthorized,
+            "You don't have permission to do this. Only financials can mark an invoice paid or irrecoverable.",
+          );
+        }
 
-      break;
-    case 'ProductInstanceActivity':
-      activity = <ProductInstanceActivity>act;
+        break;
+      case 'ProductInstanceActivity':
+        activity = <ProductInstanceActivity>act;
 
-      break;
-    default:
-      return;
+        break;
+      default:
+        return;
     }
 
     // If the activity is a status, verify that it's unique for this entity
@@ -268,7 +290,7 @@ export default class ActivityService<T extends BaseActivity> {
    * @param params Parameters to create an activity with
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async createActivity(C: { new(): T }, params: FullActivityParams): Promise<T> {
+  async createActivity(C: { new (): T }, params: FullActivityParams): Promise<T> {
     // @ts-ignore
     let activity = new C();
     activity.setRelatedEntityId(params.entityId);
@@ -281,17 +303,17 @@ export default class ActivityService<T extends BaseActivity> {
     let statusParam = {};
 
     switch (activity.constructor.name) {
-    case 'ContractActivity':
-      statusParam = { contractId: params.entityId };
-      break;
-    case 'InvoiceActivity':
-      statusParam = { invoiceId: params.entityId };
-      break;
-    case 'ProductInstanceActivity':
-      statusParam = { productInstanceId: params.entityId };
-      break;
-    default:
-      break;
+      case 'ContractActivity':
+        statusParam = { contractId: params.entityId };
+        break;
+      case 'InvoiceActivity':
+        statusParam = { invoiceId: params.entityId };
+        break;
+      case 'ProductInstanceActivity':
+        statusParam = { productInstanceId: params.entityId };
+        break;
+      default:
+        break;
     }
 
     await this.validateNewStatus(activity, statusParam);
@@ -301,23 +323,23 @@ export default class ActivityService<T extends BaseActivity> {
 
     let ac;
     switch (activity.constructor.name) {
-    case 'CompanyActivity':
-      ac = (await this.getActivity(activity.id, ['company']));
-      break;
-    case 'ProductActivity':
-      ac = (await this.getActivity(activity.id, ['product']));
-      break;
-    case 'ContractActivity':
-      ac = (await this.getActivity(activity.id, ['contract']));
-      break;
-    case 'InvoiceActivity':
-      ac = (await this.getActivity(activity.id, ['invoice']));
-      break;
-    case 'ProductInstanceActivity':
-      ac = (await this.getActivity(activity.id, ['productInstance', 'productInstance.contract']));
-      break;
-    default:
-      throw new TypeError(`Type ${activity.constructor.name} is not a valid entity activity`);
+      case 'CompanyActivity':
+        ac = await this.getActivity(activity.id, ['company']);
+        break;
+      case 'ProductActivity':
+        ac = await this.getActivity(activity.id, ['product']);
+        break;
+      case 'ContractActivity':
+        ac = await this.getActivity(activity.id, ['contract']);
+        break;
+      case 'InvoiceActivity':
+        ac = await this.getActivity(activity.id, ['invoice']);
+        break;
+      case 'ProductInstanceActivity':
+        ac = await this.getActivity(activity.id, ['productInstance', 'productInstance.contract']);
+        break;
+      default:
+        throw new TypeError(`Type ${activity.constructor.name} is not a valid entity activity`);
     }
 
     await ac.getRelatedEntity().setUpdatedAtToNow();
@@ -353,19 +375,24 @@ export default class ActivityService<T extends BaseActivity> {
     });
 
     // When there exists a previous activity...
-    if (previousActivity != null
+    if (
+      previousActivity != null &&
       // And this activity is a PRODUCT activity...
-      && previousActivity.type === ActivityType.ADDPRODUCT
+      previousActivity.type === ActivityType.ADDPRODUCT &&
       // And this activity has been updated no more than 5 minutes ago...
-      && previousActivity.updatedAt > new Date(Date.now() - 1000 * 60 * 5)
+      previousActivity.updatedAt > new Date(Date.now() - 1000 * 60 * 5)
     ) {
       // Update this activity with an updated description
       await this.updateActivity(contractId, previousActivity.id, {
         descriptionDutch: appendProductActivityDescription(
-          [productName], previousActivity.descriptionDutch, Language.DUTCH,
+          [productName],
+          previousActivity.descriptionDutch,
+          Language.DUTCH,
         ),
         descriptionEnglish: appendProductActivityDescription(
-          [productName], previousActivity.descriptionEnglish, Language.ENGLISH,
+          [productName],
+          previousActivity.descriptionEnglish,
+          Language.ENGLISH,
         ),
       });
     } else {
@@ -386,10 +413,8 @@ export default class ActivityService<T extends BaseActivity> {
    * @param activityId ID of the activity
    * @param params Subset of update parameters
    */
-  async updateActivity(
-    entityId: number, activityId: number, params: Partial<FullActivityParams>,
-  ): Promise<T> {
-    let activity = await this.repo.findOneBy({ id: activityId }) as T;
+  async updateActivity(entityId: number, activityId: number, params: Partial<FullActivityParams>): Promise<T> {
+    let activity = (await this.repo.findOneBy({ id: activityId })) as T;
     if (activity == null) throw new ApiError(HTTPStatus.NotFound);
     activity = this.validateActivity(activity, entityId);
     let p = {
@@ -398,7 +423,7 @@ export default class ActivityService<T extends BaseActivity> {
     };
 
     await this.repo.update(activity!.id, p);
-    activity = await this.repo.findOneBy({ id: activityId }) as T;
+    activity = (await this.repo.findOneBy({ id: activityId })) as T;
     return activity! as T;
   }
 
@@ -412,7 +437,7 @@ export default class ActivityService<T extends BaseActivity> {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete activities from invoices');
     }
 
-    let activity = await this.repo.findOneBy({ id: activityId }) as T;
+    let activity = (await this.repo.findOneBy({ id: activityId })) as T;
     if (activity == null) throw new ApiError(HTTPStatus.NotFound);
     activity = this.validateActivity(activity, entityId);
 
@@ -420,12 +445,15 @@ export default class ActivityService<T extends BaseActivity> {
       return;
     }
     // @ts-ignore
-    if (activity.type === ActivityType.STATUS && (activity.subType === ContractStatus.CREATED
+    if (
+      activity.type === ActivityType.STATUS &&
       // @ts-ignore
-      || activity.subType === InvoiceStatus.CREATED
-      // @ts-ignore
-      || activity.subType === ProductInstanceStatus.NOTDELIVERED
-    )) {
+      (activity.subType === ContractStatus.CREATED ||
+        // @ts-ignore
+        activity.subType === InvoiceStatus.CREATED ||
+        // @ts-ignore
+        activity.subType === ProductInstanceStatus.NOTDELIVERED)
+    ) {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete the initial (created) status of an entity');
     }
 

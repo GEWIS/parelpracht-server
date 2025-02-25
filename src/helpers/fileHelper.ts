@@ -18,9 +18,7 @@ export default class FileHelper {
    * @param controller Controller that handles the request
    * @param file File to add to the response
    */
-  public static putFileInResponse(
-    controller: Controller, file: BaseFile,
-  ): fs.ReadStream {
+  public static putFileInResponse(controller: Controller, file: BaseFile): fs.ReadStream {
     const stat = fs.statSync(file.location);
 
     controller.setStatus(200);

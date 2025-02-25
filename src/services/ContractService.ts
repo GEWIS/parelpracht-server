@@ -1,6 +1,4 @@
-import {
-  Repository,
-} from 'typeorm';
+import { Repository } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
@@ -17,9 +15,7 @@ import { ContractStatus } from '../entity/enums/ContractStatus';
 import { addQueryBuilderFilters, addQueryBuilderSearch } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
-import {
-  createActivitiesForEntityEdits,
-} from '../helpers/activity';
+import { createActivitiesForEntityEdits } from '../helpers/activity';
 import AppDataSource from '../database';
 
 export interface ContractParams {
@@ -49,7 +45,18 @@ export default class ContractService {
   async getContract(id: number, relations: string[] = []): Promise<Contract> {
     const contract = await this.repo.findOne({
       where: { id },
-      relations: ['contact', 'company', 'products', 'activities', 'products.activities', 'products.invoice', 'products.product', 'products.product.valueAddedTax', 'files', 'files.createdBy'].concat(relations),
+      relations: [
+        'contact',
+        'company',
+        'products',
+        'activities',
+        'products.activities',
+        'products.invoice',
+        'products.product',
+        'products.product.valueAddedTax',
+        'files',
+        'files.createdBy',
+      ].concat(relations),
     });
     if (contract == null) {
       throw new ApiError(HTTPStatus.NotFound, 'Contract not found');
@@ -63,11 +70,16 @@ export default class ContractService {
     queryBuilder
       .orderBy(`${queryBuilder.alias}.${params.sorting?.column ?? 'id'}`, params.sorting?.direction ?? 'ASC')
       // initial where to allow chaining andWhere() function calls
-      .where('1 = 1')
-    ;
+      .where('1 = 1');
 
     if (params.search) {
-      addQueryBuilderSearch(queryBuilder, params.search, ['title', 'company.name', 'contact.firstName', 'contact.lastNamePreposition', 'contact.lastName']);
+      addQueryBuilderSearch(queryBuilder, params.search, [
+        'title',
+        'company.name',
+        'contact.firstName',
+        'contact.lastNamePreposition',
+        'contact.lastName',
+      ]);
     }
 
     if (params.filters && params.filters.length > 0) {
@@ -108,7 +120,7 @@ export default class ContractService {
 
     contract = await this.repo.save(contract);
 
-    await new ActivityService(new ContractActivity, { actor: this.actor }).createActivity(ContractActivity, {
+    await new ActivityService(new ContractActivity(), { actor: this.actor }).createActivity(ContractActivity, {
       entityId: contract.id,
       type: ActivityType.STATUS,
       subType: ContractStatus.CREATED,
@@ -122,9 +134,16 @@ export default class ContractService {
   async updateContract(id: number, params: Partial<ContractParams>): Promise<Contract> {
     const contract = await this.getContract(id);
 
-    if (!(await createActivitiesForEntityEdits<Contract>(
-      this.repo, contract, params, new ActivityService(new ContractActivity, { actor: this.actor }), ContractActivity,
-    ))) return contract;
+    if (
+      !(await createActivitiesForEntityEdits<Contract>(
+        this.repo,
+        contract,
+        params,
+        new ActivityService(new ContractActivity(), { actor: this.actor }),
+        ContractActivity,
+      ))
+    )
+      return contract;
 
     return this.getContract(id);
   }
@@ -143,7 +162,8 @@ export default class ContractService {
   }
 
   async transferAssignments(fromUser: User, toUser: User): Promise<void> {
-    await this.repo.createQueryBuilder()
+    await this.repo
+      .createQueryBuilder()
       .update()
       .set({ assignedToId: toUser.id })
       .where('assignedToId = :id', { id: fromUser.id })

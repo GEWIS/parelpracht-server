@@ -58,14 +58,12 @@ export default class AuthService {
   }
 
   async getProfile(req: express.Request): Promise<Profile> {
-    const user = (await this.userRepo.findOne(
-      { where: { id: (req.user as User).id },
-        relations: ['roles'] },
-    ))! as Profile;
+    const user = (await this.userRepo.findOne({
+      where: { id: (req.user as User).id },
+      relations: ['roles'],
+    }))! as Profile;
 
-    const identity = (await this.identityApiKeyRepo.findOneBy(
-      { id: user.id },
-    ));
+    const identity = await this.identityApiKeyRepo.findOneBy({ id: user.id });
 
     user.hasApiKey = identity?.apiKey !== undefined;
 
@@ -76,7 +74,7 @@ export default class AuthService {
     return this.identityLdapRepo.find({ relations: ['user'] });
   }
 
-  async logout(req: express.Request) : Promise<void> {
+  async logout(req: express.Request): Promise<void> {
     return new Promise((resolve, reject) => {
       req.logout((error) => {
         if (error) reject(error);
@@ -108,11 +106,12 @@ export default class AuthService {
       return;
     }
 
-    Mailer.getInstance().send(resetPassword(
-      user, `${process.env.SERVER_HOST}/reset-password?token=${this.getResetPasswordToken(
-        user, identity,
-      )}`,
-    ));
+    Mailer.getInstance().send(
+      resetPassword(
+        user,
+        `${process.env.SERVER_HOST}/reset-password?token=${this.getResetPasswordToken(user, identity)}`,
+      ),
+    );
   }
 
   async createIdentityLocal(user: User, silent: boolean): Promise<IdentityLocal> {
@@ -129,11 +128,9 @@ export default class AuthService {
     identity = (await this.identityLocalRepo.findOneBy({ id: user.id }))!;
 
     if (!silent) {
-      Mailer.getInstance().send(newUser(
-        user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(
-          user, identity,
-        )}`,
-      ));
+      Mailer.getInstance().send(
+        newUser(user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(user, identity)}`),
+      );
     }
 
     return identity!;
@@ -208,23 +205,22 @@ export default class AuthService {
 
     try {
       switch (token.type) {
-      case 'PASSWORD_RESET':
-      case 'PASSWORD_SET':
-      {
-        // Verify the token
-        jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
-        const salt = generateSalt();
-        await this.identityLocalRepo.update(user.id, {
-          id: user.id,
-          // email: user.email,
-          verifiedEmail: true,
-          hash: hashPassword(newPassword, salt),
-          salt,
-        });
-        return;
-      }
-      default:
-        throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
+        case 'PASSWORD_RESET':
+        case 'PASSWORD_SET': {
+          // Verify the token
+          jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
+          const salt = generateSalt();
+          await this.identityLocalRepo.update(user.id, {
+            id: user.id,
+            // email: user.email,
+            verifiedEmail: true,
+            hash: hashPassword(newPassword, salt),
+            salt,
+          });
+          return;
+        }
+        default:
+          throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
       }
     } catch (e) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
@@ -236,33 +232,23 @@ export default class AuthService {
   }
 
   async getApiKey(req: express.Request) {
-    const user = (await this.userRepo.findOneBy(
-      { id: (req.user as User).id },
-    ))!;
+    const user = (await this.userRepo.findOneBy({ id: (req.user as User).id }))!;
 
-    const identity = await this.identityApiKeyRepo.findOneBy(
-      { id: (req.user as User).id },
-    );
+    const identity = await this.identityApiKeyRepo.findOneBy({ id: (req.user as User).id });
 
     if (identity == null) {
-      throw new ApiError(HTTPStatus.BadRequest, 'You don\'t have an API key yet.');
+      throw new ApiError(HTTPStatus.BadRequest, "You don't have an API key yet.");
     }
 
-    Mailer.getInstance().send(viewApiKey(
-      user, `${process.env.SERVER_HOST}/`,
-    ));
+    Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }
 
   async generateApiKey(req: express.Request) {
-    const user = (await this.userRepo.findOneBy(
-      { id: (req.user as User).id },
-    ))!;
+    const user = (await this.userRepo.findOneBy({ id: (req.user as User).id }))!;
 
-    let identity = await this.identityApiKeyRepo.findOneBy(
-      { id: (req.user as User).id },
-    );
+    let identity = await this.identityApiKeyRepo.findOneBy({ id: (req.user as User).id });
 
     if (identity != null) {
       throw new ApiError(HTTPStatus.BadRequest, 'You already have an API key.');
@@ -275,9 +261,7 @@ export default class AuthService {
 
     await this.identityApiKeyRepo.insert(identity);
 
-    Mailer.getInstance().send(newApiKey(
-      user, `${process.env.SERVER_HOST}/`,
-    ));
+    Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }

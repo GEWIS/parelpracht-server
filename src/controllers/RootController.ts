@@ -20,7 +20,7 @@ export interface GeneralPrivateInfo {
 
 export interface GeneralPublicInfo {
   loginMethod: LoginMethods;
-  setupDone: boolean,
+  setupDone: boolean;
 }
 
 @Route('')
@@ -58,41 +58,29 @@ export class RootController extends Controller {
 
   @Post('resetPassword')
   @Response<WrappedApiError>(400)
-  public async resetPassword(
-    @Request() req: express.Request,
-      @Body() reqBody: ResetPasswordRequest,
-  ): Promise<void> {
-    await validate([
-      body('password').equals(reqBody.repeatPassword),
-      body('password').isStrongPassword(),
-    ], req);
+  public async resetPassword(@Request() req: express.Request, @Body() reqBody: ResetPasswordRequest): Promise<void> {
+    await validate([body('password').equals(reqBody.repeatPassword), body('password').isStrongPassword()], req);
     return new AuthService().resetPassword(reqBody.password, reqBody.token);
   }
 
   @Post('generateApiKey')
   @Security('local')
   @Response<WrappedApiError>(400)
-  public async generateApiKey(
-  @Request() req: express.Request,
-  ) {
+  public async generateApiKey(@Request() req: express.Request) {
     return new AuthService().generateApiKey(req);
   }
 
   @Get('getApiKey')
   @Security('local')
   @Response<WrappedApiError>(400)
-  public async getApiKey(
-  @Request() req: express.Request,
-  ) {
+  public async getApiKey(@Request() req: express.Request) {
     return new AuthService().getApiKey(req);
   }
 
   @Post('revokeApiKey')
   @Security('local')
   @Response<WrappedApiError>(400)
-  public async revokeApiKey(
-  @Request() req: express.Request,
-  ) {
+  public async revokeApiKey(@Request() req: express.Request) {
     await new AuthService().revokeApiKey(req);
   }
 
@@ -101,7 +89,7 @@ export class RootController extends Controller {
   @Response<WrappedApiError>(400)
   public async getPrivateGeneralInfo(): Promise<GeneralPrivateInfo> {
     return {
-      financialYears: await (new StatisticsService()).getFinancialYears(),
+      financialYears: await new StatisticsService().getFinancialYears(),
     };
   }
 

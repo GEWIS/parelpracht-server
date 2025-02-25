@@ -1,6 +1,4 @@
-import {
-  FindManyOptions, Repository,
-} from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { ProductCategory } from '../entity/ProductCategory';
 import { ListParams } from '../controllers/ListParams';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -39,8 +37,7 @@ export default class ProductCategoryService {
   async getAllCategories(params: ListParams): Promise<CategoryListResponse> {
     const findOptions: FindManyOptions<ProductCategory> = {
       order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
+        [params.sorting?.column ?? 'id']: params.sorting?.direction ?? 'ASC',
       },
     };
 
@@ -67,9 +64,7 @@ export default class ProductCategoryService {
     return this.repo.save(category);
   }
 
-  async updateCategory(
-    id: number, params: Partial<CategoryParams>,
-  ): Promise<ProductCategory> {
+  async updateCategory(id: number, params: Partial<CategoryParams>): Promise<ProductCategory> {
     await this.repo.update(id, params);
     const category = await this.repo.findOneBy({ id });
     return category!;

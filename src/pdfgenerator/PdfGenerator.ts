@@ -69,9 +69,7 @@ export default class PdfGenerator {
    * it will be saved to the /tmp directory
    * @returns {string} absolute location of the new .pdf file
    */
-  private async convertTexToPdf(
-    input: string, fileName: string, saveToDisk: boolean,
-  ): Promise<string> {
+  private async convertTexToPdf(input: string, fileName: string, saveToDisk: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
       let outputLoc: string;
       if (saveToDisk) {
@@ -98,9 +96,7 @@ export default class PdfGenerator {
    * or moved to the data folder
    * @returns {string} Absolute location of the file
    */
-  private async finishFileGeneration(
-    file: string, fileType: ReturnFileType, saveToDisk: boolean,
-  ): Promise<string> {
+  private async finishFileGeneration(file: string, fileType: ReturnFileType, saveToDisk: boolean): Promise<string> {
     let result = '';
     let fileName = uuidv4();
 
@@ -151,8 +147,15 @@ export default class PdfGenerator {
    * @returns {string} First basic .tex file with many placeholders filled in
    */
   private generateBaseTexLetter(
-    template: string, company: Company, recipient: Contact, sender: User, language: Language,
-    date: Date, useInvoiceAddress: boolean, subject: string, ourReference: string = '-',
+    template: string,
+    company: Company,
+    recipient: Contact,
+    sender: User,
+    language: Language,
+    date: Date,
+    useInvoiceAddress: boolean,
+    subject: string,
+    ourReference: string = '-',
     theirReference: string = '-',
   ): string {
     if (language === Language.DUTCH) {
@@ -173,21 +176,27 @@ export default class PdfGenerator {
     template = replaceAll(template, '{{dateyear}}', date.getFullYear().toString());
 
     if (useInvoiceAddress) {
-      const companyCountry = company.invoiceAddressCountry ? countries.find((country) => country.Code
-        === company.invoiceAddressCountry!.toUpperCase()) : undefined;
+      const companyCountry = company.invoiceAddressCountry
+        ? countries.find((country) => country.Code === company.invoiceAddressCountry!.toUpperCase())
+        : undefined;
       template = replaceAll(template, '{{street}}', company.invoiceAddressStreet);
       template = replaceAll(template, '{{postalcode}}', company.invoiceAddressPostalCode);
       template = replaceAll(template, '{{city}}', company.invoiceAddressCity);
-      template = replaceAll(template, '{{country}}', companyCountry !== undefined
-        ? companyCountry.Name : company.invoiceAddressCountry);
+      template = replaceAll(
+        template,
+        '{{country}}',
+        companyCountry !== undefined ? companyCountry.Name : company.invoiceAddressCountry,
+      );
     } else {
-      const companyCountry = countries.find((country) => country.Code
-        === company.addressCountry!.toUpperCase());
+      const companyCountry = countries.find((country) => country.Code === company.addressCountry!.toUpperCase());
       template = replaceAll(template, '{{street}}', company.addressStreet);
       template = replaceAll(template, '{{postalcode}}', company.addressPostalCode);
       template = replaceAll(template, '{{city}}', company.addressCity);
-      template = replaceAll(template, '{{country}}', companyCountry !== undefined
-        ? companyCountry.Name : company.addressCountry);
+      template = replaceAll(
+        template,
+        '{{country}}',
+        companyCountry !== undefined ? companyCountry.Name : company.addressCountry,
+      );
     }
 
     template = replaceAll(template, '{{ourreference}}', ourReference);
@@ -224,16 +233,16 @@ export default class PdfGenerator {
    * @param language {Language} Language of the letter
    * @returns {string} The letter with all product information added
    */
-  private createSpecificationList(
-    file: string, products: ProductInstance[], language: Language,
-  ) {
+  private createSpecificationList(file: string, products: ProductInstance[], language: Language) {
     let contractSpecifications = '';
     let productInstance: ProductInstance;
 
     if (language === Language.DUTCH && !products.some((p) => p.product.deliverySpecificationDutch !== '')) {
-      contractSpecifications += '\n\\item{\\textit{Er zijn geen productspecificaties voor de producten op dit document.}}\\\\';
+      contractSpecifications +=
+        '\n\\item{\\textit{Er zijn geen productspecificaties voor de producten op dit document.}}\\\\';
     } else if (language === Language.ENGLISH && !products.some((p) => p.product.deliverySpecificationEnglish !== '')) {
-      contractSpecifications += '\n\\item{\\textit{There are no product specifications for the products on this document.}}\\\\';
+      contractSpecifications +=
+        '\n\\item{\\textit{There are no product specifications for the products on this document.}}\\\\';
     }
 
     for (let i = 0; i < products.length; i++) {
@@ -255,7 +264,6 @@ export default class PdfGenerator {
     return file;
   }
 
-
   /**
    * Replace the product placeholders in the .tex file with the actual products
    * @param file {string} The .tex file parsed as a string
@@ -263,9 +271,7 @@ export default class PdfGenerator {
    * @param language {Language} Language of the letter
    * @returns {string} The letter with all product information added
    */
-  private createProductList(
-    file: string, products: ProductInstance[], language: Language,
-  ) {
+  private createProductList(file: string, products: ProductInstance[], language: Language) {
     let productList = '';
     let productInstance: ProductInstance;
     for (let i = 0; i < products.length; i++) {
@@ -287,7 +293,6 @@ export default class PdfGenerator {
     return file;
   }
 
-
   /**
    * Replace the product placeholders in the .tex file with the actual products
    * @param file {string} The .tex file parsed as a string
@@ -297,7 +302,10 @@ export default class PdfGenerator {
    * @returns {string} The letter with all product information added
    */
   private createPricingTable(
-    file: string, products: ProductInstance[], language: Language, showDiscountPercentages: boolean,
+    file: string,
+    products: ProductInstance[],
+    language: Language,
+    showDiscountPercentages: boolean,
   ) {
     let totalDiscountPriceNoVat = 0;
     let totalPriceWithVat = 0;
@@ -349,16 +357,13 @@ export default class PdfGenerator {
     return file;
   }
 
-
   /**
    * Generate a PDF file based on a contract. Can be an actual contract or a proposal
    * @param contract {Contract} The contract that will be generated
    * @param settings {ContractGenSettings} The corresponding generation settings
    * @returns {string} The absolute location of the generated file
    */
-  public async generateContract(
-    contract: Contract, settings: ContractGenSettings,
-  ): Promise<string> {
+  public async generateContract(contract: Contract, settings: ContractGenSettings): Promise<string> {
     let templateLocation;
     if (settings.contentType === ContractType.CONTRACT) {
       if (settings.language === Language.DUTCH) {
@@ -374,8 +379,17 @@ export default class PdfGenerator {
     }
 
     let file = fs.readFileSync(templateLocation).toString();
-    file = this.generateBaseTexLetter(file, contract.company, settings.recipient, settings.sender,
-      settings.language, new Date(), false, contract.title, `C${contract.id}`);
+    file = this.generateBaseTexLetter(
+      file,
+      contract.company,
+      settings.recipient,
+      settings.sender,
+      settings.language,
+      new Date(),
+      false,
+      contract.title,
+      `C${contract.id}`,
+    );
 
     file = this.createPricingTable(file, contract.products, settings.language, settings.showDiscountPercentages);
     file = this.createProductList(file, contract.products, settings.language);
@@ -384,8 +398,7 @@ export default class PdfGenerator {
 
     if (settings.contentType === ContractType.CONTRACT) {
       file = this.createSpecificationList(file, contract.products, settings.language);
-      if (settings.signee1 !== undefined && settings.signee2 !== undefined
-      ) {
+      if (settings.signee1 !== undefined && settings.signee2 !== undefined) {
         file = this.createSignees(file, settings.signee1, settings.signee2);
       }
     }
@@ -403,14 +416,25 @@ export default class PdfGenerator {
     if (settings.language !== Language.ENGLISH && settings.language !== Language.DUTCH)
       throw new ApiError(HTTPStatus.BadRequest, 'Unknown language');
 
-    const useInvoiceAddress = invoice.company.invoiceAddressStreet !== ''
-      && invoice.company.invoiceAddressPostalCode !== ''
-      && invoice.company.invoiceAddressCity !== '';
+    const useInvoiceAddress =
+      invoice.company.invoiceAddressStreet !== '' &&
+      invoice.company.invoiceAddressPostalCode !== '' &&
+      invoice.company.invoiceAddressCity !== '';
 
     let file = fs.readFileSync(path.join(this.templateDir, invoicePath)).toString();
 
-    file = this.generateBaseTexLetter(file, invoice.company, settings.recipient, settings.sender,
-      settings.language, invoice.startDate, useInvoiceAddress, '', `F${invoice.id}`, !!invoice.poNumber ? invoice.poNumber : undefined );
+    file = this.generateBaseTexLetter(
+      file,
+      invoice.company,
+      settings.recipient,
+      settings.sender,
+      settings.language,
+      invoice.startDate,
+      useInvoiceAddress,
+      '',
+      `F${invoice.id}`,
+      !!invoice.poNumber ? invoice.poNumber : undefined,
+    );
 
     // Setting invoice specific information
     let dueDate = new Date(invoice.startDate);
@@ -423,10 +447,10 @@ export default class PdfGenerator {
 
     let startDate = new Date(invoice.startDate);
     let quartiles = {
-      'Q1': [new Date(invoice.startDate.getFullYear(), 6, 1), new Date(invoice.startDate.getFullYear(), 8, 30)],
-      'Q2': [new Date(invoice.startDate.getFullYear(), 9, 1), new Date(invoice.startDate.getFullYear(), 11, 31)],
-      'Q3': [new Date(invoice.startDate.getFullYear(), 0, 1), new Date(invoice.startDate.getFullYear(), 2, 31)],
-      'Q4': [new Date(invoice.startDate.getFullYear(), 3, 1), new Date(invoice.startDate.getFullYear(), 5, 30)],
+      Q1: [new Date(invoice.startDate.getFullYear(), 6, 1), new Date(invoice.startDate.getFullYear(), 8, 30)],
+      Q2: [new Date(invoice.startDate.getFullYear(), 9, 1), new Date(invoice.startDate.getFullYear(), 11, 31)],
+      Q3: [new Date(invoice.startDate.getFullYear(), 0, 1), new Date(invoice.startDate.getFullYear(), 2, 31)],
+      Q4: [new Date(invoice.startDate.getFullYear(), 3, 1), new Date(invoice.startDate.getFullYear(), 5, 30)],
     };
 
     let quarterStart;
@@ -437,7 +461,7 @@ export default class PdfGenerator {
     } else if (quartiles.Q2[0] <= startDate && startDate <= quartiles.Q2[1]) {
       quarterStart = quartiles.Q2[0];
       quarterEnd = quartiles.Q2[1];
-    } else if ((quartiles.Q3[0] <= startDate && startDate <= quartiles.Q3[1])) {
+    } else if (quartiles.Q3[0] <= startDate && startDate <= quartiles.Q3[1]) {
       quarterStart = quartiles.Q3[0];
       quarterEnd = quartiles.Q3[1];
     } else {
@@ -445,13 +469,16 @@ export default class PdfGenerator {
       quarterEnd = quartiles.Q4[1];
     }
 
-    file = replaceAll(file, '{{quarterstart}}', Intl.DateTimeFormat('nl-NL', { dateStyle: 'short' }).format(quarterStart));
+    file = replaceAll(
+      file,
+      '{{quarterstart}}',
+      Intl.DateTimeFormat('nl-NL', { dateStyle: 'short' }).format(quarterStart),
+    );
     file = replaceAll(file, '{{quarterend}}', Intl.DateTimeFormat('nl-NL', { dateStyle: 'short' }).format(quarterEnd));
 
     file = this.createPricingTable(file, invoice.products, settings.language, settings.showDiscountPercentages);
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
   }
-
 
   async generateCustomInvoice(params: CustomInvoiceGenSettings, fileObj: BaseFile) {
     if (params.language !== Language.ENGLISH && params.language !== Language.DUTCH)
@@ -471,8 +498,18 @@ export default class PdfGenerator {
     customRecipient.lastNamePreposition = '';
     customRecipient.lastName = '';
 
-    file = this.generateBaseTexLetter(file, customCompany, customRecipient, fileObj.createdBy,
-      params.language, params.date, true, params.subject, params.ourReference, !!params.theirReference ? params.theirReference : undefined);
+    file = this.generateBaseTexLetter(
+      file,
+      customCompany,
+      customRecipient,
+      fileObj.createdBy,
+      params.language,
+      params.date,
+      true,
+      params.subject,
+      params.ourReference,
+      !!params.theirReference ? params.theirReference : undefined,
+    );
 
     // Setting invoice specific information
     let dueDate = new Date(params.date);
@@ -497,7 +534,7 @@ export default class PdfGenerator {
       let basePrice = customProduct.pricePerOne * customProduct.amount;
 
       const valueAddedTax = await repo.findOne({
-        where : {
+        where: {
           category: customProduct.valueAddedTax,
         },
       });

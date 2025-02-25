@@ -12,11 +12,13 @@ export async function replaceGEWISRecipient() {
   const productRepo = AppDataSource.getRepository(Product);
   const products = await productRepo.find();
   products.forEach((p) => {
-    if (p.description.includes('{instelling}')
-    || p.contractTextDutch.includes('{instelling}')
-    || p.contractTextEnglish.includes('{instelling}')
-    || p.deliverySpecificationDutch!.includes('{instelling}')
-    || p.deliverySpecificationEnglish!.includes('{instelling}')) {
+    if (
+      p.description.includes('{instelling}') ||
+      p.contractTextDutch.includes('{instelling}') ||
+      p.contractTextEnglish.includes('{instelling}') ||
+      p.deliverySpecificationDutch!.includes('{instelling}') ||
+      p.deliverySpecificationEnglish!.includes('{instelling}')
+    ) {
       logResult += `P${p.id}, `;
       count++;
     }
@@ -24,11 +26,21 @@ export async function replaceGEWISRecipient() {
     p.description = replaceAll(p.description, '{instelling}', '\\GEWISRecipient\\xspace');
     p.contractTextDutch = replaceAll(p.contractTextDutch, '{instelling}', '\\GEWISRecipient\\xspace');
     p.contractTextEnglish = replaceAll(p.contractTextEnglish, '{instelling}', '\\GEWISRecipient\\xspace');
-    p.deliverySpecificationDutch = replaceAll(p.deliverySpecificationDutch!, '{instelling}', '\\GEWISRecipient\\xspace');
-    p.deliverySpecificationEnglish = replaceAll(p.deliverySpecificationEnglish!, '{instelling}', '\\GEWISRecipient\\xspace');
+    p.deliverySpecificationDutch = replaceAll(
+      p.deliverySpecificationDutch!,
+      '{instelling}',
+      '\\GEWISRecipient\\xspace',
+    );
+    p.deliverySpecificationEnglish = replaceAll(
+      p.deliverySpecificationEnglish!,
+      '{instelling}',
+      '\\GEWISRecipient\\xspace',
+    );
 
     p.save();
   });
 
-  console.log(`The following products had one or multiple instances of {instelling} replaced (${count}): ${logResult.substr(0, logResult.length - 2)}`);
+  console.log(
+    `The following products had one or multiple instances of {instelling} replaced (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  );
 }

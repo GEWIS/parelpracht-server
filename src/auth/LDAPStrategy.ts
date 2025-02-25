@@ -9,13 +9,14 @@ import UserService from '../services/UserService';
 import { Roles } from '../entity/enums/Roles';
 import AppDataSource from '../database';
 
-const isDefined = (i: string | undefined) => (i !== undefined && i !== '');
+const isDefined = (i: string | undefined) => i !== undefined && i !== '';
 
-export const ldapEnabled = () => (isDefined(process.env.LDAP_URL)
-  && isDefined(process.env.LDAP_BINDDN)
-  && isDefined(process.env.LDAP_BINDCREDENTIALS)
-  && isDefined(process.env.LDAP_SEARCHBASE)
-  && isDefined(process.env.LDAP_SEARCHFILTER));
+export const ldapEnabled = () =>
+  isDefined(process.env.LDAP_URL) &&
+  isDefined(process.env.LDAP_BINDDN) &&
+  isDefined(process.env.LDAP_BINDCREDENTIALS) &&
+  isDefined(process.env.LDAP_SEARCHBASE) &&
+  isDefined(process.env.LDAP_SEARCHFILTER);
 
 export const LDAPStrategy = new Strategy({
   server: {
@@ -40,7 +41,7 @@ const checkAllowedRoles = async (ldapUser: any): Promise<Roles[]> => {
 
 export const updateUserInformation = async (user: User, ldapUser: any): Promise<User> => {
   const userRoles = await checkAllowedRoles(ldapUser);
-  await (new UserService()).assignRoles(user, userRoles);
+  await new UserService().assignRoles(user, userRoles);
 
   const identity = user.identityLdap;
   // eslint-disable-next-line no-param-reassign
@@ -52,17 +53,20 @@ export const updateUserInformation = async (user: User, ldapUser: any): Promise<
   return user.save();
 };
 
-export const ldapLogin = (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction,
-) => {
+export const ldapLogin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('ldapauth', async (err: any, ldapUser: any, info: any) => {
-    if (err) { return next(err); }
-    if (!ldapUser) { return next(new ApiError(HTTPStatus.BadRequest, info.message)); }
+    if (err) {
+      return next(err);
+    }
+    if (!ldapUser) {
+      return next(new ApiError(HTTPStatus.BadRequest, info.message));
+    }
 
     const userRoles = await checkAllowedRoles(ldapUser);
-    if (userRoles.length === 0) return next(new ApiError(HTTPStatus.Forbidden, "You don't have the required LDAP groups to be allowed to login."));
+    if (userRoles.length === 0)
+      return next(
+        new ApiError(HTTPStatus.Forbidden, "You don't have the required LDAP groups to be allowed to login."),
+      );
 
     const userRepo = AppDataSource.getRepository(User);
     const identityRepo = AppDataSource.getRepository(IdentityLDAP);
@@ -109,7 +113,9 @@ export const ldapLogin = (
       } else {
         req.session.cookie.maxAge = undefined;
       }
-      if (e) { return next(e); }
+      if (e) {
+        return next(e);
+      }
       return res.send();
     });
   })(req, res, next);

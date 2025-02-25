@@ -15,9 +15,7 @@ export async function allProductInstancesWereNotDelivered() {
   const productInstances = await productRepo.find({ relations: ['activities', 'contract'] });
 
   productInstances.forEach((p) => {
-    const notDeliveredStatus = p.activities.find(
-      (a) => a.subType === ProductInstanceStatus.NOTDELIVERED,
-    );
+    const notDeliveredStatus = p.activities.find((a) => a.subType === ProductInstanceStatus.NOTDELIVERED);
     if (notDeliveredStatus === undefined) {
       activityRepo.save({
         createdAt: new Date(p.createdAt.getDate() - 1),
@@ -35,5 +33,7 @@ export async function allProductInstancesWereNotDelivered() {
     }
   });
 
-  console.log(`The following contracts had products that do not have a 'NOTDELIVERED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`);
+  console.log(
+    `The following contracts had products that do not have a 'NOTDELIVERED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  );
 }

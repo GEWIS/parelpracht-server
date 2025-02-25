@@ -1,23 +1,19 @@
 {
-	"compilerOptions": {
+  "compilerOptions": {
     /* Basic Options */
-	  "target": "es2016",
-	  "module": "commonjs",
-	  "outDir": "dist",
-    "types": [ "node" ],
-	  "lib": [
-      "es6",
-      "es2020",
-      "DOM",
-	  ],
+    "target": "es2016",
+    "module": "commonjs",
+    "outDir": "dist",
+    "types": ["node"],
+    "lib": ["es6", "es2021", "DOM"],
     "incremental": true,
-	  "composite": true,
-	  "declaration": true,
-	  "sourceMap": true,
+    "composite": true,
+    "declaration": true,
+    "sourceMap": true,
 
     /* Strict Type-Checking Options */
-	  "strict": true,
-	  "noImplicitAny": true,
+    "strict": true,
+    "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
@@ -43,19 +39,11 @@
 
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,
-	  "resolveJsonModule": true
-	},
-  "ts-node": {
-    "files": true,
+    "resolveJsonModule": true
   },
-	"include": [
-    "src",
-    "src/**/*.json",
-    "build",
-    "build/**/*.json"
-	],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "ts-node": {
+    "files": true
+  },
+  "include": ["src", "src/**/*.json", "build", "build/**/*.json"],
+  "exclude": ["node_modules", "dist"]
 }

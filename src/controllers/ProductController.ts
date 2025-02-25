@@ -1,7 +1,4 @@
-import {
-  Body,
-  Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete,
-} from 'tsoa';
+import { Body, Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
@@ -12,14 +9,9 @@ import ProductService, {
   ProductSummary,
 } from '../services/ProductService';
 import { ListParams, PaginationParams } from './ListParams';
-import {
-  validate, validateActivityParams, validateCommentParams, validateFileParams,
-} from '../helpers/validation';
+import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
-import ActivityService, {
-  ActivityParams,
-  FullActivityParams,
-} from '../services/ActivityService';
+import ActivityService, { ActivityParams, FullActivityParams } from '../services/ActivityService';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { ProductActivity } from '../entity/activity/ProductActivity';
 import FileService, { FileParams } from '../services/FileService';
@@ -39,19 +31,24 @@ import { Roles } from '../entity/enums/Roles';
 @Tags('Product')
 export class ProductController extends Controller {
   private async validateProductParams(req: express.Request) {
-    await validate([
-      body('nameDutch').notEmpty().trim(),
-      body('nameEnglish').notEmpty().trim(),
-      body('targetPrice').isInt().custom((value) => value > 0),
-      body('status').isIn(Object.values(ProductStatus)),
-      body('description').trim(),
-      body('vatId').isInt(),
-      body('categoryId').isInt(),
-      body('contractTextDutch').notEmpty().trim(),
-      body('contractTextEnglish').notEmpty().trim(),
-      body('deliverySpecificationDutch').trim(),
-      body('deliverySpecificationEnglish').trim(),
-    ], req);
+    await validate(
+      [
+        body('nameDutch').notEmpty().trim(),
+        body('nameEnglish').notEmpty().trim(),
+        body('targetPrice')
+          .isInt()
+          .custom((value) => value > 0),
+        body('status').isIn(Object.values(ProductStatus)),
+        body('description').trim(),
+        body('vatId').isInt(),
+        body('categoryId').isInt(),
+        body('contractTextDutch').notEmpty().trim(),
+        body('contractTextEnglish').notEmpty().trim(),
+        body('deliverySpecificationDutch').trim(),
+        body('deliverySpecificationEnglish').trim(),
+      ],
+      req,
+    );
   }
 
   /**
@@ -61,9 +58,7 @@ export class ProductController extends Controller {
   @Post('table')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getAllProducts(
-    @Body() lp: ListParams,
-  ): Promise<ProductListResponse> {
+  public async getAllProducts(@Body() lp: ListParams): Promise<ProductListResponse> {
     return new ProductService().getAllProducts(lp);
   }
 
@@ -98,10 +93,7 @@ export class ProductController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   @Response<WrappedApiError>(400)
-  public async createProduct(
-    @Request() req: express.Request,
-      @Body() params: ProductParams,
-  ): Promise<Product> {
+  public async createProduct(@Request() req: express.Request, @Body() params: ProductParams): Promise<Product> {
     await this.validateProductParams(req);
     return new ProductService().createProduct(params);
   }
@@ -118,7 +110,8 @@ export class ProductController extends Controller {
   @Response<WrappedApiError>(400)
   public async updateProduct(
     @Request() req: express.Request,
-      id: number, @Body() params: Partial<ProductParams>,
+    id: number,
+    @Body() params: Partial<ProductParams>,
   ): Promise<Product> {
     await this.validateProductParams(req);
     return new ProductService({ actor: req.user as User }).updateProduct(id, params);
@@ -132,9 +125,7 @@ export class ProductController extends Controller {
   @Delete('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProduct(
-    id: number,
-  ): Promise<void> {
+  public async deleteProduct(id: number): Promise<void> {
     return new ProductService().deleteProduct(id);
   }
 
@@ -146,9 +137,7 @@ export class ProductController extends Controller {
   @Post('{id}/pricing')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async addPricing(
-    id: number, @Request() req: express.Request,
-  ): Promise<ProductPricing> {
+  public async addPricing(id: number, @Request() req: express.Request): Promise<ProductPricing> {
     return new ProductService({ actor: req.user as User }).addPricing(id);
   }
 
@@ -162,7 +151,9 @@ export class ProductController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updatePricing(
-    id: number, @Body() params: Partial<PricingParams>, @Request() req: express.Request,
+    id: number,
+    @Body() params: Partial<PricingParams>,
+    @Request() req: express.Request,
   ): Promise<ProductPricing> {
     return new ProductService({ actor: req.user as User }).updatePricing(id, params);
   }
@@ -175,9 +166,7 @@ export class ProductController extends Controller {
   @Delete('{id}/pricing')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deletePricing(
-    id: number, @Request() req: express.Request,
-  ): Promise<void> {
+  public async deletePricing(id: number, @Request() req: express.Request): Promise<void> {
     return new ProductService({ actor: req.user as User }).deletePricing(id);
   }
 
@@ -189,9 +178,7 @@ export class ProductController extends Controller {
   @Post('{id}/contracts')
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getProductContracts(
-    id: number, @Body() params: PaginationParams,
-  ): Promise<ProductInstanceListResponse> {
+  public async getProductContracts(id: number, @Body() params: PaginationParams): Promise<ProductInstanceListResponse> {
     return new ProductInstanceService().getProductContracts(id, params.skip, params.take);
   }
 
@@ -203,9 +190,7 @@ export class ProductController extends Controller {
   @Post('{id}/invoices')
   @Security('local', ['GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getProductInvoices(
-    id: number, @Body() params: PaginationParams,
-  ): Promise<ProductInstanceListResponse> {
+  public async getProductInvoices(id: number, @Body() params: PaginationParams): Promise<ProductInstanceListResponse> {
     return new ProductInstanceService().getProductInvoices(id, params.skip, params.take);
   }
 
@@ -224,12 +209,13 @@ export class ProductController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadProductFile(
-    id: number, @Request() req: express.Request,
-  ): Promise<ProductFile> {
+  public async uploadProductFile(id: number, @Request() req: express.Request): Promise<ProductFile> {
     const actor = req.user as User;
     if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
-      throw new ApiError(HTTPStatus.Unauthorized, 'You don\'t have permission to do this. Only admins can set createdAt.');
+      throw new ApiError(
+        HTTPStatus.Unauthorized,
+        "You don't have permission to do this. Only admins can set createdAt.",
+      );
     }
 
     return new FileService(ProductFile, { actor: req.user as User }).uploadFile(req, id);
@@ -245,7 +231,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async getProductFile(id: number, fileId: number): Promise<any> {
-    const file = <ProductFile>(await new FileService(ProductFile).getFile(id, fileId));
+    const file = <ProductFile>await new FileService(ProductFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);
   }
@@ -261,7 +247,9 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateProductFile(
-    id: number, fileId: number, @Body() params: Partial<FileParams>,
+    id: number,
+    fileId: number,
+    @Body() params: Partial<FileParams>,
     @Request() req: express.Request,
   ): Promise<BaseFile> {
     await validateFileParams(req);
@@ -290,7 +278,9 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async addProductComment(
-    id: number, @Body() params: ActivityParams, @Request() req: express.Request,
+    id: number,
+    @Body() params: ActivityParams,
+    @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     const p: FullActivityParams = {
@@ -299,7 +289,10 @@ export class ProductController extends Controller {
       entityId: id,
       type: ActivityType.COMMENT,
     };
-    return new ActivityService<ProductActivity>(new ProductActivity, { actor: req.user as User }).createActivity(ProductActivity, p);
+    return new ActivityService<ProductActivity>(new ProductActivity(), { actor: req.user as User }).createActivity(
+      ProductActivity,
+      p,
+    );
   }
 
   /**
@@ -313,7 +306,9 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateProductActivity(
-    id: number, activityId: number, @Body() params: Partial<ActivityParams>,
+    id: number,
+    activityId: number,
+    @Body() params: Partial<ActivityParams>,
     @Request() req: express.Request,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
@@ -321,7 +316,7 @@ export class ProductController extends Controller {
       descriptionDutch: params.description,
       descriptionEnglish: params.description,
     };
-    return new ActivityService(new ProductActivity).updateActivity(id, activityId, p);
+    return new ActivityService(new ProductActivity()).updateActivity(id, activityId, p);
   }
 
   /**
@@ -333,7 +328,7 @@ export class ProductController extends Controller {
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
   public async deleteProductActivity(id: number, activityId: number): Promise<void> {
-    return new ActivityService(new ProductActivity).deleteActivity(id, activityId);
+    return new ActivityService(new ProductActivity()).deleteActivity(id, activityId);
   }
 
   /**
@@ -343,8 +338,7 @@ export class ProductController extends Controller {
   @Get('stats/statuses/{year}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getDashboardProductInstanceStatistics(year: number):
-  Promise<DashboardProductInstanceStats> {
+  public async getDashboardProductInstanceStatistics(year: number): Promise<DashboardProductInstanceStats> {
     return new StatisticsService().getDashboardProductInstanceStatistics(year);
   }
 }

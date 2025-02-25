@@ -1,6 +1,4 @@
-import {
-  Column, Entity, ManyToOne, JoinColumn, OneToMany,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 // eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
@@ -19,7 +17,7 @@ export class ProductInstance extends BaseEnt {
   /** The ID of the product, this entity is instanced from */
   @ManyToOne(() => Product, (product) => product.instances)
   @JoinColumn({ name: 'productId' })
-    product!: Product;
+  product!: Product;
 
   @Column({ type: 'integer', update: false })
   readonly contractId!: number;
@@ -27,35 +25,34 @@ export class ProductInstance extends BaseEnt {
   /** Contract this product is used in */
   @ManyToOne(() => Contract, (contract) => contract.products)
   @JoinColumn({ name: 'contractId' })
-    contract!: Contract;
+  contract!: Contract;
 
   @Column({ nullable: true, type: 'integer' })
-    invoiceId!: number | null;
+  invoiceId!: number | null;
 
   /** Invoice this product is used in, if it has already been invoiced */
   @ManyToOne(() => Invoice, (invoice) => invoice.products, { nullable: true })
   @JoinColumn({ name: 'invoiceId' })
-    invoice!: Invoice | null;
+  invoice!: Invoice | null;
 
   /** All activities regarding this product instance */
-  @OneToMany(() => ProductInstanceActivity,
-    (productInstanceActivity) => productInstanceActivity.productInstance)
+  @OneToMany(() => ProductInstanceActivity, (productInstanceActivity) => productInstanceActivity.productInstance)
   @JoinColumn()
-    activities!: ProductInstanceActivity[];
+  activities!: ProductInstanceActivity[];
 
   /** Actual price of the product, should be a copy from the product price upon creation,
    * or a different price that is not a discount
    * price is excluding VAT */
   @Column({ type: 'integer' })
-    basePrice!: number;
+  basePrice!: number;
 
   /** Optional discount amount, discount is taken over excl. VAT price */
   @Column({ type: 'integer', default: 0 })
-    discount!: number;
+  discount!: number;
 
   /** Any comments regarding this product instance */
   @Column({ type: 'text', nullable: true, default: '' })
-    details!: string | null;
+  details!: string | null;
 
   public price(): number {
     return this.basePrice - this.discount;

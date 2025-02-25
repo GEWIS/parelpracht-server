@@ -1,6 +1,4 @@
-import {
-  Column, JoinColumn, ManyToOne,
-} from 'typeorm';
+import { Column, JoinColumn, ManyToOne } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
 import { User } from '../User';
 import { BaseEnt } from '../BaseEnt';
@@ -13,11 +11,11 @@ export default abstract class BaseActivity extends BaseEnt {
 
   /** Description of this activity (English) */
   @Column({ type: 'text' })
-    descriptionEnglish!: string;
+  descriptionEnglish!: string;
 
   /** Description of this activity (Dutch) */
   @Column({ type: 'text' })
-    descriptionDutch!: string;
+  descriptionDutch!: string;
 
   @Column({ type: 'integer', update: false })
   readonly createdById!: number;
@@ -25,7 +23,7 @@ export default abstract class BaseActivity extends BaseEnt {
   /** User who created this activity */
   @ManyToOne(() => User)
   @JoinColumn({ name: 'createdById' })
-    createdBy!: User;
+  createdBy!: User;
 
   public abstract getRelatedEntity(): BaseEnt;
 

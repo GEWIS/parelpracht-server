@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint', 'import'],
-  extends: ['airbnb-typescript/base'],
+  ignorePatterns: ['dist', 'node_modules'],
   rules: {
     'linebreak-style': ['error', 'unix'],
     'lines-between-class-members': [
@@ -19,31 +19,12 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['warn'],
     'arrow-body-style': 'off',
     'import/no-cycle': 'off',
-    'indent': 'off',
     '@typescript-eslint/no-redeclare': 'off',
-    '@typescript-eslint/indent': [
-      'error',
-      2,
-      {
-        'ignoredNodes': [
-          'FunctionExpression > .params[decorators.length > 0]',
-          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
-          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
-        ]
-      },
-    ],
-    "import/extensions": [
-      "error",
-      "always",
-      {
-        "ts": "never",
-        "tsx": "never",
-        "js": "never",
-        "jsx": "never"
-      }
-    ],
+    'linebreak-style': ['error', 'windows'],
   },
-  parserOptions: {
-    project: ['./tsconfig.eslint.json'],
-  },
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.mjs', '**/*.cjs'],
+    },
+  ],
 };

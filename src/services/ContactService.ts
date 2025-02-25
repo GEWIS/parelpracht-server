@@ -1,6 +1,4 @@
-import {
-  FindManyOptions, Repository,
-} from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { ListParams } from '../controllers/ListParams';
 import { Contact } from '../entity/Contact';
 import { ContactFunction } from '../entity/enums/ContactFunction';
@@ -54,12 +52,17 @@ export default class ContactService {
   async getAllContacts(params: ListParams): Promise<ContactListResponse> {
     const findOptions: FindManyOptions<Contact> = {
       order: {
-        [params.sorting?.column ?? 'id']:
-        params.sorting?.direction ?? 'ASC',
+        [params.sorting?.column ?? 'id']: params.sorting?.direction ?? 'ASC',
       },
     };
 
-    findOptions.where = addQueryWhereClause<Contact>(params, ['firstName', 'lastNamePreposition', 'lastName', 'email', 'company.name']);
+    findOptions.where = addQueryWhereClause<Contact>(params, [
+      'firstName',
+      'lastNamePreposition',
+      'lastName',
+      'email',
+      'company.name',
+    ]);
 
     return {
       list: await this.repo.find({

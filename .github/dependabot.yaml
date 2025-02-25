@@ -1,14 +1,13 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
+  - package-ecosystem: 'npm'
     directories:
-      - "."
+      - '.'
     schedule:
-      interval: "weekly"
-    target-branch: "develop"
+      interval: 'weekly'
+    target-branch: 'develop'
     assignees:
-      - "LuukBlankenstijn"
+      - 'LuukBlankenstijn'
     ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
