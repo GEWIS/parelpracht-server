@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
-import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Invoice } from '../Invoice';
 import { InvoiceStatus } from '../enums/InvoiceStatus';
 import { BaseEnt } from '../BaseEnt';
 import { ApiError, HTTPStatus } from '../../helpers/error';
+import BaseActivity from './BaseActivity';
 
 @Entity()
 export class InvoiceActivity extends BaseActivity {

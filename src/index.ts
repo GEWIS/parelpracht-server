@@ -1,21 +1,19 @@
 import 'reflect-metadata';
 import * as fs from 'fs';
+import path from 'path';
 import express, { Express } from 'express';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '.env' });
-
 import errorhandler from 'strong-error-handler';
 import swaggerUi from 'swagger-ui-express';
-import path from 'path';
 import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
-import startEvents from './timedevents/cron';
 import swaggerDocument from '../build/swagger.json';
 import { RegisterRoutes } from '../build/routes';
+import startEvents from './timedevents/cron';
 import './controllers/RootController';
 import './controllers/ProductCategoryController';
 import './controllers/ProductController';
@@ -32,6 +30,8 @@ import UserService from './services/UserService';
 import { ldapLogin, LDAPStrategy } from './auth';
 import AppDataSource from './database';
 import { DataSource } from 'typeorm';
+
+dotenv.config({ path: '.env' });
 
 const PORT = process.env.PORT || 3001;
 

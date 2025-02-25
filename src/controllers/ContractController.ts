@@ -1,9 +1,7 @@
-import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Contract } from '../entity/Contract';
 import ContractService, { ContractListResponse, ContractParams } from '../services/ContractService';
-import { ListParams } from './ListParams';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
@@ -31,6 +29,8 @@ import { Language } from '../entity/enums/Language';
 import { RecentContract } from '../helpers/rawQueries';
 import { ContractSummary } from '../entity/Summaries';
 import { Roles } from '../entity/enums/Roles';
+import { ListParams } from './ListParams';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('contract')
 @Tags('Contract')

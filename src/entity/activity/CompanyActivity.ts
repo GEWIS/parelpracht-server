@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 // eslint-disable-next-line import/no-cycle
-import BaseActivity from './BaseActivity';
 // eslint-disable-next-line import/no-cycle
 import { Company } from '../Company';
 import { BaseEnt } from '../BaseEnt';
+import BaseActivity from './BaseActivity';
 
 @Entity()
 export class CompanyActivity extends BaseActivity {

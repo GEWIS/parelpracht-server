@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import AppDataSource from '../database';
 import {
   allContractsAreCreated,
   allProductsAreCancelledIfContractIsCancelled,
@@ -7,7 +8,6 @@ import {
 import { allInvoicesAreCreated } from './invoices';
 import { allProductInstancesWereNotDelivered } from './productInstances';
 import { replaceGEWISRecipient } from './GEWISrecipient';
-import AppDataSource from '../database';
 
 dotenv.config({ path: '.env' });
 

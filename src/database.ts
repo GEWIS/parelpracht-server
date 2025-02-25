@@ -1,5 +1,5 @@
-import { DataSource } from 'typeorm';
 import fs from 'fs';
+import { DataSource } from 'typeorm';
 import { Company } from './entity/Company';
 import { Contact } from './entity/Contact';
 import { Contract } from './entity/Contract';

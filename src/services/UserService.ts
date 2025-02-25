@@ -1,5 +1,6 @@
-import { FindManyOptions, Repository } from 'typeorm';
 import path from 'path';
+import { FindManyOptions, Repository } from 'typeorm';
+import validator from 'validator';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -7,17 +8,16 @@ import { Role } from '../entity/Role';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { addQueryWhereClause } from '../helpers/filters';
-import AuthService from './AuthService';
 import { Roles } from '../entity/enums/Roles';
 // eslint-disable-next-line import/no-cycle
-import ContractService from './ContractService';
 // eslint-disable-next-line import/no-cycle
-import InvoiceService from './InvoiceService';
 import FileHelper, { uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc } from '../helpers/fileHelper';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import { ldapEnabled } from '../auth';
 import AppDataSource from '../database';
-import validator from 'validator';
+import InvoiceService from './InvoiceService';
+import ContractService from './ContractService';
+import AuthService from './AuthService';
 
 export interface UserParams {
   email: string;
@@ -213,7 +213,7 @@ export default class UserService {
       });
     }
     user = await this.getUser(user.id);
-    return user!;
+    return user;
   }
 
   private validateUserParams(params: UserParams): boolean {

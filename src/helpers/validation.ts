@@ -1,7 +1,7 @@
 import express from 'express';
 import { body, ValidationChain, validationResult } from 'express-validator';
-import { ApiError, HTTPStatus } from './error';
 import ContactService from '../services/ContactService';
+import { ApiError, HTTPStatus } from './error';
 
 /**
  * Run a list of validations (in parallel) on a request object

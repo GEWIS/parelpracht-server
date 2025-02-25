@@ -9,12 +9,12 @@ import { Product } from '../entity/Product';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
 import { ProductCategory } from '../entity/ProductCategory';
-import Currency from './currency';
-import { timeToYearDayTime } from './timestamp';
-import getEntityChanges from './entityChanges';
 import { Language } from '../entity/enums/Language';
 import BaseActivity from '../entity/activity/BaseActivity';
 import AppDataSource from '../database';
+import Currency from './currency';
+import { timeToYearDayTime } from './timestamp';
+import getEntityChanges from './entityChanges';
 
 /**
  * Convert an array of strings to a single string, where all items are split by
@@ -301,7 +301,7 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
       descriptionDutch: createReassignActivityDescription(
         // @ts-ignore As checked in the if-statement above, the "changes" variable does have
         // an assignedToId value
-        await new UserService().getUser(changes.assignedToId!),
+        await new UserService().getUser(changes.assignedToId),
         // @ts-ignore Therefore, the real entity must also have this property by definition
         await new UserService().getUser(entity.assignedToId),
         Language.DUTCH,
@@ -309,7 +309,7 @@ export async function createActivitiesForEntityEdits<T extends BaseEnt>(
       descriptionEnglish: createReassignActivityDescription(
         // @ts-ignore As checked in the if-statement above, the "changes" variable does have
         // an assignedToId value
-        await new UserService().getUser(changes.assignedToId!),
+        await new UserService().getUser(changes.assignedToId),
         // @ts-ignore Therefore, the real entity must also have this property by definition
         await new UserService().getUser(entity.assignedToId),
         Language.ENGLISH,

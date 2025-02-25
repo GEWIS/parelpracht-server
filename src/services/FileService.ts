@@ -1,12 +1,11 @@
-import { Repository } from 'typeorm';
 import * as fs from 'fs';
-import express from 'express';
-import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import multer from 'multer';
+import express from 'express';
+import { Repository } from 'typeorm';
 import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
-import UserService from './UserService';
 import { ContractFile } from '../entity/file/ContractFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -18,8 +17,6 @@ import {
   ReturnFileType,
 } from '../pdfgenerator/GenSettings';
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
-import InvoiceService from './InvoiceService';
-import ContractService from './ContractService';
 import FileHelper, {
   uploadCompanyLogoDirLoc,
   uploadDirLoc,
@@ -27,13 +24,16 @@ import FileHelper, {
   uploadUserBackgroundDirLoc,
 } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
-import ContactService from './ContactService';
 import { User } from '../entity/User';
 import { validateFileParams } from '../helpers/validation';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import { Language } from '../entity/enums/Language';
-import CompanyService from './CompanyService';
 import AppDataSource from '../database';
+import CompanyService from './CompanyService';
+import ContactService from './ContactService';
+import ContractService from './ContractService';
+import InvoiceService from './InvoiceService';
+import UserService from './UserService';
 
 export interface FileParams {
   name?: string;

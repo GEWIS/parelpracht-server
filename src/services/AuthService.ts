@@ -133,7 +133,7 @@ export default class AuthService {
       );
     }
 
-    return identity!;
+    return identity;
   }
 
   async updateIdentityLdap(user: User, params: Partial<LdapIdentityParams>): Promise<IdentityLDAP> {

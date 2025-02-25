@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Product } from '../Product';
 import BaseFile from './BaseFile';
 // eslint-disable-next-line import/no-cycle
-import { Product } from '../Product';
 
 @Entity()
 export class ProductFile extends BaseFile {

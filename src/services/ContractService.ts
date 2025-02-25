@@ -4,9 +4,6 @@ import { Contract } from '../entity/Contract';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { ContractActivity } from '../entity/activity/ContractActivity';
-import ActivityService, { FullActivityParams } from './ActivityService';
-import ContactService from './ContactService';
-import CompanyService from './CompanyService';
 import { ContactFunction } from '../entity/enums/ContactFunction';
 import { CompanyStatus } from '../entity/enums/CompanyStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
@@ -17,6 +14,9 @@ import { Roles } from '../entity/enums/Roles';
 import { ContractSummary } from '../entity/Summaries';
 import { createActivitiesForEntityEdits } from '../helpers/activity';
 import AppDataSource from '../database';
+import CompanyService from './CompanyService';
+import ContactService from './ContactService';
+import ActivityService, { FullActivityParams } from './ActivityService';
 
 export interface ContractParams {
   title: string;

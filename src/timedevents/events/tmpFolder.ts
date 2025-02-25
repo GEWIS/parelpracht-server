@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { rimraf } from 'rimraf';
 import path from 'path';
+import { rimraf } from 'rimraf';
 
 export default async function tmpFolder() {
   console.log('Remove temp folder...');
