@@ -52,6 +52,7 @@
     "validator": "^13.12.0"
   },
   "devDependencies": {
+    "@gewis/eslint-config-typescript": "^2.2.3",
     "@gewis/prettier-config": "^2.2.2",
     "@types/axios": "^0.14.4",
     "@types/express": "5.0.0",
