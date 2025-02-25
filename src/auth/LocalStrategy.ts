@@ -1,5 +1,5 @@
-import { Strategy as LocalStrategy } from 'passport-local';
 import crypto from 'crypto';
+import { Strategy as LocalStrategy } from 'passport-local';
 import passport from 'passport';
 import express from 'express';
 import validator from 'validator';

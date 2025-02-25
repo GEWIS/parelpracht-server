@@ -1,4 +1,3 @@
-import { Body, Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
@@ -8,7 +7,6 @@ import ProductService, {
   ProductParams,
   ProductSummary,
 } from '../services/ProductService';
-import { ListParams, PaginationParams } from './ListParams';
 import { validate, validateActivityParams, validateCommentParams, validateFileParams } from '../helpers/validation';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import ActivityService, { ActivityParams, FullActivityParams } from '../services/ActivityService';
@@ -26,6 +24,8 @@ import ProductInstanceService, { ProductInstanceListResponse } from '../services
 import { AnalysisResultByYear } from '../helpers/rawQueries';
 import { ProductPricing } from '../entity/ProductPricing';
 import { Roles } from '../entity/enums/Roles';
+import { ListParams, PaginationParams } from './ListParams';
+import { Body, Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete } from 'tsoa';
 
 @Route('product')
 @Tags('Product')

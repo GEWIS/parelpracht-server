@@ -1,10 +1,8 @@
-import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import UserService, { TransferUserParams, UserListResponse, UserParams, UserSummary } from '../services/UserService';
-import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { Roles } from '../entity/enums/Roles';
@@ -13,6 +11,8 @@ import { IdentityLocal } from '../entity/IdentityLocal';
 import AuthService, { LdapIdentityParams } from '../services/AuthService';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import GDPRService from '../services/GDPRService';
+import { ListParams } from './ListParams';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('user')
 @Tags('User')

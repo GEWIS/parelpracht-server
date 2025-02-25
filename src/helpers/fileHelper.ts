@@ -1,8 +1,8 @@
-import { Controller } from 'tsoa';
 import * as fs from 'fs';
-import mime from 'mime';
 import path from 'path';
+import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
+import { Controller } from 'tsoa';
 
 export const workDirLoc = 'tmp/';
 export const generateDirLoc = 'data/generated/';

@@ -1,9 +1,9 @@
 import cron from 'node-cron';
+import { ldapEnabled } from '../auth';
 import deferredProducts from './events/deferredProducts';
 import tmpFolder from './events/tmpFolder';
 import directMail from './events/directMail';
 import ldapGroups from './events/ldapGroups';
-import { ldapEnabled } from '../auth';
 
 export default function startEvents() {
   // On July 1st every year, remove the "Deferred" status from all products

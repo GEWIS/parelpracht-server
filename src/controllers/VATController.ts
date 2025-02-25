@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import express from 'express';
 import { body } from 'express-validator';
 import VATService, { VATListResponse, VATParams, VATSummary } from '../services/VATService';
-import { ListParams } from './ListParams';
 import { WrappedApiError } from '../helpers/error';
 import { ValueAddedTax } from '../entity/ValueAddedTax';
 import { validate } from '../helpers/validation';
+import { ListParams } from './ListParams';
+import { Body, Controller, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('VAT')
 @Tags('Value Added Tax')

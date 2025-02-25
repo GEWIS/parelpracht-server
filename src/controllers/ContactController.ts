@@ -1,13 +1,13 @@
-import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Request, Delete } from 'tsoa';
 import { body } from 'express-validator';
 import express from 'express';
 import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import ContactService, { ContactListResponse, ContactParams, ContactSummary } from '../services/ContactService';
-import { ListParams } from './ListParams';
 import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { ContactFunction } from '../entity/enums/ContactFunction';
+import { ListParams } from './ListParams';
+import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Request, Delete } from 'tsoa';
 
 @Route('contact')
 @Tags('Contact')

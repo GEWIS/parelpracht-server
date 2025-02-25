@@ -41,7 +41,7 @@ export function addQuerySearch<T extends BaseEnt>(fieldNames: string[], search?:
             temp[intermediates[intermediates.length - 1]] = ILike(`%${searchTerm}%`);
             // All other intermediates are entities, so we create a nested object over them
             for (let i = intermediates.length - 2; i >= 0; i--) {
-              let temp2: any = {};
+              const temp2: any = {};
               temp2[intermediates[i]] = temp;
               temp = temp2;
             }

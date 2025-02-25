@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Company } from '../Company';
 import BaseFile from './BaseFile';
 // eslint-disable-next-line import/no-cycle
-import { Company } from '../Company';
 
 @Entity()
 export class CompanyFile extends BaseFile {

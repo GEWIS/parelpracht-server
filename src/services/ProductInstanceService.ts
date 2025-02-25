@@ -2,14 +2,11 @@ import { FindManyOptions, IsNull, Not, Repository } from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
 // eslint-disable-next-line import/no-cycle
-import InvoiceService from './InvoiceService';
 // eslint-disable-next-line import/no-cycle
-import ActivityService, { FullActivityParams } from './ActivityService';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import { ContractActivity } from '../entity/activity/ContractActivity';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
-import ProductService from './ProductService';
 import { ProductStatus } from '../entity/enums/ProductStatus';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { ActivityType } from '../entity/enums/ActivityType';
@@ -18,6 +15,9 @@ import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { createActivitiesForEntityEdits, createDelProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
 import AppDataSource from '../database';
+import ProductService from './ProductService';
+import ActivityService, { FullActivityParams } from './ActivityService';
+import InvoiceService from './InvoiceService';
 
 export interface ProductInstanceParams {
   productId: number;
