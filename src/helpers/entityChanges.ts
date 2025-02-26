@@ -6,12 +6,16 @@
 export default function getEntityChanges<T extends object>(newEntity: Partial<T>, oldEntity: T): Partial<T> {
   const result: Partial<T> = {};
 
-  Object.keys(newEntity).forEach((k) => {
-    // @ts-ignore
-    if (!(newEntity[k] instanceof Date && newEntity[k].getTime() === oldEntity[k].getTime())) {
-      // @ts-ignore
+  Object.keys(newEntity).forEach((key) => {
+    const k = key as keyof T;
+    if (
+      !(
+        newEntity[k] instanceof Date &&
+        oldEntity[k] instanceof Date &&
+        newEntity[k].getTime() === oldEntity[k].getTime()
+      )
+    ) {
       if (newEntity[k] !== oldEntity[k]) {
-        // @ts-ignore
         result[k] = newEntity[k];
       }
     }

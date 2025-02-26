@@ -57,8 +57,8 @@ export default class FileHelper {
   public static removeFile(file: BaseFile) {
     try {
       fs.unlinkSync(file.location);
-    } catch (e) {
-      console.log(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
+    } catch {
+      console.warn(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
     }
   }
 
@@ -69,8 +69,8 @@ export default class FileHelper {
   public static removeFileAtLoc(location: string) {
     try {
       fs.unlinkSync(location);
-    } catch (e) {
-      console.log(`File ${location} does not exist, so could not be removed`);
+    } catch {
+      console.warn(`File ${location} does not exist, so could not be removed`);
     }
   }
 }

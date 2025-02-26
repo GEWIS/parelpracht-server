@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO rewrite to typeorm queries
 import { ListParams } from '../controllers/ListParams';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';

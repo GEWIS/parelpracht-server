@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO Check if needs to be refactored
 import { Brackets, FindOptionsWhere, ILike, In, SelectQueryBuilder } from 'typeorm';
 import { BaseEnt } from '../entity/BaseEnt';
 import { ListOrFilter, ListParams } from '../controllers/ListParams';
@@ -45,7 +47,6 @@ export function addQuerySearch<T extends BaseEnt>(fieldNames: string[], search?:
               temp2[intermediates[i]] = temp;
               temp = temp2;
             }
-            console.log(temp);
             return temp;
           }),
         );
