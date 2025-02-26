@@ -1,4 +1,3 @@
-import express from 'express';
 import { Repository } from 'typeorm';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import validator from 'validator';
@@ -14,6 +13,7 @@ import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import AppDataSource from '../database';
+import { ExpressRequest } from '../types';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
@@ -54,7 +54,7 @@ export default class AuthService {
     this.userRepo = userRepo ?? AppDataSource.getRepository(User);
   }
 
-  getAuthStatus(req: express.Request): AuthStatus {
+  getAuthStatus(req: ExpressRequest): AuthStatus {
     const authenticated = req.isAuthenticated();
 
     return {
@@ -62,7 +62,7 @@ export default class AuthService {
     };
   }
 
-  async getProfile(req: express.Request): Promise<Profile> {
+  async getProfile(req: ExpressRequest): Promise<Profile> {
     const user = (await this.userRepo.findOne({
       where: { id: (req.user as User).id },
       relations: ['roles'],
@@ -80,7 +80,7 @@ export default class AuthService {
   }
 
   // TODO check error type in case of reject
-  async logout(req: express.Request): Promise<void> {
+  async logout(req: ExpressRequest): Promise<void> {
     return new Promise((resolve, reject) => {
       req.logout((error: Error) => {
         if (error) reject(error);
@@ -90,7 +90,7 @@ export default class AuthService {
   }
 
   // TODO check error type in case of reject
-  login(user: User, req: express.Request) {
+  login(user: User, req: ExpressRequest) {
     return new Promise<void>((resolve, reject) => {
       req.logIn(user, (err: Error) => {
         if (err) {
@@ -240,7 +240,7 @@ export default class AuthService {
     await this.identityLocalRepo.softDelete(id);
   }
 
-  async getApiKey(req: express.Request) {
+  async getApiKey(req: ExpressRequest) {
     const user = (await this.userRepo.findOneBy({ id: (req.user as User).id }))!;
 
     const identity = await this.identityApiKeyRepo.findOneBy({ id: (req.user as User).id });
@@ -254,7 +254,7 @@ export default class AuthService {
     return identity.apiKey;
   }
 
-  async generateApiKey(req: express.Request) {
+  async generateApiKey(req: ExpressRequest) {
     const user = (await this.userRepo.findOneBy({ id: (req.user as User).id }))!;
 
     let identity = await this.identityApiKeyRepo.findOneBy({ id: (req.user as User).id });
@@ -275,7 +275,7 @@ export default class AuthService {
     return identity.apiKey;
   }
 
-  async revokeApiKey(req: express.Request) {
+  async revokeApiKey(req: ExpressRequest) {
     await this.identityApiKeyRepo.delete((req.user as User).id);
   }
 }

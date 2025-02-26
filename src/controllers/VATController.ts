@@ -1,16 +1,16 @@
-import express from 'express';
 import { body } from 'express-validator';
 import VATService, { VATListResponse, VATParams, VATSummary } from '../services/VATService';
 import { WrappedApiError } from '../helpers/error';
 import { ValueAddedTax } from '../entity/ValueAddedTax';
 import { validate } from '../helpers/validation';
+import { ExpressRequest } from '../types';
 import { ListParams } from './ListParams';
 import { Body, Controller, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('VAT')
 @Tags('Value Added Tax')
 export class VATController extends Controller {
-  private async validateVATParams(req: express.Request) {
+  private async validateVATParams(req: ExpressRequest) {
     await validate([body('category').notEmpty().trim()], req);
   }
 
@@ -59,7 +59,7 @@ export class VATController extends Controller {
   public async updateVAT(
     id: number,
     @Body() params: Partial<VATParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<ValueAddedTax> {
     await this.validateVATParams(req);
     return new VATService().updateVAT(id, params);

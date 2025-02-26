@@ -1,8 +1,8 @@
-import express from 'express';
 import { IdentityApiKey } from '../entity/IdentityApiKey';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AppDataSource from '../database';
+import { ExpressRequest } from '../types';
 
 async function authWithApiKey(apiKey: string) {
   const split = apiKey.split(' ');
@@ -22,10 +22,10 @@ async function authWithApiKey(apiKey: string) {
 }
 
 export async function expressAuthentication(
-  request: express.Request,
+  request: ExpressRequest,
   securityName: string,
   scopes?: string[],
-): Promise<any> {
+): Promise<unknown> {
   switch (securityName) {
     case 'local': {
       const auth = request.header('Authentication');

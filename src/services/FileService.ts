@@ -4,7 +4,6 @@ import * as fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import multer from 'multer';
-import express from 'express';
 import { Repository } from 'typeorm';
 import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
@@ -36,6 +35,7 @@ import ContactService from './ContactService';
 import ContractService from './ContractService';
 import InvoiceService from './InvoiceService';
 import UserService from './UserService';
+import { ExpressRequest } from '../types';
 
 export interface FileParams {
   name?: string;
@@ -201,7 +201,7 @@ export default class FileService {
     return file;
   }
 
-  private static handleFile(request: express.Request): Promise<void> {
+  private static handleFile(request: ExpressRequest): Promise<void> {
     const multerSingle = multer().single('file');
     return new Promise((resolve, reject) => {
       // @ts-ignore
@@ -214,7 +214,7 @@ export default class FileService {
     });
   }
 
-  async uploadFile(request: express.Request, entityId: number) {
+  async uploadFile(request: ExpressRequest, entityId: number) {
     await FileService.handleFile(request);
     await validateFileParams(request);
     const params = {
@@ -311,7 +311,7 @@ export default class FileService {
   Also, they need to process uploading and verifying files, so therefore they are
   defined in this service. and not in their "own" service.
    */
-  static async uploadCompanyLogo(request: express.Request, companyId: number) {
+  static async uploadCompanyLogo(request: ExpressRequest, companyId: number) {
     const company = await new CompanyService().getCompany(companyId);
     await FileService.handleFile(request);
 
@@ -336,7 +336,7 @@ export default class FileService {
     }
   }
 
-  static async uploadUserAvatar(request: express.Request, userId: number) {
+  static async uploadUserAvatar(request: ExpressRequest, userId: number) {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
 
@@ -361,7 +361,7 @@ export default class FileService {
     }
   }
 
-  static async uploadUserBackground(request: express.Request, userId: number) {
+  static async uploadUserBackground(request: ExpressRequest, userId: number) {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
 

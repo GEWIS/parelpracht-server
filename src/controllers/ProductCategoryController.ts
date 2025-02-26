@@ -1,4 +1,3 @@
-import express from 'express';
 import { body } from 'express-validator';
 import ProductCategoryService, {
   CategoryListResponse,
@@ -9,13 +8,14 @@ import { WrappedApiError } from '../helpers/error';
 import { ProductCategory } from '../entity/ProductCategory';
 import { validate } from '../helpers/validation';
 import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
+import { ExpressRequest } from '../types';
 import { ListParams } from './ListParams';
 import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('category')
 @Tags('Product Category')
 export class ProductCategoryController extends Controller {
-  private async validateCategoryParams(req: express.Request) {
+  private async validateCategoryParams(req: ExpressRequest) {
     await validate([body('name').notEmpty().trim()], req);
   }
 
@@ -51,7 +51,7 @@ export class ProductCategoryController extends Controller {
   @Response<WrappedApiError>(401)
   public async createCategory(
     @Body() params: CategoryParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<ProductCategory> {
     await this.validateCategoryParams(req);
     return new ProductCategoryService().createCategory(params);
@@ -80,7 +80,7 @@ export class ProductCategoryController extends Controller {
   public async updateCategory(
     id: number,
     @Body() params: Partial<CategoryParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<ProductCategory> {
     await this.validateCategoryParams(req);
     return new ProductCategoryService().updateCategory(id, params);
