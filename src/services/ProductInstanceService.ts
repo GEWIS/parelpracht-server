@@ -1,8 +1,6 @@
 import { FindManyOptions, IsNull, Not, Repository } from 'typeorm';
 import { ProductInstance } from '../entity/ProductInstance';
 import { ApiError, HTTPStatus } from '../helpers/error';
-// eslint-disable-next-line import/no-cycle
-// eslint-disable-next-line import/no-cycle
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { User } from '../entity/User';
 import { ContractActivity } from '../entity/activity/ContractActivity';
@@ -61,7 +59,7 @@ export default class ProductInstanceService {
     let productInstance = {
       ...params,
       contractId,
-    } as any as ProductInstance;
+    } as ProductInstance;
 
     if (product.status === ProductStatus.INACTIVE) {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot add inactive products to contracts');

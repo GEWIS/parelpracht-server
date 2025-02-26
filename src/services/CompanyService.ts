@@ -98,7 +98,7 @@ export default class CompanyService {
   createCompany(params: CompanyParams): Promise<Company> {
     const company = {
       ...params,
-    } as any as Company;
+    } as Company;
     return this.repo.save(company);
   }
 
