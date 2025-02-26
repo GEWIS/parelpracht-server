@@ -1,6 +1,12 @@
 import axios from 'axios';
 import ProductService from '../../services/ProductService';
 
+interface DirectMailResponse {
+  description: string;
+  eMail: string;
+  noMembers: string;
+}
+
 export default async function directMail() {
   if (
     !process.env.DIRECTMAIL_URL ||
@@ -20,7 +26,11 @@ export default async function directMail() {
     })
     .then(async (response) => {
       const header = [['Name', 'Email', 'Students']];
-      const parsedData: string[][] = response.data.map((d: any) => [d.description, d.eMail, d.noMembers]);
+      const parsedData: string[][] = (response.data as DirectMailResponse[]).map((d: DirectMailResponse) => [
+        d.description,
+        d.eMail,
+        d.noMembers.toString(),
+      ]);
       await new ProductService().updatePricing(parseInt(process.env.DIRECTMAIL_PRODUCT_ID!, 10), {
         data: header.concat(parsedData),
       });

@@ -1,7 +1,4 @@
-// The @types package from ldapjs is not installed, because it causes
-// a conflict in TSOA with passport-ldapauth @types
-// @ts-ignore
-import { createClient } from 'ldapjs';
+import { createClient, SearchCallbackResponse, SearchEntry } from 'ldapjs';
 import { IdentityLDAP } from '../../entity/IdentityLDAP';
 import { updateUserInformation } from '../../auth';
 import AppDataSource from '../../database';
@@ -24,13 +21,18 @@ export default async function ldapGroups() {
         scope: 'one',
         filter: (process.env.LDAP_SEARCHFILTER || '').replace('{{username}}', identity.username),
       },
-      (err: any, res: any) => {
-        res.on('searchEntry', async (entry: any) => {
-          await updateUserInformation(identity.user, entry.object);
+      (err: Error | null, res: SearchCallbackResponse) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+
+        res.on('searchEntry', (entry: SearchEntry) => {
+          updateUserInformation(identity.user, entry.object).catch((err) => console.error(err));
         });
       },
     );
   });
 
-  console.log('Updated user roles based on LDAP');
+  console.warn('Updated user roles based on LDAP');
 }

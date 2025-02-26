@@ -1,8 +1,11 @@
-// @ts-ignore
-import { createClient } from 'ldapjs';
+import { createClient, LDAPResult, SearchCallbackResponse, SearchEntry, SearchRequest } from 'ldapjs';
 import dotenv from 'dotenv';
 import { ldapEnabled } from '../../auth';
 import AuthService from '../../services/AuthService';
+
+export interface SearchReference {
+  uris: string[];
+}
 
 export default async function ldapRoles() {
   dotenv.config();
@@ -23,30 +26,32 @@ export default async function ldapRoles() {
       {
         filter: process.env.LDAP_SEARCHFILTER!.replace('username', identity.username),
       },
-      (error: any, res: any) => {
+      (error: Error | null, res: SearchCallbackResponse) => {
         if (error) {
           console.error(error);
           return;
         }
 
-        res.on('searchRequest', (searchRequest: any) => {
-          console.log('searchRequest: ', searchRequest);
+        res.on('searchRequest', (searchRequest: SearchRequest) => {
+          console.warn('searchRequest: ', searchRequest);
         });
-        res.on('searchEntry', (entry: any) => {
-          console.log(`entry: ${JSON.stringify(entry.object)}`);
+        res.on('searchEntry', (entry: SearchEntry) => {
+          console.warn(`entry: ${JSON.stringify(entry.object)}`);
         });
-        res.on('searchReference', (referral: any) => {
-          console.log(`referral: ${referral.uris.join()}`);
+        res.on('searchReference', (referral: SearchReference) => {
+          console.warn(`referral: ${referral.uris.join()}`);
         });
-        res.on('error', (err: any) => {
+        res.on('error', (err: Error) => {
           console.error(`error: ${err.message}`);
         });
-        res.on('end', (result: any) => {
-          console.log(`status: ${result}`);
+        res.on('end', (result: LDAPResult | null) => {
+          console.warn(`status: ${JSON.stringify(result)}`);
         });
       },
     );
   });
 }
 
-ldapRoles().then(() => Promise.resolve());
+ldapRoles()
+  .then(() => Promise.resolve())
+  .catch((err) => console.error(err));
