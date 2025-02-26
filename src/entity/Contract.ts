@@ -1,14 +1,9 @@
 import { Column, Entity, JoinTable, JoinColumn, OneToMany, ManyToOne } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
-// eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
-// eslint-disable-next-line import/no-cycle
 import { Contact } from './Contact';
-// eslint-disable-next-line import/no-cycle
 import { ContractActivity } from './activity/ContractActivity';
-// eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
-// eslint-disable-next-line import/no-cycle
 import { ContractFile } from './file/ContractFile';
 import { User } from './User';
 
