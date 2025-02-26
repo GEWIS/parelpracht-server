@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO this file needs to be refactored with generics to be linted properly
 import { Repository } from 'typeorm';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
@@ -5,14 +7,11 @@ import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { User } from '../entity/User';
-// eslint-disable-next-line import/no-cycle
-// eslint-disable-next-line import/no-cycle
 import { Contract } from '../entity/Contract';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
-// eslint-disable-next-line import/no-cycle
 import { sendInvoiceEmails } from '../helpers/mailBuilder';
 import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
@@ -189,11 +188,11 @@ export default class ActivityService<T extends BaseActivity> {
     switch (act.constructor.name) {
       case 'ContractActivity':
         activity = <ContractActivity>act;
-        // eslint-disable-next-line no-case-declarations
+
         const contract = await new ContractService().getContract(activity.contractId);
-        // eslint-disable-next-line no-case-declarations
+
         const canEndContract = await this.canEndContract(contract);
-        // eslint-disable-next-line no-case-declarations
+
         statuses = await this.getStatuses({ contractId: activity.contractId });
 
         if (!canEndContract.cancelled && activity.subType === ContractStatus.CANCELLED) {
@@ -289,7 +288,7 @@ export default class ActivityService<T extends BaseActivity> {
    * @param C
    * @param params Parameters to create an activity with
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   async createActivity(C: { new (): T }, params: FullActivityParams): Promise<T> {
     // @ts-ignore
     let activity = new C();

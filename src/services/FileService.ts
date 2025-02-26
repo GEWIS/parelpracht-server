@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO this file needs to be refactored with generics to be linted properly
 import * as fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';

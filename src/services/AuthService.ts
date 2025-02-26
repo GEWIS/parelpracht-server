@@ -1,6 +1,6 @@
 import express from 'express';
 import { Repository } from 'typeorm';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import validator from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
@@ -28,6 +28,11 @@ export interface LdapIdentityParams {
   username: string;
 }
 
+interface JwtToken {
+  user_id: number;
+  type: string;
+}
+
 export default class AuthService {
   identityLocalRepo: Repository<IdentityLocal>;
 
@@ -49,7 +54,7 @@ export default class AuthService {
     this.userRepo = userRepo ?? AppDataSource.getRepository(User);
   }
 
-  async getAuthStatus(req: express.Request): Promise<AuthStatus> {
+  getAuthStatus(req: express.Request): AuthStatus {
     const authenticated = req.isAuthenticated();
 
     return {
@@ -74,18 +79,20 @@ export default class AuthService {
     return this.identityLdapRepo.find({ relations: ['user'] });
   }
 
+  // TODO check error type in case of reject
   async logout(req: express.Request): Promise<void> {
     return new Promise((resolve, reject) => {
-      req.logout((error) => {
+      req.logout((error: Error) => {
         if (error) reject(error);
         resolve();
       });
     });
   }
 
+  // TODO check error type in case of reject
   login(user: User, req: express.Request) {
     return new Promise<void>((resolve, reject) => {
-      req.logIn(user, (err) => {
+      req.logIn(user, (err: Error) => {
         if (err) {
           return reject(err);
         }
@@ -106,7 +113,7 @@ export default class AuthService {
       return;
     }
 
-    Mailer.getInstance().send(
+    await Mailer.getInstance().send(
       resetPassword(
         user,
         `${process.env.SERVER_HOST}/reset-password?token=${this.getResetPasswordToken(user, identity)}`,
@@ -128,7 +135,7 @@ export default class AuthService {
     identity = (await this.identityLocalRepo.findOneBy({ id: user.id }))!;
 
     if (!silent) {
-      Mailer.getInstance().send(
+      await Mailer.getInstance().send(
         newUser(user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(user, identity)}`),
       );
     }
@@ -173,7 +180,7 @@ export default class AuthService {
         user_id: user.id,
       },
       // Password salt + user createdAt as unique key
-      `${identity.salt || ''}.${user.createdAt}`,
+      `${identity.salt || ''}.${user.createdAt.toString()}`,
       { expiresIn: '7 days' },
     );
   }
@@ -185,14 +192,18 @@ export default class AuthService {
         user_id: user.id,
       },
       // Password salt + user createdAt as unique key
-      `${identity.salt || ''}.${user.createdAt}`,
+      `${identity.salt || ''}.${user.createdAt.toString()}`,
       { expiresIn: '7 days' },
     );
   }
 
+  checkToken(token: string | JwtPayload | null): token is JwtToken {
+    return token != null && typeof token === 'object' && 'used_id' in token;
+  }
+
   async resetPassword(newPassword: string, tokenString: string): Promise<void> {
     const token = jwt.decode(tokenString);
-    if (!(token && typeof token !== 'string')) {
+    if (!this.checkToken(token)) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
 
@@ -208,7 +219,7 @@ export default class AuthService {
         case 'PASSWORD_RESET':
         case 'PASSWORD_SET': {
           // Verify the token
-          jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
+          jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt.toString()}`);
           const salt = generateSalt();
           await this.identityLocalRepo.update(user.id, {
             id: user.id,
@@ -219,10 +230,8 @@ export default class AuthService {
           });
           return;
         }
-        default:
-          throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
       }
-    } catch (e) {
+    } catch {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
   }
@@ -240,7 +249,7 @@ export default class AuthService {
       throw new ApiError(HTTPStatus.BadRequest, "You don't have an API key yet.");
     }
 
-    Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
+    await Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }
@@ -261,7 +270,7 @@ export default class AuthService {
 
     await this.identityApiKeyRepo.insert(identity);
 
-    Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
+    await Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }

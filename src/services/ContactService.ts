@@ -83,7 +83,7 @@ export default class ContactService {
   async createContact(params: ContactParams): Promise<Contact> {
     const contact = {
       ...params,
-    } as any as Contact;
+    } as Contact;
     return this.repo.save(contact);
   }
 

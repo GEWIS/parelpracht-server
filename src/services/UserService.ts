@@ -9,8 +9,6 @@ import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { addQueryWhereClause } from '../helpers/filters';
 import { Roles } from '../entity/enums/Roles';
-// eslint-disable-next-line import/no-cycle
-// eslint-disable-next-line import/no-cycle
 import FileHelper, { uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc } from '../helpers/fileHelper';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import { ldapEnabled } from '../auth';
@@ -153,7 +151,7 @@ export default class UserService {
     if (ldapEnabled())
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot create a local user, because LDAP authentication is enabled');
 
-    const { roles, ldapOverrideEmail, ...userParams } = params;
+    const { roles, ...userParams } = params;
     let user = this.repo.create(userParams);
     user = await this.repo.save(user);
     if (roles) {
