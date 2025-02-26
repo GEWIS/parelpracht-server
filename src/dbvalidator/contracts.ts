@@ -18,10 +18,10 @@ export async function allContractsAreCreated() {
   const activityRepo = AppDataSource.getRepository(ContractActivity);
   const contracts = await contractRepo.find({ relations: ['activities'] });
 
-  contracts.forEach((c) => {
+  for (const c of contracts) {
     const createdStatus = c.activities.find((a) => a.subType === ContractStatus.CREATED);
     if (createdStatus === undefined) {
-      activityRepo.save({
+      await activityRepo.save({
         createdAt: new Date(c.createdAt.getDate() - 1),
         updatedAt: new Date(),
         createdById: c.createdById,
@@ -35,10 +35,10 @@ export async function allContractsAreCreated() {
       logResult += `C${c.id}, `;
       count++;
     }
-  });
+  }
 
-  console.log(
-    `The following contracts did not have a 'CREATED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  console.warn(
+    `The following contracts did not have a 'CREATED' status (${count}): ${logResult.substring(0, logResult.length - 2)}`,
   );
 }
 
@@ -53,15 +53,15 @@ export async function allProductsAreCancelledIfContractIsCancelled() {
   const productInstanceActivityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const contracts = await contractRepo.find({ relations: ['products', 'products.activities', 'activities'] });
 
-  contracts.forEach((c) => {
+  for (const c of contracts) {
     const cancelledActivity = c.activities.find((a) => a.subType === ContractStatus.CANCELLED);
 
     if (cancelledActivity) {
-      c.products.forEach((p) => {
+      for (const p of c.products) {
         const index = p.activities.find((a) => a.subType === ProductInstanceStatus.CANCELLED);
 
         if (index === undefined) {
-          productInstanceActivityRepo.save({
+          await productInstanceActivityRepo.save({
             createdAt: cancelledActivity.createdAt,
             updatedAt: new Date(),
             productInstanceId: p.id,
@@ -75,12 +75,12 @@ export async function allProductsAreCancelledIfContractIsCancelled() {
           logResult += `C${c.id} (P${p.id}), `;
           count++;
         }
-      });
+      }
     }
-  });
+  }
 
-  console.log(
-    `The following cancelled contracts had non-cancelled products (${count}): ${logResult.substr(0, logResult.length - 2)}`,
+  console.warn(
+    `The following cancelled contracts had non-cancelled products (${count}): ${logResult.substring(0, logResult.length - 2)}`,
   );
 }
 
@@ -95,17 +95,17 @@ export async function allProductsAreDeliveredIfContractIsFinished() {
   const productInstanceActivityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const contracts = await contractRepo.find({ relations: ['products', 'products.activities', 'activities'] });
 
-  contracts.forEach((c) => {
+  for (const c of contracts) {
     const finishedActivity = c.activities.find((a) => a.subType === ContractStatus.FINISHED);
 
     if (finishedActivity) {
-      c.products.forEach((p) => {
+      for (const p of c.products) {
         const index = p.activities.find(
           (a) => a.subType === ProductInstanceStatus.CANCELLED || a.subType === ProductInstanceStatus.DELIVERED,
         );
 
         if (index === undefined) {
-          productInstanceActivityRepo.save({
+          await productInstanceActivityRepo.save({
             createdAt: finishedActivity.createdAt,
             updatedAt: new Date(),
             productInstanceId: p.id,
@@ -119,11 +119,11 @@ export async function allProductsAreDeliveredIfContractIsFinished() {
           logResult += `C${c.id} (P${p.id}), `;
           count++;
         }
-      });
+      }
     }
-  });
+  }
 
-  console.log(
+  console.warn(
     `The following contracts were finished, but did not have delivered/cancelled products (${count}): ${logResult.substr(0, logResult.length - 2)}`,
   );
 }

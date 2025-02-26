@@ -11,6 +11,7 @@ import bodyParser from 'body-parser';
 import session from 'express-session';
 import { TypeormStore } from 'connect-typeorm';
 import passport from 'passport';
+import { DataSource } from 'typeorm';
 import swaggerDocument from '../build/swagger.json';
 import { RegisterRoutes } from '../build/routes';
 import startEvents from './timedevents/cron';
@@ -29,7 +30,6 @@ import { User } from './entity/User';
 import UserService from './services/UserService';
 import { ldapLogin, LDAPStrategy } from './auth';
 import AppDataSource from './database';
-import { DataSource } from 'typeorm';
 
 dotenv.config({ path: '.env' });
 
@@ -65,84 +65,91 @@ export function setupSessionSupport(dataSource: DataSource, app: Express) {
   // config();
 }
 
-AppDataSource.initialize().then(async (dataSource) => {
-  // Setup of database
-  await new UserService().setupRoles();
+AppDataSource.initialize()
+  .then(async (dataSource) => {
+    // Setup of database
+    await new UserService().setupRoles();
 
-  const app = express();
+    const app = express();
 
-  app.use(express.json({ limit: '50mb' }));
-  app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
+    app.use(express.json({ limit: '50mb' }));
+    app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
 
-  app.set('trust proxy', 2);
+    app.set('trust proxy', 2);
 
-  setupSessionSupport(dataSource, app);
+    setupSessionSupport(dataSource, app);
 
-  passport.serializeUser((user: any, done) => {
-    done(null, user.id);
-  });
-
-  passport.deserializeUser(async (id: number, done) => {
-    const userRepo = dataSource.getRepository(User);
-    const user = await userRepo.findOne({ where: { id }, relations: ['roles'] });
-    if (user === undefined) {
-      return done(null, false);
-    }
-    return done(null, user);
-  });
-
-  passport.use(LDAPStrategy);
-  passport.use(localStrategy);
-
-  app.post('/api/login/ldap', ldapLogin);
-  app.post('/api/login/local', localLogin);
-
-  RegisterRoutes(app);
-
-  app.use(methodOverride());
-
-  // Create file generation folders
-  if (!fs.existsSync(path.join(__dirname, '/../tmp'))) {
-    fs.mkdirSync(path.join(__dirname, '/../tmp'));
-  }
-  if (!fs.existsSync(path.join(__dirname, '/../data/generated'))) {
-    // Recursive so data is also created
-    fs.mkdirSync(path.join(__dirname, '/../data/generated'), { recursive: true });
-  }
-  if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
-    fs.mkdirSync(path.join(__dirname, '/../data/uploads'));
-  }
-  if (!fs.existsSync(path.join(__dirname, '/../data/logos'))) {
-    fs.mkdirSync(path.join(__dirname, '/../data/logos'));
-  }
-  if (!fs.existsSync(path.join(__dirname, '/../data/backgrounds'))) {
-    fs.mkdirSync(path.join(__dirname, '/../data/backgrounds'));
-  }
-
-  // Give additional error information when in development mode.
-  app.use(
-    errorhandler({
-      debug: process.env.NODE_ENV === 'development',
-      safeFields: ['message'],
-    }),
-  );
-
-  // If env file specifies development, use swagger UI
-  if (process.env.NODE_ENV === 'development') {
-    app.use('/api/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-    app.get('/api/swagger.json', (req, res) => {
-      res.sendFile(path.join(__dirname, './public/swagger.json'));
+    passport.serializeUser((user, done) => {
+      done(null, user.id);
     });
-  }
 
-  app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
-  app.use('/static/backgrounds', express.static(path.join(__dirname, '../data/backgrounds')));
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- async is allowed here
+    passport.deserializeUser(async (id: number, done) => {
+      try {
+        const userRepo = dataSource.getRepository(User);
+        const user = await userRepo.findOne({ where: { id }, relations: ['roles'] });
+        if (user === undefined) {
+          done(null, false);
+        }
+        done(null, user);
+      } catch (err) {
+        done(err);
+      }
+    });
 
-  // Announce port that is listened to in the console
-  app.listen(PORT, () => {
-    console.log(`Server is listening on port ${PORT}`);
-  });
+    passport.use(LDAPStrategy);
+    passport.use(localStrategy);
 
-  // Enable timed events
-  startEvents();
-});
+    app.post('/api/login/ldap', ldapLogin);
+    app.post('/api/login/local', localLogin);
+
+    RegisterRoutes(app);
+
+    app.use(methodOverride());
+
+    // Create file generation folders
+    if (!fs.existsSync(path.join(__dirname, '/../tmp'))) {
+      fs.mkdirSync(path.join(__dirname, '/../tmp'));
+    }
+    if (!fs.existsSync(path.join(__dirname, '/../data/generated'))) {
+      // Recursive so data is also created
+      fs.mkdirSync(path.join(__dirname, '/../data/generated'), { recursive: true });
+    }
+    if (!fs.existsSync(path.join(__dirname, '/../data/uploads'))) {
+      fs.mkdirSync(path.join(__dirname, '/../data/uploads'));
+    }
+    if (!fs.existsSync(path.join(__dirname, '/../data/logos'))) {
+      fs.mkdirSync(path.join(__dirname, '/../data/logos'));
+    }
+    if (!fs.existsSync(path.join(__dirname, '/../data/backgrounds'))) {
+      fs.mkdirSync(path.join(__dirname, '/../data/backgrounds'));
+    }
+
+    // Give additional error information when in development mode.
+    app.use(
+      errorhandler({
+        debug: process.env.NODE_ENV === 'development',
+        safeFields: ['message'],
+      }),
+    );
+
+    // If env file specifies development, use swagger UI
+    if (process.env.NODE_ENV === 'development') {
+      app.use('/api/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+      app.get('/api/swagger.json', (req, res) => {
+        res.sendFile(path.join(__dirname, './public/swagger.json'));
+      });
+    }
+
+    app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
+    app.use('/static/backgrounds', express.static(path.join(__dirname, '../data/backgrounds')));
+
+    // Announce port that is listened to in the console
+    app.listen(PORT, () => {
+      console.warn(`Server is listening on port ${PORT}`);
+    });
+
+    // Enable timed events
+    startEvents();
+  })
+  .catch((e) => console.error(e));
