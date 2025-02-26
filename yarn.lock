@@ -1608,13 +1608,13 @@ __metadata:
   linkType: hard
 
 "axios@npm:*, axios@npm:^1.7.9":
-  version: 1.7.9
-  resolution: "axios@npm:1.7.9"
+  version: 1.8.1
+  resolution: "axios@npm:1.8.1"
   dependencies:
     follow-redirects: "npm:^1.15.6"
     form-data: "npm:^4.0.0"
     proxy-from-env: "npm:^1.1.0"
-  checksum: 10c0/b7a41e24b59fee5f0f26c1fc844b45b17442832eb3a0fb42dd4f1430eb4abc571fe168e67913e8a1d91c993232bd1d1ab03e20e4d1fee8c6147649b576fc1b0b
+  checksum: 10c0/b2e1d5a61264502deee4b50f0a6df0aa3b174c546ccf68c0dff714a2b8863232e0bd8cb5b84f853303e97f242a98260f9bb9beabeafe451ad5af538e9eb7ac22
   languageName: node
   linkType: hard
 
@@ -2465,13 +2465,13 @@ __metadata:
   linkType: hard
 
 "eslint-config-prettier@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "eslint-config-prettier@npm:10.0.1"
+  version: 10.0.2
+  resolution: "eslint-config-prettier@npm:10.0.2"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: build/bin/cli.js
-  checksum: 10c0/e2434931669d211663c0493f2c1640a670a02ba4503a68f056a7eda133f383acbbb983a4a7bd0ad6cb3b2bc4d5731c3be8b32fe28e35087a76fea45f7061ae70
+  checksum: 10c0/e0ef3c442661a26fc6e82acec5bb9a418c4a8f65ec8adf0983d3aaba7716d2ed448358b063cce6e3c272c847d14cb856ddf30031770c6571e2b2c3e2a439afd4
   languageName: node
   linkType: hard
 
@@ -2839,11 +2839,11 @@ __metadata:
   linkType: hard
 
 "fastq@npm:^1.6.0":
-  version: 1.19.0
-  resolution: "fastq@npm:1.19.0"
+  version: 1.19.1
+  resolution: "fastq@npm:1.19.1"
   dependencies:
     reusify: "npm:^1.0.4"
-  checksum: 10c0/d6a001638f1574a696660fcbba5300d017760432372c801632c325ca7c16819604841c92fd3ccadcdacec0966ca336363a5ff57bc5f0be335d8ea7ac6087b98f
+  checksum: 10c0/ebc6e50ac7048daaeb8e64522a1ea7a26e92b3cee5cd1c7f2316cdca81ba543aa40a136b53891446ea5c3a67ec215fbaca87ad405f102dd97012f62916905630
   languageName: node
   linkType: hard
 
@@ -5449,9 +5449,9 @@ __metadata:
   linkType: hard
 
 "reusify@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "reusify@npm:1.0.4"
-  checksum: 10c0/c19ef26e4e188f408922c46f7ff480d38e8dfc55d448310dfb518736b23ed2c4f547fb64a6ed5bdba92cd7e7ddc889d36ff78f794816d5e71498d645ef476107
+  version: 1.1.0
+  resolution: "reusify@npm:1.1.0"
+  checksum: 10c0/4eff0d4a5f9383566c7d7ec437b671cc51b25963bd61bf127c3f3d3f68e44a026d99b8d2f1ad344afff8d278a8fe70a8ea092650a716d22287e8bef7126bb2fa
   languageName: node
   linkType: hard
 

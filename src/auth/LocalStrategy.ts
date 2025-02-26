@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { Strategy as LocalStrategy } from 'passport-local';
 import passport from 'passport';
 import express from 'express';
-import validator from 'validator';
+import { normalizeEmail } from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -33,10 +33,11 @@ export default new LocalStrategy(
     usernameField: 'email',
     passwordField: 'password',
   },
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises -- async is allowed here
   async (email, password, done) => {
     const userRepo = AppDataSource.getRepository(User);
     const identityRepo = AppDataSource.getRepository(IdentityLocal);
-    const userEmail = validator.normalizeEmail(email);
+    const userEmail = normalizeEmail(email);
     if (userEmail === false) {
       return done(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
     }
@@ -69,14 +70,15 @@ export default new LocalStrategy(
 );
 
 export const localLogin = (req: ExpressRequest, res: express.Response, next: express.NextFunction) => {
-  passport.authenticate('local', (err: any, user: any) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- this seems to be correct
+  passport.authenticate('local', (err: Error, user: User) => {
     if (err) {
       return next(err);
     }
     if (!user) {
       return next(new ApiError(HTTPStatus.BadRequest, INVALID_LOGIN));
     }
-    return req.logIn(user, (e: any) => {
+    return req.logIn(user, (e: Error) => {
       // When the user enabled "remember me", we give the session cookie an
       // expiration date of 30 days
       if (req.body.rememberMe === true) {

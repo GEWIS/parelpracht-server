@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import validator from 'validator';
+import { sign as jwtSign, decode as jwtDecode, verify as jwtVerify, JwtPayload } from 'jsonwebtoken';
+import { normalizeEmail } from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { Mailer } from '../mailer/Mailer';
@@ -102,7 +102,7 @@ export default class AuthService {
   }
 
   async forgotPassword(userEmail: string): Promise<void> {
-    let email = validator.normalizeEmail(userEmail);
+    let email = normalizeEmail(userEmail);
     if (email === false) {
       email = '';
     }
@@ -174,7 +174,7 @@ export default class AuthService {
   }
 
   getResetPasswordToken(user: User, identity: IdentityLocal): string {
-    return jwt.sign(
+    return jwtSign(
       {
         type: 'PASSWORD_RESET',
         user_id: user.id,
@@ -186,7 +186,7 @@ export default class AuthService {
   }
 
   getSetPasswordToken(user: User, identity: IdentityLocal): string {
-    return jwt.sign(
+    return jwtSign(
       {
         type: 'PASSWORD_SET',
         user_id: user.id,
@@ -202,7 +202,7 @@ export default class AuthService {
   }
 
   async resetPassword(newPassword: string, tokenString: string): Promise<void> {
-    const token = jwt.decode(tokenString);
+    const token = jwtDecode(tokenString);
     if (!this.checkToken(token)) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
@@ -219,7 +219,7 @@ export default class AuthService {
         case 'PASSWORD_RESET':
         case 'PASSWORD_SET': {
           // Verify the token
-          jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt.toString()}`);
+          jwtVerify(tokenString, `${identity.salt || ''}.${user.createdAt.toString()}`);
           const salt = generateSalt();
           await this.identityLocalRepo.update(user.id, {
             id: user.id,

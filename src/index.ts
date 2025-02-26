@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 import * as fs from 'fs';
 import path from 'path';
-import express, { Express } from 'express';
-import dotenv from 'dotenv';
+import express, { Express, json as expressJson, static as expressStatic } from 'express';
+import { config } from 'dotenv';
 
 import errorhandler from 'strong-error-handler';
-import swaggerUi from 'swagger-ui-express';
+import { serve as serverSwagger, setup as setupSwagger } from 'swagger-ui-express';
 import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
 import session from 'express-session';
@@ -31,7 +31,7 @@ import UserService from './services/UserService';
 import { ldapLogin, LDAPStrategy } from './auth';
 import AppDataSource from './database';
 
-dotenv.config({ path: '.env' });
+config({ path: '.env' });
 
 const PORT = process.env.PORT || 3001;
 
@@ -72,7 +72,7 @@ AppDataSource.initialize()
 
     const app = express();
 
-    app.use(express.json({ limit: '50mb' }));
+    app.use(expressJson({ limit: '50mb' }));
     app.use(bodyParser.urlencoded({ extended: false, limit: '50mb' }));
 
     app.set('trust proxy', 2);
@@ -135,14 +135,14 @@ AppDataSource.initialize()
 
     // If env file specifies development, use swagger UI
     if (process.env.NODE_ENV === 'development') {
-      app.use('/api/swagger-ui', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+      app.use('/api/swagger-ui', serverSwagger, setupSwagger(swaggerDocument));
       app.get('/api/swagger.json', (req, res) => {
         res.sendFile(path.join(__dirname, './public/swagger.json'));
       });
     }
 
-    app.use('/static/logos', express.static(path.join(__dirname, '../data/logos')));
-    app.use('/static/backgrounds', express.static(path.join(__dirname, '../data/backgrounds')));
+    app.use('/static/logos', expressStatic(path.join(__dirname, '../data/logos')));
+    app.use('/static/backgrounds', expressStatic(path.join(__dirname, '../data/backgrounds')));
 
     // Announce port that is listened to in the console
     app.listen(PORT, () => {
