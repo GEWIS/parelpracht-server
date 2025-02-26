@@ -11,7 +11,7 @@
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
     "db:validate": "ts-node src/dbvalidator/validate.ts",
-    "lint": "eslint src",
+    "lint": "yarn tsoa && eslint src",
     "lint:fix": "eslint . --fix",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "prettier --ignore-path .gitignore --write ."

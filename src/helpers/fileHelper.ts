@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import path from 'path';
+import { Readable } from 'stream';
 import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
 import { Controller } from 'tsoa';
@@ -18,7 +19,7 @@ export default class FileHelper {
    * @param controller Controller that handles the request
    * @param file File to add to the response
    */
-  public static putFileInResponse(controller: Controller, file: BaseFile): fs.ReadStream {
+  public static putFileInResponse(controller: Controller, file: BaseFile): Readable {
     const stat = fs.statSync(file.location);
 
     controller.setStatus(200);

@@ -1,6 +1,6 @@
 import path from 'path';
 import { FindManyOptions, Repository } from 'typeorm';
-import validator from 'validator';
+import { isEmail, isStrongPassword, isEmpty } from 'validator';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -216,12 +216,12 @@ export default class UserService {
 
   private validateUserParams(params: UserParams): boolean {
     return (
-      validator.isStrongPassword(params.password) &&
-      validator.isEmail(params.email) &&
-      !validator.isEmpty(params.firstName) &&
-      !validator.isEmpty(params.lastName) &&
-      !validator.isEmpty(params.email) &&
-      !validator.isEmpty(params.gender)
+      isStrongPassword(params.password) &&
+      isEmail(params.email) &&
+      !isEmpty(params.firstName) &&
+      !isEmpty(params.lastName) &&
+      !isEmpty(params.email) &&
+      !isEmpty(params.gender)
     );
   }
 

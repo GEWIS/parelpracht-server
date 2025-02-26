@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { Readable } from 'stream';
 import { body } from 'express-validator';
 import { Product } from '../entity/Product';
 import ProductService, {
@@ -230,7 +230,7 @@ export class ProductController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getProductFile(id: number, fileId: number): Promise<fs.ReadStream> {
+  public async getProductFile(id: number, fileId: number): Promise<Readable> {
     const file = <ProductFile>await new FileService(ProductFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);

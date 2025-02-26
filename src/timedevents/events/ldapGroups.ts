@@ -1,6 +1,6 @@
 import { createClient, SearchCallbackResponse, SearchEntry } from 'ldapjs';
 import { IdentityLDAP } from '../../entity/IdentityLDAP';
-import { updateUserInformation } from '../../auth';
+import { LDAPUser, updateUserInformation } from '../../auth';
 import AppDataSource from '../../database';
 
 export default async function ldapGroups() {
@@ -28,7 +28,8 @@ export default async function ldapGroups() {
         }
 
         res.on('searchEntry', (entry: SearchEntry) => {
-          updateUserInformation(identity.user, entry.object).catch((err) => console.error(err));
+          // TODO check if there is a better way to cast this type
+          updateUserInformation(identity.user, entry.object as unknown as LDAPUser).catch((err) => console.error(err));
         });
       },
     );

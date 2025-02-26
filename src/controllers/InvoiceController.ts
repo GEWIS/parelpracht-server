@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { Readable } from 'stream';
 import { body, ValidationChain } from 'express-validator';
 import { Invoice } from '../entity/Invoice';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
@@ -180,7 +180,7 @@ export class InvoiceController extends Controller {
     id: number,
     @Body() params: GenerateInvoiceParams,
     @Request() req: ExpressRequest,
-  ): Promise<fs.ReadStream> {
+  ): Promise<Readable> {
     await validate(
       [
         body('language').isIn(Object.values(Language)),
@@ -228,7 +228,7 @@ export class InvoiceController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getInvoiceFile(id: number, fileId: number): Promise<fs.ReadStream> {
+  public async getInvoiceFile(id: number, fileId: number): Promise<Readable> {
     const file = <InvoiceFile>await new FileService(InvoiceFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);
@@ -278,7 +278,7 @@ export class InvoiceController extends Controller {
   public async generateCustomInvoice(
     @Body() params: CustomInvoiceGenSettings,
     @Request() req: ExpressRequest,
-  ): Promise<fs.ReadStream> {
+  ): Promise<Readable> {
     await validate(
       [
         body('language').isIn(Object.values(Language)),
