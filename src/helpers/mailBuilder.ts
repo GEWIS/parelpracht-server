@@ -1,6 +1,4 @@
-// eslint-disable-next-line import/no-cycle
 import UserService from '../services/UserService';
-// eslint-disable-next-line import/no-cycle
 import InvoiceService from '../services/InvoiceService';
 import { Roles } from '../entity/enums/Roles';
 import { Mailer } from '../mailer/Mailer';

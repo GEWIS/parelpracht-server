@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO this file needs a bigger overhaul for proper linting
 import _ from 'lodash';
 import { Repository } from 'typeorm';
 import { User } from '../entity/User';

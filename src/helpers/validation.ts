@@ -25,7 +25,6 @@ export const validate = async (validations: ValidationChain[], req: express.Requ
  */
 export const validateSeq = async (validations: ValidationChain[], req: express.Request) => {
   for (let i = 0; i < validations.length; i++) {
-    // eslint-disable-next-line no-await-in-loop
     const result = await validations[i].run(req);
     if (!result.isEmpty()) break;
   }
@@ -41,13 +40,20 @@ export const validateSeq = async (validations: ValidationChain[], req: express.R
  * @param contactId ID of the contact to check
  * @param req Express.js request object, with the company id in the body
  */
-export const contactInCompany = async (contactId: number, req: express.Request) => {
-  new ContactService().getContact(contactId).then((contact) => {
-    if (contact.companyId !== req.body.companyId) {
-      return Promise.reject(new Error('Contact does not belong to company'));
-    }
-    return Promise.resolve();
-  });
+export const contactInCompany = (contactId: number, req: express.Request) => {
+  new ContactService()
+    .getContact(contactId)
+    .then((contact) => {
+      // TODO how to type body of request?
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (contact.companyId !== req.body.companyId) {
+        return Promise.reject(new Error('Contact does not belong to company'));
+      }
+      return Promise.resolve();
+    })
+    .catch((err: Error) => {
+      return Promise.reject(new ApiError(HTTPStatus.BadRequest, err.message));
+    });
 };
 
 /**
