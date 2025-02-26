@@ -1,8 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
-// eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
-// eslint-disable-next-line import/no-cycle
 import { Contract } from './Contract';
 import { ContactFunction } from './enums/ContactFunction';
 import { Gender } from './enums/Gender';

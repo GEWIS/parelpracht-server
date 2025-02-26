@@ -1,5 +1,4 @@
 import { Column, JoinColumn, ManyToOne } from 'typeorm';
-// eslint-disable-next-line import/no-cycle
 import { User } from '../User';
 import { BaseEnt } from '../BaseEnt';
 import { ActivityType } from '../enums/ActivityType';

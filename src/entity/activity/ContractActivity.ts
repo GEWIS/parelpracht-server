@@ -1,6 +1,4 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-// eslint-disable-next-line import/no-cycle
-// eslint-disable-next-line import/no-cycle
 import { Contract } from '../Contract';
 import { ContractStatus } from '../enums/ContractStatus';
 import { BaseEnt } from '../BaseEnt';

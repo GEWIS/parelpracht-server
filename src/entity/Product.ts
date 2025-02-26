@@ -1,12 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
-// eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
-// eslint-disable-next-line import/no-cycle
 import { ProductActivity } from './activity/ProductActivity';
-// eslint-disable-next-line import/no-cycle
 import { ProductFile } from './file/ProductFile';
-// eslint-disable-next-line import/no-cycle
 import { ProductCategory } from './ProductCategory';
 import { ProductStatus } from './enums/ProductStatus';
 import { ProductPricing } from './ProductPricing';
