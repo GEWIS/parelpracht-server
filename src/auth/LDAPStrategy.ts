@@ -8,6 +8,7 @@ import { Role } from '../entity/Role';
 import UserService from '../services/UserService';
 import { Roles } from '../entity/enums/Roles';
 import AppDataSource from '../database';
+import { ExpressRequest } from '../types';
 
 const isDefined = (i: string | undefined) => i !== undefined && i !== '';
 
@@ -44,16 +45,16 @@ export const updateUserInformation = async (user: User, ldapUser: any): Promise<
   await new UserService().assignRoles(user, userRoles);
 
   const identity = user.identityLdap;
-  // eslint-disable-next-line no-param-reassign
+
   if (identity && !identity.overrideEmail) user.email = ldapUser.mail;
-  // eslint-disable-next-line no-param-reassign
+
   user.firstName = ldapUser.givenName;
-  // eslint-disable-next-line no-param-reassign
+
   user.lastName = ldapUser.sn;
   return user.save();
 };
 
-export const ldapLogin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const ldapLogin = (req: ExpressRequest, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('ldapauth', async (err: any, ldapUser: any, info: any) => {
     if (err) {
       return next(err);

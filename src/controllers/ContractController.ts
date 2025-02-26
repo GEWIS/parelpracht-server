@@ -1,4 +1,4 @@
-import express from 'express';
+import fs from 'fs';
 import { body } from 'express-validator';
 import { Contract } from '../entity/Contract';
 import ContractService, { ContractListResponse, ContractParams } from '../services/ContractService';
@@ -29,24 +29,24 @@ import { Language } from '../entity/enums/Language';
 import { RecentContract } from '../helpers/rawQueries';
 import { ContractSummary } from '../entity/Summaries';
 import { Roles } from '../entity/enums/Roles';
+import { ExpressRequest } from '../types';
 import { ListParams } from './ListParams';
 import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('contract')
 @Tags('Contract')
 export class ContractController extends Controller {
-  private async validateContractParams(req: express.Request) {
+  private async validateContractParams(req: ExpressRequest) {
     await validate(
       [
         body('title').notEmpty().trim(),
         body('companyId').isInt(),
-        body('contactId').custom((contactId) => {
-          return new ContactService().getContact(contactId).then((contact) => {
-            if (contact.companyId !== req.body.companyId) {
-              return Promise.reject(new Error('Contact does not belong to company'));
-            }
-            return Promise.resolve();
-          });
+        body('contactId').custom(async (contactId: number) => {
+          const contact = await new ContactService().getContact(contactId);
+          if (contact.companyId !== req.body.companyId) {
+            return Promise.reject(new Error('Contact does not belong to company'));
+          }
+          return await Promise.resolve();
         }),
         body('comments').optional({ checkFalsy: true }).isString().trim(),
         body('assignedToId').optional({ checkFalsy: true }).isInt(),
@@ -55,7 +55,7 @@ export class ContractController extends Controller {
     );
   }
 
-  private async validateProductInstanceParams(req: express.Request) {
+  private async validateProductInstanceParams(req: ExpressRequest) {
     await validate(
       [
         body('productId').isInt(),
@@ -96,7 +96,7 @@ export class ContractController extends Controller {
   @Get('recent')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getRecentContracts(@Request() req: express.Request): Promise<RecentContract[]> {
+  public async getRecentContracts(@Request() req: ExpressRequest): Promise<RecentContract[]> {
     return new ContractService().getRecentContracts(req.user! as User);
   }
 
@@ -119,7 +119,7 @@ export class ContractController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createContract(@Request() req: express.Request, @Body() params: ContractParams): Promise<Contract> {
+  public async createContract(@Request() req: ExpressRequest, @Body() params: ContractParams): Promise<Contract> {
     await this.validateContractParams(req);
     return new ContractService({ actor: req.user as User }).createContract(params);
   }
@@ -136,7 +136,7 @@ export class ContractController extends Controller {
   public async updateContract(
     id: number,
     @Body() params: Partial<ContractParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<Contract> {
     await this.validateContractParams(req);
     return new ContractService({ actor: req.user as User }).updateContract(id, params);
@@ -145,7 +145,6 @@ export class ContractController extends Controller {
   /**
    * Delete a contract, if it has no products or updated statuses
    * @param id ID of the contract
-   * @param req Express.js request object
    */
   @Delete('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
@@ -166,7 +165,7 @@ export class ContractController extends Controller {
   public async addProductInstanceToContract(
     id: number,
     @Body() params: ProductInstanceParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
     return new ProductInstanceService({ actor: req.user as User }).addProduct(id, params);
@@ -186,7 +185,7 @@ export class ContractController extends Controller {
     id: number,
     prodId: number,
     @Body() params: Partial<ProductInstanceParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<ProductInstance> {
     await this.validateProductInstanceParams(req);
     return new ProductInstanceService({ actor: req.user as User }).updateProduct(id, prodId, params);
@@ -201,7 +200,7 @@ export class ContractController extends Controller {
   @Delete('{id}/product/{prodId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteProductInstance(id: number, prodId: number, @Request() req: express.Request): Promise<void> {
+  public async deleteProductInstance(id: number, prodId: number, @Request() req: ExpressRequest): Promise<void> {
     return new ProductInstanceService({ actor: req.user as User }).deleteProduct(id, prodId);
   }
 
@@ -219,7 +218,7 @@ export class ContractController extends Controller {
     id: number,
     prodId: number,
     @Body() params: ProductInstanceStatusParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req, [body('subType').isIn(Object.values(ProductInstanceStatus))]);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
@@ -250,7 +249,7 @@ export class ContractController extends Controller {
     id: number,
     prodId: number,
     @Body() params: ActivityParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
@@ -281,7 +280,7 @@ export class ContractController extends Controller {
     prodId: number,
     activityId: number,
     @Body() params: Partial<ActivityParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
     await new ProductInstanceService().validateProductInstanceContractB(id, prodId);
@@ -323,8 +322,8 @@ export class ContractController extends Controller {
   public async generateContractFile(
     id: number,
     @Body() params: GenerateContractParams,
-    @Request() req: express.Request,
-  ): Promise<any> {
+    @Request() req: ExpressRequest,
+  ): Promise<fs.ReadStream> {
     await validate(
       [
         body('language').isIn(Object.values(Language)),
@@ -354,7 +353,7 @@ export class ContractController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadContractFile(id: number, @Request() req: express.Request): Promise<ContractFile> {
+  public async uploadContractFile(id: number, @Request() req: ExpressRequest): Promise<ContractFile> {
     const actor = req.user as User;
     if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -363,7 +362,7 @@ export class ContractController extends Controller {
       );
     }
 
-    return new FileService(ContractFile, { actor: req.user as User }).uploadFile(req, id);
+    return (await new FileService(ContractFile, { actor: req.user as User }).uploadFile(req, id)) as ContractFile;
   }
 
   /**
@@ -375,7 +374,7 @@ export class ContractController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getContractFile(id: number, fileId: number): Promise<any> {
+  public async getContractFile(id: number, fileId: number): Promise<fs.ReadStream> {
     const file = <ContractFile>await new FileService(ContractFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);
@@ -395,7 +394,7 @@ export class ContractController extends Controller {
     id: number,
     fileId: number,
     @Body() params: Partial<FileParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseFile> {
     await validateFileParams(req);
     return new FileService(ContractFile).updateFile(id, fileId, params);
@@ -425,7 +424,7 @@ export class ContractController extends Controller {
   public async addContractStatus(
     id: number,
     @Body() params: ContractStatusParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req, [body('subType').isIn(Object.values(ContractStatus))]);
     const p: FullActivityParams = {
@@ -450,7 +449,7 @@ export class ContractController extends Controller {
   public async addContractComment(
     id: number,
     @Body() params: ActivityParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     const p: FullActivityParams = {
@@ -476,7 +475,7 @@ export class ContractController extends Controller {
     id: number,
     activityId: number,
     @Body() params: Partial<ActivityParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
     const p: Partial<FullActivityParams> = {

@@ -1,4 +1,4 @@
-import express from 'express';
+import fs from 'fs';
 import { body } from 'express-validator';
 import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
@@ -24,13 +24,14 @@ import BaseFile from '../entity/file/BaseFile';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
 import { Roles } from '../entity/enums/Roles';
+import { ExpressRequest } from '../types';
 import { ListParams } from './ListParams';
 import { Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request } from 'tsoa';
 
 @Route('company')
 @Tags('Company')
 export class CompanyController extends Controller {
-  private async validateCompanyParams(req: express.Request): Promise<void> {
+  private async validateCompanyParams(req: ExpressRequest): Promise<void> {
     await validate(
       [
         body('name').notEmpty().trim(),
@@ -103,7 +104,7 @@ export class CompanyController extends Controller {
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createCompany(@Body() params: CompanyParams, @Request() req: express.Request): Promise<Company> {
+  public async createCompany(@Body() params: CompanyParams, @Request() req: ExpressRequest): Promise<Company> {
     await this.validateCompanyParams(req);
     return new CompanyService().createCompany(params);
   }
@@ -120,7 +121,7 @@ export class CompanyController extends Controller {
   public async updateCompany(
     id: number,
     @Body() params: Partial<CompanyParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<Company> {
     await this.validateCompanyParams(req);
     return new CompanyService({ actor: req.user as User }).updateCompany(id, params);
@@ -129,7 +130,6 @@ export class CompanyController extends Controller {
   /**
    * Delete company
    * @param id ID of the company to delete
-   * @param req Express.js request object
    */
   @Delete('{id}')
   @Security('local', ['ADMIN'])
@@ -146,7 +146,7 @@ export class CompanyController extends Controller {
   @Put('{id}/logo')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadCompanyLogo(@Request() req: express.Request, id: number) {
+  public async uploadCompanyLogo(@Request() req: ExpressRequest, id: number) {
     await FileService.uploadCompanyLogo(req, id);
   }
 
@@ -198,7 +198,7 @@ export class CompanyController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadCompanyFile(id: number, @Request() req: express.Request): Promise<CompanyFile> {
+  public async uploadCompanyFile(id: number, @Request() req: ExpressRequest): Promise<CompanyFile> {
     const actor = req.user as User;
     if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -207,7 +207,7 @@ export class CompanyController extends Controller {
       );
     }
 
-    return new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id);
+    return (await new FileService(CompanyFile, { actor: req.user as User }).uploadFile(req, id)) as CompanyFile;
   }
 
   /**
@@ -219,7 +219,7 @@ export class CompanyController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async getCompanyFile(id: number, fileId: number): Promise<any> {
+  public async getCompanyFile(id: number, fileId: number): Promise<fs.ReadStream> {
     const file = <CompanyFile>await new FileService(CompanyFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);
@@ -239,7 +239,7 @@ export class CompanyController extends Controller {
     id: number,
     fileId: number,
     @Body() params: Partial<FileParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseFile> {
     await validateFileParams(req);
     return new FileService(CompanyFile).updateFile(id, fileId, params);
@@ -269,7 +269,7 @@ export class CompanyController extends Controller {
   public async addCompanyComment(
     id: number,
     @Body() params: ActivityParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     const p: FullActivityParams = {
@@ -294,7 +294,7 @@ export class CompanyController extends Controller {
     id: number,
     activityId: number,
     @Body() params: Partial<ActivityParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
     const p: Partial<FullActivityParams> = {

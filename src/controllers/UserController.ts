@@ -1,4 +1,3 @@
-import express from 'express';
 import { body } from 'express-validator';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
@@ -13,11 +12,12 @@ import { IdentityLDAP } from '../entity/IdentityLDAP';
 import GDPRService from '../services/GDPRService';
 import { ListParams } from './ListParams';
 import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
+import { ExpressRequest } from 'src/types';
 
 @Route('user')
 @Tags('User')
 export class UserController extends Controller {
-  private async validateUserParams(req: express.Request) {
+  private async validateUserParams(req: ExpressRequest) {
     await validate(
       [
         body('email').isEmail().normalizeEmail(),
@@ -63,7 +63,7 @@ export class UserController extends Controller {
   @Get('{id}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getUser(id: number, @Request() req: express.Request): Promise<User> {
+  public async getUser(id: number, @Request() req: ExpressRequest): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -84,7 +84,7 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   @Response<WrappedApiError>(403)
-  public async deleteUser(@Request() req: Express.Request, id: number): Promise<void> {
+  public async deleteUser(@Request() req: ExpressRequest, id: number): Promise<void> {
     return new UserService().deleteUser(id, req.user as User);
   }
 
@@ -96,7 +96,7 @@ export class UserController extends Controller {
   @Post()
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createUser(@Body() params: UserParams, @Request() req: express.Request): Promise<User> {
+  public async createUser(@Body() params: UserParams, @Request() req: ExpressRequest): Promise<User> {
     await this.validateUserParams(req);
     return new UserService().createUser(params);
   }
@@ -111,7 +111,7 @@ export class UserController extends Controller {
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
   public async updateUser(
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
     id: number,
     @Body() params: Partial<UserParams>,
   ): Promise<User> {
@@ -135,7 +135,7 @@ export class UserController extends Controller {
   @Put('{id}/logo')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async uploadUserAvatar(@Request() req: express.Request, id: number) {
+  public async uploadUserAvatar(@Request() req: ExpressRequest, id: number) {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -157,7 +157,7 @@ export class UserController extends Controller {
   @Delete('{id}/logo')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async deleteUserAvatar(@Request() req: express.Request, id: number): Promise<User> {
+  public async deleteUserAvatar(@Request() req: ExpressRequest, id: number): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -177,7 +177,7 @@ export class UserController extends Controller {
   @Put('{id}/background')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async uploadUserBackground(@Request() req: express.Request, id: number) {
+  public async uploadUserBackground(@Request() req: ExpressRequest, id: number) {
     const actor = req.user as User;
     if (actor.id !== id) {
       throw new ApiError(
@@ -199,7 +199,7 @@ export class UserController extends Controller {
   @Delete('{id}/background')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async deleteUserBackground(@Request() req: express.Request, id: number): Promise<User> {
+  public async deleteUserBackground(@Request() req: ExpressRequest, id: number): Promise<User> {
     const actor = req.user as User;
     if (actor.id !== id && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -221,7 +221,7 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN', 'GENERAL'])
   @Response<WrappedApiError>(401)
   public async transferAssignments(
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
     id: number,
     @Body() params: TransferUserParams,
   ): Promise<void> {
@@ -241,7 +241,7 @@ export class UserController extends Controller {
   @Post('{id}/auth/local')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createLocalIdentity(@Request() req: express.Request, id: number): Promise<IdentityLocal> {
+  public async createLocalIdentity(@Request() req: ExpressRequest, id: number): Promise<IdentityLocal> {
     const user = await new UserService().getUser(id);
     return new AuthService().createIdentityLocal(user, false);
   }
@@ -249,7 +249,7 @@ export class UserController extends Controller {
   @Delete('{id}/auth/local')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteLocalIdentity(@Request() req: express.Request, id: number): Promise<void> {
+  public async deleteLocalIdentity(@Request() req: ExpressRequest, id: number): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLocal(user);
   }
@@ -258,7 +258,7 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async createLdapIdentity(
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
     id: number,
     @Body() params: LdapIdentityParams,
   ): Promise<IdentityLDAP> {
@@ -270,7 +270,7 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateLdapIdentity(
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
     id: number,
     @Body() params: Partial<LdapIdentityParams>,
   ): Promise<IdentityLDAP> {
@@ -281,7 +281,7 @@ export class UserController extends Controller {
   @Delete('{id}/auth/ldap')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteLdapIdentity(@Request() req: express.Request, id: number): Promise<void> {
+  public async deleteLdapIdentity(@Request() req: ExpressRequest, id: number): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLdap(user);
   }

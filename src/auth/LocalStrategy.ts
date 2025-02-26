@@ -7,6 +7,7 @@ import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AppDataSource from '../database';
+import { ExpressRequest } from '../types';
 
 const INVALID_LOGIN = 'Invalid email or password.';
 const VERIFY_ACCOUNT = 'Please verify your account and set your password with the link received by email.';
@@ -67,7 +68,7 @@ export default new LocalStrategy(
   },
 );
 
-export const localLogin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+export const localLogin = (req: ExpressRequest, res: express.Response, next: express.NextFunction) => {
   passport.authenticate('local', (err: any, user: any) => {
     if (err) {
       return next(err);
