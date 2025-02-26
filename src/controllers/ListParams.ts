@@ -18,5 +18,6 @@ export type SortDirection = 'ASC' | 'DESC';
 
 export interface ListOrFilter {
   column: string;
-  values: unknown[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO check if change required after rewriting queries
+  values: any[];
 }

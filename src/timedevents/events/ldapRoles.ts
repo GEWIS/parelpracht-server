@@ -1,5 +1,5 @@
 import { createClient, LDAPResult, SearchCallbackResponse, SearchEntry, SearchRequest } from 'ldapjs';
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
 import { ldapEnabled } from '../../auth';
 import AuthService from '../../services/AuthService';
 
@@ -8,7 +8,7 @@ export interface SearchReference {
 }
 
 export default async function ldapRoles() {
-  dotenv.config();
+  config();
 
   if (!ldapEnabled()) return;
 

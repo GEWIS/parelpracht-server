@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { Readable } from 'stream';
 import { body } from 'express-validator';
 import { Contract } from '../entity/Contract';
 import ContractService, { ContractListResponse, ContractParams } from '../services/ContractService';
@@ -323,7 +323,7 @@ export class ContractController extends Controller {
     id: number,
     @Body() params: GenerateContractParams,
     @Request() req: ExpressRequest,
-  ): Promise<fs.ReadStream> {
+  ): Promise<Readable> {
     await validate(
       [
         body('language').isIn(Object.values(Language)),
@@ -374,7 +374,7 @@ export class ContractController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getContractFile(id: number, fileId: number): Promise<fs.ReadStream> {
+  public async getContractFile(id: number, fileId: number): Promise<Readable> {
     const file = <ContractFile>await new FileService(ContractFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);

@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+import { config } from 'dotenv';
 import AppDataSource from '../database';
 import {
   allContractsAreCreated,
@@ -9,7 +9,7 @@ import { allInvoicesAreCreated } from './invoices';
 import { allProductInstancesWereNotDelivered } from './productInstances';
 import { replaceGEWISRecipient } from './GEWISrecipient';
 
-dotenv.config({ path: '.env' });
+config({ path: '.env' });
 
 AppDataSource.initialize()
   .then(async () => {
