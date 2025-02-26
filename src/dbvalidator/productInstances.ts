@@ -14,10 +14,10 @@ export async function allProductInstancesWereNotDelivered() {
   const activityRepo = AppDataSource.getRepository(ProductInstanceActivity);
   const productInstances = await productRepo.find({ relations: ['activities', 'contract'] });
 
-  productInstances.forEach((p) => {
+  for (const p of productInstances) {
     const notDeliveredStatus = p.activities.find((a) => a.subType === ProductInstanceStatus.NOTDELIVERED);
     if (notDeliveredStatus === undefined) {
-      activityRepo.save({
+      await activityRepo.save({
         createdAt: new Date(p.createdAt.getDate() - 1),
         updatedAt: new Date(),
         productInstanceId: p.id,
@@ -31,9 +31,9 @@ export async function allProductInstancesWereNotDelivered() {
       logResult += `C${p.contractId} (P${p.id}), `;
       count++;
     }
-  });
+  }
 
-  console.log(
+  console.warn(
     `The following contracts had products that do not have a 'NOTDELIVERED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`,
   );
 }
