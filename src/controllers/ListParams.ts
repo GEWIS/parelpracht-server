@@ -18,5 +18,5 @@ export type SortDirection = 'ASC' | 'DESC';
 
 export interface ListOrFilter {
   column: string;
-  values: any[];
+  values: unknown[];
 }

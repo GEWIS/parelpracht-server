@@ -1,4 +1,4 @@
-import express from 'express';
+import fs from 'fs';
 import { body, ValidationChain } from 'express-validator';
 import { Invoice } from '../entity/Invoice';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
@@ -21,13 +21,14 @@ import { Language } from '../entity/enums/Language';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { InvoiceSummary } from '../entity/Summaries';
 import { Roles } from '../entity/enums/Roles';
+import { ExpressRequest } from '../types';
 import { ListParams } from './ListParams';
 import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Delete, Request } from 'tsoa';
 
 @Route('invoice')
 @Tags('Invoice')
 export class InvoiceController extends Controller {
-  private async validateInvoiceParams(req: express.Request, validations: ValidationChain[] = []) {
+  private async validateInvoiceParams(req: ExpressRequest, validations: ValidationChain[] = []) {
     await validate(
       [
         body('title').isString().trim(),
@@ -78,9 +79,7 @@ export class InvoiceController extends Controller {
   @Put('lastseen')
   @Security('local', ['FINANCIAL'])
   @Response<WrappedApiError>(401)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async updateLastSeenByTreasurer(): Promise<void> {
-    console.log('run run run!');
     return new InvoiceService().setTreasurerLastSeen();
   }
 
@@ -103,7 +102,7 @@ export class InvoiceController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createInvoice(@Request() req: express.Request, @Body() params: InvoiceCreateParams): Promise<Invoice> {
+  public async createInvoice(@Request() req: ExpressRequest, @Body() params: InvoiceCreateParams): Promise<Invoice> {
     await this.validateInvoiceParams(req, [body('companyId').isInt(), body('productInstanceIds').isArray()]);
     return new InvoiceService({ actor: req.user as User }).createInvoice(params);
   }
@@ -120,7 +119,7 @@ export class InvoiceController extends Controller {
   public async updateInvoice(
     id: number,
     @Body() params: Partial<InvoiceParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<Invoice> {
     await this.validateInvoiceParams(req);
     return new InvoiceService({ actor: req.user as User }).updateInvoice(id, params);
@@ -129,7 +128,6 @@ export class InvoiceController extends Controller {
   /**
    * Delete an invoice, if it has no products or updated statuses
    * @param id ID of the invoice
-   * @param req Express.js request object
    */
   @Delete('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
@@ -150,7 +148,7 @@ export class InvoiceController extends Controller {
   public async addProductToInvoice(
     id: number,
     @Body() params: { productId: number },
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<ProductInstance> {
     await validate([body('productId').isInt()], req);
     return new ProductInstanceService().addInvoiceProduct(id, params.productId);
@@ -181,8 +179,8 @@ export class InvoiceController extends Controller {
   public async generateInvoiceFile(
     id: number,
     @Body() params: GenerateInvoiceParams,
-    @Request() req: express.Request,
-  ): Promise<any> {
+    @Request() req: ExpressRequest,
+  ): Promise<fs.ReadStream> {
     await validate(
       [
         body('language').isIn(Object.values(Language)),
@@ -209,7 +207,7 @@ export class InvoiceController extends Controller {
   @Post('{id}/file/upload')
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async uploadInvoiceFile(id: number, @Request() req: express.Request): Promise<InvoiceFile> {
+  public async uploadInvoiceFile(id: number, @Request() req: ExpressRequest): Promise<InvoiceFile> {
     const actor = req.user as User;
     if (req.body.createdAt !== undefined && !actor.hasRole(Roles.ADMIN)) {
       throw new ApiError(
@@ -218,7 +216,7 @@ export class InvoiceController extends Controller {
       );
     }
 
-    return new FileService(InvoiceFile, { actor: req.user as User }).uploadFile(req, id);
+    return (await new FileService(InvoiceFile, { actor: req.user as User }).uploadFile(req, id)) as InvoiceFile;
   }
 
   /**
@@ -230,7 +228,7 @@ export class InvoiceController extends Controller {
   @Get('{id}/file/{fileId}')
   @Security('local', ['SIGNEE', 'FINANCIAL', 'GENERAL', 'ADMIN', 'AUDIT'])
   @Response<WrappedApiError>(401)
-  public async getInvoiceFile(id: number, fileId: number): Promise<any> {
+  public async getInvoiceFile(id: number, fileId: number): Promise<fs.ReadStream> {
     const file = <InvoiceFile>await new FileService(InvoiceFile).getFile(id, fileId);
 
     return FileHelper.putFileInResponse(this, file);
@@ -250,7 +248,7 @@ export class InvoiceController extends Controller {
     id: number,
     fileId: number,
     @Body() params: Partial<FileParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseFile> {
     await validateFileParams(req);
     return new FileService(InvoiceFile).updateFile(id, fileId, params);
@@ -279,8 +277,8 @@ export class InvoiceController extends Controller {
   @Response<WrappedApiError>(401)
   public async generateCustomInvoice(
     @Body() params: CustomInvoiceGenSettings,
-    @Request() req: express.Request,
-  ): Promise<any> {
+    @Request() req: ExpressRequest,
+  ): Promise<fs.ReadStream> {
     await validate(
       [
         body('language').isIn(Object.values(Language)),
@@ -308,7 +306,7 @@ export class InvoiceController extends Controller {
   public async addInvoiceStatus(
     id: number,
     @Body() params: InvoiceStatusParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req, [body('subType').isIn(Object.values(InvoiceStatus))]);
     const p: FullActivityParams = {
@@ -333,7 +331,7 @@ export class InvoiceController extends Controller {
   public async addInvoiceComment(
     id: number,
     @Body() params: ActivityParams,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateCommentParams(req);
     const p: FullActivityParams = {
@@ -359,7 +357,7 @@ export class InvoiceController extends Controller {
     id: number,
     activityId: number,
     @Body() params: Partial<ActivityParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<BaseActivity> {
     await validateActivityParams(req);
     const p: Partial<FullActivityParams> = {

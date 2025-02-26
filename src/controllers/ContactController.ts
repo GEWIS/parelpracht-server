@@ -1,18 +1,18 @@
 import { body } from 'express-validator';
-import express from 'express';
 import { Contact } from '../entity/Contact';
 import { WrappedApiError } from '../helpers/error';
 import ContactService, { ContactListResponse, ContactParams, ContactSummary } from '../services/ContactService';
 import { validate } from '../helpers/validation';
 import { Gender } from '../entity/enums/Gender';
 import { ContactFunction } from '../entity/enums/ContactFunction';
+import { ExpressRequest } from '../types';
 import { ListParams } from './ListParams';
 import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Request, Delete } from 'tsoa';
 
 @Route('contact')
 @Tags('Contact')
 export class ContactController extends Controller {
-  private async validateContactParams(req: express.Request) {
+  private async validateContactParams(req: ExpressRequest) {
     const emailOptionalFunctions = [
       ContactFunction.SIGNATORY_AUTHORIZED,
       ContactFunction.ASSISTING,
@@ -80,7 +80,7 @@ export class ContactController extends Controller {
   @Post()
   @Security('local', ['GENERAL', 'ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createContact(@Body() params: ContactParams, @Request() req: express.Request): Promise<Contact> {
+  public async createContact(@Body() params: ContactParams, @Request() req: ExpressRequest): Promise<Contact> {
     await this.validateContactParams(req);
     return new ContactService().createContact(params);
   }
@@ -89,7 +89,7 @@ export class ContactController extends Controller {
    * updateContact() - update contact
    * @param id ID of contact to update
    * @param params Update subset of parameter of contact
-   * @param req: express.Request
+   * @param req: ExpressRequest
    */
   @Put('{id}')
   @Security('local', ['GENERAL', 'ADMIN'])
@@ -97,7 +97,7 @@ export class ContactController extends Controller {
   public async updateContact(
     id: number,
     @Body() params: Partial<ContactParams>,
-    @Request() req: express.Request,
+    @Request() req: ExpressRequest,
   ): Promise<Contact> {
     await this.validateContactParams(req);
     return new ContactService().updateContact(id, params);
