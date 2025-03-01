@@ -1,6 +1,10 @@
 import Mail from 'nodemailer/lib/mailer';
 import { createTransporter } from './transporter';
 
+interface SentMessageInfo {
+  messageId: string;
+}
+
 /**
  * Singleton class to handle all mail-related operations
  */
@@ -22,10 +26,10 @@ export class Mailer {
 
   async send(mail: Mail.Options) {
     try {
-      const info = await this.transporter.sendMail(mail);
-      console.log('Message sent: %s', info.messageId);
+      const info = (await this.transporter.sendMail(mail)) as SentMessageInfo;
+      console.warn('Message sent: %s', info.messageId);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 }

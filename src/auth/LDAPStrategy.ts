@@ -8,8 +8,22 @@ import { Role } from '../entity/Role';
 import UserService from '../services/UserService';
 import { Roles } from '../entity/enums/Roles';
 import AppDataSource from '../database';
+import { ExpressRequest } from '../types';
 
 const isDefined = (i: string | undefined) => i !== undefined && i !== '';
+
+export interface LDAPUser {
+  sAMAccountName: string;
+  memberOfFlattened: string[];
+  memberOf: string[];
+  mail: string;
+  givenName: string;
+  sn: string;
+}
+
+interface AuthInfo {
+  message: string;
+}
 
 export const ldapEnabled = () =>
   isDefined(process.env.LDAP_URL) &&
@@ -28,7 +42,7 @@ export const LDAPStrategy = new Strategy({
   },
 });
 
-const checkAllowedRoles = async (ldapUser: any): Promise<Roles[]> => {
+const checkAllowedRoles = async (ldapUser: LDAPUser): Promise<Roles[]> => {
   const roles = await AppDataSource.getRepository(Role).find();
   const userRoles: Roles[] = [];
   roles.forEach((role) => {
@@ -39,22 +53,23 @@ const checkAllowedRoles = async (ldapUser: any): Promise<Roles[]> => {
   return userRoles;
 };
 
-export const updateUserInformation = async (user: User, ldapUser: any): Promise<User> => {
+export const updateUserInformation = async (user: User, ldapUser: LDAPUser): Promise<User> => {
   const userRoles = await checkAllowedRoles(ldapUser);
   await new UserService().assignRoles(user, userRoles);
 
   const identity = user.identityLdap;
-  // eslint-disable-next-line no-param-reassign
+
   if (identity && !identity.overrideEmail) user.email = ldapUser.mail;
-  // eslint-disable-next-line no-param-reassign
+
   user.firstName = ldapUser.givenName;
-  // eslint-disable-next-line no-param-reassign
+
   user.lastName = ldapUser.sn;
   return user.save();
 };
 
-export const ldapLogin = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  passport.authenticate('ldapauth', async (err: any, ldapUser: any, info: any) => {
+export const ldapLogin = (req: ExpressRequest, res: express.Response, next: express.NextFunction) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call -- this seems to be correct
+  passport.authenticate('ldapauth', async (err: Error, ldapUser: LDAPUser, info: AuthInfo) => {
     if (err) {
       return next(err);
     }
@@ -84,13 +99,13 @@ export const ldapLogin = (req: express.Request, res: express.Response, next: exp
         lastName: ldapUser.sn,
         email: ldapUser.mail,
         function: '',
-      } as any as User;
+      } as User;
       user = await userRepo.save(user);
 
       identity = {
         id: user.id,
         username: ldapUser.sAMAccountName,
-      } as any as IdentityLDAP;
+      } as IdentityLDAP;
       identity = await identityRepo.save(identity);
       identity = await identityRepo.findOne({
         where: { id: identity.id },
@@ -104,7 +119,7 @@ export const ldapLogin = (req: express.Request, res: express.Response, next: exp
 
     await updateUserInformation(identity.user, ldapUser);
 
-    return req.logIn(identity.user, (e: any) => {
+    return req.logIn(identity.user, (e: Error) => {
       // When the user enabled "remember me", we give the session cookie an
       // expiration date of 30 days
       if (req.body.rememberMe === true) {

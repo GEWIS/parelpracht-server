@@ -1,12 +1,8 @@
 import { Column, Entity, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
-// eslint-disable-next-line import/no-cycle
 import { Company } from './Company';
-// eslint-disable-next-line import/no-cycle
 import { ProductInstance } from './ProductInstance';
-// eslint-disable-next-line import/no-cycle
 import { InvoiceActivity } from './activity/InvoiceActivity';
-// eslint-disable-next-line import/no-cycle
 import { InvoiceFile } from './file/InvoiceFile';
 import { User } from './User';
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import { Product } from '../entity/Product';
 import replaceAll from '../helpers/replaceAll';
 import AppDataSource from '../database';
@@ -11,7 +10,7 @@ export async function replaceGEWISRecipient() {
   let count = 0;
   const productRepo = AppDataSource.getRepository(Product);
   const products = await productRepo.find();
-  products.forEach((p) => {
+  for (const p of products) {
     if (
       p.description.includes('{instelling}') ||
       p.contractTextDutch.includes('{instelling}') ||
@@ -37,10 +36,10 @@ export async function replaceGEWISRecipient() {
       '\\GEWISRecipient\\xspace',
     );
 
-    p.save();
-  });
+    await p.save();
+  }
 
-  console.log(
+  console.warn(
     `The following products had one or multiple instances of {instelling} replaced (${count}): ${logResult.substr(0, logResult.length - 2)}`,
   );
 }

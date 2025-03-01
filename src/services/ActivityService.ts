@@ -1,3 +1,5 @@
+/* eslint-disable */
+// TODO this file needs to be refactored with generics to be linted properly
 import { Repository } from 'typeorm';
 import BaseActivity from '../entity/activity/BaseActivity';
 import { ContractActivity } from '../entity/activity/ContractActivity';
@@ -5,21 +7,18 @@ import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { User } from '../entity/User';
-// eslint-disable-next-line import/no-cycle
-import ProductInstanceService from './ProductInstanceService';
-// eslint-disable-next-line import/no-cycle
-import ContractService from './ContractService';
 import { Contract } from '../entity/Contract';
 import { ActivityType } from '../entity/enums/ActivityType';
 import { ContractStatus } from '../entity/enums/ContractStatus';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
-// eslint-disable-next-line import/no-cycle
 import { sendInvoiceEmails } from '../helpers/mailBuilder';
 import { appendProductActivityDescription, createAddProductActivityDescription } from '../helpers/activity';
 import { Language } from '../entity/enums/Language';
 import AppDataSource from '../database';
 import { Roles } from '../entity/enums/Roles';
+import ContractService from './ContractService';
+import ProductInstanceService from './ProductInstanceService';
 
 export interface ActivityParams {
   description: string;
@@ -73,7 +72,7 @@ export default class ActivityService<T extends BaseActivity> {
     if (activity?.getRelatedEntityId() !== entityId)
       throw new ApiError(HTTPStatus.BadRequest, 'Activity does not belong to the related entity');
 
-    return activity!;
+    return activity;
   }
 
   async getActivity(id: number, relations: string[] = []): Promise<T> {
@@ -189,11 +188,11 @@ export default class ActivityService<T extends BaseActivity> {
     switch (act.constructor.name) {
       case 'ContractActivity':
         activity = <ContractActivity>act;
-        // eslint-disable-next-line no-case-declarations
+
         const contract = await new ContractService().getContract(activity.contractId);
-        // eslint-disable-next-line no-case-declarations
+
         const canEndContract = await this.canEndContract(contract);
-        // eslint-disable-next-line no-case-declarations
+
         statuses = await this.getStatuses({ contractId: activity.contractId });
 
         if (!canEndContract.cancelled && activity.subType === ContractStatus.CANCELLED) {
@@ -289,7 +288,7 @@ export default class ActivityService<T extends BaseActivity> {
    * @param C
    * @param params Parameters to create an activity with
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   async createActivity(C: { new (): T }, params: FullActivityParams): Promise<T> {
     // @ts-ignore
     let activity = new C();
@@ -417,14 +416,14 @@ export default class ActivityService<T extends BaseActivity> {
     let activity = (await this.repo.findOneBy({ id: activityId })) as T;
     if (activity == null) throw new ApiError(HTTPStatus.NotFound);
     activity = this.validateActivity(activity, entityId);
-    let p = {
+    const p = {
       descriptionDutch: params.descriptionDutch,
       descriptionEnglish: params.descriptionEnglish,
     };
 
-    await this.repo.update(activity!.id, p);
+    await this.repo.update(activity.id, p);
     activity = (await this.repo.findOneBy({ id: activityId })) as T;
-    return activity! as T;
+    return activity;
   }
 
   /**
@@ -457,6 +456,6 @@ export default class ActivityService<T extends BaseActivity> {
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot delete the initial (created) status of an entity');
     }
 
-    await this.repo.delete(activity!.id);
+    await this.repo.delete(activity.id);
   }
 }

@@ -1,8 +1,9 @@
-import { Controller } from 'tsoa';
 import * as fs from 'fs';
-import mime from 'mime';
 import path from 'path';
+import { Readable } from 'stream';
+import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
+import { Controller } from 'tsoa';
 
 export const workDirLoc = 'tmp/';
 export const generateDirLoc = 'data/generated/';
@@ -18,7 +19,7 @@ export default class FileHelper {
    * @param controller Controller that handles the request
    * @param file File to add to the response
    */
-  public static putFileInResponse(controller: Controller, file: BaseFile): fs.ReadStream {
+  public static putFileInResponse(controller: Controller, file: BaseFile): Readable {
     const stat = fs.statSync(file.location);
 
     controller.setStatus(200);
@@ -57,8 +58,8 @@ export default class FileHelper {
   public static removeFile(file: BaseFile) {
     try {
       fs.unlinkSync(file.location);
-    } catch (e) {
-      console.log(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
+    } catch {
+      console.warn(`File ${file.name} at ${file.location} does not exist, so could not be removed`);
     }
   }
 
@@ -69,8 +70,8 @@ export default class FileHelper {
   public static removeFileAtLoc(location: string) {
     try {
       fs.unlinkSync(location);
-    } catch (e) {
-      console.log(`File ${location} does not exist, so could not be removed`);
+    } catch {
+      console.warn(`File ${location} does not exist, so could not be removed`);
     }
   }
 }
