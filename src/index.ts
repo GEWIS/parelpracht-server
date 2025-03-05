@@ -146,7 +146,7 @@ AppDataSource.initialize()
 
     // Announce port that is listened to in the console
     app.listen(PORT, () => {
-      console.warn(`Server is listening on port ${PORT}`);
+      console.info(`Server is listening on port ${PORT}`);
     });
 
     // Enable timed events
