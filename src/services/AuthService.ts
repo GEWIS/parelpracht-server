@@ -82,7 +82,7 @@ export default class AuthService {
   // TODO check error type in case of reject
   async logout(req: ExpressRequest): Promise<void> {
     return new Promise((resolve, reject) => {
-      req.logout((error: Error) => {
+      req.logout((error: Error | undefined) => {
         if (error) reject(error);
         resolve();
       });
@@ -92,9 +92,9 @@ export default class AuthService {
   // TODO check error type in case of reject
   login(user: User, req: ExpressRequest) {
     return new Promise<void>((resolve, reject) => {
-      req.logIn(user, (err: Error) => {
-        if (err) {
-          return reject(err);
+      req.logIn(user, (error: Error | undefined) => {
+        if (error) {
+          return reject(error);
         }
         return resolve();
       });
@@ -113,7 +113,9 @@ export default class AuthService {
       return;
     }
 
-    await Mailer.getInstance().send(
+    // void -- error is explicitly logged, we do not want to await
+    // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+    void Mailer.getInstance().send(
       resetPassword(
         user,
         `${process.env.SERVER_HOST}/reset-password?token=${this.getResetPasswordToken(user, identity)}`,
@@ -135,7 +137,9 @@ export default class AuthService {
     identity = (await this.identityLocalRepo.findOneBy({ id: user.id }))!;
 
     if (!silent) {
-      await Mailer.getInstance().send(
+      // void -- error is explicitly logged, we do not want to await
+      // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+      void Mailer.getInstance().send(
         newUser(user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(user, identity)}`),
       );
     }
@@ -249,7 +253,9 @@ export default class AuthService {
       throw new ApiError(HTTPStatus.BadRequest, "You don't have an API key yet.");
     }
 
-    await Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
+    // void -- error is explicitly logged, we do not want to await
+    // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+    void Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }
@@ -270,7 +276,9 @@ export default class AuthService {
 
     await this.identityApiKeyRepo.insert(identity);
 
-    await Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
+    // void -- error is explicitly logged, we do not want to await
+    // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+    void Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }

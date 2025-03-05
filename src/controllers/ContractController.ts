@@ -44,9 +44,9 @@ export class ContractController extends Controller {
         body('contactId').custom(async (contactId: number) => {
           const contact = await new ContactService().getContact(contactId);
           if (contact.companyId !== req.body.companyId) {
-            return Promise.reject(new Error('Contact does not belong to company'));
+            return new Error('Contact does not belong to company');
           }
-          return await Promise.resolve();
+          return undefined;
         }),
         body('comments').optional({ checkFalsy: true }).isString().trim(),
         body('assignedToId').optional({ checkFalsy: true }).isInt(),

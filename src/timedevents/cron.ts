@@ -26,5 +26,5 @@ export default function startEvents() {
     if (ldapEnabled()) ldapGroups().catch((err) => console.error(err));
   });
 
-  console.warn('Scheduled timed events');
+  console.info('Scheduled timed events');
 }

@@ -44,8 +44,6 @@ export const contactInCompany = (contactId: number, req: ExpressRequest) => {
   new ContactService()
     .getContact(contactId)
     .then((contact) => {
-      // TODO how to type body of request?
-
       if (contact.companyId !== req.body.companyId) {
         return Promise.reject(new Error('Contact does not belong to company'));
       }

@@ -35,5 +35,5 @@ export default async function ldapGroups() {
     );
   });
 
-  console.warn('Updated user roles based on LDAP');
+  console.info('Updated user roles based on LDAP');
 }

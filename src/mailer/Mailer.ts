@@ -27,7 +27,7 @@ export class Mailer {
   async send(mail: Mail.Options) {
     try {
       const info = (await this.transporter.sendMail(mail)) as SentMessageInfo;
-      console.warn('Message sent: %s', info.messageId);
+      console.info('Message sent: %s', info.messageId);
     } catch (e) {
       console.error(e);
     }

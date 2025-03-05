@@ -33,19 +33,19 @@ export default async function ldapRoles() {
         }
 
         res.on('searchRequest', (searchRequest: SearchRequest) => {
-          console.warn('searchRequest: ', searchRequest);
+          console.info('searchRequest: ', searchRequest);
         });
         res.on('searchEntry', (entry: SearchEntry) => {
-          console.warn(`entry: ${JSON.stringify(entry.object)}`);
+          console.info(`entry: ${JSON.stringify(entry.object)}`);
         });
         res.on('searchReference', (referral: SearchReference) => {
-          console.warn(`referral: ${referral.uris.join()}`);
+          console.info(`referral: ${referral.uris.join()}`);
         });
         res.on('error', (err: Error) => {
           console.error(`error: ${err.message}`);
         });
         res.on('end', (result: LDAPResult | null) => {
-          console.warn(`status: ${JSON.stringify(result)}`);
+          console.info(`status: ${JSON.stringify(result)}`);
         });
       },
     );
