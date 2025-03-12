@@ -1,12 +1,12 @@
 import { body } from 'express-validator';
+import { Body, Controller, Get, Post, Query, Request, Response, Route, Security } from 'tsoa';
 import { WrappedApiError } from '../helpers/error';
 import { validate } from '../helpers/validation';
 import AuthService, { AuthStatus, Profile } from '../services/AuthService';
 import ServerSettingsService, { SetupParams } from '../services/ServerSettingsService';
 import StatisticsService from '../services/StatisticsService';
 import { ldapEnabled, LoginMethods } from '../auth';
-import { ExpressRequest } from '../types';
-import { Body, Controller, Get, Post, Query, Request, Response, Route, Security } from 'tsoa';
+import { ExpressRequest } from '../types/express';
 
 export interface ResetPasswordRequest {
   password: string;

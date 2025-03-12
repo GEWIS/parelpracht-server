@@ -1,8 +1,8 @@
+import { ExpressRequest } from '../types/express';
 import { IdentityApiKey } from '../entity/IdentityApiKey';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AppDataSource from '../database';
-import { ExpressRequest } from '../types';
 
 async function authWithApiKey(apiKey: string) {
   const split = apiKey.split(' ');

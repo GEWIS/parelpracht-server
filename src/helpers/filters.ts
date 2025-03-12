@@ -8,9 +8,9 @@ export const cartesian = <T>(...arr: FindOptionsWhere<T>[][]): FindOptionsWhere<
   arr.reduce((a, b) => a.flatMap((d) => b.map((e) => ({ ...d, ...e }))));
 
 export const cartesianArrays = <T>(arr: FindOptionsWhere<T>[][]): FindOptionsWhere<T>[] => {
-  let temp: FindOptionsWhere<T>[] = arr[0];
-  for (let i = 1; i < arr.length; i++) {
-    temp = cartesian(temp, arr[i]);
+  let temp: FindOptionsWhere<T>[] = arr[0]!;
+  for (const item of arr.slice(1)) {
+    temp = cartesian(temp, item);
   }
   return temp;
 };
@@ -40,11 +40,11 @@ export function addQuerySearch<T extends BaseEnt>(fieldNames: string[], search?:
             const intermediates = fieldName.split('.');
             let temp: any = {};
             // The last intermediate is the actual field
-            temp[intermediates[intermediates.length - 1]] = ILike(`%${searchTerm}%`);
+            temp[intermediates[intermediates.length - 1]!] = ILike(`%${searchTerm}%`);
             // All other intermediates are entities, so we create a nested object over them
             for (let i = intermediates.length - 2; i >= 0; i--) {
               const temp2: any = {};
-              temp2[intermediates[i]] = temp;
+              temp2[intermediates[i]!] = temp;
               temp = temp2;
             }
             return temp;
@@ -81,7 +81,7 @@ export function addQueryBuilderFilters(queryBuilder: SelectQueryBuilder<any>, fi
   filters.forEach(({ column, values }: ListOrFilter, index: number) => {
     // only allows for one level deep relations
     if (column.includes('.')) {
-      const alias = column.split('.')[0];
+      const alias = column.split('.')[0]!;
 
       // only join if alias is not yet joined
       const aliasExists = queryBuilder.expressionMap.aliases.some((a) => a.name === alias);
@@ -119,7 +119,7 @@ export function addQueryBuilderSearch(
   searchFields.forEach((field) => {
     // only allows for one level deep relations
     if (field.includes('.')) {
-      const alias = field.split('.')[0];
+      const alias = field.split('.')[0]!;
 
       // only join if alias is not yet joined
       const aliasExists = queryBuilder.expressionMap.aliases.some((a) => a.name === alias);

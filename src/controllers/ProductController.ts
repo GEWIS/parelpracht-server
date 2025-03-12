@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import { body } from 'express-validator';
+import { Body, Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete } from 'tsoa';
 import { Product } from '../entity/Product';
 import ProductService, {
   PricingParams,
@@ -24,9 +25,8 @@ import ProductInstanceService, { ProductInstanceListResponse } from '../services
 import { AnalysisResultByYear } from '../helpers/rawQueries';
 import { ProductPricing } from '../entity/ProductPricing';
 import { Roles } from '../entity/enums/Roles';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
 import { ListParams, PaginationParams } from './ListParams';
-import { Body, Controller, Post, Route, Put, Tags, Get, Request, Response, Security, Delete } from 'tsoa';
 
 @Route('product')
 @Tags('Product')

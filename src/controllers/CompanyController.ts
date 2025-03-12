@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import { body } from 'express-validator';
+import { Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request } from 'tsoa';
 import { Company } from '../entity/Company';
 import { Invoice } from '../entity/Invoice';
 import { Contact } from '../entity/Contact';
@@ -24,9 +25,8 @@ import BaseFile from '../entity/file/BaseFile';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
 import { Roles } from '../entity/enums/Roles';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
 import { ListParams } from './ListParams';
-import { Body, Tags, Controller, Post, Route, Put, Get, Security, Response, Delete, Request } from 'tsoa';
 
 @Route('company')
 @Tags('Company')

@@ -69,30 +69,30 @@ export default class StatisticsService {
     // we need to manually convert all values to integers. How fun
     return {
       suggested: {
-        amount: parseInt(responses[0][0].amount.toString(), 10),
-        nrOfProducts: parseInt(responses[0][0].nrOfProducts.toString(), 10),
+        amount: parseInt(responses[0][0]!.amount.toString(), 10),
+        nrOfProducts: parseInt(responses[0][0]!.nrOfProducts.toString(), 10),
       },
       contracted: {
-        amount: parseInt(responses[1][0].amount.toString(), 10),
-        nrOfProducts: parseInt(responses[1][0].nrOfProducts.toString(), 10),
+        amount: parseInt(responses[1][0]!.amount.toString(), 10),
+        nrOfProducts: parseInt(responses[1][0]!.nrOfProducts.toString(), 10),
       },
       delivered: {
-        amount: parseInt(responses[2][0].amount.toString(), 10),
-        nrOfProducts: parseInt(responses[2][0].nrOfProducts.toString(), 10),
+        amount: parseInt(responses[2][0]!.amount.toString(), 10),
+        nrOfProducts: parseInt(responses[2][0]!.nrOfProducts.toString(), 10),
       },
       invoiced: {
         notDelivered: {
-          amount: parseInt(responses[3][0].amount.toString(), 10),
-          nrOfProducts: parseInt(responses[3][0].nrOfProducts.toString(), 10),
+          amount: parseInt(responses[3][0]!.amount.toString(), 10),
+          nrOfProducts: parseInt(responses[3][0]!.nrOfProducts.toString(), 10),
         },
         delivered: {
-          amount: parseInt(responses[4][0].amount.toString(), 10),
-          nrOfProducts: parseInt(responses[4][0].nrOfProducts.toString(), 10),
+          amount: parseInt(responses[4][0]!.amount.toString(), 10),
+          nrOfProducts: parseInt(responses[4][0]!.nrOfProducts.toString(), 10),
         },
       },
       paid: {
-        amount: parseInt(responses[5][0].amount.toString(), 10),
-        nrOfProducts: parseInt(responses[5][0].nrOfProducts.toString(), 10),
+        amount: parseInt(responses[5][0]!.amount.toString(), 10),
+        nrOfProducts: parseInt(responses[5][0]!.nrOfProducts.toString(), 10),
       },
       financialYears: responses[6],
     };
@@ -122,8 +122,8 @@ export default class StatisticsService {
       if (cumulative) {
         // Make the arrays cumulative
         for (let i = 1; i <= length; i++) {
-          tempRes.amount[i] += tempRes.amount[i - 1];
-          tempRes.nrOfProducts[i] += tempRes.nrOfProducts[i - 1];
+          tempRes.amount[i]! += tempRes.amount[i - 1]!;
+          tempRes.nrOfProducts[i]! += tempRes.nrOfProducts[i - 1]!;
         }
       }
 
@@ -183,11 +183,11 @@ export default class StatisticsService {
     if (result.length === 0) return result;
 
     for (let i = 1; i < result.length; i++) {
-      if (result[i].year - 1 !== result[i - 1].year) {
+      if (result[i]!.year - 1 !== result[i - 1]!.year) {
         result.splice(i, 0, {
           amount: 0,
           nrOfProducts: 0,
-          year: result[0].year + i,
+          year: result[0]!.year + i,
         } as AnalysisResultByYear);
       }
     }

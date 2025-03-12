@@ -1,12 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import replaceAll from '../helpers/replaceAll';
 
 export class Localization1627468331061 implements MigrationInterface {
   name = 'Localization1627468331061';
 
   private async query(queryRunner: QueryRunner, query: string): Promise<unknown> {
     if (process.env.TYPEORM_CONNECTION === 'postgres') {
-      return queryRunner.query(replaceAll(query, '`', '"'));
+      return queryRunner.query(query.replaceAll('`', '"'));
     }
     return queryRunner.query(query);
   }

@@ -2,7 +2,6 @@ import { Repository } from 'typeorm';
 import { sign as jwtSign, decode as jwtDecode, verify as jwtVerify, JwtPayload } from 'jsonwebtoken';
 import { normalizeEmail } from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
-import { User } from '../entity/User';
 import { Mailer } from '../mailer/Mailer';
 import { resetPassword } from '../mailer/templates/resetPassword';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -13,7 +12,8 @@ import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import AppDataSource from '../database';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
+import { User } from '../entity/User';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {

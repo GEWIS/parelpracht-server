@@ -28,5 +28,5 @@ export class ProductActivity extends BaseActivity {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public setSubType(subType: string) {}
+  public setSubType(_: string) {}
 }

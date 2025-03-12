@@ -136,7 +136,7 @@ AppDataSource.initialize()
     // If env file specifies development, use swagger UI
     if (process.env.NODE_ENV === 'development') {
       app.use('/api/swagger-ui', serverSwagger, setupSwagger(swaggerDocument));
-      app.get('/api/swagger.json', (req, res) => {
+      app.get('/api/swagger.json', (_, res) => {
         res.sendFile(path.join(__dirname, './public/swagger.json'));
       });
     }

@@ -13,7 +13,6 @@ import Currency from '../helpers/currency';
 import FileHelper, { generateDirLoc, templateDirLoc, workDirLoc } from '../helpers/fileHelper';
 import { Language } from '../entity/enums/Language';
 import BaseFile from '../entity/file/BaseFile';
-import replaceAll from '../helpers/replaceAll';
 import countries from '../helpers/countries.json';
 import { VAT } from '../entity/enums/ValueAddedTax';
 import { ValueAddedTax } from '../entity/ValueAddedTax';
@@ -33,6 +32,13 @@ const quotePath = 'template_quote.tex';
 
 // TODO make English toggle available
 // TODO custom invoices
+
+type Quartiles = {
+  Q1: [Date, Date];
+  Q2: [Date, Date];
+  Q3: [Date, Date];
+  Q4: [Date, Date];
+};
 
 export default class PdfGenerator {
   private readonly workDir: string;
@@ -119,16 +125,13 @@ export default class PdfGenerator {
 
   /**
    * Replace all occurences of the "from" string with the "to" string in the "src" string
-   * @param src {string} Source
-   * @param from {string} String to replace
-   * @param to {string} To replace all with
+   * @param src {string} String to escape
    */
-  private replaceAllSafe(src: string, from: string, to: string) {
-    to = to.replace('\\', '\\textbackslash');
-    to = to.replace('~', '\\textasciitilde');
-    to = to.replace('^', '\\textasciicircum');
-    to = to.replace(/([&%$#_{}])/g, '\\$1');
-    return replaceAll(src, from, to);
+  private escapeString(src: string) {
+    src = src.replaceAll('\\', '\\textbackslash');
+    src = src.replaceAll('~', '\\textasciitilde');
+    src = src.replaceAll('^', '\\textasciicircum');
+    return src.replaceAll(/([&%$#_{}])/g, '\\$1');
   }
 
   /**
@@ -159,54 +162,52 @@ export default class PdfGenerator {
     theirReference: string = '-',
   ): string {
     if (language === Language.DUTCH) {
-      template = replaceAll(template, '{{language}}', 'dutch');
+      template = template.replaceAll('{{language}}', 'dutch');
     } else {
-      template = replaceAll(template, '{{language}}', '');
+      template = template.replaceAll('{{language}}', '');
     }
 
-    template = this.replaceAllSafe(template, '{{contactperson}}', recipient.fullName());
-    template = this.replaceAllSafe(template, '{{company}}', company.name);
-    template = this.replaceAllSafe(template, '{{subject}}', subject);
+    template = template.replaceAll('{{contactperson}}', this.escapeString(recipient.fullName()));
+    template = template.replaceAll('{{company}}', this.escapeString(company.name));
+    template = template.replaceAll('{{subject}}', this.escapeString(subject));
 
-    template = this.replaceAllSafe(template, '{{sender}}', sender.fullName());
-    template = this.replaceAllSafe(template, '{{senderfunction}}', sender.function);
+    template = template.replaceAll('{{sender}}', this.escapeString(sender.fullName()));
+    template = template.replaceAll('{{senderfunction}}', this.escapeString(sender.function));
 
-    template = replaceAll(template, '{{dateday}}', date.getDate().toString());
-    template = replaceAll(template, '{{datemonth}}', (date.getMonth() + 1).toString());
-    template = replaceAll(template, '{{dateyear}}', date.getFullYear().toString());
+    template = template.replaceAll('{{dateday}}', date.getDate().toString());
+    template = template.replaceAll('{{datemonth}}', (date.getMonth() + 1).toString());
+    template = template.replaceAll('{{dateyear}}', date.getFullYear().toString());
 
     if (useInvoiceAddress) {
       const companyCountry = company.invoiceAddressCountry
         ? countries.find((country) => country.Code === company.invoiceAddressCountry.toUpperCase())
         : undefined;
-      template = replaceAll(template, '{{street}}', company.invoiceAddressStreet);
-      template = replaceAll(template, '{{postalcode}}', company.invoiceAddressPostalCode);
-      template = replaceAll(template, '{{city}}', company.invoiceAddressCity);
-      template = replaceAll(
-        template,
+      template = template.replaceAll('{{street}}', company.invoiceAddressStreet);
+      template = template.replaceAll('{{postalcode}}', company.invoiceAddressPostalCode);
+      template = template.replaceAll('{{city}}', company.invoiceAddressCity);
+      template = template.replaceAll(
         '{{country}}',
         companyCountry !== undefined ? companyCountry.Name : company.invoiceAddressCountry,
       );
     } else {
       const companyCountry = countries.find((country) => country.Code === company.addressCountry.toUpperCase());
-      template = replaceAll(template, '{{street}}', company.addressStreet);
-      template = replaceAll(template, '{{postalcode}}', company.addressPostalCode);
-      template = replaceAll(template, '{{city}}', company.addressCity);
-      template = replaceAll(
-        template,
+      template = template.replaceAll('{{street}}', company.addressStreet);
+      template = template.replaceAll('{{postalcode}}', company.addressPostalCode);
+      template = template.replaceAll('{{city}}', company.addressCity);
+      template = template.replaceAll(
         '{{country}}',
         companyCountry !== undefined ? companyCountry.Name : company.addressCountry,
       );
     }
 
-    template = replaceAll(template, '{{ourreference}}', ourReference);
-    template = this.replaceAllSafe(template, '{{yourreference}}', theirReference);
+    template = template.replaceAll('{{ourreference}}', ourReference);
+    template = template.replaceAll('{{yourreference}}', this.escapeString(theirReference));
 
     const dueDate = new Date(date);
     dueDate.setDate(date.getDate() + 30);
-    template = replaceAll(template, '{{dueday}}', dueDate.getDate().toString());
-    template = replaceAll(template, '{{duemonth}}', (dueDate.getMonth() + 1).toString());
-    template = replaceAll(template, '{{dueyear}}', dueDate.getFullYear().toString());
+    template = template.replaceAll('{{dueday}}', dueDate.getDate().toString());
+    template = template.replaceAll('{{duemonth}}', (dueDate.getMonth() + 1).toString());
+    template = template.replaceAll('{{dueyear}}', dueDate.getFullYear().toString());
 
     return template;
   }
@@ -219,10 +220,10 @@ export default class PdfGenerator {
    * @returns {string} The letter with signees added
    */
   private createSignees(file: string, signee1: User, signee2: User) {
-    file = this.replaceAllSafe(file, '{{firstcontractor}}', signee1.fullName());
-    file = this.replaceAllSafe(file, '{{firstcontractorfunction}}', signee1.function);
-    file = this.replaceAllSafe(file, '{{secondcontractor}}', signee2.fullName());
-    file = this.replaceAllSafe(file, '{{secondcontractorfunction}}', signee2.function);
+    file = file.replaceAll('{{firstcontractor}}', this.escapeString(signee1.fullName()));
+    file = file.replaceAll('{{firstcontractorfunction}}', this.escapeString(signee1.function));
+    file = file.replaceAll('{{secondcontractor}}', this.escapeString(signee2.fullName()));
+    file = file.replaceAll('{{secondcontractorfunction}}', this.escapeString(signee2.function));
     return file;
   }
 
@@ -235,7 +236,6 @@ export default class PdfGenerator {
    */
   private createSpecificationList(file: string, products: ProductInstance[], language: Language) {
     let contractSpecifications = '';
-    let productInstance: ProductInstance;
 
     if (language === Language.DUTCH && !products.some((p) => p.product.deliverySpecificationDutch !== '')) {
       contractSpecifications +=
@@ -245,8 +245,7 @@ export default class PdfGenerator {
         '\n\\item{\\textit{There are no product specifications for the products on this document.}}\\\\';
     }
 
-    for (let i = 0; i < products.length; i++) {
-      productInstance = products[i];
+    for (const productInstance of products) {
       if (language === Language.DUTCH) {
         if (productInstance.product.deliverySpecificationDutch !== '') {
           contractSpecifications += `\n\\item{\\textbf{${productInstance.product.nameDutch}}}\\\\`;
@@ -260,7 +259,7 @@ export default class PdfGenerator {
       }
     }
 
-    file = replaceAll(file, '{{contractspecifications}}', contractSpecifications);
+    file = file.replaceAll('{{contractspecifications}}', contractSpecifications);
     return file;
   }
 
@@ -273,9 +272,7 @@ export default class PdfGenerator {
    */
   private createProductList(file: string, products: ProductInstance[], language: Language) {
     let productList = '';
-    let productInstance: ProductInstance;
-    for (let i = 0; i < products.length; i++) {
-      productInstance = products[i];
+    for (const productInstance of products) {
       if (language === Language.DUTCH) {
         if (productInstance.product.contractTextDutch !== '') {
           productList += `\\item{\\textbf{${productInstance.product.nameDutch} ${productInstance.details !== '' ? `(${productInstance.details})` : ''}}}\\\\`;
@@ -289,8 +286,7 @@ export default class PdfGenerator {
       }
     }
 
-    file = replaceAll(file, '{{productlist}}', productList);
-    return file;
+    return file.replaceAll('{{productlist}}', productList);
   }
 
   /**
@@ -313,10 +309,7 @@ export default class PdfGenerator {
     let totalHighVatValue = 0;
 
     let invoice = '';
-    let productInstance: ProductInstance;
-    for (let i = 0; i < products.length; i++) {
-      productInstance = products[i];
-
+    for (const productInstance of products) {
       totalDiscountPriceNoVat += productInstance.basePrice - productInstance.discount;
       const currentPrice = productInstance.basePrice - productInstance.discount;
       const currentPriceVAT = currentPrice * (productInstance.product.valueAddedTax.amount / 100 + 1);
@@ -349,11 +342,11 @@ export default class PdfGenerator {
       }
     }
 
-    file = replaceAll(file, '{{invoiceentries}}', invoice);
-    file = replaceAll(file, '{{exclvat}}', Currency.priceAttributeToEuro(totalDiscountPriceNoVat, language));
-    file = replaceAll(file, '{{vatlow}}', Currency.priceAttributeToEuro(totalLowVatValue, language));
-    file = replaceAll(file, '{{vathigh}}', Currency.priceAttributeToEuro(totalHighVatValue, language));
-    file = replaceAll(file, '{{inclvat}}', Currency.priceAttributeToEuro(totalPriceWithVat, language));
+    file = file.replaceAll('{{invoiceentries}}', invoice);
+    file = file.replaceAll('{{exclvat}}', Currency.priceAttributeToEuro(totalDiscountPriceNoVat, language));
+    file = file.replaceAll('{{vatlow}}', Currency.priceAttributeToEuro(totalLowVatValue, language));
+    file = file.replaceAll('{{vathigh}}', Currency.priceAttributeToEuro(totalHighVatValue, language));
+    file = file.replaceAll('{{inclvat}}', Currency.priceAttributeToEuro(totalPriceWithVat, language));
     return file;
   }
 
@@ -394,7 +387,7 @@ export default class PdfGenerator {
     file = this.createPricingTable(file, contract.products, settings.language, settings.showDiscountPercentages);
     file = this.createProductList(file, contract.products, settings.language);
 
-    file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
+    file = file.replaceAll('{{debtornumber}}', `C${settings.recipient.id}`);
 
     if (settings.contentType === ContractType.CONTRACT) {
       file = this.createSpecificationList(file, contract.products, settings.language);
@@ -439,14 +432,14 @@ export default class PdfGenerator {
     // Setting invoice specific information
     const dueDate = new Date(invoice.startDate);
     dueDate.setDate(invoice.startDate.getDate() + 30);
-    file = replaceAll(file, '{{dueday}}', dueDate.getDate().toString());
-    file = replaceAll(file, '{{duemonth}}', (dueDate.getMonth() + 1).toString());
-    file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
+    file = file.replaceAll('{{dueday}}', dueDate.getDate().toString());
+    file = file.replaceAll('{{duemonth}}', (dueDate.getMonth() + 1).toString());
+    file = file.replaceAll('{{dueyear}}', dueDate.getFullYear().toString());
 
-    file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
+    file = file.replaceAll('{{debtornumber}}', `C${settings.recipient.id}`);
 
     const startDate = new Date(invoice.startDate);
-    const quartiles = {
+    const quartiles: Quartiles = {
       Q1: [new Date(invoice.startDate.getFullYear(), 6, 1), new Date(invoice.startDate.getFullYear(), 8, 30)],
       Q2: [new Date(invoice.startDate.getFullYear(), 9, 1), new Date(invoice.startDate.getFullYear(), 11, 31)],
       Q3: [new Date(invoice.startDate.getFullYear(), 0, 1), new Date(invoice.startDate.getFullYear(), 2, 31)],
@@ -469,12 +462,11 @@ export default class PdfGenerator {
       quarterEnd = quartiles.Q4[1];
     }
 
-    file = replaceAll(
-      file,
+    file = file.replaceAll(
       '{{quarterstart}}',
       Intl.DateTimeFormat('nl-NL', { dateStyle: 'short' }).format(quarterStart),
     );
-    file = replaceAll(file, '{{quarterend}}', Intl.DateTimeFormat('nl-NL', { dateStyle: 'short' }).format(quarterEnd));
+    file = file.replaceAll('{{quarterend}}', Intl.DateTimeFormat('nl-NL', { dateStyle: 'short' }).format(quarterEnd));
 
     file = this.createPricingTable(file, invoice.products, settings.language, settings.showDiscountPercentages);
     return this.finishFileGeneration(file, settings.fileType, settings.saveToDisk);
@@ -514,11 +506,11 @@ export default class PdfGenerator {
     // Setting invoice specific information
     const dueDate = new Date(params.date);
     dueDate.setDate(params.date.getDate() + 30);
-    file = replaceAll(file, '{{dueday}}', dueDate.getDate().toString());
-    file = replaceAll(file, '{{duemonth}}', (dueDate.getMonth() + 1).toString());
-    file = replaceAll(file, '{{dueyear}}', dueDate.getFullYear().toString());
+    file = file.replaceAll('{{dueday}}', dueDate.getDate().toString());
+    file = file.replaceAll('{{duemonth}}', (dueDate.getMonth() + 1).toString());
+    file = file.replaceAll('{{dueyear}}', dueDate.getFullYear().toString());
 
-    file = replaceAll(file, '{{debtornumber}}', params.recipient.number);
+    file = file.replaceAll('{{debtornumber}}', params.recipient.number);
 
     let totalDiscountPriceNoVat = 0;
     let totalPriceWithVat = 0;
@@ -528,9 +520,7 @@ export default class PdfGenerator {
     const repo = AppDataSource.getRepository(ValueAddedTax);
 
     let invoice = '';
-    let customProduct;
-    for (let i = 0; i < params.products.length; i++) {
-      customProduct = params.products[i];
+    for (const customProduct of params.products) {
       const basePrice = customProduct.pricePerOne * customProduct.amount;
 
       const valueAddedTax = await repo.findOne({
@@ -552,14 +542,14 @@ export default class PdfGenerator {
       invoice += `\t1 & ${customProduct.name} & ${Currency.priceAttributeToEuro(basePrice, params.language)} & ${valueAddedTax!.amount}\\% & ${Currency.priceAttributeToEuro(basePrice, params.language)}\\\\\n`;
     }
 
-    file = replaceAll(file, '{{invoiceentries}}', invoice);
-    file = replaceAll(file, '{{exclvat}}', Currency.priceAttributeToEuro(totalDiscountPriceNoVat, params.language));
-    file = replaceAll(file, '{{vatlow}}', Currency.priceAttributeToEuro(totalLowVatValue, params.language));
-    file = replaceAll(file, '{{vathigh}}', Currency.priceAttributeToEuro(totalHighVatValue, params.language));
-    file = replaceAll(file, '{{inclvat}}', Currency.priceAttributeToEuro(totalPriceWithVat, params.language));
+    file = file.replaceAll('{{invoiceentries}}', invoice);
+    file = file.replaceAll('{{exclvat}}', Currency.priceAttributeToEuro(totalDiscountPriceNoVat, params.language));
+    file = file.replaceAll('{{vatlow}}', Currency.priceAttributeToEuro(totalLowVatValue, params.language));
+    file = file.replaceAll('{{vathigh}}', Currency.priceAttributeToEuro(totalHighVatValue, params.language));
+    file = file.replaceAll('{{inclvat}}', Currency.priceAttributeToEuro(totalPriceWithVat, params.language));
 
-    file = replaceAll(file, '{{quarterstart}}', 'nil');
-    file = replaceAll(file, '{{quarterend}}', 'nil');
+    file = file.replaceAll('{{quarterstart}}', 'nil');
+    file = file.replaceAll('{{quarterend}}', 'nil');
 
     return this.finishFileGeneration(file, params.fileType, false);
   }

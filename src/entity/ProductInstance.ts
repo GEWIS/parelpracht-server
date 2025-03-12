@@ -58,7 +58,7 @@ export class ProductInstance extends BaseEnt {
     return `${((this.discount / this.basePrice) * 100).toFixed(2)}`;
   }
 
-  async setUpdatedAtToNow(): Promise<void> {
+  override async setUpdatedAtToNow(): Promise<void> {
     const promises: Promise<void>[] = [];
     if (this.contract !== undefined) {
       promises.push(this.contract.setUpdatedAtToNow());
