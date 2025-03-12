@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "extends": "@gewis/tsconfig",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["node"],
+    "lib": ["es2022", "DOM"]
+  },
+  "ts-node": {
+    "files": true
+  },
+  "include": ["src", "src/**/*.json", "build", "build/**/*.json"],
+  "exclude": ["node_modules", "dist"]
+}

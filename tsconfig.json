@@ -1,48 +1,5 @@
 {
-  "compilerOptions": {
-    /* Basic Options */
-    "target": "es2016",
-    "module": "commonjs",
-    "outDir": "dist",
-    "types": ["node"],
-    "lib": ["es6", "es2021", "DOM"],
-    "incremental": true,
-    "composite": true,
-    "declaration": true,
-    "sourceMap": true,
-
-    /* Strict Type-Checking Options */
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-
-    /* Additional Checks */
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-
-    /* Module Resolution Options */
-    "moduleResolution": "node",
-    "baseUrl": ".",
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-
-    /* Experimental Options */
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-
-    /* Advanced Options */
-    "forceConsistentCasingInFileNames": true,
-  },
-  "ts-node": {
-    "files": true
-  },
-  "include": ["src", "src/**/*.json", "build/**/*.ts", "build/**/*.json"],
-  "exclude": ["node_modules", "dist"]
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
 }
