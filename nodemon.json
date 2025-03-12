@@ -1,5 +1,5 @@
 {
-  "exec": "ts-node src/index.ts",
+  "exec": "ts-node -P tsconfig.app.json src/index.ts",
   "watch": ["src"],
   "ext": "ts",
   "delay": 500

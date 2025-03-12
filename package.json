@@ -5,7 +5,7 @@
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "concurrently \"nodemon\" \"nodemon -x npx tsoa spec-and-routes\"",
-    "build": "yarn tsoa && tsc",
+    "build": "yarn tsoa && tsc -b",
     "start": "node dist/src/index.js",
     "tsoa": "tsoa spec-and-routes",
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",

@@ -4,11 +4,14 @@
   "compilerOptions": {
     "outDir": "dist",
     "types": ["node"],
-    "lib": ["es2022", "DOM"]
+    "lib": ["es2022", "DOM"],
+    // TODO need to be moved to @gewis/tsconfig
+    "esModuleInterop": true,
+    "module": "commonjs"
   },
   "ts-node": {
     "files": true
   },
-  "include": ["src", "src/**/*.json", "build", "build/**/*.json"],
+  "include": ["src", "src/**/*.json", "build", "build/**/*.json", "src/types/**/*.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
