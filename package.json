@@ -44,7 +44,7 @@
     "prettier": "^3.5.2",
     "reflect-metadata": "^0.2.2",
     "rimraf": "^6.0.1",
-    "strong-error-handler": "^5.0.16",
+    "strong-error-handler": "^5.0.17",
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "typeorm": "^0.3.20",
