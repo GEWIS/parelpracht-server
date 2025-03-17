@@ -31,7 +31,7 @@ function printStringArrayToString(items: string[], language: Language, preSuffix
     return '';
   }
   if (items.length === 1) {
-    return items[0];
+    return items[0]!;
   }
 
   let conjunction: string;
@@ -63,7 +63,7 @@ function splitStringToStringArray(list: string): string[] {
   // Split the string on comma's
   const split = list.split(',');
   // Split the final string in the items on the word "and"
-  const lastTwo = split[split.length - 1].split('and');
+  const lastTwo = split[split.length - 1]!.split('and');
   // Remove the last item, because we have split it separately
   split.splice(split.length - 1, 1);
   // Merge everything and trim every string

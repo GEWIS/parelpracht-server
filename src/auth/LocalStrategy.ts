@@ -3,11 +3,11 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import passport from 'passport';
 import express from 'express';
 import { normalizeEmail } from 'validator';
+import { ExpressRequest } from '../types/express';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import AppDataSource from '../database';
-import { ExpressRequest } from '../types';
 
 const INVALID_LOGIN = 'Invalid email or password.';
 const VERIFY_ACCOUNT = 'Please verify your account and set your password with the link received by email.';

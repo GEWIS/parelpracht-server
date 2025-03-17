@@ -1,6 +1,6 @@
 import { body, ValidationChain, validationResult } from 'express-validator';
 import ContactService from '../services/ContactService';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
 import { ApiError, HTTPStatus } from './error';
 
 /**
@@ -24,8 +24,8 @@ export const validate = async (validations: ValidationChain[], req: ExpressReque
  * @param req Express.js request object
  */
 export const validateSeq = async (validations: ValidationChain[], req: ExpressRequest) => {
-  for (let i = 0; i < validations.length; i++) {
-    const result = await validations[i].run(req);
+  for (const val of validations) {
+    const result = await val.run(req);
     if (!result.isEmpty()) break;
   }
 

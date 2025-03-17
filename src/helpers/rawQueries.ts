@@ -9,7 +9,6 @@ import { ProductInstanceStatus } from '../entity/enums/ProductActivityStatus';
 import AppDataSource from '../database';
 import { currentFinancialYear } from './timestamp';
 import { ApiError, HTTPStatus } from './error';
-import replaceAll from './replaceAll';
 
 export interface ETCompany {
   id: number;
@@ -178,7 +177,7 @@ export default class RawQueries {
     let q = query;
     if (this.database === 'mysql') {
       q = q.split('"').join('');
-      q = replaceAll(q, 'current_date', 'current_date()');
+      q = q.replaceAll('current_date', 'current_date()');
     }
     return AppDataSource.manager.query(q);
   }
@@ -389,7 +388,7 @@ export default class RawQueries {
     for (let i = 0; i < data.length; i++) {
       if (companyId === data[i].id) {
         if (contractId === data[i].contractId) {
-          r[r.length - 1].contracts[r[r.length - 1].contracts.length - 1].products.push({
+          r[r.length - 1]!.contracts[r[r.length - 1]!.contracts.length - 1]!.products.push({
             id: data[i].productInstanceId,
             productId: data[i].productId,
             invoiceDate: data[i].invoiceDate,
@@ -399,7 +398,7 @@ export default class RawQueries {
             details: data[i].details,
           });
         } else {
-          r[r.length - 1].contracts.push({
+          r[r.length - 1]!.contracts.push({
             id: data[i].contractId,
             title: data[i].contractTitle,
             subType: data[i].contractStatus as ContractStatus,

@@ -1,5 +1,4 @@
 import { Product } from '../entity/Product';
-import replaceAll from '../helpers/replaceAll';
 import AppDataSource from '../database';
 
 /**
@@ -22,16 +21,11 @@ export async function replaceGEWISRecipient() {
       count++;
     }
 
-    p.description = replaceAll(p.description, '{instelling}', '\\GEWISRecipient\\xspace');
-    p.contractTextDutch = replaceAll(p.contractTextDutch, '{instelling}', '\\GEWISRecipient\\xspace');
-    p.contractTextEnglish = replaceAll(p.contractTextEnglish, '{instelling}', '\\GEWISRecipient\\xspace');
-    p.deliverySpecificationDutch = replaceAll(
-      p.deliverySpecificationDutch!,
-      '{instelling}',
-      '\\GEWISRecipient\\xspace',
-    );
-    p.deliverySpecificationEnglish = replaceAll(
-      p.deliverySpecificationEnglish!,
+    p.description = p.description.replaceAll('{instelling}', '\\GEWISRecipient\\xspace');
+    p.contractTextDutch = p.contractTextDutch.replaceAll('{instelling}', '\\GEWISRecipient\\xspace');
+    p.contractTextEnglish = p.contractTextEnglish.replaceAll('{instelling}', '\\GEWISRecipient\\xspace');
+    p.deliverySpecificationDutch = p.deliverySpecificationDutch!.replaceAll('{instelling}', '\\GEWISRecipient\\xspace');
+    p.deliverySpecificationEnglish = p.deliverySpecificationEnglish!.replaceAll(
       '{instelling}',
       '\\GEWISRecipient\\xspace',
     );

@@ -5,13 +5,13 @@
   "license": "AGPL-3.0-or-later",
   "scripts": {
     "dev": "concurrently \"nodemon\" \"nodemon -x npx tsoa spec-and-routes\"",
-    "build": "yarn tsoa && tsc",
+    "build": "yarn tsoa && tsc -b",
     "start": "node dist/src/index.js",
     "tsoa": "tsoa spec-and-routes",
     "gen-client": "nswag openapi2tsclient /input:src/public/swagger.json /output:../parelpracht-client/src/clients/server.generated.ts /ServiceHost:.",
     "db:diagram": "typeorm-uml ormconfig.json",
     "db:validate": "ts-node src/dbvalidator/validate.ts",
-    "lint": "yarn tsoa && eslint src",
+    "lint": "yarn tsoa && eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --ignore-path .gitignore --check .",
     "format:fix": "prettier --ignore-path .gitignore --write ."
@@ -52,8 +52,9 @@
     "validator": "^13.12.0"
   },
   "devDependencies": {
-    "@gewis/eslint-config-typescript": "^2.2.3",
+    "@gewis/eslint-config-typescript": "^2.3.0",
     "@gewis/prettier-config": "^2.2.2",
+    "@gewis/tsconfig": "^2.3.0",
     "@types/axios": "^0.14.4",
     "@types/express": "5.0.0",
     "@types/express-session": "^1.18.1",

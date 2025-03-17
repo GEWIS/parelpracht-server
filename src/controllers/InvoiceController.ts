@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import { body, ValidationChain } from 'express-validator';
+import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Delete, Request } from 'tsoa';
 import { Invoice } from '../entity/Invoice';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import InvoiceService, { InvoiceCreateParams, InvoiceListResponse, InvoiceParams } from '../services/InvoiceService';
@@ -21,9 +22,8 @@ import { Language } from '../entity/enums/Language';
 import { InvoiceStatus } from '../entity/enums/InvoiceStatus';
 import { InvoiceSummary } from '../entity/Summaries';
 import { Roles } from '../entity/enums/Roles';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
 import { ListParams } from './ListParams';
-import { Body, Controller, Post, Route, Put, Tags, Get, Security, Response, Delete, Request } from 'tsoa';
 
 @Route('invoice')
 @Tags('Invoice')

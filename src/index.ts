@@ -3,7 +3,6 @@ import * as fs from 'fs';
 import path from 'path';
 import express, { Express, json as expressJson, static as expressStatic } from 'express';
 import { config } from 'dotenv';
-
 import errorhandler from 'strong-error-handler';
 import { serve as serverSwagger, setup as setupSwagger } from 'swagger-ui-express';
 import methodOverride from 'method-override';
@@ -31,7 +30,7 @@ import UserService from './services/UserService';
 import { ldapLogin, LDAPStrategy } from './auth';
 import AppDataSource from './database';
 
-config({ path: '.env' });
+config();
 
 const PORT = process.env.PORT || 3001;
 
@@ -136,7 +135,7 @@ AppDataSource.initialize()
     // If env file specifies development, use swagger UI
     if (process.env.NODE_ENV === 'development') {
       app.use('/api/swagger-ui', serverSwagger, setupSwagger(swaggerDocument));
-      app.get('/api/swagger.json', (req, res) => {
+      app.get('/api/swagger.json', (_, res) => {
         res.sendFile(path.join(__dirname, './public/swagger.json'));
       });
     }

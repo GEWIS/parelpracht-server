@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import mime from 'mime';
-import BaseFile from '../entity/file/BaseFile';
 import { Controller } from 'tsoa';
+import BaseFile from '../entity/file/BaseFile';
 
 export const workDirLoc = 'tmp/';
 export const generateDirLoc = 'data/generated/';

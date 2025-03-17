@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus, WrappedApiError } from '../helpers/error';
 import UserService, { TransferUserParams, UserListResponse, UserParams, UserSummary } from '../services/UserService';
@@ -10,9 +11,8 @@ import { IdentityLocal } from '../entity/IdentityLocal';
 import AuthService, { LdapIdentityParams } from '../services/AuthService';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import GDPRService from '../services/GDPRService';
+import { ExpressRequest } from '../types/express';
 import { ListParams } from './ListParams';
-import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
-import { ExpressRequest } from 'src/types';
 
 @Route('user')
 @Tags('User')
@@ -241,7 +241,7 @@ export class UserController extends Controller {
   @Post('{id}/auth/local')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async createLocalIdentity(@Request() req: ExpressRequest, id: number): Promise<IdentityLocal> {
+  public async createLocalIdentity(@Request() _: ExpressRequest, id: number): Promise<IdentityLocal> {
     const user = await new UserService().getUser(id);
     return new AuthService().createIdentityLocal(user, false);
   }
@@ -249,7 +249,7 @@ export class UserController extends Controller {
   @Delete('{id}/auth/local')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteLocalIdentity(@Request() req: ExpressRequest, id: number): Promise<void> {
+  public async deleteLocalIdentity(@Request() _: ExpressRequest, id: number): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLocal(user);
   }
@@ -258,7 +258,7 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async createLdapIdentity(
-    @Request() req: ExpressRequest,
+    @Request() _: ExpressRequest,
     id: number,
     @Body() params: LdapIdentityParams,
   ): Promise<IdentityLDAP> {
@@ -270,7 +270,7 @@ export class UserController extends Controller {
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
   public async updateLdapIdentity(
-    @Request() req: ExpressRequest,
+    @Request() _: ExpressRequest,
     id: number,
     @Body() params: Partial<LdapIdentityParams>,
   ): Promise<IdentityLDAP> {
@@ -281,7 +281,7 @@ export class UserController extends Controller {
   @Delete('{id}/auth/ldap')
   @Security('local', ['ADMIN'])
   @Response<WrappedApiError>(401)
-  public async deleteLdapIdentity(@Request() req: ExpressRequest, id: number): Promise<void> {
+  public async deleteLdapIdentity(@Request() _: ExpressRequest, id: number): Promise<void> {
     const user = await new UserService().getUser(id);
     return new AuthService().removeIdentityLdap(user);
   }

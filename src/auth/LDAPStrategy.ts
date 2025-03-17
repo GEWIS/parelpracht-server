@@ -1,6 +1,7 @@
 import Strategy from 'passport-ldapauth';
 import express from 'express';
 import passport from 'passport';
+import { ExpressRequest } from '../types/express';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
@@ -8,7 +9,6 @@ import { Role } from '../entity/Role';
 import UserService from '../services/UserService';
 import { Roles } from '../entity/enums/Roles';
 import AppDataSource from '../database';
-import { ExpressRequest } from '../types';
 
 const isDefined = (i: string | undefined) => i !== undefined && i !== '';
 

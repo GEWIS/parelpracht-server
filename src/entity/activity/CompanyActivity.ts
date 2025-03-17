@@ -28,5 +28,5 @@ export class CompanyActivity extends BaseActivity {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setSubType(subType: string): void {}
+  setSubType(_: string): void {}
 }

@@ -1,4 +1,5 @@
 import { body } from 'express-validator';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import ProductCategoryService, {
   CategoryListResponse,
   CategoryParams,
@@ -8,9 +9,8 @@ import { WrappedApiError } from '../helpers/error';
 import { ProductCategory } from '../entity/ProductCategory';
 import { validate } from '../helpers/validation';
 import StatisticsService, { ContractedProductsAnalysis } from '../services/StatisticsService';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
 import { ListParams } from './ListParams';
-import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('category')
 @Tags('Product Category')

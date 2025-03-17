@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import { body } from 'express-validator';
+import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 import { Contract } from '../entity/Contract';
 import ContractService, { ContractListResponse, ContractParams } from '../services/ContractService';
 import ProductInstanceService, { ProductInstanceParams } from '../services/ProductInstanceService';
@@ -29,9 +30,8 @@ import { Language } from '../entity/enums/Language';
 import { RecentContract } from '../helpers/rawQueries';
 import { ContractSummary } from '../entity/Summaries';
 import { Roles } from '../entity/enums/Roles';
-import { ExpressRequest } from '../types';
+import { ExpressRequest } from '../types/express';
 import { ListParams } from './ListParams';
-import { Body, Controller, Delete, Get, Post, Put, Request, Response, Route, Security, Tags } from 'tsoa';
 
 @Route('contract')
 @Tags('Contract')

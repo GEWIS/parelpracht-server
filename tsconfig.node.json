@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig.json",
+  "extends": "@gewis/tsconfig",
+  "compilerOptions": {
+    "lib": [],
+    "types": ["node"]
+  },
+  "include": ["eslint.config.*", ".prettierrc.*", "package.json"]
+}
