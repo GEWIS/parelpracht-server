@@ -55,10 +55,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/config-helpers@npm:^0.1.0":
-  version: 0.1.0
-  resolution: "@eslint/config-helpers@npm:0.1.0"
-  checksum: 10c0/3562b5325f42740fc83b0b92b7d13a61b383f8db064915143eec36184f09a09fad73eca6c2955ab6c248b0d04fa03c140f9af2f2c4c06770781a6b79f300a01e
+"@eslint/config-helpers@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@eslint/config-helpers@npm:0.2.0"
+  checksum: 10c0/743a64653e13177029108f57ab47460ded08e3412c86216a14b7e8ab2dc79c2b64be45bf55c5ef29f83692a707dc34cf1e9217e4b8b4b272a0d9b691fdaf6a2a
   languageName: node
   linkType: hard
 
@@ -71,9 +71,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/eslintrc@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@eslint/eslintrc@npm:3.3.0"
+"@eslint/eslintrc@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@eslint/eslintrc@npm:3.3.1"
   dependencies:
     ajv: "npm:^6.12.4"
     debug: "npm:^4.3.2"
@@ -84,14 +84,14 @@ __metadata:
     js-yaml: "npm:^4.1.0"
     minimatch: "npm:^3.1.2"
     strip-json-comments: "npm:^3.1.1"
-  checksum: 10c0/215de990231b31e2fe6458f225d8cea0f5c781d3ecb0b7920703501f8cd21b3101fc5ef2f0d4f9a38865d36647b983e0e8ce8bf12fd2bcdd227fc48a5b1a43be
+  checksum: 10c0/b0e63f3bc5cce4555f791a4e487bf999173fcf27c65e1ab6e7d63634d8a43b33c3693e79f192cbff486d7df1be8ebb2bd2edc6e70ddd486cbfa84a359a3e3b41
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.22.0":
-  version: 9.22.0
-  resolution: "@eslint/js@npm:9.22.0"
-  checksum: 10c0/5bcd009bb579dc6c6ed760703bdd741e08a48cd9decd677aa2cf67fe66236658cb09a00185a0369f3904e5cffba9e6e0f2ff4d9ba4fdf598fcd81d34c49213a5
+"@eslint/js@npm:9.23.0":
+  version: 9.23.0
+  resolution: "@eslint/js@npm:9.23.0"
+  checksum: 10c0/4e70869372b6325389e0ab51cac6d3062689807d1cef2c3434857571422ce11dde3c62777af85c382b9f94d937127598d605d2086787f08611351bf99faded81
   languageName: node
   linkType: hard
 
@@ -112,18 +112,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@gewis/eslint-config-typescript@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@gewis/eslint-config-typescript@npm:2.3.0"
+"@gewis/eslint-config-typescript@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "@gewis/eslint-config-typescript@npm:2.4.0"
   dependencies:
     "@eslint/compat": "npm:^1.2.7"
-    "@eslint/js": "npm:9.22.0"
+    "@eslint/js": "npm:9.23.0"
     eslint-import-resolver-typescript: "npm:^3.8.3"
     eslint-plugin-import: "npm:^2.31.0"
     typescript-eslint: "npm:^8.25.0"
   peerDependencies:
     eslint: "*"
-  checksum: 10c0/ee487de19e679c6919c318a0439a7f5a74cac838a31f659485490375d9dd7406ac3f3b321e19c0d6f2ab7e4fde261c3d27e8e7f952201ebc497c0ab4742197b2
+  checksum: 10c0/91a4318cc6c9531d2f895384717b60137c93cf3e0fae234e0c06c3dccfb4676c9853a872a28d867340e9c2029800b8330c0138305e928b95ccdcd0da19085120
   languageName: node
   linkType: hard
 
@@ -1070,12 +1070,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.17.24":
-  version: 20.17.24
-  resolution: "@types/node@npm:20.17.24"
+"@types/node@npm:^20.17.28":
+  version: 20.17.28
+  resolution: "@types/node@npm:20.17.28"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/2a39ce4c4cd4588a05b2a485cc0a1407cbea608dd1ab03e36add59d61712718d95c84b492ca5190753f0be2bce748aeeb0f2a1412e712775462befe3820b3ff9
+  checksum: 10c0/d77214e54d8f303d0a79fc896f8c4267b057fbc774448f6d09d24874d521293cd6036292e79b2791a6aef18895bd80dc58c1853bd8a0cf261b08500083f07273
   languageName: node
   linkType: hard
 
@@ -2576,17 +2576,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.22.0":
-  version: 9.22.0
-  resolution: "eslint@npm:9.22.0"
+"eslint@npm:^9.23.0":
+  version: 9.23.0
+  resolution: "eslint@npm:9.23.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.2.0"
     "@eslint-community/regexpp": "npm:^4.12.1"
     "@eslint/config-array": "npm:^0.19.2"
-    "@eslint/config-helpers": "npm:^0.1.0"
+    "@eslint/config-helpers": "npm:^0.2.0"
     "@eslint/core": "npm:^0.12.0"
-    "@eslint/eslintrc": "npm:^3.3.0"
-    "@eslint/js": "npm:9.22.0"
+    "@eslint/eslintrc": "npm:^3.3.1"
+    "@eslint/js": "npm:9.23.0"
     "@eslint/plugin-kit": "npm:^0.2.7"
     "@humanfs/node": "npm:^0.16.6"
     "@humanwhocodes/module-importer": "npm:^1.0.1"
@@ -2622,7 +2622,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/7b5ab6f2365971c16efe97349565f75d8343347562fb23f12734c6ab2cd5e35301373a0d51e194789ddcfdfca21db7b62ff481b03d524b8169896c305b65ff48
+  checksum: 10c0/9616c308dfa8d09db8ae51019c87d5d05933742214531b077bd6ab618baab3bec7938256c14dcad4dc47f5ba93feb0bc5e089f68799f076374ddea21b6a9be45
   languageName: node
   linkType: hard
 
@@ -4813,7 +4813,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "parelpracht-server@workspace:."
   dependencies:
-    "@gewis/eslint-config-typescript": "npm:^2.3.0"
+    "@gewis/eslint-config-typescript": "npm:^2.4.0"
     "@gewis/prettier-config": "npm:^2.2.2"
     "@types/axios": "npm:^0.14.4"
     "@types/express": "npm:5.0.0"
@@ -4823,7 +4823,7 @@ __metadata:
     "@types/method-override": "npm:3.0.0"
     "@types/mime": "npm:^4.0.0"
     "@types/multer": "npm:^1.4.12"
-    "@types/node": "npm:^20.17.24"
+    "@types/node": "npm:^20.17.28"
     "@types/node-cron": "npm:^3.0.11"
     "@types/nodemailer": "npm:^6.4.17"
     "@types/passport": "npm:^1.0.17"
@@ -4838,7 +4838,7 @@ __metadata:
     connect-typeorm: "npm:^2.0.0"
     cors: "npm:^2.8.5"
     dotenv: "npm:^16.4.7"
-    eslint: "npm:^9.22.0"
+    eslint: "npm:^9.23.0"
     express: "npm:^4.21.2"
     express-session: "npm:^1.18.1"
     express-validator: "npm:^7.2.1"
