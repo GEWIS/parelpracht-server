@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import * as fs from 'fs';
 import path from 'path';
 import express, { Express, json as expressJson, static as expressStatic } from 'express';
-import { config } from 'dotenv';
+import 'dotenv/config'
 
 import errorhandler from 'strong-error-handler';
 import { serve as serverSwagger, setup as setupSwagger } from 'swagger-ui-express';
@@ -30,8 +30,6 @@ import { User } from './entity/User';
 import UserService from './services/UserService';
 import { ldapLogin, LDAPStrategy } from './auth';
 import AppDataSource from './database';
-
-config({ path: '.env' });
 
 const PORT = process.env.PORT || 3001;
 

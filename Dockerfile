@@ -13,7 +13,6 @@ COPY ormconfig.json /usr/src/app
 COPY tsoa.json /usr/src/app
 COPY .yarnrc.yml /usr/src/app
 
-COPY build /usr/src/app
 COPY src /usr/src/app/src
 COPY templates /usr/src/app/templates
 
