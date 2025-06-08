@@ -56,7 +56,6 @@
     "@gewis/prettier-config": "^2.2.2",
     "@types/axios": "^0.14.4",
     "@types/express": "5.0.3",
-    "@types/express-session": "^1.18.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/lodash": "^4.17.17",
     "@types/method-override": "3.0.0",

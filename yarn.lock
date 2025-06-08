@@ -915,15 +915,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express-session@npm:^1.18.2":
-  version: 1.18.2
-  resolution: "@types/express-session@npm:1.18.2"
-  dependencies:
-    "@types/express": "npm:*"
-  checksum: 10c0/5d5aa134ce8990920b35f2dd0aa55168af44faaf14789b6921d361ce016c43bdc66feba287753981a2fee33fd95b8a829c4418c3ca480b03961724b8bc13e453
-  languageName: node
-  linkType: hard
-
 "@types/express@npm:*":
   version: 5.0.0
   resolution: "@types/express@npm:5.0.0"
@@ -5007,7 +4998,6 @@ __metadata:
     "@gewis/prettier-config": "npm:^2.2.2"
     "@types/axios": "npm:^0.14.4"
     "@types/express": "npm:5.0.3"
-    "@types/express-session": "npm:^1.18.2"
     "@types/jsonwebtoken": "npm:^9.0.9"
     "@types/lodash": "npm:^4.17.17"
     "@types/method-override": "npm:3.0.0"
