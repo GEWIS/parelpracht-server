@@ -2185,7 +2185,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:^4.3.5":
+"debug@npm:^4.3.5, debug@npm:^4.4.1":
   version: 4.4.1
   resolution: "debug@npm:4.4.1"
   dependencies:
@@ -5040,7 +5040,7 @@ __metadata:
     prettier: "npm:^3.5.3"
     reflect-metadata: "npm:^0.2.2"
     rimraf: "npm:^6.0.1"
-    strong-error-handler: "npm:^5.0.19"
+    strong-error-handler: "npm:^5.0.20"
     swagger-ui-express: "npm:^5.0.1"
     ts-node: "npm:^10.9.2"
     tsoa: "npm:^6.6.0"
@@ -6198,18 +6198,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strong-error-handler@npm:^5.0.19":
-  version: 5.0.19
-  resolution: "strong-error-handler@npm:5.0.19"
+"strong-error-handler@npm:^5.0.20":
+  version: 5.0.20
+  resolution: "strong-error-handler@npm:5.0.20"
   dependencies:
     accepts: "npm:^1.3.8"
-    debug: "npm:^4.4.0"
+    debug: "npm:^4.4.1"
     fast-safe-stringify: "npm:^2.1.1"
     handlebars: "npm:^4.7.8"
     http-status: "npm:^1.8.1"
     js2xmlparser: "npm:^5.0.0"
     strong-globalize: "npm:^6.0.6"
-  checksum: 10c0/26f9c47015128268016402aead2cf30abe914c34be5e480e42557ea036cee8ad6f7498dc5ee1ca529911d5907636573b5d40a20f5000ca32070e7e9e1ae02654
+  checksum: 10c0/cc293a1fdaa35e9dc05ea4fe7d0e3125f1139915b1ed36b4163428e83e0202271a7e5377ab27f4a1d45fac9657419b621d67b2746c28902cf893d8744a8df947
   languageName: node
   linkType: hard
 
