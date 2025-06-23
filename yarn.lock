@@ -2185,7 +2185,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:^4.3.5":
+"debug@npm:^4.3.5, debug@npm:^4.4.1":
   version: 4.4.1
   resolution: "debug@npm:4.4.1"
   dependencies:
@@ -4710,10 +4710,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-cron@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "node-cron@npm:4.1.0"
-  checksum: 10c0/41aa0a66ac3988ea5dcc4eea7f61c57e2266c8b18bfaee4527145406fe568a300803b37446a45fe45e735571eaed42f6f1c359c8b455a2f20a04d214cc561249
+"node-cron@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "node-cron@npm:4.1.1"
+  checksum: 10c0/4798e3bc4a234512eae22e4a69dd24f82b5516e92011bfdeedb09270ab47a982c991c7fa5c4a9e22167123a1f01350dd041485560be1fd4abf174be15910b91c
   languageName: node
   linkType: hard
 
@@ -5029,22 +5029,22 @@ __metadata:
     mime: "npm:^4.0.7"
     multer: "npm:^2.0.1"
     mysql2: "npm:^3.14.1"
-    node-cron: "npm:^4.1.0"
+    node-cron: "npm:^4.1.1"
     node-latex: "npm:^3.1.0"
     nodemailer: "npm:^7.0.3"
     nodemon: "npm:^3.1.10"
     passport: "npm:^0.7.0"
     passport-ldapauth: "npm:^3.0.1"
     passport-local: "npm:^1.0.0"
-    pg: "npm:^8.16.0"
+    pg: "npm:^8.16.2"
     prettier: "npm:^3.5.3"
     reflect-metadata: "npm:^0.2.2"
     rimraf: "npm:^6.0.1"
-    strong-error-handler: "npm:^5.0.19"
+    strong-error-handler: "npm:^5.0.20"
     swagger-ui-express: "npm:^5.0.1"
     ts-node: "npm:^10.9.2"
     tsoa: "npm:^6.6.0"
-    typeorm: "npm:^0.3.24"
+    typeorm: "npm:^0.3.25"
     typescript: "npm:^5.8.3"
     uuid: "npm:^11.1.0"
     validator: "npm:^13.15.15"
@@ -5173,17 +5173,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-cloudflare@npm:^1.2.5":
-  version: 1.2.5
-  resolution: "pg-cloudflare@npm:1.2.5"
-  checksum: 10c0/48b9105ef027c7b3f57ef88ceaec3634cd82120059bd68273cce06989a1ec547e0b0fbb5d1afdd0711824f409c8b410f9bdec2f6c8034728992d3658c0b36f86
+"pg-cloudflare@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "pg-cloudflare@npm:1.2.6"
+  checksum: 10c0/db339518ed763982c45a94c96cedba1b25819fe32e9d3a4df6f82cd647c716ff9b5009f3c8b90f2940b0a1889387710ef764c9e3e7ddd8397d217309d663a2c8
   languageName: node
   linkType: hard
 
-"pg-connection-string@npm:^2.9.0":
-  version: 2.9.0
-  resolution: "pg-connection-string@npm:2.9.0"
-  checksum: 10c0/7145d00688200685a9d9931a7fc8d61c75f348608626aef88080ece956ceb4ff1cbdee29c3284e41b7a3345bab0e4f50f9edc256e270bfa3a563af4ea78bb490
+"pg-connection-string@npm:^2.9.1":
+  version: 2.9.1
+  resolution: "pg-connection-string@npm:2.9.1"
+  checksum: 10c0/9a646529bbc0843806fc5de98ce93735a4612b571f11867178a85665d11989a827e6fd157388ca0e34ec948098564fce836c178cfd499b9f0e8cd9972b8e2e5c
   languageName: node
   linkType: hard
 
@@ -5194,19 +5194,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg-pool@npm:^3.10.0":
-  version: 3.10.0
-  resolution: "pg-pool@npm:3.10.0"
+"pg-pool@npm:^3.10.1":
+  version: 3.10.1
+  resolution: "pg-pool@npm:3.10.1"
   peerDependencies:
     pg: ">=8.0"
-  checksum: 10c0/b36162dc98c0ad88cd26f3d65f3e3932c3f870abe7a88905f16fc98282e8131692903e482720ebc9698cb08851c9b19242ff16a50af7f9434c8bb0b5d33a9a9a
+  checksum: 10c0/a00916b7df64226cc597fe769e3a757ff9b11562dc87ce5b0a54101a18c1fe282daaa2accaf27221e81e1e4cdf4da6a33dab09614734d32904d6c4e11c44a079
   languageName: node
   linkType: hard
 
-"pg-protocol@npm:^1.10.0":
-  version: 1.10.0
-  resolution: "pg-protocol@npm:1.10.0"
-  checksum: 10c0/7d0d64fe9df50262d907fd476454e1e36f41f5f66044c3ba6aa773fb8add1d350a9c162306e5c33e99bdfbdcc1140dd4ca74f66eda41d0aaceb5853244dcdb65
+"pg-protocol@npm:^1.10.2":
+  version: 1.10.2
+  resolution: "pg-protocol@npm:1.10.2"
+  checksum: 10c0/3f9b5aba3f356190738ea25ecded3cd033cd2218789acf9c67b75788932c4b594eeb7043481822b69eaae4d84401e00142a2ef156297a8347987a78a52afd50e
   languageName: node
   linkType: hard
 
@@ -5223,14 +5223,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pg@npm:^8.16.0":
-  version: 8.16.0
-  resolution: "pg@npm:8.16.0"
+"pg@npm:^8.16.2":
+  version: 8.16.2
+  resolution: "pg@npm:8.16.2"
   dependencies:
-    pg-cloudflare: "npm:^1.2.5"
-    pg-connection-string: "npm:^2.9.0"
-    pg-pool: "npm:^3.10.0"
-    pg-protocol: "npm:^1.10.0"
+    pg-cloudflare: "npm:^1.2.6"
+    pg-connection-string: "npm:^2.9.1"
+    pg-pool: "npm:^3.10.1"
+    pg-protocol: "npm:^1.10.2"
     pg-types: "npm:2.2.0"
     pgpass: "npm:1.0.5"
   peerDependencies:
@@ -5241,7 +5241,7 @@ __metadata:
   peerDependenciesMeta:
     pg-native:
       optional: true
-  checksum: 10c0/24542229c7e5cbf69d654de32e8cdc8302c73f1338e56728543cb16364fb319d5689e03fa704b69a208105c7065c867cfccb9dbccccea2020bb5c64ead785713
+  checksum: 10c0/e444103fda2fa236bb7951e534bbce52d81df8f0ca43b36cdd32da2e558946ae011fa6a0fcfea2e48d935addba821868e76d3f4f670b313f639a3d24fcd420af
   languageName: node
   linkType: hard
 
@@ -6198,18 +6198,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strong-error-handler@npm:^5.0.19":
-  version: 5.0.19
-  resolution: "strong-error-handler@npm:5.0.19"
+"strong-error-handler@npm:^5.0.20":
+  version: 5.0.20
+  resolution: "strong-error-handler@npm:5.0.20"
   dependencies:
     accepts: "npm:^1.3.8"
-    debug: "npm:^4.4.0"
+    debug: "npm:^4.4.1"
     fast-safe-stringify: "npm:^2.1.1"
     handlebars: "npm:^4.7.8"
     http-status: "npm:^1.8.1"
     js2xmlparser: "npm:^5.0.0"
     strong-globalize: "npm:^6.0.6"
-  checksum: 10c0/26f9c47015128268016402aead2cf30abe914c34be5e480e42557ea036cee8ad6f7498dc5ee1ca529911d5907636573b5d40a20f5000ca32070e7e9e1ae02654
+  checksum: 10c0/cc293a1fdaa35e9dc05ea4fe7d0e3125f1139915b1ed36b4163428e83e0202271a7e5377ab27f4a1d45fac9657419b621d67b2746c28902cf893d8744a8df947
   languageName: node
   linkType: hard
 
@@ -6552,9 +6552,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typeorm@npm:^0.3.24":
-  version: 0.3.24
-  resolution: "typeorm@npm:0.3.24"
+"typeorm@npm:^0.3.25":
+  version: 0.3.25
+  resolution: "typeorm@npm:0.3.25"
   dependencies:
     "@sqltools/formatter": "npm:^1.2.5"
     ansis: "npm:^3.17.0"
@@ -6628,7 +6628,7 @@ __metadata:
     typeorm: cli.js
     typeorm-ts-node-commonjs: cli-ts-node-commonjs.js
     typeorm-ts-node-esm: cli-ts-node-esm.js
-  checksum: 10c0/f78fe361c5eba065dfd0e05a7e2ee1bcb5b27a6a24fb6f1b57b03f7df74078364ac13b1ab2915676c50e9fb9c0a41a480834aaadae80fcc6c962c8844adabf03
+  checksum: 10c0/f0b52e451003713aba83a96bce5ee942c7f3ae236ee2e241b7872a19a3e3ac7ac24c91f3c279606678838c360de3c25a8156239b047f7980b0ba2b7ba6f73152
   languageName: node
   linkType: hard
 
