@@ -39,11 +39,10 @@
 
     /* Advanced Options */
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
   },
   "ts-node": {
     "files": true
   },
-  "include": ["src", "src/**/*.json", "build", "build/**/*.json"],
+  "include": ["src", "src/**/*.json", "build/**/*.ts", "build/**/*.json"],
   "exclude": ["node_modules", "dist"]
 }

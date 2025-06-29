@@ -1,5 +1,5 @@
-import { DataSource } from 'typeorm';
 import fs from 'fs';
+import { DataSource } from 'typeorm';
 import { Company } from './entity/Company';
 import { Contact } from './entity/Contact';
 import { Contract } from './entity/Contract';
@@ -25,6 +25,7 @@ import { CompanyFile } from './entity/file/CompanyFile';
 import { ContractFile } from './entity/file/ContractFile';
 import { InvoiceFile } from './entity/file/InvoiceFile';
 import { ProductFile } from './entity/file/ProductFile';
+import 'dotenv/config'
 
 const AppDataSource = new DataSource({
   host: process.env.TYPEORM_HOST,

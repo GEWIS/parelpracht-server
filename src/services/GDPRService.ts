@@ -11,13 +11,13 @@ import { Product } from '../entity/Product';
 import { ProductInstanceActivity } from '../entity/activity/ProductInstanceActivity';
 import { Invoice } from '../entity/Invoice';
 import { ProductActivity } from '../entity/activity/ProductActivity';
-import UserService from './UserService';
 import { InvoiceActivity } from '../entity/activity/InvoiceActivity';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import { ContractFile } from '../entity/file/ContractFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import { ProductFile } from '../entity/file/ProductFile';
 import { ProductInstance } from '../entity/ProductInstance';
+import UserService from './UserService';
 
 export type ActivitiesGDPRResponse = Pick<
   BaseActivity,

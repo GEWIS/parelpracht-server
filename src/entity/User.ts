@@ -1,21 +1,10 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToOne } from 'typeorm';
 import { BaseEnt } from './BaseEnt';
 import { Gender } from './enums/Gender';
-// eslint-disable-next-line import/no-cycle
 import { Role } from './Role';
 import { Roles } from './enums/Roles';
 import { IdentityLDAP } from './IdentityLDAP';
 import { IdentityLocal } from './IdentityLocal';
-// // eslint-disable-next-line import/no-cycle
-// import { CompanyActivity } from './activity/CompanyActivity';
-// // eslint-disable-next-line import/no-cycle
-// import { ContractActivity } from './activity/ContractActivity';
-// // eslint-disable-next-line import/no-cycle
-// import { InvoiceActivity } from './activity/InvoiceActivity';
-// // eslint-disable-next-line import/no-cycle
-// import { ProductActivity } from './activity/ProductActivity';
-// // eslint-disable-next-line import/no-cycle
-// import { ProductInstanceActivity } from './activity/ProductInstanceActivity';
 
 @Entity()
 export class User extends BaseEnt {

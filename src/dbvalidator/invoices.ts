@@ -14,10 +14,10 @@ export async function allInvoicesAreCreated() {
   const activityRepo = AppDataSource.getRepository(InvoiceActivity);
   const invoices = await invoiceRepo.find({ relations: ['activities'] });
 
-  invoices.forEach((i) => {
+  for (const i of invoices) {
     const createdStatus = i.activities.find((a) => a.subType === InvoiceStatus.CREATED);
     if (createdStatus === undefined) {
-      activityRepo.save({
+      await activityRepo.save({
         createdAt: new Date(i.createdAt.getDate() - 1),
         updatedAt: new Date(),
         createdById: i.createdById,
@@ -31,9 +31,9 @@ export async function allInvoicesAreCreated() {
       logResult += `F${i.id}, `;
       count++;
     }
-  });
+  }
 
-  console.log(
+  console.warn(
     `The following invoices did not have a 'CREATED' status (${count}): ${logResult.substr(0, logResult.length - 2)}`,
   );
 }

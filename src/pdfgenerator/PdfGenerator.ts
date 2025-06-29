@@ -4,13 +4,6 @@ import latex from 'node-latex';
 import { v4 as uuidv4 } from 'uuid';
 import { Contract } from '../entity/Contract';
 import { Invoice } from '../entity/Invoice';
-import {
-  ContractGenSettings,
-  ContractType,
-  CustomInvoiceGenSettings,
-  InvoiceGenSettings,
-  ReturnFileType,
-} from './GenSettings';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { Company } from '../entity/Company';
 import { Contact } from '../entity/Contact';
@@ -25,6 +18,13 @@ import countries from '../helpers/countries.json';
 import { VAT } from '../entity/enums/ValueAddedTax';
 import { ValueAddedTax } from '../entity/ValueAddedTax';
 import AppDataSource from '../database';
+import {
+  ContractGenSettings,
+  ContractType,
+  CustomInvoiceGenSettings,
+  InvoiceGenSettings,
+  ReturnFileType,
+} from './GenSettings';
 
 const contractDutch = 'template_contract.tex';
 const contractEnglish = 'template_contract_engels.tex';
@@ -177,7 +177,7 @@ export default class PdfGenerator {
 
     if (useInvoiceAddress) {
       const companyCountry = company.invoiceAddressCountry
-        ? countries.find((country) => country.Code === company.invoiceAddressCountry!.toUpperCase())
+        ? countries.find((country) => country.Code === company.invoiceAddressCountry.toUpperCase())
         : undefined;
       template = replaceAll(template, '{{street}}', company.invoiceAddressStreet);
       template = replaceAll(template, '{{postalcode}}', company.invoiceAddressPostalCode);
@@ -188,7 +188,7 @@ export default class PdfGenerator {
         companyCountry !== undefined ? companyCountry.Name : company.invoiceAddressCountry,
       );
     } else {
-      const companyCountry = countries.find((country) => country.Code === company.addressCountry!.toUpperCase());
+      const companyCountry = countries.find((country) => country.Code === company.addressCountry.toUpperCase());
       template = replaceAll(template, '{{street}}', company.addressStreet);
       template = replaceAll(template, '{{postalcode}}', company.addressPostalCode);
       template = replaceAll(template, '{{city}}', company.addressCity);
@@ -202,7 +202,7 @@ export default class PdfGenerator {
     template = replaceAll(template, '{{ourreference}}', ourReference);
     template = this.replaceAllSafe(template, '{{yourreference}}', theirReference);
 
-    let dueDate = new Date(date);
+    const dueDate = new Date(date);
     dueDate.setDate(date.getDate() + 30);
     template = replaceAll(template, '{{dueday}}', dueDate.getDate().toString());
     template = replaceAll(template, '{{duemonth}}', (dueDate.getMonth() + 1).toString());
@@ -433,11 +433,11 @@ export default class PdfGenerator {
       useInvoiceAddress,
       '',
       `F${invoice.id}`,
-      !!invoice.poNumber ? invoice.poNumber : undefined,
+      invoice.poNumber ? invoice.poNumber : undefined,
     );
 
     // Setting invoice specific information
-    let dueDate = new Date(invoice.startDate);
+    const dueDate = new Date(invoice.startDate);
     dueDate.setDate(invoice.startDate.getDate() + 30);
     file = replaceAll(file, '{{dueday}}', dueDate.getDate().toString());
     file = replaceAll(file, '{{duemonth}}', (dueDate.getMonth() + 1).toString());
@@ -445,8 +445,8 @@ export default class PdfGenerator {
 
     file = replaceAll(file, '{{debtornumber}}', `C${settings.recipient.id}`);
 
-    let startDate = new Date(invoice.startDate);
-    let quartiles = {
+    const startDate = new Date(invoice.startDate);
+    const quartiles = {
       Q1: [new Date(invoice.startDate.getFullYear(), 6, 1), new Date(invoice.startDate.getFullYear(), 8, 30)],
       Q2: [new Date(invoice.startDate.getFullYear(), 9, 1), new Date(invoice.startDate.getFullYear(), 11, 31)],
       Q3: [new Date(invoice.startDate.getFullYear(), 0, 1), new Date(invoice.startDate.getFullYear(), 2, 31)],
@@ -486,14 +486,14 @@ export default class PdfGenerator {
 
     let file = fs.readFileSync(path.join(this.templateDir, invoicePath)).toString();
 
-    let customCompany = new Company();
+    const customCompany = new Company();
     customCompany.name = params.recipient.organizationName ? params.recipient.organizationName : params.recipient.name;
     customCompany.invoiceAddressStreet = params.recipient.street ?? '';
     customCompany.invoiceAddressPostalCode = params.recipient.postalCode ?? '';
     customCompany.invoiceAddressCity = params.recipient.city ?? '';
     customCompany.invoiceAddressCountry = params.recipient.country ?? '';
 
-    let customRecipient = new Contact();
+    const customRecipient = new Contact();
     customRecipient.firstName = params.recipient.organizationName ? params.recipient.name : '';
     customRecipient.lastNamePreposition = '';
     customRecipient.lastName = '';
@@ -508,11 +508,11 @@ export default class PdfGenerator {
       true,
       params.subject,
       params.ourReference,
-      !!params.theirReference ? params.theirReference : undefined,
+      params.theirReference ? params.theirReference : undefined,
     );
 
     // Setting invoice specific information
-    let dueDate = new Date(params.date);
+    const dueDate = new Date(params.date);
     dueDate.setDate(params.date.getDate() + 30);
     file = replaceAll(file, '{{dueday}}', dueDate.getDate().toString());
     file = replaceAll(file, '{{duemonth}}', (dueDate.getMonth() + 1).toString());
@@ -531,7 +531,7 @@ export default class PdfGenerator {
     let customProduct;
     for (let i = 0; i < params.products.length; i++) {
       customProduct = params.products[i];
-      let basePrice = customProduct.pricePerOne * customProduct.amount;
+      const basePrice = customProduct.pricePerOne * customProduct.amount;
 
       const valueAddedTax = await repo.findOne({
         where: {

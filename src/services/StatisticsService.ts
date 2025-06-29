@@ -46,8 +46,7 @@ export default class StatisticsService {
       .getOne();
     let start: Date;
     if (startYear) {
-      // @ts-ignore
-      start = startYear.createdAt;
+      start = startYear.createdAt as Date;
     } else {
       start = new Date();
     }
@@ -189,7 +188,7 @@ export default class StatisticsService {
           amount: 0,
           nrOfProducts: 0,
           year: result[0].year + i,
-        } as any as AnalysisResultByYear);
+        } as AnalysisResultByYear);
       }
     }
 

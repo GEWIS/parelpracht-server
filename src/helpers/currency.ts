@@ -11,7 +11,7 @@ export default class Currency {
         locale = 'nl-NL';
         break;
       default:
-        throw new TypeError(`Unknown language: ${language}`);
+        throw new TypeError(`Unknown language: ${language as string}`);
     }
 
     return new Intl.NumberFormat(locale, { maximumFractionDigits: 2, minimumFractionDigits: 2 }).format(price / 100);

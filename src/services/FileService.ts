@@ -1,12 +1,12 @@
-import { Repository } from 'typeorm';
+/* eslint-disable */
+// TODO this file needs to be refactored with generics to be linted properly
 import * as fs from 'fs';
-import express from 'express';
-import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import multer from 'multer';
+import { Repository } from 'typeorm';
 import mime from 'mime';
 import BaseFile from '../entity/file/BaseFile';
-import UserService from './UserService';
 import { ContractFile } from '../entity/file/ContractFile';
 import { InvoiceFile } from '../entity/file/InvoiceFile';
 import { ApiError, HTTPStatus } from '../helpers/error';
@@ -18,8 +18,6 @@ import {
   ReturnFileType,
 } from '../pdfgenerator/GenSettings';
 import PdfGenerator from '../pdfgenerator/PdfGenerator';
-import InvoiceService from './InvoiceService';
-import ContractService from './ContractService';
 import FileHelper, {
   uploadCompanyLogoDirLoc,
   uploadDirLoc,
@@ -27,13 +25,17 @@ import FileHelper, {
   uploadUserBackgroundDirLoc,
 } from '../helpers/fileHelper';
 import { ProductFile } from '../entity/file/ProductFile';
-import ContactService from './ContactService';
 import { User } from '../entity/User';
 import { validateFileParams } from '../helpers/validation';
 import { CompanyFile } from '../entity/file/CompanyFile';
 import { Language } from '../entity/enums/Language';
-import CompanyService from './CompanyService';
 import AppDataSource from '../database';
+import CompanyService from './CompanyService';
+import ContactService from './ContactService';
+import ContractService from './ContractService';
+import InvoiceService from './InvoiceService';
+import UserService from './UserService';
+import { ExpressRequest } from '../types';
 
 export interface FileParams {
   name?: string;
@@ -199,7 +201,7 @@ export default class FileService {
     return file;
   }
 
-  private static handleFile(request: express.Request): Promise<void> {
+  private static handleFile(request: ExpressRequest): Promise<void> {
     const multerSingle = multer().single('file');
     return new Promise((resolve, reject) => {
       // @ts-ignore
@@ -212,7 +214,7 @@ export default class FileService {
     });
   }
 
-  async uploadFile(request: express.Request, entityId: number) {
+  async uploadFile(request: ExpressRequest, entityId: number) {
     await FileService.handleFile(request);
     await validateFileParams(request);
     const params = {
@@ -309,7 +311,7 @@ export default class FileService {
   Also, they need to process uploading and verifying files, so therefore they are
   defined in this service. and not in their "own" service.
    */
-  static async uploadCompanyLogo(request: express.Request, companyId: number) {
+  static async uploadCompanyLogo(request: ExpressRequest, companyId: number) {
     const company = await new CompanyService().getCompany(companyId);
     await FileService.handleFile(request);
 
@@ -334,7 +336,7 @@ export default class FileService {
     }
   }
 
-  static async uploadUserAvatar(request: express.Request, userId: number) {
+  static async uploadUserAvatar(request: ExpressRequest, userId: number) {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
 
@@ -359,7 +361,7 @@ export default class FileService {
     }
   }
 
-  static async uploadUserBackground(request: express.Request, userId: number) {
+  static async uploadUserBackground(request: ExpressRequest, userId: number) {
     const user = await new UserService().getUser(userId);
     await FileService.handleFile(request);
 

@@ -1,11 +1,11 @@
 import { Repository } from 'typeorm';
 import { ServerSetting } from '../entity/ServerSetting';
 import { ApiError, HTTPStatus } from '../helpers/error';
-import AuthService from './AuthService';
-import UserService, { UserParams } from './UserService';
 import { ldapEnabled } from '../auth';
 import AppDataSource from '../database';
 import { User } from '../entity/User';
+import UserService, { UserParams } from './UserService';
+import AuthService from './AuthService';
 
 export interface SetupParams {
   admin: UserParams;

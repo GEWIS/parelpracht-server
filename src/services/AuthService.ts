@@ -1,7 +1,6 @@
-import express from 'express';
 import { Repository } from 'typeorm';
-import jwt from 'jsonwebtoken';
-import validator from 'validator';
+import { sign as jwtSign, decode as jwtDecode, verify as jwtVerify, JwtPayload } from 'jsonwebtoken';
+import { normalizeEmail } from 'validator';
 import { IdentityLocal } from '../entity/IdentityLocal';
 import { User } from '../entity/User';
 import { Mailer } from '../mailer/Mailer';
@@ -14,6 +13,7 @@ import { newApiKey } from '../mailer/templates/newApiKey';
 import { viewApiKey } from '../mailer/templates/viewApiKey';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import AppDataSource from '../database';
+import { ExpressRequest } from '../types';
 
 const INVALID_TOKEN = 'Invalid token.';
 export interface AuthStatus {
@@ -26,6 +26,11 @@ export interface Profile extends User {
 
 export interface LdapIdentityParams {
   username: string;
+}
+
+interface JwtToken {
+  user_id: number;
+  type: string;
 }
 
 export default class AuthService {
@@ -49,7 +54,7 @@ export default class AuthService {
     this.userRepo = userRepo ?? AppDataSource.getRepository(User);
   }
 
-  async getAuthStatus(req: express.Request): Promise<AuthStatus> {
+  getAuthStatus(req: ExpressRequest): AuthStatus {
     const authenticated = req.isAuthenticated();
 
     return {
@@ -57,7 +62,7 @@ export default class AuthService {
     };
   }
 
-  async getProfile(req: express.Request): Promise<Profile> {
+  async getProfile(req: ExpressRequest): Promise<Profile> {
     const user = (await this.userRepo.findOne({
       where: { id: (req.user as User).id },
       relations: ['roles'],
@@ -74,20 +79,22 @@ export default class AuthService {
     return this.identityLdapRepo.find({ relations: ['user'] });
   }
 
-  async logout(req: express.Request): Promise<void> {
+  // TODO check error type in case of reject
+  async logout(req: ExpressRequest): Promise<void> {
     return new Promise((resolve, reject) => {
-      req.logout((error) => {
+      req.logout((error: Error | undefined) => {
         if (error) reject(error);
         resolve();
       });
     });
   }
 
-  login(user: User, req: express.Request) {
+  // TODO check error type in case of reject
+  login(user: User, req: ExpressRequest) {
     return new Promise<void>((resolve, reject) => {
-      req.logIn(user, (err) => {
-        if (err) {
-          return reject(err);
+      req.logIn(user, (error: Error | undefined) => {
+        if (error) {
+          return reject(error);
         }
         return resolve();
       });
@@ -95,7 +102,7 @@ export default class AuthService {
   }
 
   async forgotPassword(userEmail: string): Promise<void> {
-    let email = validator.normalizeEmail(userEmail);
+    let email = normalizeEmail(userEmail);
     if (email === false) {
       email = '';
     }
@@ -106,7 +113,9 @@ export default class AuthService {
       return;
     }
 
-    Mailer.getInstance().send(
+    // void -- error is explicitly logged, we do not want to await
+    // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+    void Mailer.getInstance().send(
       resetPassword(
         user,
         `${process.env.SERVER_HOST}/reset-password?token=${this.getResetPasswordToken(user, identity)}`,
@@ -128,12 +137,14 @@ export default class AuthService {
     identity = (await this.identityLocalRepo.findOneBy({ id: user.id }))!;
 
     if (!silent) {
-      Mailer.getInstance().send(
+      // void -- error is explicitly logged, we do not want to await
+      // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+      void Mailer.getInstance().send(
         newUser(user, `${process.env.SERVER_HOST}/reset-password?token=${this.getSetPasswordToken(user, identity)}`),
       );
     }
 
-    return identity!;
+    return identity;
   }
 
   async updateIdentityLdap(user: User, params: Partial<LdapIdentityParams>): Promise<IdentityLDAP> {
@@ -167,32 +178,36 @@ export default class AuthService {
   }
 
   getResetPasswordToken(user: User, identity: IdentityLocal): string {
-    return jwt.sign(
+    return jwtSign(
       {
         type: 'PASSWORD_RESET',
         user_id: user.id,
       },
       // Password salt + user createdAt as unique key
-      `${identity.salt || ''}.${user.createdAt}`,
+      `${identity.salt || ''}.${user.createdAt.toString()}`,
       { expiresIn: '7 days' },
     );
   }
 
   getSetPasswordToken(user: User, identity: IdentityLocal): string {
-    return jwt.sign(
+    return jwtSign(
       {
         type: 'PASSWORD_SET',
         user_id: user.id,
       },
       // Password salt + user createdAt as unique key
-      `${identity.salt || ''}.${user.createdAt}`,
+      `${identity.salt || ''}.${user.createdAt.toString()}`,
       { expiresIn: '7 days' },
     );
   }
 
+  checkToken(token: string | JwtPayload | null): token is JwtToken {
+    return token != null && typeof token === 'object' && 'used_id' in token;
+  }
+
   async resetPassword(newPassword: string, tokenString: string): Promise<void> {
-    const token = jwt.decode(tokenString);
-    if (!(token && typeof token !== 'string')) {
+    const token = jwtDecode(tokenString);
+    if (!this.checkToken(token)) {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
 
@@ -208,7 +223,7 @@ export default class AuthService {
         case 'PASSWORD_RESET':
         case 'PASSWORD_SET': {
           // Verify the token
-          jwt.verify(tokenString, `${identity.salt || ''}.${user.createdAt}`);
+          jwtVerify(tokenString, `${identity.salt || ''}.${user.createdAt.toString()}`);
           const salt = generateSalt();
           await this.identityLocalRepo.update(user.id, {
             id: user.id,
@@ -219,10 +234,8 @@ export default class AuthService {
           });
           return;
         }
-        default:
-          throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
       }
-    } catch (e) {
+    } catch {
       throw new ApiError(HTTPStatus.BadRequest, INVALID_TOKEN);
     }
   }
@@ -231,7 +244,7 @@ export default class AuthService {
     await this.identityLocalRepo.softDelete(id);
   }
 
-  async getApiKey(req: express.Request) {
+  async getApiKey(req: ExpressRequest) {
     const user = (await this.userRepo.findOneBy({ id: (req.user as User).id }))!;
 
     const identity = await this.identityApiKeyRepo.findOneBy({ id: (req.user as User).id });
@@ -240,12 +253,14 @@ export default class AuthService {
       throw new ApiError(HTTPStatus.BadRequest, "You don't have an API key yet.");
     }
 
-    Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
+    // void -- error is explicitly logged, we do not want to await
+    // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+    void Mailer.getInstance().send(viewApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }
 
-  async generateApiKey(req: express.Request) {
+  async generateApiKey(req: ExpressRequest) {
     const user = (await this.userRepo.findOneBy({ id: (req.user as User).id }))!;
 
     let identity = await this.identityApiKeyRepo.findOneBy({ id: (req.user as User).id });
@@ -261,12 +276,14 @@ export default class AuthService {
 
     await this.identityApiKeyRepo.insert(identity);
 
-    Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
+    // void -- error is explicitly logged, we do not want to await
+    // https://github.com/GEWIS/parelpracht-server/pull/41#discussion_r1981384390
+    void Mailer.getInstance().send(newApiKey(user, `${process.env.SERVER_HOST}/`));
 
     return identity.apiKey;
   }
 
-  async revokeApiKey(req: express.Request) {
+  async revokeApiKey(req: ExpressRequest) {
     await this.identityApiKeyRepo.delete((req.user as User).id);
   }
 }

@@ -60,7 +60,7 @@ export default class ProductCategoryService {
   async createCategory(params: CategoryParams): Promise<ProductCategory> {
     const category = {
       ...params,
-    } as any as ProductCategory;
+    } as ProductCategory;
     return this.repo.save(category);
   }
 

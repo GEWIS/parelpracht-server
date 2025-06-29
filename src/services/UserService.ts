@@ -1,5 +1,6 @@
-import { FindManyOptions, Repository } from 'typeorm';
 import path from 'path';
+import { FindManyOptions, Repository } from 'typeorm';
+import { isEmail, isStrongPassword, isEmpty } from 'validator';
 import { ListParams } from '../controllers/ListParams';
 import { Gender } from '../entity/enums/Gender';
 import { IdentityLocal } from '../entity/IdentityLocal';
@@ -7,17 +8,14 @@ import { Role } from '../entity/Role';
 import { User } from '../entity/User';
 import { ApiError, HTTPStatus } from '../helpers/error';
 import { addQueryWhereClause } from '../helpers/filters';
-import AuthService from './AuthService';
 import { Roles } from '../entity/enums/Roles';
-// eslint-disable-next-line import/no-cycle
-import ContractService from './ContractService';
-// eslint-disable-next-line import/no-cycle
-import InvoiceService from './InvoiceService';
 import FileHelper, { uploadUserAvatarDirLoc, uploadUserBackgroundDirLoc } from '../helpers/fileHelper';
 import { IdentityLDAP } from '../entity/IdentityLDAP';
 import { ldapEnabled } from '../auth';
 import AppDataSource from '../database';
-import validator from 'validator';
+import InvoiceService from './InvoiceService';
+import ContractService from './ContractService';
+import AuthService from './AuthService';
 
 export interface UserParams {
   email: string;
@@ -153,7 +151,7 @@ export default class UserService {
     if (ldapEnabled())
       throw new ApiError(HTTPStatus.BadRequest, 'Cannot create a local user, because LDAP authentication is enabled');
 
-    const { roles, ldapOverrideEmail, ...userParams } = params;
+    const { roles, ...userParams } = params;
     let user = this.repo.create(userParams);
     user = await this.repo.save(user);
     if (roles) {
@@ -213,17 +211,17 @@ export default class UserService {
       });
     }
     user = await this.getUser(user.id);
-    return user!;
+    return user;
   }
 
   private validateUserParams(params: UserParams): boolean {
     return (
-      validator.isStrongPassword(params.password) &&
-      validator.isEmail(params.email) &&
-      !validator.isEmpty(params.firstName) &&
-      !validator.isEmpty(params.lastName) &&
-      !validator.isEmpty(params.email) &&
-      !validator.isEmpty(params.gender)
+      isStrongPassword(params.password) &&
+      isEmail(params.email) &&
+      !isEmpty(params.firstName) &&
+      !isEmpty(params.lastName) &&
+      !isEmpty(params.email) &&
+      !isEmpty(params.gender)
     );
   }
 
