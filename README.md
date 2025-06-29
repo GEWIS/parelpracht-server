@@ -1,5 +1,8 @@
+> [!IMPORTANT]
+> This repository has been merged with the ParelPracht Client repository. Development continues in the [ParelPracht repository](https://github.com/GEWIS/parelpracht).
+
 <h1 style="text-align: center">
-  <img alt="" src="https://raw.githubusercontent.com/GEWIS/parelpracht-client/develop/public/ParelPracht-blacksvg.svg?raw=true" style="width: 25%">
+  <img alt="" src="https://raw.githubusercontent.com/GEWIS/parelpracht-server/develop/ParelPracht-blacksvg.svg?raw=true" style="width: 25%">
   <br>
   ParelPracht
 </h1>
